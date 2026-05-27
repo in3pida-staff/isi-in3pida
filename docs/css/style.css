@@ -244,8 +244,12 @@ textarea.profile-input { resize: vertical; }
     background: rgba(255,255,255,0.04);
 }
 .hero-label  {
-    font-size: 12px; font-weight: 600;
-    opacity: .8; margin-bottom: 10px;
+    font-size: 13px; font-weight: 700;
+    opacity: .9; margin-bottom: 4px;
+}
+.hero-sublabel {
+    font-size: 12px; font-weight: 500;
+    opacity: .7; margin-bottom: 14px; letter-spacing: .02em;
 }
 .hero-title  { font-size: 38px; font-weight: 800; line-height: 1.1; }
 
