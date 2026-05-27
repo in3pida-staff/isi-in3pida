@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iSI — Sito Intelligente</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+      <div class="navbar-inner">
+        <div class="navbar-left">
+            <div class="navbar-logo" id="nav-home">
+                <img src="images/logo.png" alt="in3pida">
+            </div>
+            <span class="navbar-badge">iSI</span>
+        </div>
+        <div class="navbar-center">
+            <button class="nav-item active" id="nav-panoramica">Panoramica</button>
+            <button class="nav-item" id="nav-siti">Siti</button>
+            <button class="nav-item" id="nav-pse">PSE</button>
+            <button class="nav-item" id="nav-aggiornamenti">Aggiornamenti</button>
+        </div>
+        <div class="navbar-right">
+            <div class="navbar-user-pill" id="user-pill">
+                <div class="navbar-avatar" id="nav-avatar">U</div>
+                <div class="navbar-user-text">
+                    <div class="navbar-user-name" id="nav-name">Utente</div>
+                    <div class="navbar-user-sub">Admin</div>
+                </div>
+            </div>
+            <div class="user-dropdown" id="user-dropdown" style="display:none">
+                <div class="user-dropdown-header">
+                    <div class="user-dropdown-avatar" id="dd-avatar">U</div>
+                    <div>
+                        <div class="user-dropdown-name" id="dd-name">Utente</div>
+                        <div class="user-dropdown-email" id="dd-email"></div>
+                    </div>
+                </div>
+                <div class="user-dropdown-divider"></div>
+                <button class="user-dropdown-item logout" id="dd-logout">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+                    Esci
+                </button>
+            </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- CONTENT -->
+    <div class="main">
+        <div class="hero">
+            <div class="hero-label">iSI — in3pida Sito Intelligente</div>
+            <div class="hero-title" id="hero-title">Panoramica</div>
+        </div>
+
+        <!-- TAB PANORAMICA -->
+        <div id="view-panoramica">
+            <div class="sw-stats" id="kpi-grid" style="display:grid">
+                <div class="sw-stat-card">
+                    <div class="sw-stat-icon" style="background:var(--magenta)">
+                        <svg width="24" height="24" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 21V9"/></svg>
+                    </div>
+                    <div class="sw-stat-text">
+                        <div class="sw-stat-num" id="kpi-siti">—</div>
+                        <div class="sw-stat-label">Siti registrati</div>
+                    </div>
+                </div>
+                <div class="sw-stat-card">
+                    <div class="sw-stat-icon" style="background:var(--cyan)">
+                        <svg width="24" height="24" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/></svg>
+                    </div>
+                    <div class="sw-stat-text">
+                        <div class="sw-stat-num" id="kpi-pse">—</div>
+                        <div class="sw-stat-label">PSE attivi</div>
+                    </div>
+                </div>
+                <div class="sw-stat-card">
+                    <div class="sw-stat-icon" style="background:#7c3aed">
+                        <svg width="24" height="24" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                    </div>
+                    <div class="sw-stat-text">
+                        <div class="sw-stat-num" id="kpi-queries">—</div>
+                        <div class="sw-stat-label">Query questo mese</div>
+                    </div>
+                </div>
+                <div class="sw-stat-card">
+                    <div class="sw-stat-icon" style="background:#059669">
+                        <svg width="24" height="24" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 14H11v-2h2v2zm0-4H11V7h2v5z"/></svg>
+                    </div>
+                    <div class="sw-stat-text">
+                        <div class="sw-stat-num" id="kpi-cost">—</div>
+                        <div class="sw-stat-label">Costo questo mese (€)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB SITI -->
+        <div id="view-siti" style="display:none">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Siti registrati</div>
+                    <button class="btn-ping" id="btn-refresh-siti">Aggiorna</button>
+                </div>
+                <div id="siti-container">
+                    <div class="loading"><div class="spinner"></div> Caricamento...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB PSE -->
+        <div id="view-pse" style="display:none">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Query PSE recenti</div>
+                </div>
+                <div id="pse-container">
+                    <div class="loading"><div class="spinner"></div> Caricamento...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB AGGIORNAMENTI -->
+        <div id="view-aggiornamenti" style="display:none">
+            <div class="card" style="margin-bottom:20px">
+                <div class="card-header">
+                    <div class="card-title">Pubblica nuova versione</div>
+                </div>
+                <div style="padding:20px 26px">
+                    <form id="form-version">
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+                            <div>
+                                <label class="profile-label">Versione</label>
+                                <input type="text" id="v-version" class="profile-input" placeholder="1.6.9">
+                            </div>
+                            <div>
+                                <label class="profile-label">URL Download</label>
+                                <input type="text" id="v-url" class="profile-input" placeholder="https://...">
+                            </div>
+                        </div>
+                        <div style="margin-bottom:16px">
+                            <label class="profile-label">Changelog</label>
+                            <textarea id="v-changelog" class="profile-input" rows="3" placeholder="Descrivi le modifiche..."></textarea>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+                            <input type="checkbox" id="v-current" style="width:16px;height:16px">
+                            <label for="v-current" style="font-size:13px;font-weight:600;cursor:pointer">Rendi questa la versione corrente</label>
+                        </div>
+                        <button type="submit" class="btn-update" style="margin-left:0">Pubblica versione</button>
+                        <div id="v-msg" style="margin-top:10px;font-size:13px;display:none"></div>
+                    </form>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Versioni pubblicate</div>
+                </div>
+                <div id="versions-container">
+                    <div class="loading"><div class="spinner"></div> Caricamento...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <script>
+    const SUPABASE_URL = 'https://yyauvoqjdzrbmebeafit.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5YXV2b3FqZHpyYm1lYmVhZml0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3OTM2MDAsImV4cCI6MjA5NTM2OTYwMH0.M6kD56PEO_UcJ68Vjquo03vuORjv62MflIzGLzYKN9w';
+    const _SB = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let currentTab = 'panoramica';
+
+    // ─── AUTH CHECK ─────────────────────────────────────────────────────────────
+    async function init() {
+        const { data: { session } } = await _SB.auth.getSession();
+        if (!session) { window.location.href = 'login.html'; return; }
+        const user = session.user;
+        const name = user.user_metadata?.full_name || user.email?.split('@')[0] || 'Utente';
+        const initial = name.charAt(0).toUpperCase();
+        document.getElementById('nav-name').textContent = name;
+        document.getElementById('nav-avatar').textContent = initial;
+        document.getElementById('dd-name').textContent = name;
+        document.getElementById('dd-email').textContent = user.email || '';
+        document.getElementById('dd-avatar').textContent = initial;
+        loadTab('panoramica');
+    }
+
+    // ─── DROPDOWN UTENTE ─────────────────────────────────────────────────────────
+    document.getElementById('user-pill').addEventListener('click', () => {
+        const dd = document.getElementById('user-dropdown');
+        dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
+    });
+    document.addEventListener('click', e => {
+        if (!e.target.closest('#user-pill') && !e.target.closest('#user-dropdown')) {
+            document.getElementById('user-dropdown').style.display = 'none';
+        }
+    });
+    document.getElementById('dd-logout').addEventListener('click', async () => {
+        await _SB.auth.signOut();
+        window.location.href = 'login.html';
+    });
+
+    // ─── NAV TABS ─────────────────────────────────────────────────────────────────
+    const tabs = ['panoramica', 'siti', 'pse', 'aggiornamenti'];
+    tabs.forEach(tab => {
+        document.getElementById('nav-' + tab).addEventListener('click', () => loadTab(tab));
+    });
+
+    function loadTab(tab) {
+        currentTab = tab;
+        tabs.forEach(t => {
+            document.getElementById('nav-' + t).classList.toggle('active', t === tab);
+            document.getElementById('view-' + t).style.display = t === tab ? '' : 'none';
+        });
+        const titles = { panoramica: 'Panoramica', siti: 'Siti', pse: 'PSE — Prompt Simulator', aggiornamenti: 'Aggiornamenti Plugin' };
+        document.getElementById('hero-title').textContent = titles[tab] || tab;
+        if (tab === 'panoramica') loadPanoramica();
+        if (tab === 'siti') loadSiti();
+        if (tab === 'pse') loadPSE();
+        if (tab === 'aggiornamenti') loadVersions();
+    }
+
+    // ─── PANORAMICA ──────────────────────────────────────────────────────────────
+    async function loadPanoramica() {
+        const now = new Date();
+        const firstOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+
+        const [sitesRes, pseRes, queryMonthRes] = await Promise.all([
+            _SB.from('isi_sites').select('site_id, pse_enabled', { count: 'exact' }),
+            _SB.from('isi_sites').select('site_id', { count: 'exact' }).eq('pse_enabled', true),
+            _SB.from('isi_pse_queries').select('cost_usd').gte('created_at', firstOfMonth),
+        ]);
+
+        document.getElementById('kpi-siti').textContent = sitesRes.count ?? 0;
+        document.getElementById('kpi-pse').textContent = pseRes.count ?? 0;
+
+        const queries = queryMonthRes.data ?? [];
+        document.getElementById('kpi-queries').textContent = queries.length;
+        const totalUsd = queries.reduce((s, r) => s + (r.cost_usd || 0), 0);
+        const totalEur = (totalUsd * 0.92).toFixed(2);
+        document.getElementById('kpi-cost').textContent = '€' + totalEur;
+    }
+
+    // ─── SITI ─────────────────────────────────────────────────────────────────────
+    async function loadSiti() {
+        document.getElementById('siti-container').innerHTML = '<div class="loading"><div class="spinner"></div> Caricamento...</div>';
+        const { data, error } = await _SB.from('isi_sites').select('*').order('last_heartbeat', { ascending: false });
+        if (error || !data) { document.getElementById('siti-container').innerHTML = '<div class="empty-state"><div class="empty-title">Errore caricamento dati</div></div>'; return; }
+        if (!data.length) { document.getElementById('siti-container').innerHTML = '<div class="empty-state"><div class="empty-icon">🏨</div><div class="empty-title">Nessun sito registrato</div><div class="empty-sub">I siti appariranno qui dopo l\'attivazione del plugin</div></div>'; return; }
+
+        let html = '<table class="sites-table"><thead><tr><th>Nome sito</th><th>URL</th><th>Versione</th><th>Tier</th><th>PSE</th><th>GEO Score</th><th>Ultimo heartbeat</th></tr></thead><tbody>';
+        data.forEach(site => {
+            const tier = site.tier || 'free';
+            const tierBadge = tier === 'premium'
+                ? '<span style="background:#fce8ef;color:var(--magenta);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px">Premium</span>'
+                : '<span style="background:var(--light);color:var(--grey);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px">Free</span>';
+            const pse = !!site.pse_enabled;
+            const geoScores = site.geo_scores || {};
+            const geoAvg = geoScores.chunk_avg || geoScores.citation_avg
+                ? Math.round(((geoScores.chunk_avg || 0) + (geoScores.citation_avg || 0)) / 2)
+                : '—';
+            const hb = site.last_heartbeat ? new Date(site.last_heartbeat).toLocaleString('it-IT', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '—';
+            html += `<tr>
+                <td class="site-name-cell">${escHtml(site.site_name || '—')}</td>
+                <td><a href="${escHtml(site.site_url || '')}" target="_blank" style="color:var(--cyan);text-decoration:none">${escHtml(site.site_url || '—')}</a></td>
+                <td>${escHtml(site.plugin_version || '—')}</td>
+                <td>${tierBadge}</td>
+                <td>
+                    <label class="pse-toggle">
+                        <input type="checkbox" ${pse ? 'checked' : ''} data-site-id="${escHtml(site.site_id)}" data-pse="${pse}" onchange="togglePSE(this)">
+                        <span class="pse-slider"></span>
+                    </label>
+                </td>
+                <td>${geoAvg}</td>
+                <td style="color:var(--grey);font-size:12px">${hb}</td>
+            </tr>`;
+        });
+        html += '</tbody></table>';
+        document.getElementById('siti-container').innerHTML = html;
+    }
+
+    async function togglePSE(checkbox) {
+        const siteId = checkbox.dataset.siteId;
+        const enabled = checkbox.checked;
+        checkbox.disabled = true;
+        const { error } = await _SB.from('isi_sites').update({
+            pse_enabled: enabled,
+            tier: enabled ? 'premium' : 'free'
+        }).eq('site_id', siteId);
+        checkbox.disabled = false;
+        if (error) {
+            checkbox.checked = !enabled;
+            alert('Errore aggiornamento PSE: ' + error.message);
+        } else {
+            // Aggiorna badge tier nella riga
+            const row = checkbox.closest('tr');
+            const tierCell = row.cells[3];
+            tierCell.innerHTML = enabled
+                ? '<span style="background:#fce8ef;color:var(--magenta);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px">Premium</span>'
+                : '<span style="background:var(--light);color:var(--grey);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px">Free</span>';
+        }
+    }
+
+    document.getElementById('btn-refresh-siti').addEventListener('click', loadSiti);
+
+    // ─── PSE ──────────────────────────────────────────────────────────────────────
+    async function loadPSE() {
+        document.getElementById('pse-container').innerHTML = '<div class="loading"><div class="spinner"></div> Caricamento...</div>';
+        const { data, error } = await _SB.from('isi_pse_queries').select('*').order('created_at', { ascending: false }).limit(100);
+        if (error || !data) { document.getElementById('pse-container').innerHTML = '<div class="empty-state"><div class="empty-title">Errore caricamento dati</div></div>'; return; }
+        if (!data.length) { document.getElementById('pse-container').innerHTML = '<div class="empty-state"><div class="empty-icon">💬</div><div class="empty-title">Nessuna query PSE</div><div class="empty-sub">Le query appariranno qui dopo il primo utilizzo del simulatore</div></div>'; return; }
+
+        let html = '<table class="sites-table"><thead><tr><th>Sito</th><th>Query</th><th>Costo ($)</th><th>Data</th></tr></thead><tbody>';
+        data.forEach(q => {
+            const date = new Date(q.created_at).toLocaleString('it-IT', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+            html += `<tr>
+                <td class="site-name-cell">${escHtml(q.site_name || q.site_id || '—')}</td>
+                <td>${escHtml(q.query || '—')}</td>
+                <td>$${(q.cost_usd || 0).toFixed(5)}</td>
+                <td style="color:var(--grey);font-size:12px">${date}</td>
+            </tr>`;
+        });
+        html += '</tbody></table>';
+        document.getElementById('pse-container').innerHTML = html;
+    }
+
+    // ─── AGGIORNAMENTI ────────────────────────────────────────────────────────────
+    async function loadVersions() {
+        const { data, error } = await _SB.from('isi_plugin_versions').select('*').order('created_at', { ascending: false });
+        if (error || !data) { document.getElementById('versions-container').innerHTML = '<div class="empty-state"><div class="empty-title">Errore caricamento versioni</div></div>'; return; }
+        if (!data.length) { document.getElementById('versions-container').innerHTML = '<div class="empty-state"><div class="empty-icon">📦</div><div class="empty-title">Nessuna versione pubblicata</div></div>'; return; }
+
+        let html = '<table class="sites-table"><thead><tr><th>Versione</th><th>Changelog</th><th>Download</th><th>Corrente</th><th>Data</th></tr></thead><tbody>';
+        data.forEach(v => {
+            const date = new Date(v.created_at).toLocaleDateString('it-IT');
+            const currentBadge = v.is_current ? '<span style="background:#e0f7f9;color:var(--cyan2);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px">Corrente</span>' : '';
+            html += `<tr>
+                <td style="font-weight:700">${escHtml(v.version || '—')}</td>
+                <td style="font-size:12px;color:var(--grey);max-width:300px">${escHtml(v.changelog || '—')}</td>
+                <td>${v.download_url ? `<a href="${escHtml(v.download_url)}" target="_blank" style="color:var(--cyan)">Download</a>` : '—'}</td>
+                <td>${currentBadge}</td>
+                <td style="color:var(--grey);font-size:12px">${date}</td>
+            </tr>`;
+        });
+        html += '</tbody></table>';
+        document.getElementById('versions-container').innerHTML = html;
+    }
+
+    document.getElementById('form-version').addEventListener('submit', async e => {
+        e.preventDefault();
+        const version = document.getElementById('v-version').value.trim();
+        const changelog = document.getElementById('v-changelog').value.trim();
+        const download_url = document.getElementById('v-url').value.trim();
+        const is_current = document.getElementById('v-current').checked;
+        const msg = document.getElementById('v-msg');
+        if (!version) { showVMsg('error', 'Inserisci la versione'); return; }
+        const { error } = await _SB.from('isi_plugin_versions').insert({ version, changelog, download_url, is_current });
+        if (error) { showVMsg('error', 'Errore: ' + error.message); return; }
+        showVMsg('success', 'Versione ' + version + ' pubblicata!');
+        document.getElementById('form-version').reset();
+        loadVersions();
+    });
+
+    function showVMsg(type, text) {
+        const el = document.getElementById('v-msg');
+        el.style.display = 'block';
+        el.style.color = type === 'error' ? 'var(--red-text)' : 'var(--green-text)';
+        el.textContent = text;
+        setTimeout(() => el.style.display = 'none', 4000);
+    }
+
+    // ─── UTIL ─────────────────────────────────────────────────────────────────────
+    function escHtml(str) {
+        return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    init();
+    </script>
+</body>
+</html>
