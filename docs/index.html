@@ -158,8 +158,8 @@
                 <hr style="border:none;border-top:1px solid var(--border);margin-bottom:20px">
 
                 <div style="font-size:11px;font-weight:700;color:var(--grey);letter-spacing:.06em;margin-bottom:12px">PSE — SIMULATORE</div>
-                <div style="font-size:13px;margin-bottom:6px"><strong>Toggle magenta</strong> — PSE attivo (pacchetto Premium)</div>
-                <div style="font-size:13px"><strong>Toggle grigio</strong> — PSE non attivo (pacchetto Free)</div>
+                <div style="font-size:13px;margin-bottom:6px"><strong>Toggle magenta</strong> — PSE attivo (pacchetto Plus)</div>
+                <div style="font-size:13px"><strong>Toggle grigio</strong> — PSE non attivo (pacchetto Standard)</div>
             </div>
         </div>
     </div>
@@ -464,7 +464,7 @@
         const now = new Date();
         let html = `<table class="sites-table"><thead><tr>
             <th>Stato</th><th>Sito</th><th>Ultimo segnale</th><th>Versione</th>
-            <th>GEO Score</th><th>PSE</th><th>Semafori</th><th>Registrato il</th><th>Azioni</th>
+            <th>GEO Score</th><th>PSE</th><th>Registrato il</th><th>Azioni</th>
         </tr></thead><tbody>`;
 
         data.forEach(site => {
@@ -478,14 +478,10 @@
             const geoAvg = rawS.length ? Math.round(rawS.reduce((a,b)=>a+b,0)/rawS.length) : null;
             const geoCats = [{k:'schema_score',l:'Schema'},{k:'faq_score',l:'FAQ'},{k:'chunk_avg',l:'Chunk'},{k:'citation_avg',l:'Cit.'},{k:'entity_avg',l:'Entity'}];
             const geoC = s => s===null?'var(--grey-dot)':s>=70?'var(--green)':s>=40?'var(--yellow)':'var(--red)';
-            const miniDots = geoCats.map(c=>{const v=geo[c.k]??null;return `<span title="${c.l}: ${v!==null?v+'/100':'N/D'}" style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--grey)">${c.l} <span style="width:8px;height:8px;border-radius:50%;background:${geoC(v)};display:inline-block;flex-shrink:0"></span></span>`;}).join('');
-            const geoHtml = `<div style="display:flex;flex-direction:column;align-items:flex-start;gap:6px">${geoAvg!==null?`<span style="background:${geoAvg>=70?'var(--green-bg)':geoAvg>=40?'var(--yellow-bg)':'var(--red-bg)'};color:${geoAvg>=70?'var(--green-text)':geoAvg>=40?'var(--yellow-text)':'var(--red-text)'};font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px">${geoAvg}/100</span>`:'<span style="color:var(--grey-text);font-size:12px">—</span>'}<div style="display:flex;flex-wrap:wrap;gap:6px">${miniDots}</div></div>`;
+            const miniDots = geoCats.map(c=>{const v=geo[c.k]??null;return `<span title="${c.l}: ${v!==null?v+'/100':'N/D'}" style="display:inline-flex;align-items:center;gap:3px;font-size:11px;color:var(--grey);white-space:nowrap">${c.l} <span style="width:8px;height:8px;border-radius:50%;background:${geoC(v)};display:inline-block;flex-shrink:0"></span></span>`;}).join('');
+            const geoHtml = `<div style="display:flex;flex-direction:column;align-items:flex-start;gap:5px">${geoAvg!==null?`<span style="background:${geoAvg>=70?'var(--green-bg)':geoAvg>=40?'var(--yellow-bg)':'var(--red-bg)'};color:${geoAvg>=70?'var(--green-text)':geoAvg>=40?'var(--yellow-text)':'var(--red-text)'};font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px">${geoAvg}/100</span>`:'<span style="color:var(--grey-text);font-size:12px">—</span>'}<div style="display:flex;gap:6px;flex-wrap:nowrap">${miniDots}</div></div>`;
             const isOld = latestVersion && site.plugin_version && semverGt(latestVersion.version, site.plugin_version);
             const verHtml = `<span style="font-weight:600">${escHtml(site.plugin_version||'—')}</span>${isOld?` <span style="background:var(--yellow-bg);color:var(--yellow-text);font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;vertical-align:middle">aggiornare</span>`:''}`;
-            const sf1 = hrs<25?'var(--cyan)':hrs<48?'var(--yellow)':'var(--red)';
-            const sf2 = geoAvg!==null?(geoAvg>=70?'var(--cyan)':geoAvg>=40?'var(--yellow)':'var(--red)'):'var(--grey-dot)';
-            const sf3 = pse?'var(--magenta)':'var(--grey-dot)';
-            const sfHtml = `<span title="Plugin" style="width:10px;height:10px;border-radius:50%;background:${sf1};display:inline-block;margin-right:4px"></span><span title="GEO" style="width:10px;height:10px;border-radius:50%;background:${sf2};display:inline-block;margin-right:4px"></span><span title="PSE" style="width:10px;height:10px;border-radius:50%;background:${sf3};display:inline-block"></span>`;
             const regIl = site.created_at ? new Date(site.created_at).toLocaleDateString('it-IT') : '—';
             html += `<tr data-site-id="${escHtml(site.site_id)}" style="cursor:pointer">
                 <td><span class="dot ${dotClass}"></span></td>
@@ -494,7 +490,6 @@
                 <td>${verHtml}</td>
                 <td>${geoHtml}</td>
                 <td><label class="pse-toggle" onclick="event.stopPropagation()"><input type="checkbox" ${pse?'checked':''} data-site-id="${escHtml(site.site_id)}" onchange="togglePSE(this)"><span class="pse-slider"></span></label></td>
-                <td>${sfHtml}</td>
                 <td style="color:var(--grey);font-size:12px">${regIl}</td>
                 <td onclick="event.stopPropagation()"><button class="btn-update" style="font-size:11px;padding:5px 12px" onclick="aggiornaSito('${escHtml(site.site_id)}')">Aggiorna</button></td>
             </tr>`;
@@ -564,7 +559,7 @@
                     <div style="padding:0 20px 8px">
                         ${sf(statoGen,`<strong>Stato generale: ${statoGen==='ok'?'Tutto OK':statoGen==='warn'?'Attenzione':'Problemi rilevati'}</strong>`,'')}
                         ${sf(hrs<25?'ok':hrs<48?'warn':'err','Plugin attivo sul sito',site?.last_heartbeat?'Ultimo segnale: '+timeAgo(site.last_heartbeat):'Nessun segnale ricevuto')}
-                        ${sf(pse?'ok':'grey','PSE — Simulatore',pse?'Attivo — pacchetto Premium':'Non attivo — pacchetto Free')}
+                        ${sf(pse?'ok':'grey','PSE — Simulatore',pse?'Attivo — pacchetto Plus':'Non attivo — pacchetto Standard')}
                         ${sf(geoOk,'GEO Score',geoAvg!==null?geoAvg+'/100':'Nessun dato disponibile')}
                         ${sf(isOld?'warn':'ok','Versione plugin',isOld?`v${escHtml(site?.plugin_version)} — disponibile v${escHtml(latestVersion?.version)}`:"All'ultima versione")}
                     </div>
@@ -577,7 +572,7 @@
                         <div><div style="font-size:11px;color:var(--grey);font-weight:700;margin-bottom:3px">Versione plugin</div><div style="font-size:14px;font-weight:700">${escHtml(site?.plugin_version||'—')}</div></div>
                         <div><div style="font-size:11px;color:var(--grey);font-weight:700;margin-bottom:3px">WordPress</div><div style="font-size:14px;font-weight:700">${escHtml(site?.wp_version||'—')}</div></div>
                         <div><div style="font-size:11px;color:var(--grey);font-weight:700;margin-bottom:3px">PHP</div><div style="font-size:14px;font-weight:700">${escHtml(site?.php_version||'—')}</div></div>
-                        <div><div style="font-size:11px;color:var(--grey);font-weight:700;margin-bottom:3px">Pacchetto</div><div style="font-size:14px;font-weight:700">${site?.tier==='premium'?'<span style="color:var(--magenta)">Premium</span>':'Free'}</div></div>
+                        <div><div style="font-size:11px;color:var(--grey);font-weight:700;margin-bottom:3px">Pacchetto</div><div style="font-size:14px;font-weight:700">${site?.tier==='plus'?'<span style="color:var(--magenta)">Plus</span>':'Standard'}</div></div>
                         <div><div style="font-size:11px;color:var(--grey);font-weight:700;margin-bottom:3px">Installato il</div><div style="font-size:14px;font-weight:700">${regIl}</div></div>
                         <div><div style="font-size:11px;color:var(--grey);font-weight:700;margin-bottom:3px">Site ID</div><div style="font-size:10px;color:var(--grey);word-break:break-all">${escHtml(site?.site_id||'—')}</div></div>
                     </div>
@@ -769,7 +764,7 @@
         const siteId = checkbox.dataset.siteId;
         const enabled = checkbox.checked;
         checkbox.disabled = true;
-        const { error } = await _SB.from('isi_sites').update({ pse_enabled:enabled, tier:enabled?'premium':'free' }).eq('site_id',siteId);
+        const { error } = await _SB.from('isi_sites').update({ pse_enabled:enabled, tier:enabled?'plus':'standard' }).eq('site_id',siteId);
         checkbox.disabled = false;
         if (error) { checkbox.checked=!enabled; alert('Errore aggiornamento PSE: '+error.message); }
     }
@@ -798,12 +793,20 @@
 
     // ─── AGGIORNA SINGOLO SITO ───────────────────────────────────────────────────
     async function aggiornaSito(siteId) {
-        const { data } = await _SB.from('isi_sites').select('*').eq('site_id', siteId).single();
-        if (!data) return;
-        const idx = allSiti.findIndex(s => s.site_id === siteId);
-        if (idx >= 0) allSiti[idx] = data;
-        const containerId = currentTab === 'panoramica' ? 'siti-panoramica-container' : 'siti-container';
-        renderSitiTable(allSiti, containerId);
+        const row = document.querySelector(`tr[data-site-id="${CSS.escape(siteId)}"]`);
+        const btn = row?.querySelector('button.btn-update');
+        if (btn) { btn.disabled = true; btn.textContent = '...'; }
+        try {
+            const { data, error } = await _SB.from('isi_sites').select('*').eq('site_id', siteId).single();
+            if (error || !data) throw new Error(error?.message || 'Nessun dato');
+            const idx = allSiti.findIndex(s => s.site_id === siteId);
+            if (idx >= 0) allSiti[idx] = data;
+            const containerId = currentTab === 'panoramica' ? 'siti-panoramica-container' : 'siti-container';
+            renderSitiTable(allSiti, containerId);
+        } catch(e) {
+            if (btn) { btn.disabled = false; btn.textContent = 'Aggiorna'; }
+            alert('Errore aggiornamento: ' + e.message);
+        }
     }
 
     // ─── LEGENDA ─────────────────────────────────────────────────────────────────
