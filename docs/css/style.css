@@ -400,6 +400,18 @@ table.sites-table tbody tr:hover td { background: #fdf0f5; }
 }
 .btn-google:hover { border-color: var(--magenta); background: #fdf5f8; }
 .btn-google:disabled { opacity: .6; cursor: default; }
+.login-register {
+    margin-top: 22px;
+    font-size: 13px;
+    color: var(--grey);
+    font-weight: 500;
+}
+.login-register a {
+    color: var(--magenta);
+    font-weight: 700;
+    text-decoration: none;
+}
+.login-register a:hover { text-decoration: underline; }
 
 /* ─── RESPONSIVE ─────────────────────────────────────────────────────────── */
 @media (max-width: 900px) {
