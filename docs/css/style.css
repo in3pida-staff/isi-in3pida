@@ -400,6 +400,14 @@ table.sites-table tbody tr:hover td { background: #fdf0f5; }
 }
 .btn-google:hover { border-color: var(--magenta); background: #fdf5f8; }
 .btn-google:disabled { opacity: .6; cursor: default; }
+.btn-back {
+    background: var(--white); border: 1.5px solid var(--border);
+    color: var(--dark); font-family: var(--font); font-size: 13px; font-weight: 700;
+    padding: 8px 18px; border-radius: 10px; cursor: pointer;
+    transition: all .15s; margin-bottom: 20px; display: inline-block;
+}
+.btn-back:hover { border-color: var(--magenta); color: var(--magenta); background: #fdf5f8; }
+.site-url-cell  { font-size: 11px; color: var(--grey); margin-top: 2px; }
 .login-register { font-size: 13px; color: var(--grey); margin-top: 18px; }
 .login-register a { color: var(--magenta); font-weight: 700; text-decoration: none; }
 .login-register a:hover { text-decoration: underline; }
