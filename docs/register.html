@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>in3pida Sito Intelligente — Registrati</title>
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="login-page">
+        <div class="login-card">
+            <div class="login-logo">
+                <img src="images/logo.png" alt="in3pida">
+            </div>
+            <div class="login-title">Crea account</div>
+            <div class="login-sub">Unisciti al team in3pida</div>
+
+            <div id="msg-error" class="login-msg login-msg-error" style="display:none"></div>
+
+            <form id="register-form">
+                <div class="form-group">
+                    <label class="form-label" for="name">Nome completo</label>
+                    <input type="text" class="form-input" id="name" placeholder="Mario Rossi" autocomplete="name" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="email">Email</label>
+                    <input type="email" class="form-input" id="email" placeholder="mario@in3pida.it" autocomplete="email" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="password">Password</label>
+                    <input type="password" class="form-input" id="password" placeholder="Almeno 6 caratteri" autocomplete="new-password" required minlength="6">
+                </div>
+                <button class="btn-primary" type="submit" id="btn-register">Crea account</button>
+            </form>
+
+            <p class="login-register" style="margin-top:20px">Hai già un account? <a href="login.html">Accedi</a></p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <script>
+    const _SB = window.supabase.createClient(
+        'https://yyauvoqjdzrbmebeafit.supabase.co',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5YXV2b3FqZHpyYm1lYmVhZml0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3OTM2MDAsImV4cCI6MjA5NTM2OTYwMH0.M6kD56PEO_UcJ68Vjquo03vuORjv62MflIzGLzYKN9w'
+    );
+
+    _SB.auth.getSession().then(({ data: { session } }) => {
+        if (session) window.location.href = 'index.html';
+    });
+
+    document.getElementById('register-form').addEventListener('submit', async e => {
+        e.preventDefault();
+        const btn = document.getElementById('btn-register');
+        btn.textContent = '...'; btn.disabled = true;
+        document.getElementById('msg-error').style.display = 'none';
+
+        const { data, error } = await _SB.auth.signUp({
+            email:    document.getElementById('email').value.trim(),
+            password: document.getElementById('password').value,
+            options: {
+                data: { full_name: document.getElementById('name').value.trim() },
+                emailRedirectTo: 'https://isi.in3pida.it/index.html',
+            },
+        });
+
+        if (error) {
+            const msg = error.message.includes('already registered') || error.message.includes('already been registered')
+                ? 'Questa email è già registrata.'
+                : error.message;
+            const el = document.getElementById('msg-error');
+            el.textContent = msg; el.style.display = 'block';
+            btn.textContent = 'Crea account'; btn.disabled = false;
+            return;
+        }
+
+        if (data.session) {
+            window.location.href = 'index.html';
+        } else {
+            window.location.href = 'login.html?registered=true';
+        }
+    });
+    </script>
+</body>
+</html>
