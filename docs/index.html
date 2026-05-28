@@ -18,9 +18,7 @@
         </div>
         <div class="navbar-center">
             <button class="nav-item active" id="nav-panoramica">Panoramica</button>
-            <button class="nav-item" id="nav-siti">Installazioni</button>
             <button class="nav-item" id="nav-pse">PSE</button>
-            <button class="nav-item" id="nav-aggiornamenti">Aggiornamenti</button>
             <button class="nav-item" id="nav-utenti">Utenti</button>
             <button class="nav-item" id="nav-legenda">Legenda</button>
         </div>
@@ -132,7 +130,7 @@
 
                 <div style="font-size:11px;font-weight:700;color:var(--grey);letter-spacing:.06em;margin-bottom:12px">PUNTEGGI GEO</div>
                 <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px"><span style="background:var(--green-bg);color:var(--green-text);font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap">≥ 70</span><div style="font-size:13px"><strong>Ottimizzato</strong> — contenuto ben strutturato per AI</div></div>
-                <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px"><span style="background:var(--yellow-bg);color:var(--yellow-text);font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap">40–69</span><div style="font-size:13px"><strong>Da migliorare</strong> — ottimizzazione parziale</div></div>
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px"><span style="background:rgba(0,155,185,0.12);color:var(--cyan);font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap">40–69</span><div style="font-size:13px"><strong>Da migliorare</strong> — ottimizzazione parziale</div></div>
                 <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px"><span style="background:var(--red-bg);color:var(--red-text);font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap">&lt; 40</span><div style="font-size:13px"><strong>Critico</strong> — contenuto non ottimizzato per AI</div></div>
                 <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px"><span style="background:var(--grey-bg);color:var(--grey-text);font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap">N/D</span><div style="font-size:13px"><strong>Nessun dato</strong> — punteggio non ancora calcolato</div></div>
 
@@ -146,14 +144,6 @@
                     <div style="font-size:13px"><strong>Citation Engine</strong><div style="font-size:12px;color:var(--grey);margin-top:2px">Probabilità di citazione AI</div></div>
                     <div style="font-size:13px"><strong>Entity Graph</strong><div style="font-size:12px;color:var(--grey);margin-top:2px">Grafo delle entità semantiche</div></div>
                 </div>
-
-                <hr style="border:none;border-top:1px solid var(--border);margin-bottom:20px">
-
-                <div style="font-size:11px;font-weight:700;color:var(--grey);letter-spacing:.06em;margin-bottom:12px">SEMAFORI</div>
-                <div style="font-size:13px;color:var(--grey);margin-bottom:10px">La colonna Semafori mostra 3 indicatori sintetici per ogni sito:</div>
-                <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><span style="width:10px;height:10px;border-radius:50%;background:var(--cyan);display:inline-block;flex-shrink:0"></span><span style="font-size:13px"><strong>1°</strong> — stato plugin (heartbeat)</span></div>
-                <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><span style="width:10px;height:10px;border-radius:50%;background:var(--green);display:inline-block;flex-shrink:0"></span><span style="font-size:13px"><strong>2°</strong> — punteggio GEO medio</span></div>
-                <div style="display:flex;gap:8px;align-items:center;margin-bottom:20px"><span style="width:10px;height:10px;border-radius:50%;background:var(--magenta);display:inline-block;flex-shrink:0"></span><span style="font-size:13px"><strong>3°</strong> — PSE attivo / non attivo</span></div>
 
                 <hr style="border:none;border-top:1px solid var(--border);margin-bottom:20px">
 
@@ -290,7 +280,7 @@
     const _SB = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     const ALL_VIEWS = ['panoramica','siti','pse','aggiornamenti','utenti','sito-detail'];
-    const NAV_TABS  = ['panoramica','siti','pse','aggiornamenti','utenti'];
+    const NAV_TABS  = ['panoramica','pse','utenti'];
     let currentTab = 'panoramica';
     let latestVersion = null;
     let allSiti = [];
@@ -372,7 +362,14 @@
         const { data: { user } } = await _SB.auth.getUser();
         const path = `avatars/${user.id}_${Date.now()}.${file.name.split('.').pop()}`;
         const { error: upErr } = await _SB.storage.from('avatars').upload(path, file, { upsert:true });
-        if (upErr) { showProfileMsg('error','Errore upload: '+upErr.message); return; }
+        if (upErr) {
+            const isBucket = upErr.message?.toLowerCase().includes('bucket') || upErr.message?.toLowerCase().includes('not found') || upErr.message?.toLowerCase().includes('object');
+            const msg = isBucket
+                ? 'Bucket "avatars" non trovato. Crealo in Supabase: Storage → New bucket → nome "avatars" → Public.'
+                : 'Errore upload: '+upErr.message;
+            showProfileMsg('error', msg);
+            return;
+        }
         const { data: { publicUrl } } = _SB.storage.from('avatars').getPublicUrl(path);
         document.getElementById('profile-avatar-preview').innerHTML = `<img src="${publicUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
         await _SB.auth.updateUser({ data: { avatar_url: publicUrl } });
@@ -471,17 +468,17 @@
             const hrs = site.last_heartbeat ? (now - new Date(site.last_heartbeat))/3600000 : 9999;
             const dotClass = hrs<25?'green':hrs<48?'yellow':'red';
             const hbTesto  = site.last_heartbeat ? timeAgo(site.last_heartbeat) : 'Mai';
-            const hbColor  = hrs<25?'var(--green-text)':hrs<48?'var(--yellow-text)':'var(--red-text)';
+            const hbColor  = hrs<25?'var(--green-text)':hrs<48?'var(--magenta)':'var(--red-text)';
             const pse = !!site.pse_enabled;
             const geo = site.geo_scores || {};
             const rawS = [geo.chunk_avg, geo.citation_avg, geo.entity_avg].filter(s=>s!=null);
             const geoAvg = rawS.length ? Math.round(rawS.reduce((a,b)=>a+b,0)/rawS.length) : null;
             const geoCats = [{k:'schema_score',l:'Schema'},{k:'faq_score',l:'FAQ'},{k:'chunk_avg',l:'Chunk'},{k:'citation_avg',l:'Cit.'},{k:'entity_avg',l:'Entity'}];
-            const geoC = s => s===null?'var(--grey-dot)':s>=70?'var(--green)':s>=40?'var(--yellow)':'var(--red)';
-            const miniDots = geoCats.map(c=>{const v=geo[c.k]??null;return `<span title="${c.l}: ${v!==null?v+'/100':'N/D'}" style="display:inline-flex;align-items:center;gap:3px;font-size:11px;color:var(--grey);white-space:nowrap">${c.l} <span style="width:8px;height:8px;border-radius:50%;background:${geoC(v)};display:inline-block;flex-shrink:0"></span></span>`;}).join('');
-            const geoHtml = `<div style="display:flex;flex-direction:column;align-items:flex-start;gap:5px">${geoAvg!==null?`<span style="background:${geoAvg>=70?'var(--green-bg)':geoAvg>=40?'var(--yellow-bg)':'var(--red-bg)'};color:${geoAvg>=70?'var(--green-text)':geoAvg>=40?'var(--yellow-text)':'var(--red-text)'};font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px">${geoAvg}/100</span>`:'<span style="color:var(--grey-text);font-size:12px">—</span>'}<div style="display:flex;gap:6px;flex-wrap:nowrap">${miniDots}</div></div>`;
+            const geoC = s => s===null?'var(--grey-dot)':s>=70?'var(--green)':s>=40?'var(--cyan)':'var(--red)';
+            const miniDots = geoCats.map(c=>{const v=geo[c.k]??null;return `<span title="${c.l}: ${v!==null?v+'/100':'N/D'}" style="display:inline-flex;align-items:center;gap:3px;font-size:11px;color:var(--dark);font-weight:700;white-space:nowrap">${c.l} <span style="width:8px;height:8px;border-radius:50%;background:${geoC(v)};display:inline-block;flex-shrink:0"></span></span>`;}).join('');
+            const geoHtml = `<div style="display:flex;flex-direction:column;align-items:flex-start;gap:5px">${geoAvg!==null?`<span style="background:${geoAvg>=70?'var(--green-bg)':geoAvg>=40?'rgba(0,155,185,0.12)':'var(--red-bg)'};color:${geoAvg>=70?'var(--green-text)':geoAvg>=40?'var(--cyan)':'var(--red-text)'};font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px">${geoAvg}/100</span>`:'<span style="color:var(--grey-text);font-size:12px">—</span>'}<div style="display:flex;gap:6px;flex-wrap:nowrap">${miniDots}</div></div>`;
             const isOld = latestVersion && site.plugin_version && semverGt(latestVersion.version, site.plugin_version);
-            const verHtml = `<span style="font-weight:600">${escHtml(site.plugin_version||'—')}</span>${isOld?` <span style="background:var(--yellow-bg);color:var(--yellow-text);font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;vertical-align:middle">aggiornare</span>`:''}`;
+            const verHtml = `<span style="font-weight:600">${escHtml(site.plugin_version||'—')}</span>${isOld?` <span style="background:rgba(216,45,107,0.08);color:var(--magenta);font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;vertical-align:middle">aggiornare</span>`:''}`;
             const regIl = site.created_at ? new Date(site.created_at).toLocaleDateString('it-IT') : '—';
             html += `<tr data-site-id="${escHtml(site.site_id)}" style="cursor:pointer">
                 <td><span class="dot ${dotClass}"></span></td>
@@ -491,7 +488,7 @@
                 <td>${geoHtml}</td>
                 <td><label class="pse-toggle" onclick="event.stopPropagation()"><input type="checkbox" ${pse?'checked':''} data-site-id="${escHtml(site.site_id)}" onchange="togglePSE(this)"><span class="pse-slider"></span></label></td>
                 <td style="color:var(--grey);font-size:12px">${regIl}</td>
-                <td onclick="event.stopPropagation()"><button class="btn-update" style="font-size:11px;padding:5px 12px" onclick="aggiornaSito('${escHtml(site.site_id)}')">Aggiorna</button></td>
+                <td><button class="btn-update" style="font-size:11px;padding:5px 12px" onclick="event.stopPropagation();aggiornaSito('${escHtml(site.site_id)}')">Aggiorna</button></td>
             </tr>`;
         });
         html += '</tbody></table>';
@@ -529,16 +526,16 @@
         const isOld = latestVersion && site?.plugin_version && semverGt(latestVersion.version, site.plugin_version);
         const statoGen = (hrs<25&&!isOld&&(geoAvg===null||geoAvg>=40))?'ok':(hrs>48?'err':'warn');
         const sf = (s,l,d) => {
-            const c = s==='ok'?'var(--cyan)':s==='warn'?'var(--yellow)':s==='err'?'var(--red)':'var(--grey-dot)';
+            const c = s==='ok'?'var(--cyan)':s==='warn'?'var(--magenta)':s==='err'?'var(--red)':'var(--grey-dot)';
             return `<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #f4f4f8"><div style="display:flex;align-items:center;gap:12px"><span style="width:12px;height:12px;border-radius:50%;background:${c};flex-shrink:0;display:inline-block"></span><span style="font-size:14px;font-weight:600">${l}</span></div><span style="font-size:12px;color:var(--grey)">${d}</span></div>`;
         };
         const regIl = site?.created_at ? new Date(site.created_at).toLocaleDateString('it-IT',{day:'2-digit',month:'long',year:'numeric'}) : '—';
         let pseTabella = !queryList?.length
             ? '<div class="empty-state" style="padding:32px"><div class="empty-title">Nessuna simulazione PSE per questo sito</div></div>'
             : `<table class="sites-table"><thead><tr><th>Domanda</th><th>Probabilità citazione</th><th>Costo</th><th>Data</th></tr></thead><tbody>${queryList.map(q=>`<tr><td style="font-size:13px;max-width:320px">${escHtml(q.query||'—')}</td><td><strong>${q.result?.probability!==undefined?q.result.probability+'%':'—'}</strong></td><td style="font-size:12px;color:var(--grey)">$${(q.cost_usd||0).toFixed(5)}</td><td style="font-size:12px;color:var(--grey)">${new Date(q.created_at).toLocaleString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})}</td></tr>`).join('')}</tbody></table>`;
-        const geoC2 = v => v===null?'var(--grey-dot)':v>=70?'var(--green)':v>=40?'var(--yellow)':'var(--red)';
-        const geoBg = v => v===null?'var(--grey-bg)':v>=70?'var(--green-bg)':v>=40?'var(--yellow-bg)':'var(--red-bg)';
-        const geoBc = v => v===null?'var(--grey-text)':v>=70?'var(--green-text)':v>=40?'var(--yellow-text)':'var(--red-text)';
+        const geoC2 = v => v===null?'var(--grey-dot)':v>=70?'var(--green)':v>=40?'var(--cyan)':'var(--red)';
+        const geoBg = v => v===null?'var(--grey-bg)':v>=70?'var(--green-bg)':v>=40?'rgba(0,155,185,0.12)':'var(--red-bg)';
+        const geoBc = v => v===null?'var(--grey-text)':v>=70?'var(--green-text)':v>=40?'var(--cyan)':'var(--red-text)';
         const geoRows = [{k:'schema_score',l:'Schema.org',d:'Dati strutturati'},{k:'faq_score',l:'FAQ',d:'Domande frequenti'},{k:'chunk_avg',l:'Chunk Engine',d:'Blocchi contenuto per AI'},{k:'citation_avg',l:'Citation Engine',d:'Probabilità citazione AI'},{k:'entity_avg',l:'Entity Graph',d:'Grafo entità semantiche'}].map(({k,l,d})=>{const v=geo[k]??null;return `<div style="margin-bottom:18px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div><span style="font-size:14px;font-weight:700">${l}</span><span style="font-size:12px;color:var(--grey);margin-left:8px">${d}</span></div><span style="background:${geoBg(v)};color:${geoBc(v)};font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px">${v!==null?v+'/100':'N/D'}</span></div><div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden"><div style="height:6px;width:${v??0}%;background:${geoC2(v)};border-radius:3px"></div></div></div>`;}).join('');
 
         el.innerHTML = `
@@ -574,7 +571,7 @@
                         <div><div style="font-size:11px;color:var(--grey);font-weight:700;margin-bottom:3px">PHP</div><div style="font-size:14px;font-weight:700">${escHtml(site?.php_version||'—')}</div></div>
                         <div><div style="font-size:11px;color:var(--grey);font-weight:700;margin-bottom:3px">Pacchetto</div><div style="font-size:14px;font-weight:700">${site?.tier==='plus'?'<span style="color:var(--magenta)">Plus</span>':'Standard'}</div></div>
                         <div><div style="font-size:11px;color:var(--grey);font-weight:700;margin-bottom:3px">Installato il</div><div style="font-size:14px;font-weight:700">${regIl}</div></div>
-                        <div><div style="font-size:11px;color:var(--grey);font-weight:700;margin-bottom:3px">Site ID</div><div style="font-size:10px;color:var(--grey);word-break:break-all">${escHtml(site?.site_id||'—')}</div></div>
+                        <div><div style="font-size:11px;color:var(--grey);font-weight:700;margin-bottom:3px">Hotel ID</div><div style="font-size:10px;color:var(--grey);word-break:break-all">${escHtml(site?.site_id||'—')}</div></div>
                     </div>
                 </div>
             </div>
