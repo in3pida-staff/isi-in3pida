@@ -22,7 +22,7 @@
             <button class="nav-item" id="nav-pse">PSE</button>
             <button class="nav-item" id="nav-aggiornamenti">Aggiornamenti</button>
             <button class="nav-item" id="nav-utenti">Utenti</button>
-            <button class="nav-item" id="nav-legenda" style="border:1.5px solid var(--border)">Legenda</button>
+            <button class="nav-item" id="nav-legenda">Legenda</button>
         </div>
         <div class="navbar-right">
             <div class="navbar-user-pill" id="user-pill">
@@ -473,10 +473,10 @@
             const geo = site.geo_scores || {};
             const rawS = [geo.chunk_avg, geo.citation_avg, geo.entity_avg].filter(s=>s!=null);
             const geoAvg = rawS.length ? Math.round(rawS.reduce((a,b)=>a+b,0)/rawS.length) : null;
-            const geoCats = [{k:'schema_score',l:'Schema'},{k:'faq_score',l:'FAQ'},{k:'chunk_avg',l:'Chunk'},{k:'citation_avg',l:'Citation'},{k:'entity_avg',l:'Entity'}];
+            const geoCats = [{k:'schema_score',l:'Schema'},{k:'faq_score',l:'FAQ'},{k:'chunk_avg',l:'Chunk'},{k:'citation_avg',l:'Cit.'},{k:'entity_avg',l:'Entity'}];
             const geoC = s => s===null?'var(--grey-dot)':s>=70?'var(--green)':s>=40?'var(--yellow)':'var(--red)';
-            const miniDots = geoCats.map(c=>{const v=geo[c.k]??null;return `<span title="${c.l}: ${v!==null?v+'/100':'N/D'}" style="width:8px;height:8px;border-radius:50%;background:${geoC(v)};display:inline-block"></span>`;}).join('');
-            const geoHtml = `<div style="display:flex;flex-direction:column;align-items:flex-start;gap:5px">${geoAvg!==null?`<span style="background:${geoAvg>=70?'var(--green-bg)':geoAvg>=40?'var(--yellow-bg)':'var(--red-bg)'};color:${geoAvg>=70?'var(--green-text)':geoAvg>=40?'var(--yellow-text)':'var(--red-text)'};font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px">${geoAvg}/100</span>`:'<span style="color:var(--grey-text);font-size:12px">—</span>'}<div style="display:flex;gap:3px">${miniDots}</div></div>`;
+            const miniDots = geoCats.map(c=>{const v=geo[c.k]??null;return `<span title="${c.l}: ${v!==null?v+'/100':'N/D'}" style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--grey)">${c.l} <span style="width:8px;height:8px;border-radius:50%;background:${geoC(v)};display:inline-block;flex-shrink:0"></span></span>`;}).join('');
+            const geoHtml = `<div style="display:flex;flex-direction:column;align-items:flex-start;gap:6px">${geoAvg!==null?`<span style="background:${geoAvg>=70?'var(--green-bg)':geoAvg>=40?'var(--yellow-bg)':'var(--red-bg)'};color:${geoAvg>=70?'var(--green-text)':geoAvg>=40?'var(--yellow-text)':'var(--red-text)'};font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px">${geoAvg}/100</span>`:'<span style="color:var(--grey-text);font-size:12px">—</span>'}<div style="display:flex;flex-wrap:wrap;gap:6px">${miniDots}</div></div>`;
             const isOld = latestVersion && site.plugin_version && semverGt(latestVersion.version, site.plugin_version);
             const verHtml = `<span style="font-weight:600">${escHtml(site.plugin_version||'—')}</span>${isOld?` <span style="background:var(--yellow-bg);color:var(--yellow-text);font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;vertical-align:middle">aggiornare</span>`:''}`;
             const sf1 = hrs<25?'var(--cyan)':hrs<48?'var(--yellow)':'var(--red)';
