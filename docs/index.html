@@ -766,8 +766,18 @@
         if (error) { checkbox.checked=!enabled; alert('Errore aggiornamento PSE: '+error.message); }
     }
 
-    document.getElementById('btn-refresh-panoramica').addEventListener('click', loadPanoramica);
-    document.getElementById('btn-refresh-siti').addEventListener('click', loadSitiTab);
+    document.getElementById('btn-refresh-panoramica').addEventListener('click', async () => {
+        const btn = document.getElementById('btn-refresh-panoramica');
+        btn.disabled = true; btn.textContent = '...';
+        await loadPanoramica();
+        btn.disabled = false; btn.textContent = 'Aggiorna tutti';
+    });
+    document.getElementById('btn-refresh-siti').addEventListener('click', async () => {
+        const btn = document.getElementById('btn-refresh-siti');
+        btn.disabled = true; btn.textContent = '...';
+        await loadSitiTab();
+        btn.disabled = false; btn.textContent = 'Aggiorna tutti';
+    });
     document.getElementById('btn-refresh-utenti').addEventListener('click', loadUtenti);
 
     // ─── UTIL ─────────────────────────────────────────────────────────────────────
