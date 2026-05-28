@@ -293,6 +293,7 @@
     const NAV_TABS  = ['panoramica','siti','pse','aggiornamenti','utenti'];
     let currentTab = 'panoramica';
     let latestVersion = null;
+    let allSiti = [];
 
     // ─── AUTH ────────────────────────────────────────────────────────────────────
     async function init() {
@@ -439,6 +440,7 @@
         document.getElementById('kpi-cost').textContent = '€'+eurTot;
         const siti = tuttiSiti.data ?? [];
         document.getElementById('panoramica-count').textContent = siti.length+(siti.length===1?' sito':' siti');
+        allSiti = siti;
         renderSitiTable(siti, 'siti-panoramica-container');
     }
 
@@ -448,6 +450,7 @@
         const { data, error } = await _SB.from('isi_sites').select('*').order('last_heartbeat',{ascending:false});
         if (error||!data) { document.getElementById('siti-container').innerHTML = '<div class="empty-state"><div class="empty-title">Errore caricamento dati</div></div>'; return; }
         document.getElementById('siti-count').textContent = data.length+(data.length===1?' sito':' siti');
+        allSiti = data;
         renderSitiTable(data, 'siti-container');
     }
 
@@ -461,7 +464,7 @@
         const now = new Date();
         let html = `<table class="sites-table"><thead><tr>
             <th>Stato</th><th>Sito</th><th>Ultimo segnale</th><th>Versione</th>
-            <th>GEO Score</th><th>PSE</th><th>Semafori</th><th>Registrato il</th>
+            <th>GEO Score</th><th>PSE</th><th>Semafori</th><th>Registrato il</th><th>Azioni</th>
         </tr></thead><tbody>`;
 
         data.forEach(site => {
@@ -493,6 +496,7 @@
                 <td><label class="pse-toggle" onclick="event.stopPropagation()"><input type="checkbox" ${pse?'checked':''} data-site-id="${escHtml(site.site_id)}" onchange="togglePSE(this)"><span class="pse-slider"></span></label></td>
                 <td>${sfHtml}</td>
                 <td style="color:var(--grey);font-size:12px">${regIl}</td>
+                <td onclick="event.stopPropagation()"><button class="btn-update" style="font-size:11px;padding:5px 12px" onclick="aggiornaSito('${escHtml(site.site_id)}')">Aggiorna</button></td>
             </tr>`;
         });
         html += '</tbody></table>';
@@ -790,6 +794,16 @@
     }
     function escHtml(str) {
         return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // ─── AGGIORNA SINGOLO SITO ───────────────────────────────────────────────────
+    async function aggiornaSito(siteId) {
+        const { data } = await _SB.from('isi_sites').select('*').eq('site_id', siteId).single();
+        if (!data) return;
+        const idx = allSiti.findIndex(s => s.site_id === siteId);
+        if (idx >= 0) allSiti[idx] = data;
+        const containerId = currentTab === 'panoramica' ? 'siti-panoramica-container' : 'siti-container';
+        renderSitiTable(allSiti, containerId);
     }
 
     // ─── LEGENDA ─────────────────────────────────────────────────────────────────
