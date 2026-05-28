@@ -766,17 +766,11 @@
         if (error) { checkbox.checked=!enabled; alert('Errore aggiornamento PSE: '+error.message); }
     }
 
-    document.getElementById('btn-refresh-panoramica').addEventListener('click', async () => {
-        const btn = document.getElementById('btn-refresh-panoramica');
-        btn.disabled = true; btn.textContent = '...';
-        await loadPanoramica();
-        btn.disabled = false; btn.textContent = 'Aggiorna tutti';
+    document.getElementById('btn-refresh-panoramica').addEventListener('click', () => {
+        callTriggerUpdate({ all: true }, [document.getElementById('btn-refresh-panoramica')]);
     });
-    document.getElementById('btn-refresh-siti').addEventListener('click', async () => {
-        const btn = document.getElementById('btn-refresh-siti');
-        btn.disabled = true; btn.textContent = '...';
-        await loadSitiTab();
-        btn.disabled = false; btn.textContent = 'Aggiorna tutti';
+    document.getElementById('btn-refresh-siti').addEventListener('click', () => {
+        callTriggerUpdate({ all: true }, [document.getElementById('btn-refresh-siti')]);
     });
     document.getElementById('btn-refresh-utenti').addEventListener('click', loadUtenti);
 
@@ -812,26 +806,46 @@
         t._timer = setTimeout(() => { t.style.opacity = '0'; }, 3500);
     }
 
-    // ─── AGGIORNA SINGOLO SITO ───────────────────────────────────────────────────
-    async function aggiornaSito(siteId) {
-        const row = document.querySelector(`tr[data-site-id="${CSS.escape(siteId)}"]`);
-        const btn = row?.querySelector('button.btn-update');
-        if (btn) { btn.disabled = true; btn.textContent = '...'; }
+    // ─── AGGIORNA SITO/I ─────────────────────────────────────────────────────────
+    const ISI_EDGE = 'https://yyauvoqjdzrbmebeafit.supabase.co/functions/v1/isi-trigger-update';
+
+    async function callTriggerUpdate(payload, btns) {
+        btns.forEach(b => { if (b) { b.disabled = true; b.textContent = '...'; } });
         try {
-            const { error } = await _SB.from('isi_sites').update({ pending_update: true }).eq('site_id', siteId);
-            if (error) throw new Error(error.message);
-            if (btn) { btn.disabled = false; btn.textContent = 'OK'; btn.style.background = 'var(--cyan)'; }
-            setTimeout(() => {
-                if (btn) { btn.textContent = 'Aggiorna'; btn.style.background = ''; btn.disabled = false; }
-            }, 3000);
-            showToast('Aggiornamento pianificato — il plugin si installerà al prossimo accesso admin WordPress.');
+            const { data: { session } } = await _SB.auth.getSession();
+            if (!session) throw new Error('Sessione scaduta, riaccedi.');
+            const res  = await fetch(ISI_EDGE, {
+                method:  'POST',
+                headers: { 'Authorization': `Bearer ${session.access_token}`, 'Content-Type': 'application/json' },
+                body:    JSON.stringify(payload),
+            });
+            const json = await res.json();
+            if (!res.ok) throw new Error(json.error || `HTTP ${res.status}`);
+
+            const results = json.results || [];
+            const ok      = results.filter(r => r.ok && !r.skipped).length;
+            const skipped = results.filter(r => r.skipped).length;
+            const fail    = results.filter(r => !r.ok).length;
+
+            let msg = '';
+            if (ok > 0)      msg += `${ok} sito${ok !== 1 ? 'i' : ''} aggiornato${ok !== 1 ? 'i' : ''} a v${json.version}. `;
+            if (skipped > 0) msg += `${skipped} già aggiornato${skipped !== 1 ? 'i' : ''}. `;
+            if (fail > 0)    msg += `${fail} errore${fail !== 1 ? 'i' : ''}: ${results.filter(r=>!r.ok).map(r=>r.site_name||r.site_id).join(', ')}`;
+            showToast(msg.trim() || 'Nessun risultato.');
+
+            btns.forEach(b => { if (b) { b.disabled = false; b.textContent = ok > 0 ? 'OK ✓' : 'Aggiorna'; b.style.background = ok > 0 ? 'var(--cyan)' : ''; } });
+            setTimeout(() => btns.forEach(b => { if (b) { b.textContent = 'Aggiorna'; b.style.background = ''; b.disabled = false; } }), 3000);
+
+            await loadPanoramica();
         } catch(e) {
-            if (btn) { btn.disabled = false; btn.textContent = 'Aggiorna'; }
-            const msg = e.message.includes('pending_update')
-                ? 'Colonna pending_update mancante. Esegui su Supabase: ALTER TABLE isi_sites ADD COLUMN pending_update BOOLEAN DEFAULT FALSE;'
-                : 'Errore: ' + e.message;
-            alert(msg);
+            btns.forEach(b => { if (b) { b.disabled = false; b.textContent = 'Aggiorna'; } });
+            alert('Errore: ' + e.message);
         }
+    }
+
+    function aggiornaSito(siteId) {
+        const btn = document.querySelector(`tr[data-site-id="${CSS.escape(siteId)}"] button.btn-update`);
+        callTriggerUpdate({ site_id: siteId }, [btn]);
     }
 
     // ─── LEGENDA ─────────────────────────────────────────────────────────────────
