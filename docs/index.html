@@ -788,18 +788,58 @@
         return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
+    function showToast(msg) {
+        let t = document.getElementById('isi-toast');
+        if (!t) {
+            t = document.createElement('div');
+            t.id = 'isi-toast';
+            t.style.cssText = 'position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:12px 22px;border-radius:10px;font-size:13px;font-weight:600;z-index:9999;box-shadow:0 4px 18px rgba(0,0,0,.25);pointer-events:none;opacity:0;transition:opacity .25s';
+            document.body.appendChild(t);
+        }
+        t.textContent = msg;
+        t.style.opacity = '1';
+        clearTimeout(t._timer);
+        t._timer = setTimeout(() => { t.style.opacity = '0'; }, 3500);
+    }
+
     // ─── AGGIORNA SINGOLO SITO ───────────────────────────────────────────────────
     async function aggiornaSito(siteId) {
         const row = document.querySelector(`tr[data-site-id="${CSS.escape(siteId)}"]`);
         const btn = row?.querySelector('button.btn-update');
         if (btn) { btn.disabled = true; btn.textContent = '...'; }
         try {
-            const { data, error } = await _SB.from('isi_sites').select('*').eq('site_id', siteId).single();
-            if (error || !data) throw new Error(error?.message || 'Nessun dato');
-            const idx = allSiti.findIndex(s => s.site_id === siteId);
-            if (idx >= 0) allSiti[idx] = data;
-            const containerId = currentTab === 'panoramica' ? 'siti-panoramica-container' : 'siti-container';
-            renderSitiTable(allSiti, containerId);
+            // Check if there's a newer version available
+            const { data: verData } = await _SB.from('isi_plugin_versions').select('version').eq('is_current', true).limit(1).single();
+            const { data: siteData, error: siteErr } = await _SB.from('isi_sites').select('*').eq('site_id', siteId).single();
+            if (siteErr || !siteData) throw new Error(siteErr?.message || 'Nessun dato');
+
+            const latestVer = verData?.version;
+            const siteVer   = siteData.plugin_version;
+            const hasUpdate = latestVer && siteVer && latestVer !== siteVer;
+
+            if (hasUpdate) {
+                // Set pending_update flag — plugin will auto-install on next WP admin load
+                const { error: updErr } = await _SB.from('isi_sites').update({ pending_update: true }).eq('site_id', siteId);
+                if (updErr) throw new Error(updErr.message);
+                if (btn) { btn.disabled = false; btn.textContent = 'Pianificato'; btn.style.background = 'var(--cyan)'; }
+                setTimeout(() => {
+                    if (btn) { btn.textContent = 'Aggiorna'; btn.style.background = ''; btn.disabled = false; }
+                }, 4000);
+                // Refresh local data
+                const idx = allSiti.findIndex(s => s.site_id === siteId);
+                if (idx >= 0) allSiti[idx] = { ...siteData, pending_update: true };
+                const containerId = currentTab === 'panoramica' ? 'siti-panoramica-container' : 'siti-container';
+                renderSitiTable(allSiti, containerId);
+                showToast('Aggiornamento pianificato. Il plugin si installerà al prossimo accesso all\'admin WordPress.');
+            } else {
+                // No update available — just refresh data
+                const idx = allSiti.findIndex(s => s.site_id === siteId);
+                if (idx >= 0) allSiti[idx] = siteData;
+                const containerId = currentTab === 'panoramica' ? 'siti-panoramica-container' : 'siti-container';
+                renderSitiTable(allSiti, containerId);
+                if (btn) { btn.disabled = false; btn.textContent = 'Aggiorna'; }
+                showToast('Plugin già aggiornato all\'ultima versione.');
+            }
         } catch(e) {
             if (btn) { btn.disabled = false; btn.textContent = 'Aggiorna'; }
             alert('Errore aggiornamento: ' + e.message);
