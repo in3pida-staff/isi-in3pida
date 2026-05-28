@@ -401,12 +401,15 @@ table.sites-table tbody tr:hover td { background: #fdf0f5; }
 .btn-google:hover { border-color: var(--magenta); background: #fdf5f8; }
 .btn-google:disabled { opacity: .6; cursor: default; }
 .btn-back {
+    display: inline-flex; align-items: center; gap: 8px;
     background: var(--white); border: 1.5px solid var(--border);
-    color: var(--dark); font-family: var(--font); font-size: 13px; font-weight: 700;
-    padding: 8px 18px; border-radius: 10px; cursor: pointer;
-    transition: all .15s; margin-bottom: 20px; display: inline-block;
+    color: var(--dark); font-family: var(--font);
+    font-size: 13px; font-weight: 700; padding: 9px 18px;
+    border-radius: 10px; cursor: pointer;
+    transition: all .15s; margin-bottom: 20px;
+    box-shadow: var(--shadow);
 }
-.btn-back:hover { border-color: var(--magenta); color: var(--magenta); background: #fdf5f8; }
+.btn-back:hover { border-color: var(--magenta); color: var(--magenta); background: #fce8ef; }
 .site-url-cell  { font-size: 11px; color: var(--grey); margin-top: 2px; }
 .login-register { font-size: 13px; color: var(--grey); margin-top: 18px; }
 .login-register a { color: var(--magenta); font-weight: 700; text-decoration: none; }
