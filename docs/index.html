@@ -767,10 +767,10 @@
     }
 
     document.getElementById('btn-refresh-panoramica').addEventListener('click', () => {
-        callTriggerUpdate({ all: true }, [document.getElementById('btn-refresh-panoramica')]);
+        callTriggerUpdate(null, [document.getElementById('btn-refresh-panoramica')]);
     });
     document.getElementById('btn-refresh-siti').addEventListener('click', () => {
-        callTriggerUpdate({ all: true }, [document.getElementById('btn-refresh-siti')]);
+        callTriggerUpdate(null, [document.getElementById('btn-refresh-siti')]);
     });
     document.getElementById('btn-refresh-utenti').addEventListener('click', loadUtenti);
 
@@ -807,35 +807,48 @@
     }
 
     // ─── AGGIORNA SITO/I ─────────────────────────────────────────────────────────
-    const ISI_EDGE = 'https://yyauvoqjdzrbmebeafit.supabase.co/functions/v1/isi-trigger-update';
+    async function getLatestVersion() {
+        const { data, error } = await _SB.from('isi_plugin_versions')
+            .select('version,download_url').eq('is_current', true).limit(1).single();
+        if (error || !data) throw new Error('Versione corrente non trovata in isi_plugin_versions.');
+        return data;
+    }
 
-    async function callTriggerUpdate(payload, btns) {
+    async function callWpUpdate(site, ver) {
+        const url = (site.site_url || '').replace(/\/$/, '') + '/wp-json/in3pida/v1/update';
+        try {
+            const res  = await fetch(url, {
+                method:  'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body:    JSON.stringify({ secret: site.site_id, download_url: ver.download_url, version: ver.version }),
+                signal:  AbortSignal.timeout(30000),
+            });
+            const json = await res.json().catch(() => ({}));
+            return { site_id: site.site_id, site_name: site.site_name, ok: res.ok, skipped: json.skipped ?? false, message: json.error || (json.skipped ? `Già v${json.current}` : `Aggiornato a v${ver.version}`) };
+        } catch(e) {
+            return { site_id: site.site_id, site_name: site.site_name, ok: false, message: e.message };
+        }
+    }
+
+    async function callTriggerUpdate(siteIds, btns) {
         btns.forEach(b => { if (b) { b.disabled = true; b.textContent = '...'; } });
         try {
-            const { data: { session } } = await _SB.auth.getSession();
-            if (!session) throw new Error('Sessione scaduta, riaccedi.');
-            const res  = await fetch(ISI_EDGE, {
-                method:  'POST',
-                headers: { 'Authorization': `Bearer ${session.access_token}`, 'Content-Type': 'application/json' },
-                body:    JSON.stringify(payload),
-            });
-            const json = await res.json();
-            if (!res.ok) throw new Error(json.error || `HTTP ${res.status}`);
+            const ver   = await getLatestVersion();
+            const sites = siteIds ? allSiti.filter(s => siteIds.includes(s.site_id)) : allSiti;
+            const results = await Promise.all(sites.map(s => callWpUpdate(s, ver)));
 
-            const results = json.results || [];
             const ok      = results.filter(r => r.ok && !r.skipped).length;
             const skipped = results.filter(r => r.skipped).length;
             const fail    = results.filter(r => !r.ok).length;
 
             let msg = '';
-            if (ok > 0)      msg += `${ok} sito${ok !== 1 ? 'i' : ''} aggiornato${ok !== 1 ? 'i' : ''} a v${json.version}. `;
+            if (ok > 0)      msg += `${ok} sito${ok !== 1 ? 'i' : ''} aggiornato${ok !== 1 ? 'i' : ''} a v${ver.version}. `;
             if (skipped > 0) msg += `${skipped} già aggiornato${skipped !== 1 ? 'i' : ''}. `;
             if (fail > 0)    msg += `${fail} errore${fail !== 1 ? 'i' : ''}: ${results.filter(r=>!r.ok).map(r=>r.site_name||r.site_id).join(', ')}`;
             showToast(msg.trim() || 'Nessun risultato.');
 
-            btns.forEach(b => { if (b) { b.disabled = false; b.textContent = ok > 0 ? 'OK ✓' : 'Aggiorna'; b.style.background = ok > 0 ? 'var(--cyan)' : ''; } });
+            btns.forEach(b => { if (b) { b.disabled = false; b.textContent = ok > 0 ? 'OK' : 'Aggiorna'; b.style.background = ok > 0 ? 'var(--cyan)' : ''; } });
             setTimeout(() => btns.forEach(b => { if (b) { b.textContent = 'Aggiorna'; b.style.background = ''; b.disabled = false; } }), 3000);
-
             await loadPanoramica();
         } catch(e) {
             btns.forEach(b => { if (b) { b.disabled = false; b.textContent = 'Aggiorna'; } });
@@ -845,7 +858,7 @@
 
     function aggiornaSito(siteId) {
         const btn = document.querySelector(`tr[data-site-id="${CSS.escape(siteId)}"] button.btn-update`);
-        callTriggerUpdate({ site_id: siteId }, [btn]);
+        callTriggerUpdate([siteId], [btn]);
     }
 
     // ─── LEGENDA ─────────────────────────────────────────────────────────────────
