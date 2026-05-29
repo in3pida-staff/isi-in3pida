@@ -18,7 +18,6 @@
         </div>
         <div class="navbar-center">
             <button class="nav-item active" id="nav-panoramica">Panoramica</button>
-            <button class="nav-item" id="nav-pse">PSE</button>
             <button class="nav-item" id="nav-benchmark">Benchmark</button>
             <button class="nav-item" id="nav-utenti">Utenti</button>
             <button class="nav-item" id="nav-legenda">Legenda</button>
@@ -148,9 +147,12 @@
 
                 <hr style="border:none;border-top:1px solid var(--border);margin-bottom:20px">
 
-                <div style="font-size:11px;font-weight:700;color:var(--grey);letter-spacing:.06em;margin-bottom:12px">PSE — SIMULATORE</div>
-                <div style="font-size:13px;margin-bottom:6px"><strong>Toggle magenta</strong> — PSE attivo (pacchetto Plus)</div>
-                <div style="font-size:13px"><strong>Toggle grigio</strong> — PSE non attivo (pacchetto Standard)</div>
+                <div style="font-size:11px;font-weight:700;color:var(--grey);letter-spacing:.06em;margin-bottom:12px">RETRIEVAL BENCHMARK</div>
+                <div style="font-size:13px;margin-bottom:8px">Il <strong>Retrieval Benchmark</strong> misura quanto efficacemente il sistema di recupero trova le informazioni giuste in risposta a domande reali degli ospiti.</div>
+                <div style="font-size:13px;margin-bottom:6px"><strong>Setup Benchmark</strong> — genera embeddings dei chunk e crea le domande di test con AI</div>
+                <div style="font-size:13px;margin-bottom:6px"><strong>Esegui Test</strong> — esegue il benchmark e calcola le metriche</div>
+                <div style="font-size:13px;margin-bottom:10px"><strong>Precision@1 / @3</strong> — % di query in cui il chunk atteso è al primo / nei primi 3 risultati</div>
+                <div style="font-size:13px"><strong>MRR</strong> (Mean Reciprocal Rank) — misura media di quanto in alto appare il risultato atteso; 1.0 = sempre al primo posto</div>
             </div>
         </div>
     </div>
@@ -174,9 +176,9 @@
                 </div>
                 <div class="sw-stat-card">
                     <div class="sw-stat-icon" style="background:var(--cyan)">
-                        <svg width="24" height="24" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/></svg>
+                        <svg width="24" height="24" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 20V10M18 20V4M6 20v-4"/></svg>
                     </div>
-                    <div class="sw-stat-text"><div class="sw-stat-num" id="kpi-pse">—</div><div class="sw-stat-label">PSE attivi</div></div>
+                    <div class="sw-stat-text"><div class="sw-stat-num" id="kpi-benchmark">—</div><div class="sw-stat-label">Benchmark eseguiti</div></div>
                 </div>
                 <div class="sw-stat-card">
                     <div class="sw-stat-icon" style="background:#7c3aed">
@@ -214,14 +216,6 @@
                     </div>
                 </div>
                 <div id="siti-container"><div class="loading"><div class="spinner"></div> Caricamento...</div></div>
-            </div>
-        </div>
-
-        <!-- TAB PSE -->
-        <div id="view-pse" style="display:none">
-            <div class="card">
-                <div class="card-header"><div class="card-title">Simulazioni PSE recenti</div></div>
-                <div id="pse-container"><div class="loading"><div class="spinner"></div> Caricamento...</div></div>
             </div>
         </div>
 
@@ -335,8 +329,8 @@
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5YXV2b3FqZHpyYm1lYmVhZml0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3OTM2MDAsImV4cCI6MjA5NTM2OTYwMH0.M6kD56PEO_UcJ68Vjquo03vuORjv62MflIzGLzYKN9w';
     const _SB = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    const ALL_VIEWS = ['panoramica','siti','pse','aggiornamenti','benchmark','utenti','sito-detail'];
-    const NAV_TABS  = ['panoramica','pse','benchmark','utenti'];
+    const ALL_VIEWS = ['panoramica','siti','aggiornamenti','benchmark','utenti','sito-detail'];
+    const NAV_TABS  = ['panoramica','benchmark','utenti'];
     let currentTab = 'panoramica';
     let latestVersion = null;
     let allSiti = [];
@@ -465,12 +459,11 @@
 
     function loadTab(tab) {
         currentTab = tab;
-        const titoli = { panoramica:'Panoramica', siti:'Installazioni', pse:'Simulatore PSE', aggiornamenti:'Aggiornamenti Plugin', benchmark:'Retrieval Benchmark', utenti:'Utenti' };
+        const titoli = { panoramica:'Panoramica', siti:'Installazioni', aggiornamenti:'Aggiornamenti Plugin', benchmark:'Retrieval Benchmark', utenti:'Utenti' };
         document.getElementById('hero-title').textContent = titoli[tab] || tab;
         showView(tab);
         if (tab==='panoramica')    loadPanoramica();
         if (tab==='siti')          loadSitiTab();
-        if (tab==='pse')           loadPSE();
         if (tab==='aggiornamenti') loadVersions();
         if (tab==='benchmark')     loadBenchmark();
         if (tab==='utenti')        loadUtenti();
@@ -480,18 +473,15 @@
     async function loadPanoramica() {
         const now = new Date();
         const inizioMese = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-        const [sitesRes, pseRes, queryMese, tuttiSiti] = await Promise.all([
-            _SB.from('isi_sites').select('site_id,pse_enabled', {count:'exact'}),
-            _SB.from('isi_sites').select('site_id', {count:'exact'}).eq('pse_enabled',true),
-            _SB.from('isi_pse_queries').select('cost_usd').gte('created_at', inizioMese),
+        const [sitesRes, benchRes, tuttiSiti] = await Promise.all([
+            _SB.from('isi_sites').select('site_id', {count:'exact'}),
+            _SB.from('isi_benchmark_runs').select('site_id', {count:'exact'}),
             _SB.from('isi_sites').select('*').order('last_heartbeat',{ascending:false}),
         ]);
         document.getElementById('kpi-siti').textContent = sitesRes.count ?? 0;
-        document.getElementById('kpi-pse').textContent  = pseRes.count ?? 0;
-        const qs = queryMese.data ?? [];
-        document.getElementById('kpi-queries').textContent = qs.length;
-        const eurTot = (qs.reduce((s,r)=>s+(r.cost_usd||0),0)*0.92).toFixed(2);
-        document.getElementById('kpi-cost').textContent = '€'+eurTot;
+        document.getElementById('kpi-benchmark').textContent = benchRes.count ?? 0;
+        document.getElementById('kpi-queries').textContent = '—';
+        document.getElementById('kpi-cost').textContent = '—';
         const siti = tuttiSiti.data ?? [];
         document.getElementById('panoramica-count').textContent = siti.length+(siti.length===1?' sito':' siti');
         allSiti = siti;
@@ -517,8 +507,8 @@
         }
         const now = new Date();
         let html = `<table class="sites-table"><thead><tr>
-            <th>Stato</th><th>Sito</th><th>Ultimo segnale</th><th>Versione</th>
-            <th>GEO Score</th><th>PSE</th><th>Registrato il</th><th>Azioni</th>
+            <th style="white-space:nowrap">Stato</th><th style="white-space:nowrap">Sito</th><th style="white-space:nowrap">Ultimo segnale</th><th>Versione</th>
+            <th>GEO Score</th><th style="white-space:nowrap">Registrato il</th><th>Azioni</th>
         </tr></thead><tbody>`;
 
         data.forEach(site => {
@@ -526,7 +516,6 @@
             const dotClass = hrs<25?'green':hrs<48?'yellow':'red';
             const hbTesto  = site.last_heartbeat ? timeAgo(site.last_heartbeat) : 'Mai';
             const hbColor  = hrs<25?'var(--green-text)':hrs<48?'var(--magenta)':'var(--red-text)';
-            const pse = !!site.pse_enabled;
             const geo = site.geo_scores || {};
             const rawS = [geo.chunk_avg, geo.citation_avg, geo.entity_avg].filter(s=>s!=null);
             const geoAvg = rawS.length ? Math.round(rawS.reduce((a,b)=>a+b,0)/rawS.length) : null;
@@ -543,8 +532,7 @@
                 <td style="font-size:12px;color:${hbColor};font-weight:600">${hbTesto}</td>
                 <td>${verHtml}</td>
                 <td>${geoHtml}</td>
-                <td><label class="pse-toggle" onclick="event.stopPropagation()"><input type="checkbox" ${pse?'checked':''} data-site-id="${escHtml(site.site_id)}" onchange="togglePSE(this)"><span class="pse-slider"></span></label></td>
-                <td style="color:var(--grey);font-size:12px">${regIl}</td>
+                <td style="color:var(--grey);font-size:12px;white-space:nowrap">${regIl}</td>
                 <td><button class="btn-update" style="font-size:11px;padding:5px 12px" onclick="event.stopPropagation();aggiornaSito('${escHtml(site.site_id)}')">Aggiorna</button></td>
             </tr>`;
         });
@@ -553,7 +541,6 @@
 
         el.querySelectorAll('tr[data-site-id]').forEach(row => {
             row.addEventListener('click', e => {
-                if (e.target.closest('.pse-toggle')) return;
                 const site = data.find(s=>s.site_id===row.dataset.siteId);
                 loadSiteDetail(row.dataset.siteId, site);
             });
@@ -567,15 +554,11 @@
         const el = document.getElementById('sito-detail-container');
         el.innerHTML = '<div class="loading"><div class="spinner"></div> Caricamento...</div>';
         const now = new Date();
-        const settimanaFa = new Date(now - 7*86400000);
-        const [{ data:site }, { data:queryList }, { count:totQuery }, { count:querySett }] = await Promise.all([
+        const [{ data:site }, { data:benchRuns }] = await Promise.all([
             _SB.from('isi_sites').select('*').eq('site_id',siteId).single(),
-            _SB.from('isi_pse_queries').select('*').eq('site_id',siteId).order('created_at',{ascending:false}).limit(20),
-            _SB.from('isi_pse_queries').select('*',{count:'exact',head:true}).eq('site_id',siteId),
-            _SB.from('isi_pse_queries').select('*',{count:'exact',head:true}).eq('site_id',siteId).gte('created_at',settimanaFa.toISOString()),
+            _SB.from('isi_benchmark_runs').select('run_at,precision_1,precision_3,mrr,total_queries').eq('site_id',siteId).order('run_at',{ascending:false}).limit(5),
         ]);
         const hrs = site?.last_heartbeat ? (now - new Date(site.last_heartbeat))/3600000 : 9999;
-        const pse = !!site?.pse_enabled;
         const geo = site?.geo_scores || {};
         const rawS = [geo.chunk_avg, geo.citation_avg, geo.entity_avg].filter(s=>s!=null);
         const geoAvg = rawS.length ? Math.round(rawS.reduce((a,b)=>a+b,0)/rawS.length) : null;
@@ -587,9 +570,9 @@
             return `<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #f4f4f8"><div style="display:flex;align-items:center;gap:12px"><span style="width:12px;height:12px;border-radius:50%;background:${c};flex-shrink:0;display:inline-block"></span><span style="font-size:14px;font-weight:600">${l}</span></div><span style="font-size:12px;color:var(--grey)">${d}</span></div>`;
         };
         const regIl = site?.created_at ? new Date(site.created_at).toLocaleDateString('it-IT',{day:'2-digit',month:'long',year:'numeric'}) : '—';
-        let pseTabella = !queryList?.length
-            ? '<div class="empty-state" style="padding:32px"><div class="empty-title">Nessuna simulazione PSE per questo sito</div></div>'
-            : `<table class="sites-table"><thead><tr><th>Domanda</th><th>Probabilità citazione</th><th>Costo</th><th>Data</th></tr></thead><tbody>${queryList.map(q=>`<tr><td style="font-size:13px;max-width:320px">${escHtml(q.query||'—')}</td><td><strong>${q.result?.probability!==undefined?q.result.probability+'%':'—'}</strong></td><td style="font-size:12px;color:var(--grey)">$${(q.cost_usd||0).toFixed(5)}</td><td style="font-size:12px;color:var(--grey)">${new Date(q.created_at).toLocaleString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})}</td></tr>`).join('')}</tbody></table>`;
+        const benchTabella = !benchRuns?.length
+            ? '<div class="empty-state" style="padding:32px"><div class="empty-title">Nessun benchmark eseguito per questo sito</div></div>'
+            : `<table class="sites-table"><thead><tr><th>Data</th><th>Precision@1</th><th>Precision@3</th><th>MRR</th><th>Query</th></tr></thead><tbody>${benchRuns.map(r=>`<tr><td style="font-size:12px;color:var(--grey);white-space:nowrap">${new Date(r.run_at).toLocaleString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})}</td><td><strong style="color:var(--magenta)">${r.precision_1??'—'}%</strong></td><td><strong>${r.precision_3??'—'}%</strong></td><td>${r.mrr??'—'}</td><td style="color:var(--grey)">${r.total_queries??'—'}</td></tr>`).join('')}</tbody></table>`;
         const geoC2 = v => v===null?'var(--grey-dot)':v>=70?'var(--green)':v>=40?'var(--cyan)':'var(--red)';
         const geoBg = v => v===null?'var(--grey-bg)':v>=70?'var(--green-bg)':v>=40?'rgba(0,155,185,0.12)':'var(--red-bg)';
         const geoBc = v => v===null?'var(--grey-text)':v>=70?'var(--green-text)':v>=40?'var(--cyan)':'var(--red-text)';
@@ -597,23 +580,12 @@
 
         el.innerHTML = `
             <button class="btn-back" id="btn-back-detail">← Torna alle installazioni</button>
-            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:20px">
-                <div class="sw-stat-card">
-                    <div class="sw-stat-icon" style="background:var(--magenta)"><svg width="24" height="24" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
-                    <div class="sw-stat-text"><div class="sw-stat-num">${totQuery??0}</div><div class="sw-stat-label">Simulazioni PSE totali</div></div>
-                </div>
-                <div class="sw-stat-card">
-                    <div class="sw-stat-icon" style="background:var(--cyan)"><svg width="24" height="24" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/></svg></div>
-                    <div class="sw-stat-text"><div class="sw-stat-num">${querySett??0}</div><div class="sw-stat-label">Simulazioni ultimi 7 giorni</div></div>
-                </div>
-            </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
                 <div class="card" style="margin:0">
                     <div class="card-header"><div class="card-title">Stato semafori</div></div>
                     <div style="padding:0 20px 8px">
                         ${sf(statoGen,`<strong>Stato generale: ${statoGen==='ok'?'Tutto OK':statoGen==='warn'?'Attenzione':'Problemi rilevati'}</strong>`,'')}
                         ${sf(hrs<25?'ok':hrs<48?'warn':'err','Plugin attivo sul sito',site?.last_heartbeat?'Ultimo segnale: '+timeAgo(site.last_heartbeat):'Nessun segnale ricevuto')}
-                        ${sf(pse?'ok':'grey','PSE — Simulatore',pse?'Attivo — pacchetto Plus':'Non attivo — pacchetto Standard')}
                         ${sf(geoOk,'GEO Score',geoAvg!==null?geoAvg+'/100':'Nessun dato disponibile')}
                         ${sf(isOld?'warn':'ok','Versione plugin',isOld?`v${escHtml(site?.plugin_version)} — disponibile v${escHtml(latestVersion?.version)}`:"All'ultima versione")}
                     </div>
@@ -640,27 +612,11 @@
                 <div style="padding:16px 20px">${geoRows}</div>
             </div>
             <div class="card">
-                <div class="card-header"><div class="card-title">Simulazioni PSE recenti</div></div>
-                ${pseTabella}
+                <div class="card-header"><div class="card-title">Retrieval Benchmark — ultimi run</div></div>
+                ${benchTabella}
             </div>`;
 
         document.getElementById('btn-back-detail').addEventListener('click', () => loadTab(currentTab));
-    }
-
-    // ─── PSE ─────────────────────────────────────────────────────────────────────
-    async function loadPSE() {
-        document.getElementById('pse-container').innerHTML = '<div class="loading"><div class="spinner"></div> Caricamento...</div>';
-        const { data, error } = await _SB.from('isi_pse_queries').select('*').order('created_at',{ascending:false}).limit(100);
-        if (error||!data) { document.getElementById('pse-container').innerHTML = '<div class="empty-state"><div class="empty-title">Errore caricamento</div></div>'; return; }
-        if (!data.length) { document.getElementById('pse-container').innerHTML = '<div class="empty-state"><div class="empty-icon">💬</div><div class="empty-title">Nessuna simulazione PSE</div><div class="empty-sub">Appariranno qui dopo il primo utilizzo del simulatore</div></div>'; return; }
-        let html = '<table class="sites-table"><thead><tr><th>Sito</th><th>Domanda</th><th>Probabilità</th><th>Costo</th><th>Data</th></tr></thead><tbody>';
-        data.forEach(q => {
-            const d = new Date(q.created_at).toLocaleString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
-            const p = q.result?.probability!==undefined?q.result.probability+'%':'—';
-            html += `<tr><td class="site-name-cell">${escHtml(q.site_name||q.site_id||'—')}</td><td style="font-size:13px">${escHtml(q.query||'—')}</td><td><strong>${p}</strong></td><td style="font-size:12px;color:var(--grey)">$${(q.cost_usd||0).toFixed(5)}</td><td style="color:var(--grey);font-size:12px">${d}</td></tr>`;
-        });
-        html += '</tbody></table>';
-        document.getElementById('pse-container').innerHTML = html;
     }
 
     // ─── AGGIORNAMENTI ────────────────────────────────────────────────────────────
@@ -811,16 +767,6 @@
             });
             loadUtenti();
         } catch(e) { alert('Errore eliminazione: '+e.message); }
-    }
-
-    // ─── PSE TOGGLE ──────────────────────────────────────────────────────────────
-    async function togglePSE(checkbox) {
-        const siteId = checkbox.dataset.siteId;
-        const enabled = checkbox.checked;
-        checkbox.disabled = true;
-        const { error } = await _SB.from('isi_sites').update({ pse_enabled:enabled, tier:enabled?'plus':'standard' }).eq('site_id',siteId);
-        checkbox.disabled = false;
-        if (error) { checkbox.checked=!enabled; alert('Errore aggiornamento PSE: '+error.message); }
     }
 
     document.getElementById('btn-refresh-panoramica').addEventListener('click', () => {

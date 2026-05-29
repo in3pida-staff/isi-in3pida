@@ -305,6 +305,7 @@ table.sites-table th {
     text-align: left; padding: 12px 26px;
     font-size: 11px; font-weight: 700; color: #999;
     background: #fafafa; border-bottom: 1px solid var(--border);
+    white-space: nowrap;
 }
 table.sites-table td { padding: 15px 26px; font-size: 13px; border-bottom: 1px solid #f4f4f8; }
 table.sites-table tr:last-child td { border-bottom: none; }
