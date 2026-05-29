@@ -19,6 +19,7 @@
         <div class="navbar-center">
             <button class="nav-item active" id="nav-panoramica">Panoramica</button>
             <button class="nav-item" id="nav-pse">PSE</button>
+            <button class="nav-item" id="nav-benchmark">Benchmark</button>
             <button class="nav-item" id="nav-utenti">Utenti</button>
             <button class="nav-item" id="nav-legenda">Legenda</button>
         </div>
@@ -253,6 +254,61 @@
             </div>
         </div>
 
+        <!-- TAB BENCHMARK -->
+        <div id="view-benchmark" style="display:none">
+            <div class="card" style="margin-bottom:20px">
+                <div class="card-header"><div class="card-title">Retrieval Benchmark</div></div>
+                <div style="padding:20px 26px">
+                    <div style="display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:flex-end">
+                        <div>
+                            <label class="profile-label">Seleziona sito</label>
+                            <select id="bm-site-select" class="profile-input" style="width:100%">
+                                <option value="">Caricamento siti...</option>
+                            </select>
+                        </div>
+                        <button class="btn-update" id="btn-bm-setup" onclick="runBenchmarkSetup()" style="margin-left:0;white-space:nowrap">Setup Benchmark</button>
+                        <button class="btn-update" id="btn-bm-run" onclick="runBenchmarkRun()" style="margin-left:0;white-space:nowrap;background:var(--cyan)">Esegui Test</button>
+                    </div>
+                    <div id="bm-status" style="margin-top:14px;font-size:13px;display:none"></div>
+                    <div style="margin-top:10px;font-size:12px;color:var(--grey)">
+                        <strong>Setup</strong>: genera embeddings e domande di test a partire dai chunk del sito (OpenAI + Claude Haiku, ~1-3 min).
+                        <strong>Esegui Test</strong>: misura la qualità del retrieval con Precision@1, Precision@3 e MRR.
+                    </div>
+                </div>
+            </div>
+
+            <div id="bm-results-card" style="display:none">
+                <div class="card" style="margin-bottom:20px">
+                    <div class="card-header"><div class="card-title">Risultati ultima esecuzione</div><div id="bm-run-meta" style="font-size:12px;color:var(--grey)"></div></div>
+                    <div style="padding:20px 26px">
+                        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px">
+                            <div style="background:var(--light);border-radius:12px;padding:18px;text-align:center">
+                                <div id="bm-p1" style="font-size:36px;font-weight:800;color:var(--magenta)">—</div>
+                                <div style="font-size:12px;font-weight:600;color:var(--grey);margin-top:4px">Precision@1</div>
+                                <div style="font-size:11px;color:var(--grey);margin-top:2px">chunk corretto al 1° posto</div>
+                            </div>
+                            <div style="background:var(--light);border-radius:12px;padding:18px;text-align:center">
+                                <div id="bm-p3" style="font-size:36px;font-weight:800;color:var(--cyan)">—</div>
+                                <div style="font-size:12px;font-weight:600;color:var(--grey);margin-top:4px">Precision@3</div>
+                                <div style="font-size:11px;color:var(--grey);margin-top:2px">chunk corretto nei top 3</div>
+                            </div>
+                            <div style="background:var(--light);border-radius:12px;padding:18px;text-align:center">
+                                <div id="bm-mrr" style="font-size:36px;font-weight:800;color:#7c3aed">—</div>
+                                <div style="font-size:12px;font-weight:600;color:var(--grey);margin-top:4px">MRR</div>
+                                <div style="font-size:11px;color:var(--grey);margin-top:2px">Mean Reciprocal Rank</div>
+                            </div>
+                        </div>
+                        <div id="bm-queries-container"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><div class="card-title">Storico esecuzioni</div></div>
+                <div id="bm-history-container"><div class="loading"><div class="spinner"></div> Seleziona un sito</div></div>
+            </div>
+        </div>
+
         <!-- TAB UTENTI -->
         <div id="view-utenti" style="display:none">
             <div class="card">
@@ -279,8 +335,8 @@
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5YXV2b3FqZHpyYm1lYmVhZml0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3OTM2MDAsImV4cCI6MjA5NTM2OTYwMH0.M6kD56PEO_UcJ68Vjquo03vuORjv62MflIzGLzYKN9w';
     const _SB = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    const ALL_VIEWS = ['panoramica','siti','pse','aggiornamenti','utenti','sito-detail'];
-    const NAV_TABS  = ['panoramica','pse','utenti'];
+    const ALL_VIEWS = ['panoramica','siti','pse','aggiornamenti','benchmark','utenti','sito-detail'];
+    const NAV_TABS  = ['panoramica','pse','benchmark','utenti'];
     let currentTab = 'panoramica';
     let latestVersion = null;
     let allSiti = [];
@@ -409,13 +465,14 @@
 
     function loadTab(tab) {
         currentTab = tab;
-        const titoli = { panoramica:'Panoramica', siti:'Installazioni', pse:'Simulatore PSE', aggiornamenti:'Aggiornamenti Plugin', utenti:'Utenti' };
+        const titoli = { panoramica:'Panoramica', siti:'Installazioni', pse:'Simulatore PSE', aggiornamenti:'Aggiornamenti Plugin', benchmark:'Retrieval Benchmark', utenti:'Utenti' };
         document.getElementById('hero-title').textContent = titoli[tab] || tab;
         showView(tab);
         if (tab==='panoramica')    loadPanoramica();
         if (tab==='siti')          loadSitiTab();
         if (tab==='pse')           loadPSE();
         if (tab==='aggiornamenti') loadVersions();
+        if (tab==='benchmark')     loadBenchmark();
         if (tab==='utenti')        loadUtenti();
     }
 
@@ -862,6 +919,172 @@
     function aggiornaSito(siteId) {
         const btn = document.querySelector(`tr[data-site-id="${CSS.escape(siteId)}"] button.btn-update`);
         callTriggerUpdate([siteId], [btn]);
+    }
+
+    // ─── BENCHMARK ───────────────────────────────────────────────────────────────
+    async function loadBenchmark() {
+        const { data: siti } = await _SB.from('isi_sites').select('site_id,site_name,site_url').order('site_name');
+        const sel = document.getElementById('bm-site-select');
+        sel.innerHTML = '<option value="">— Seleziona sito —</option>' +
+            (siti||[]).map(s=>`<option value="${escHtml(s.site_id)}" data-url="${escHtml(s.site_url||'')}">${escHtml(s.site_name||s.site_id)}</option>`).join('');
+        sel.onchange = () => {
+            document.getElementById('bm-results-card').style.display = 'none';
+            loadBenchmarkHistory();
+        };
+        document.getElementById('bm-history-container').innerHTML = '<div style="padding:20px;color:var(--grey);font-size:13px">Seleziona un sito per vedere lo storico</div>';
+    }
+
+    function bmSiteSelected() {
+        const sel = document.getElementById('bm-site-select');
+        const opt = sel.options[sel.selectedIndex];
+        return { siteId: sel.value, siteUrl: opt?.dataset?.url || '' };
+    }
+
+    function bmSetStatus(msg, type) {
+        const el = document.getElementById('bm-status');
+        el.style.display = msg ? 'block' : 'none';
+        el.style.color = type === 'error' ? 'var(--red-text)' : type === 'success' ? 'var(--green-text)' : 'var(--dark)';
+        el.textContent = msg;
+    }
+
+    async function runBenchmarkSetup() {
+        const { siteId, siteUrl } = bmSiteSelected();
+        if (!siteId) { bmSetStatus('Seleziona un sito prima di procedere.', 'error'); return; }
+        if (!siteUrl) { bmSetStatus('URL sito non disponibile.', 'error'); return; }
+
+        const btn = document.getElementById('btn-bm-setup');
+        btn.disabled = true; btn.textContent = 'Setup in corso...';
+        bmSetStatus('Recupero chunk dal sito WordPress...', 'info');
+
+        try {
+            const chunksRes = await fetch(`${siteUrl.replace(/\/$/,'')}/wp-json/in3pida/v1/chunks`);
+            if (!chunksRes.ok) throw new Error(`Impossibile recuperare i chunk dal sito (${chunksRes.status}). Verifica che il plugin sia attivo e il chunk engine abilitato.`);
+            const chunksData = await chunksRes.json();
+            const chunks = chunksData.chunks;
+            if (!chunks?.length) throw new Error('Nessun chunk disponibile nel sito. Compila Schema.org e FAQ nel plugin.');
+
+            bmSetStatus(`${chunks.length} chunk trovati. Generazione embeddings e test suite via AI...`, 'info');
+
+            const { data: { session } } = await _SB.auth.getSession();
+            const resp = await fetch(`${SUPABASE_URL}/functions/v1/isi-benchmark-setup`, {
+                method: 'POST',
+                headers: { 'Authorization': 'Bearer ' + session.access_token, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ site_id: siteId, chunks }),
+            });
+            const result = await resp.json();
+            if (!resp.ok || !result.ok) throw new Error(result.error || 'Errore setup');
+
+            const errMsg = result.errors?.length ? ` (${result.errors.length} errori minori)` : '';
+            bmSetStatus(`Setup completato: ${result.chunks_embedded} chunk indicizzati, ${result.tests_generated} domande di test generate${errMsg}.`, 'success');
+        } catch(e) {
+            bmSetStatus('Errore: ' + e.message, 'error');
+        } finally {
+            btn.disabled = false; btn.textContent = 'Setup Benchmark';
+        }
+    }
+
+    async function runBenchmarkRun() {
+        const { siteId } = bmSiteSelected();
+        if (!siteId) { bmSetStatus('Seleziona un sito prima di procedere.', 'error'); return; }
+
+        const btn = document.getElementById('btn-bm-run');
+        btn.disabled = true; btn.textContent = 'Esecuzione...';
+        bmSetStatus('Calcolo retrieval in corso (embedding query + cosine similarity)...', 'info');
+        document.getElementById('bm-results-card').style.display = 'none';
+
+        try {
+            const { data: { session } } = await _SB.auth.getSession();
+            const resp = await fetch(`${SUPABASE_URL}/functions/v1/isi-benchmark-run`, {
+                method: 'POST',
+                headers: { 'Authorization': 'Bearer ' + session.access_token, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ site_id: siteId }),
+            });
+            const result = await resp.json();
+            if (!resp.ok || !result.ok) throw new Error(result.error || 'Errore esecuzione benchmark');
+
+            bmSetStatus(`Benchmark completato in ${(result.summary.total_ms/1000).toFixed(1)}s.`, 'success');
+            renderBenchmarkResults(result.summary, result.results);
+            loadBenchmarkHistory();
+        } catch(e) {
+            bmSetStatus('Errore: ' + e.message, 'error');
+        } finally {
+            btn.disabled = false; btn.textContent = 'Esegui Test';
+        }
+    }
+
+    function renderBenchmarkResults(summary, results) {
+        const colorP = v => v >= 80 ? 'var(--green-text)' : v >= 50 ? 'var(--cyan)' : 'var(--magenta)';
+        document.getElementById('bm-p1').textContent = summary.precision_1 + '%';
+        document.getElementById('bm-p1').style.color = colorP(summary.precision_1);
+        document.getElementById('bm-p3').textContent = summary.precision_3 + '%';
+        document.getElementById('bm-p3').style.color = colorP(summary.precision_3);
+        document.getElementById('bm-mrr').textContent = summary.mrr.toFixed(2);
+        document.getElementById('bm-mrr').style.color = colorP(summary.mrr * 100);
+        document.getElementById('bm-run-meta').textContent = `${summary.passed_1}/${summary.total_queries} al 1° posto · ${summary.passed_3}/${summary.total_queries} nei top 3`;
+
+        let html = `<table class="sites-table" style="font-size:12px"><thead><tr>
+            <th>Query di test</th><th>Chunk atteso</th><th>Rank</th><th>Similarity</th><th>Top chunk trovato</th><th>Esito</th>
+        </tr></thead><tbody>`;
+        results.forEach(r => {
+            const rankBadge = r.rank === 1
+                ? '<span style="background:var(--green-bg);color:var(--green-text);font-weight:700;padding:2px 8px;border-radius:20px">#1</span>'
+                : r.rank <= 3
+                    ? `<span style="background:#e0f7f9;color:var(--cyan);font-weight:700;padding:2px 8px;border-radius:20px">#${r.rank}</span>`
+                    : r.rank
+                        ? `<span style="background:var(--red-bg);color:var(--red-text);font-weight:700;padding:2px 8px;border-radius:20px">#${r.rank}</span>`
+                        : '<span style="color:var(--grey)">—</span>';
+            const esito = r.passed_1
+                ? '<span style="color:var(--green-text);font-weight:700">✓ @1</span>'
+                : r.passed_3
+                    ? '<span style="color:var(--cyan);font-weight:700">✓ @3</span>'
+                    : '<span style="color:var(--red-text);font-weight:700">✗</span>';
+            const topChunk = r.top_chunk?.chunk_title !== r.expected_title
+                ? `<span style="color:var(--red-text)">${escHtml(r.top_chunk?.chunk_title||'—')}</span>`
+                : `<span style="color:var(--green-text)">${escHtml(r.top_chunk?.chunk_title||'—')}</span>`;
+            html += `<tr>
+                <td style="max-width:220px">${escHtml(r.query)}</td>
+                <td style="color:var(--dark);font-weight:600;max-width:160px">${escHtml(r.expected_title)}</td>
+                <td>${rankBadge}</td>
+                <td>${r.similarity !== null ? (r.similarity*100).toFixed(1)+'%' : '—'}</td>
+                <td style="max-width:160px">${topChunk}</td>
+                <td>${esito}</td>
+            </tr>`;
+        });
+        html += '</tbody></table>';
+        document.getElementById('bm-queries-container').innerHTML = html;
+        document.getElementById('bm-results-card').style.display = 'block';
+    }
+
+    async function loadBenchmarkHistory() {
+        const { siteId } = bmSiteSelected();
+        const el = document.getElementById('bm-history-container');
+        if (!siteId) { el.innerHTML = '<div style="padding:20px;color:var(--grey);font-size:13px">Seleziona un sito per vedere lo storico</div>'; return; }
+        el.innerHTML = '<div class="loading"><div class="spinner"></div> Caricamento...</div>';
+        const { data, error } = await _SB.from('isi_benchmark_runs')
+            .select('id,run_at,precision_1,precision_3,mrr,total_queries,passed_1')
+            .eq('site_id', siteId)
+            .order('run_at', { ascending: false })
+            .limit(20);
+        if (error || !data?.length) {
+            el.innerHTML = '<div style="padding:20px;color:var(--grey);font-size:13px">Nessuna esecuzione trovata. Esegui Setup e poi Esegui Test.</div>';
+            return;
+        }
+        const colorP = v => v >= 80 ? 'var(--green-text)' : v >= 50 ? 'var(--cyan)' : 'var(--magenta)';
+        let html = `<table class="sites-table"><thead><tr>
+            <th>Data</th><th>Precision@1</th><th>Precision@3</th><th>MRR</th><th>Query</th>
+        </tr></thead><tbody>`;
+        data.forEach(r => {
+            const d = new Date(r.run_at).toLocaleString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+            html += `<tr>
+                <td style="color:var(--grey);font-size:12px">${d}</td>
+                <td><strong style="color:${colorP(r.precision_1)}">${r.precision_1}%</strong></td>
+                <td><strong style="color:${colorP(r.precision_3)}">${r.precision_3}%</strong></td>
+                <td><strong style="color:${colorP(r.mrr*100)}">${r.mrr.toFixed(2)}</strong></td>
+                <td style="color:var(--grey);font-size:12px">${r.passed_1}/${r.total_queries}</td>
+            </tr>`;
+        });
+        html += '</tbody></table>';
+        el.innerHTML = html;
     }
 
     // ─── LEGENDA ─────────────────────────────────────────────────────────────────

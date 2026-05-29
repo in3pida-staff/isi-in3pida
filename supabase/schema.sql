@@ -43,6 +43,47 @@ CREATE INDEX IF NOT EXISTS idx_isi_sites_site_id ON isi_sites(site_id);
 CREATE INDEX IF NOT EXISTS idx_isi_pse_site ON isi_pse_queries(site_id);
 CREATE INDEX IF NOT EXISTS idx_isi_pse_time ON isi_pse_queries(created_at DESC);
 
+-- Retrieval Benchmark tables
+CREATE TABLE IF NOT EXISTS isi_chunk_embeddings (
+    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+    site_id text NOT NULL,
+    chunk_id text NOT NULL,
+    chunk_type text,
+    chunk_title text,
+    chunk_content text,
+    embedding jsonb NOT NULL,
+    updated_at timestamptz DEFAULT now(),
+    UNIQUE(site_id, chunk_id)
+);
+
+CREATE TABLE IF NOT EXISTS isi_benchmark_tests (
+    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+    site_id text NOT NULL,
+    query text NOT NULL,
+    expected_chunk_id text NOT NULL,
+    generated_at timestamptz DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS isi_benchmark_runs (
+    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+    site_id text NOT NULL,
+    site_name text,
+    run_at timestamptz DEFAULT now(),
+    precision_1 float,
+    precision_3 float,
+    mrr float,
+    total_queries int,
+    passed_1 int,
+    results jsonb
+);
+
+CREATE INDEX IF NOT EXISTS idx_chunk_emb_site ON isi_chunk_embeddings(site_id);
+CREATE INDEX IF NOT EXISTS idx_bench_tests_site ON isi_benchmark_tests(site_id);
+CREATE INDEX IF NOT EXISTS idx_bench_runs_site ON isi_benchmark_runs(site_id, run_at DESC);
+
 ALTER TABLE isi_sites DISABLE ROW LEVEL SECURITY;
 ALTER TABLE isi_pse_queries DISABLE ROW LEVEL SECURITY;
 ALTER TABLE isi_plugin_versions DISABLE ROW LEVEL SECURITY;
+ALTER TABLE isi_chunk_embeddings DISABLE ROW LEVEL SECURITY;
+ALTER TABLE isi_benchmark_tests DISABLE ROW LEVEL SECURITY;
+ALTER TABLE isi_benchmark_runs DISABLE ROW LEVEL SECURITY;
