@@ -852,7 +852,10 @@
             await loadPanoramica();
         } catch(e) {
             btns.forEach(b => { if (b) { b.disabled = false; b.textContent = 'Aggiorna'; } });
-            alert('Errore: ' + e.message);
+            const msg = e.message === 'Failed to fetch'
+                ? 'Il sito ha ancora il plugin vecchio (senza supporto aggiornamento remoto).\n\nInstalla manualmente il plugin v1.7.0 UNA SOLA VOLTA da:\nWordPress → Plugin → Aggiungi nuovo → Carica plugin\n\nDopo quella installazione, tutti i futuri aggiornamenti saranno automatici da qui.'
+                : 'Errore: ' + e.message;
+            alert(msg);
         }
     }
 
