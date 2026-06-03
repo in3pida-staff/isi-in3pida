@@ -180,18 +180,6 @@
                     </div>
                     <div class="sw-stat-text"><div class="sw-stat-num" id="kpi-benchmark">—</div><div class="sw-stat-label">Benchmark eseguiti</div></div>
                 </div>
-                <div class="sw-stat-card">
-                    <div class="sw-stat-icon" style="background:#7c3aed">
-                        <svg width="24" height="24" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-                    </div>
-                    <div class="sw-stat-text"><div class="sw-stat-num" id="kpi-queries">—</div><div class="sw-stat-label">Simulazioni questo mese</div></div>
-                </div>
-                <div class="sw-stat-card">
-                    <div class="sw-stat-icon" style="background:#059669">
-                        <svg width="24" height="24" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 14H11v-2h2v2zm0-4H11V7h2v5z"/></svg>
-                    </div>
-                    <div class="sw-stat-text"><div class="sw-stat-num" id="kpi-cost">—</div><div class="sw-stat-label">Costo questo mese (€)</div></div>
-                </div>
             </div>
             <div class="card">
                 <div class="card-header">
@@ -480,8 +468,6 @@
         ]);
         document.getElementById('kpi-siti').textContent = sitesRes.count ?? 0;
         document.getElementById('kpi-benchmark').textContent = benchRes.count ?? 0;
-        document.getElementById('kpi-queries').textContent = '—';
-        document.getElementById('kpi-cost').textContent = '—';
         const siti = tuttiSiti.data ?? [];
         document.getElementById('panoramica-count').textContent = siti.length+(siti.length===1?' sito':' siti');
         allSiti = siti;
