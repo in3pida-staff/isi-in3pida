@@ -827,10 +827,45 @@
                 signal:  AbortSignal.timeout(30000),
             });
             const json = await res.json().catch(() => ({}));
-            return { site_id: site.site_id, site_name: site.site_name, ok: res.ok, skipped: json.skipped ?? false, message: json.error || (json.skipped ? `Già v${json.current}` : `Aggiornato a v${ver.version}`) };
+            if (!res.ok) {
+                const err = json.error || (res.status === 404 ? 'Endpoint mancante — plugin precedente alla v1.7.0' : `HTTP ${res.status}`);
+                return { site_id: site.site_id, site_name: site.site_name, ok: false, message: err };
+            }
+            return { site_id: site.site_id, site_name: site.site_name, ok: true, skipped: json.skipped ?? false, message: json.skipped ? `Già v${json.current}` : `Aggiornato a v${ver.version}` };
         } catch(e) {
-            return { site_id: site.site_id, site_name: site.site_name, ok: false, message: e.message };
+            const offline = e.name === 'AbortError' || e.message === 'Failed to fetch' || e.message.includes('fetch');
+            return { site_id: site.site_id, site_name: site.site_name, ok: false, message: offline ? 'Sito offline o non raggiungibile' : e.message };
         }
+    }
+
+    function showUpdateErrorModal(failedSites, downloadUrl, version) {
+        const existing = document.getElementById('isi-update-error-modal');
+        if (existing) existing.remove();
+        const rows = failedSites.map(s => `<tr><td style="padding:8px 10px;font-weight:700;color:#171b33">${escHtml(s.site_name||s.site_id)}</td><td style="padding:8px 10px;color:#d82d6b;font-size:13px">${escHtml(s.message||'errore sconosciuto')}</td></tr>`).join('');
+        const m = document.createElement('div');
+        m.id = 'isi-update-error-modal';
+        m.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:99999;display:flex;align-items:center;justify-content:center';
+        m.innerHTML = `<div style="background:#fff;max-width:560px;width:calc(100% - 32px);border-radius:10px;padding:28px 28px 24px;box-shadow:0 16px 48px rgba(0,0,0,.22);position:relative">
+            <button onclick="this.closest('#isi-update-error-modal').remove()" style="position:absolute;right:14px;top:10px;border:0;background:none;font-size:24px;cursor:pointer;color:#999">×</button>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+                <span style="background:#fce8ef;color:#d82d6b;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">⚠</span>
+                <h3 style="margin:0;font-size:16px;color:#171b33">Aggiornamento non riuscito</h3>
+            </div>
+            <table style="width:100%;border-collapse:collapse;border:1px solid #ead0dc;border-radius:6px;overflow:hidden;margin-bottom:16px"><thead><tr style="background:#fbf4f7"><th style="padding:8px 10px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#171b33">Sito</th><th style="padding:8px 10px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#171b33">Motivo</th></tr></thead><tbody>${rows}</tbody></table>
+            <div style="background:#f8f4ff;border:1px solid #ddd5f0;border-radius:6px;padding:14px 16px;margin-bottom:18px;font-size:13px;color:#35364f;line-height:1.6">
+                <strong style="display:block;margin-bottom:6px">Come risolvere</strong>
+                Se il sito ha il plugin precedente alla v1.7.0, l'aggiornamento remoto non è disponibile.<br>
+                Installa manualmente il ZIP <strong>una sola volta</strong> da:<br>
+                <span style="color:#d82d6b;font-weight:700">WordPress Admin → Plugin → Aggiungi nuovo → Carica plugin</span><br>
+                Dopo quella installazione, tutti i futuri aggiornamenti funzioneranno automaticamente da qui.
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+                <a href="${escHtml(downloadUrl)}" download style="background:#d82d6b;color:#fff;text-decoration:none;border-radius:6px;padding:10px 18px;font-weight:800;font-size:13px;display:inline-flex;align-items:center;gap:6px">⬇ Scarica v${escHtml(version)}.zip</a>
+                <button onclick="this.closest('#isi-update-error-modal').remove()" style="background:#fff;border:1px solid #ead0dc;border-radius:6px;padding:10px 18px;font-weight:700;font-size:13px;cursor:pointer;color:#171b33">Chiudi</button>
+            </div>
+        </div>`;
+        document.body.appendChild(m);
+        m.addEventListener('click', e => { if (e.target === m) m.remove(); });
     }
 
     async function callTriggerUpdate(siteIds, btns) {
@@ -847,18 +882,17 @@
             let msg = '';
             if (ok > 0)      msg += `${ok} sito${ok !== 1 ? 'i' : ''} aggiornato${ok !== 1 ? 'i' : ''} a v${ver.version}. `;
             if (skipped > 0) msg += `${skipped} già aggiornato${skipped !== 1 ? 'i' : ''}. `;
-            if (fail > 0)    msg += `${fail} errore${fail !== 1 ? 'i' : ''}: ${results.filter(r=>!r.ok).map(r=>r.site_name||r.site_id).join(', ')}`;
+            if (fail > 0)    msg += `${fail} sito${fail !== 1 ? 'i' : ''} non aggiornato${fail !== 1 ? 'i' : ''} — vedi dettagli.`;
             showToast(msg.trim() || 'Nessun risultato.');
+
+            if (fail > 0) showUpdateErrorModal(results.filter(r => !r.ok), ver.download_url, ver.version);
 
             btns.forEach(b => { if (b) { b.disabled = false; b.textContent = ok > 0 ? 'OK' : 'Aggiorna'; b.style.background = ok > 0 ? 'var(--cyan)' : ''; } });
             setTimeout(() => btns.forEach(b => { if (b) { b.textContent = 'Aggiorna'; b.style.background = ''; b.disabled = false; } }), 3000);
             await loadPanoramica();
         } catch(e) {
             btns.forEach(b => { if (b) { b.disabled = false; b.textContent = 'Aggiorna'; } });
-            const msg = e.message === 'Failed to fetch'
-                ? 'Il sito ha ancora il plugin vecchio (senza supporto aggiornamento remoto).\n\nInstalla manualmente il plugin v1.7.0 UNA SOLA VOLTA da:\nWordPress → Plugin → Aggiungi nuovo → Carica plugin\n\nDopo quella installazione, tutti i futuri aggiornamenti saranno automatici da qui.'
-                : 'Errore: ' + e.message;
-            alert(msg);
+            showUpdateErrorModal([{ site_name: 'Dashboard', message: e.message }], '', '');
         }
     }
 
