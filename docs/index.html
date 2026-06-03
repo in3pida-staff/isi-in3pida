@@ -550,6 +550,12 @@
         const geoAvg = geo.completeness_score != null ? geo.completeness_score : (geo.ai_readiness != null ? geo.ai_readiness : (rawFallbackD.length ? Math.round(rawFallbackD.reduce((a,b)=>a+b,0)/rawFallbackD.length) : null));
         const cs = geo.completeness_score ?? null;
         const checklist = geo.checklist || [];
+        const covPct = geo.coverage_pct ?? null;
+        const missingAnswers = geo.missing_answers ?? null;
+        const missingQueries = geo.missing_queries || [];
+        const freshAlerts = geo.freshness_alerts || [];
+        const daysFaq = geo.days_since_faq ?? null;
+        const daysSchema = geo.days_since_schema ?? null;
         const geoOk = geoAvg!==null?(geoAvg>=70?'ok':geoAvg>=40?'warn':'err'):'grey';
         const isOld = latestVersion && site?.plugin_version && semverGt(latestVersion.version, site.plugin_version);
         const statoGen = (hrs<25&&!isOld&&(geoAvg===null||geoAvg>=40))?'ok':(hrs>48?'err':'warn');
@@ -609,6 +615,22 @@
                     <div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-bottom:8px"><div style="height:6px;width:${cs}%;background:${cs>=80?'var(--green)':cs>=50?'#f59e0b':'var(--red)'};border-radius:3px"></div></div>
                     <div style="font-size:12px;color:var(--grey);margin-bottom:12px">${12-checklist.length} di 12 campi fondamentali compilati</div>
                     ${checklist.length ? `<div style="font-size:11px;font-weight:700;color:var(--grey);letter-spacing:.06em;margin-bottom:8px">COSA MANCA</div>${checklist.map(item=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #f4f4f8"><span style="color:var(--red-text);font-weight:800;font-size:12px">✗</span><span style="font-size:13px">${escHtml(item)}</span></div>`).join('')}` : `<div style="padding:10px;background:#f0fdf4;border-radius:6px;font-size:13px;color:#166534;font-weight:600">Profilo completo — tutti i campi fondamentali compilati.</div>`}
+                </div>
+            </div>` : ''}
+            ${covPct !== null ? `<div class="card" style="margin-bottom:20px">
+                <div class="card-header">
+                    <div class="card-title">🎯 Missing Answer Detector</div>
+                    <span style="background:${covPct>=80?'var(--green-bg)':covPct>=50?'rgba(245,158,11,0.12)':'var(--red-bg)'};color:${covPct>=80?'var(--green-text)':covPct>=50?'#b45309':'var(--red-text)'};font-size:13px;font-weight:700;padding:3px 12px;border-radius:20px">${covPct}% coperto</span>
+                </div>
+                <div style="padding:16px 20px">
+                    <div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-bottom:8px"><div style="height:6px;width:${covPct}%;background:${covPct>=80?'var(--green)':covPct>=50?'#f59e0b':'var(--red)'};border-radius:3px"></div></div>
+                    <div style="font-size:12px;color:var(--grey);margin-bottom:16px">${missingAnswers} domande senza risposta</div>
+                    ${freshAlerts.length?`<div style="margin-bottom:12px">${freshAlerts.map(a=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f4f4f8"><span style="color:var(--red-text);font-weight:800;font-size:12px">⚠</span><span style="font-size:13px">${escHtml(a)}</span></div>`).join('')}</div>`:''}
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;font-size:12px;color:var(--grey)">
+                        <div>Ultima FAQ: <strong>${daysFaq!==null?daysFaq+' giorni fa':'N/D'}</strong></div>
+                        <div>Ultimo Schema: <strong>${daysSchema!==null?daysSchema+' giorni fa':'N/D'}</strong></div>
+                    </div>
+                    ${missingQueries.length?`<div style="font-size:11px;font-weight:700;color:var(--grey);letter-spacing:.06em;margin-bottom:8px">RISPOSTE MANCANTI</div>${missingQueries.map(q=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f4f4f8"><span style="color:var(--red-text);font-weight:800;font-size:12px">✗</span><span style="font-size:13px">${escHtml(q)}</span></div>`).join('')}`:''}
                 </div>
             </div>` : ''}
             <div class="card">
