@@ -1002,8 +1002,8 @@
             const result = await resp.json();
             if (!resp.ok || !result.ok) throw new Error(result.error || 'Errore setup');
 
-            const errMsg = result.errors?.length ? ` (${result.errors.length} errori minori)` : '';
-            bmSetStatus(`Setup completato: ${result.chunks_embedded} chunk indicizzati, ${result.tests_generated} domande di test generate${errMsg}.`, 'success');
+            const errMsg = result.errors?.length ? `\nErrori: ${result.errors.join(' | ')}` : '';
+            bmSetStatus(`Setup completato: ${result.chunks_embedded} chunk indicizzati, ${result.tests_generated} domande di test generate.${errMsg}`, result.chunks_embedded > 0 ? 'success' : 'error');
         } catch(e) {
             bmSetStatus('Errore: ' + e.message, 'error');
         } finally {
