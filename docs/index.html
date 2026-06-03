@@ -818,12 +818,19 @@
     }
 
     async function callWpUpdate(site, ver) {
-        const url = (site.site_url || '').replace(/\/$/, '') + '/wp-json/in3pida/v1/update';
+        const base = (site.site_url || '').replace(/\/$/, '');
         try {
-            const res  = await fetch(url, {
+            // Discover the actual WordPress UUID (may differ from Supabase site_id)
+            let secret = site.site_id;
+            try {
+                const idRes = await fetch(base + '/wp-json/in3pida/v1/site-id', { signal: AbortSignal.timeout(8000) });
+                if (idRes.ok) { const d = await idRes.json().catch(() => ({})); if (d.site_id) secret = d.site_id; }
+            } catch(_) {}
+
+            const res = await fetch(base + '/wp-json/in3pida/v1/update', {
                 method:  'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body:    JSON.stringify({ secret: site.site_id, download_url: ver.download_url, version: ver.version }),
+                body:    JSON.stringify({ secret, download_url: ver.download_url, version: ver.version }),
                 signal:  AbortSignal.timeout(30000),
             });
             const json = await res.json().catch(() => ({}));
