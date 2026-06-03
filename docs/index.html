@@ -576,6 +576,7 @@
                         ${sf(hrs<25?'ok':hrs<48?'warn':'err','Plugin attivo sul sito',site?.last_heartbeat?'Ultimo segnale: '+timeAgo(site.last_heartbeat):'Nessun segnale ricevuto')}
                         ${sf(geoOk,'GEO Score',geoAvg!==null?geoAvg+'/100':'Nessun dato disponibile')}
                         ${sf(isOld?'warn':'ok','Versione plugin',isOld?`v${escHtml(site?.plugin_version)} — disponibile v${escHtml(latestVersion?.version)}`:"All'ultima versione")}
+                        ${geo.has_ai_profile===true?sf('ok','/ai-profile','Endpoint attivo — leggibile dai crawler AI'):geo.has_ai_profile===false?sf('err','/ai-profile','LLM layer disabilitato — attivalo in AI Layer'):sf('warn','/ai-profile','Aggiorna alla v1.9.1 per vedere lo stato')}
                     </div>
                 </div>
                 <div class="card" style="margin:0">
