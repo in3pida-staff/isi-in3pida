@@ -518,9 +518,12 @@
             const hbColor  = hrs<25?'var(--green-text)':hrs<48?'var(--magenta)':'var(--red-text)';
             const geo = site.geo_scores || {};
             const aiScores = [{k:'ai_readiness',l:'AI Readiness Score'},{k:'answer_extraction',l:'Answer Extraction'},{k:'quality_safety',l:'Quality Safety'},{k:'ai_visibility',l:'AI Visibility'},{k:'entity_authority',l:'Entity Authority'},{k:'chunk_avg',l:'Chunk Citation avg'},{k:'citation_avg',l:'Citation Engine avg'}];
-            const geoAvg = geo.ai_readiness != null ? geo.ai_readiness : null;
+            const rawFallback = [geo.chunk_avg, geo.citation_avg].filter(s=>s!=null);
+            const geoAvg = geo.ai_readiness != null ? geo.ai_readiness : (rawFallback.length ? Math.round(rawFallback.reduce((a,b)=>a+b,0)/rawFallback.length) : null);
             const geoC = s => s===null?'var(--grey-dot)':s>=70?'var(--green)':s>=40?'var(--cyan)':'var(--red)';
-            const geoHtml = `<div style="display:flex;flex-direction:column;gap:3px">${aiScores.map(c=>{const v=geo[c.k]??null;const tc=v===null?'var(--grey)':v>=70?'var(--green-text)':v>=40?'var(--cyan)':'var(--red-text)';return `<div style="display:flex;align-items:center;gap:5px;font-size:11px;white-space:nowrap"><span style="width:7px;height:7px;border-radius:50%;background:${geoC(v)};display:inline-block;flex-shrink:0"></span><span style="color:var(--grey);flex:1;min-width:120px">${c.l}</span><span style="font-weight:700;color:${tc}">${v!==null?v+'/100':'—'}</span></div>`;}).join('')}</div>`;
+            const geoAvgBg = geoAvg===null?'var(--grey-bg)':geoAvg>=70?'var(--green-bg)':geoAvg>=40?'rgba(0,155,185,0.12)':'var(--red-bg)';
+            const geoAvgTc = geoAvg===null?'var(--grey-text)':geoAvg>=70?'var(--green-text)':geoAvg>=40?'var(--cyan)':'var(--red-text)';
+            const geoHtml = geoAvg!==null ? `<span style="background:${geoAvgBg};color:${geoAvgTc};font-size:13px;font-weight:700;padding:4px 14px;border-radius:20px">${geoAvg}/100</span>` : `<span style="color:var(--grey-text);font-size:12px">—</span>`;
             const isOld = latestVersion && site.plugin_version && semverGt(latestVersion.version, site.plugin_version);
             const verHtml = `<span style="font-weight:600">${escHtml(site.plugin_version||'—')}</span>${isOld?` <span style="background:rgba(216,45,107,0.08);color:var(--magenta);font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;vertical-align:middle">aggiornare</span>`:''}`;
             const regIl = site.created_at ? new Date(site.created_at).toLocaleDateString('it-IT') : '—';
@@ -558,7 +561,8 @@
         ]);
         const hrs = site?.last_heartbeat ? (now - new Date(site.last_heartbeat))/3600000 : 9999;
         const geo = site?.geo_scores || {};
-        const geoAvg = geo.ai_readiness != null ? geo.ai_readiness : null;
+        const rawFallbackD = [geo.chunk_avg, geo.citation_avg].filter(s=>s!=null);
+        const geoAvg = geo.ai_readiness != null ? geo.ai_readiness : (rawFallbackD.length ? Math.round(rawFallbackD.reduce((a,b)=>a+b,0)/rawFallbackD.length) : null);
         const geoOk = geoAvg!==null?(geoAvg>=70?'ok':geoAvg>=40?'warn':'err'):'grey';
         const isOld = latestVersion && site?.plugin_version && semverGt(latestVersion.version, site.plugin_version);
         const statoGen = (hrs<25&&!isOld&&(geoAvg===null||geoAvg>=40))?'ok':(hrs>48?'err':'warn');
@@ -603,8 +607,8 @@
             </div>
             <div class="card" style="margin-bottom:20px">
                 <div class="card-header">
-                    <div class="card-title">Punteggi GEO</div>
-                    ${geoAvg!==null?`<span style="font-size:13px;font-weight:600;color:var(--grey)">${geoAvg}/100 media</span>`:''}
+                    <div class="card-title">Punteggi AI</div>
+                    ${geoAvg!==null?`<span style="background:${geoBg(geoAvg)};color:${geoBc(geoAvg)};font-size:13px;font-weight:700;padding:3px 12px;border-radius:20px">${geoAvg}/100</span>`:''}
                 </div>
                 <div style="padding:16px 20px">${geoRows}</div>
             </div>
