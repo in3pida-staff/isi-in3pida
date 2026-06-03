@@ -521,8 +521,8 @@
             const geoAvg = rawS.length ? Math.round(rawS.reduce((a,b)=>a+b,0)/rawS.length) : null;
             const geoCats = [{k:'schema_score',l:'Schema'},{k:'faq_score',l:'FAQ'},{k:'chunk_avg',l:'Chunk'},{k:'citation_avg',l:'Cit.'},{k:'entity_avg',l:'Entity'}];
             const geoC = s => s===null?'var(--grey-dot)':s>=70?'var(--green)':s>=40?'var(--cyan)':'var(--red)';
-            const miniDots = geoCats.map(c=>{const v=geo[c.k]??null;return `<span title="${c.l}: ${v!==null?v+'/100':'N/D'}" style="display:inline-flex;align-items:center;gap:3px;font-size:11px;color:var(--dark);font-weight:700;white-space:nowrap">${c.l} <span style="width:8px;height:8px;border-radius:50%;background:${geoC(v)};display:inline-block;flex-shrink:0"></span></span>`;}).join('');
-            const geoHtml = `<div style="display:flex;flex-direction:column;align-items:flex-start;gap:5px">${geoAvg!==null?`<span style="background:${geoAvg>=70?'var(--green-bg)':geoAvg>=40?'rgba(0,155,185,0.12)':'var(--red-bg)'};color:${geoAvg>=70?'var(--green-text)':geoAvg>=40?'var(--cyan)':'var(--red-text)'};font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px">${geoAvg}/100</span>`:'<span style="color:var(--grey-text);font-size:12px">—</span>'}<div style="display:flex;gap:6px;flex-wrap:nowrap">${miniDots}</div></div>`;
+            const miniDots = geoCats.map(c=>{const v=geo[c.k]??null;return `<span style="display:inline-flex;align-items:center;gap:3px;font-size:11px;color:var(--dark);font-weight:700;white-space:nowrap"><span style="width:8px;height:8px;border-radius:50%;background:${geoC(v)};display:inline-block;flex-shrink:0"></span>${c.l} <span style="color:${geoC(v)};font-weight:800">${v!==null?v:'—'}</span></span>`;}).join('');
+            const geoHtml = `<div style="display:flex;flex-direction:column;align-items:flex-start;gap:5px">${geoAvg!==null?`<span style="background:${geoAvg>=70?'var(--green-bg)':geoAvg>=40?'rgba(0,155,185,0.12)':'var(--red-bg)'};color:${geoAvg>=70?'var(--green-text)':geoAvg>=40?'var(--cyan)':'var(--red-text)'};font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px">${geoAvg}/100</span>`:'<span style="color:var(--grey-text);font-size:12px">—</span>'}<div style="display:flex;gap:8px;flex-wrap:nowrap">${miniDots}</div></div>`;
             const isOld = latestVersion && site.plugin_version && semverGt(latestVersion.version, site.plugin_version);
             const verHtml = `<span style="font-weight:600">${escHtml(site.plugin_version||'—')}</span>${isOld?` <span style="background:rgba(216,45,107,0.08);color:var(--magenta);font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;vertical-align:middle">aggiornare</span>`:''}`;
             const regIl = site.created_at ? new Date(site.created_at).toLocaleDateString('it-IT') : '—';
@@ -533,7 +533,7 @@
                 <td>${verHtml}</td>
                 <td>${geoHtml}</td>
                 <td style="color:var(--grey);font-size:12px;white-space:nowrap">${regIl}</td>
-                <td><button class="btn-update" style="font-size:11px;padding:5px 12px" onclick="event.stopPropagation();aggiornaSito('${escHtml(site.site_id)}')">Aggiorna</button></td>
+                <td style="display:flex;gap:6px;align-items:center"><button class="btn-update" style="font-size:11px;padding:5px 12px" onclick="event.stopPropagation();aggiornaSito('${escHtml(site.site_id)}')">Aggiorna</button><button class="btn-ping" style="font-size:11px;padding:5px 10px" onclick="event.stopPropagation();toggleSitoAttivo('${escHtml(site.site_id)}','${escHtml(site.site_url||'')}',this)">Disattiva</button></td>
             </tr>`;
         });
         html += '</tbody></table>';
@@ -907,6 +907,42 @@
     function aggiornaSito(siteId) {
         const btn = document.querySelector(`tr[data-site-id="${CSS.escape(siteId)}"] button.btn-update`);
         callTriggerUpdate([siteId], [btn]);
+    }
+
+    async function toggleSitoAttivo(siteId, siteUrl, btn) {
+        const base = (siteUrl || '').replace(/\/$/, '');
+        if (!base) { showToast('URL sito mancante'); return; }
+        btn.disabled = true;
+        btn.textContent = '...';
+        try {
+            // Scopri site_id WordPress reale
+            let secret = siteId;
+            try {
+                const r = await fetch(base + '/wp-json/in3pida/v1/site-id', { signal: AbortSignal.timeout(8000) });
+                if (r.ok) { const d = await r.json().catch(()=>({})); if (d.site_id) secret = d.site_id; }
+            } catch(_) {}
+
+            // Leggi stato attuale
+            const stRes = await fetch(base + '/wp-json/in3pida/v1/status', { signal: AbortSignal.timeout(8000) });
+            const st = stRes.ok ? await stRes.json().catch(()=>({})) : {};
+            const wasActive = st.active !== false;
+            const newActive = !wasActive;
+
+            const res = await fetch(base + '/wp-json/in3pida/v1/status', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ secret, active: newActive }),
+                signal: AbortSignal.timeout(15000),
+            });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            btn.textContent = newActive ? 'Disattiva' : 'Attiva';
+            btn.style.background = newActive ? '' : 'var(--grey-dot)';
+            showToast(`Sito ${newActive ? 'attivato' : 'disattivato'} con successo`);
+        } catch(e) {
+            showToast('Errore: ' + e.message);
+            btn.textContent = 'Disattiva';
+        }
+        btn.disabled = false;
     }
 
     // ─── BENCHMARK ───────────────────────────────────────────────────────────────
