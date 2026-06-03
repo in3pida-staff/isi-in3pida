@@ -897,6 +897,7 @@
             btns.forEach(b => { if (b) { b.disabled = false; b.textContent = ok > 0 ? 'OK' : 'Aggiorna'; b.style.background = ok > 0 ? 'var(--cyan)' : ''; } });
             setTimeout(() => btns.forEach(b => { if (b) { b.textContent = 'Aggiorna'; b.style.background = ''; b.disabled = false; } }), 3000);
             await loadPanoramica();
+            if (currentTab === 'siti') await loadSitiTab();
         } catch(e) {
             btns.forEach(b => { if (b) { b.disabled = false; b.textContent = 'Aggiorna'; } });
             showUpdateErrorModal([{ site_name: 'Dashboard', message: e.message }], '', '');
