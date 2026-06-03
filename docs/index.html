@@ -517,11 +517,10 @@
             const hbTesto  = site.last_heartbeat ? timeAgo(site.last_heartbeat) : 'Mai';
             const hbColor  = hrs<25?'var(--green-text)':hrs<48?'var(--magenta)':'var(--red-text)';
             const geo = site.geo_scores || {};
-            const rawS = [geo.chunk_avg, geo.citation_avg, geo.entity_avg].filter(s=>s!=null);
-            const geoAvg = rawS.length ? Math.round(rawS.reduce((a,b)=>a+b,0)/rawS.length) : null;
-            const geoCats = [{k:'schema_score',l:'Schema'},{k:'faq_score',l:'FAQ'},{k:'chunk_avg',l:'Chunk'},{k:'citation_avg',l:'Cit.'},{k:'entity_avg',l:'Entity'}];
+            const aiScores = [{k:'ai_readiness',l:'AI Readiness Score'},{k:'answer_extraction',l:'Answer Extraction'},{k:'quality_safety',l:'Quality Safety'},{k:'ai_visibility',l:'AI Visibility'},{k:'entity_authority',l:'Entity Authority'},{k:'chunk_avg',l:'Chunk Citation avg'},{k:'citation_avg',l:'Citation Engine avg'}];
+            const geoAvg = geo.ai_readiness != null ? geo.ai_readiness : null;
             const geoC = s => s===null?'var(--grey-dot)':s>=70?'var(--green)':s>=40?'var(--cyan)':'var(--red)';
-            const miniDots = geoCats.map(c=>{const v=geo[c.k]??null;return `<span title="${c.l}: ${v!==null?v+'/100':'N/D'}" style="width:9px;height:9px;border-radius:50%;background:${geoC(v)};display:inline-block;cursor:default;flex-shrink:0"></span>`;}).join('');
+            const miniDots = aiScores.map(c=>{const v=geo[c.k]??null;return `<span title="${c.l}: ${v!==null?v+'/100':'N/D'}" style="width:9px;height:9px;border-radius:50%;background:${geoC(v)};display:inline-block;cursor:default;flex-shrink:0"></span>`;}).join('');
             const geoHtml = `<div style="display:flex;flex-direction:column;align-items:flex-start;gap:6px">${geoAvg!==null?`<span style="background:${geoAvg>=70?'var(--green-bg)':geoAvg>=40?'rgba(0,155,185,0.12)':'var(--red-bg)'};color:${geoAvg>=70?'var(--green-text)':geoAvg>=40?'var(--cyan)':'var(--red-text)'};font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px">${geoAvg}/100</span>`:'<span style="color:var(--grey-text);font-size:12px">—</span>'}<div style="display:flex;gap:6px;align-items:center">${miniDots}</div></div>`;
             const isOld = latestVersion && site.plugin_version && semverGt(latestVersion.version, site.plugin_version);
             const verHtml = `<span style="font-weight:600">${escHtml(site.plugin_version||'—')}</span>${isOld?` <span style="background:rgba(216,45,107,0.08);color:var(--magenta);font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;vertical-align:middle">aggiornare</span>`:''}`;
@@ -560,8 +559,7 @@
         ]);
         const hrs = site?.last_heartbeat ? (now - new Date(site.last_heartbeat))/3600000 : 9999;
         const geo = site?.geo_scores || {};
-        const rawS = [geo.chunk_avg, geo.citation_avg, geo.entity_avg].filter(s=>s!=null);
-        const geoAvg = rawS.length ? Math.round(rawS.reduce((a,b)=>a+b,0)/rawS.length) : null;
+        const geoAvg = geo.ai_readiness != null ? geo.ai_readiness : null;
         const geoOk = geoAvg!==null?(geoAvg>=70?'ok':geoAvg>=40?'warn':'err'):'grey';
         const isOld = latestVersion && site?.plugin_version && semverGt(latestVersion.version, site.plugin_version);
         const statoGen = (hrs<25&&!isOld&&(geoAvg===null||geoAvg>=40))?'ok':(hrs>48?'err':'warn');
@@ -576,7 +574,7 @@
         const geoC2 = v => v===null?'var(--grey-dot)':v>=70?'var(--green)':v>=40?'var(--cyan)':'var(--red)';
         const geoBg = v => v===null?'var(--grey-bg)':v>=70?'var(--green-bg)':v>=40?'rgba(0,155,185,0.12)':'var(--red-bg)';
         const geoBc = v => v===null?'var(--grey-text)':v>=70?'var(--green-text)':v>=40?'var(--cyan)':'var(--red-text)';
-        const geoRows = [{k:'schema_score',l:'Schema.org',d:'Dati strutturati'},{k:'faq_score',l:'FAQ',d:'Domande frequenti'},{k:'chunk_avg',l:'Chunk Engine',d:'Blocchi contenuto per AI'},{k:'citation_avg',l:'Citation Engine',d:'Probabilità citazione AI'},{k:'entity_avg',l:'Entity Graph',d:'Grafo entità semantiche'}].map(({k,l,d})=>{const v=geo[k]??null;return `<div style="margin-bottom:18px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div><span style="font-size:14px;font-weight:700">${l}</span><span style="font-size:12px;color:var(--grey);margin-left:8px">${d}</span></div><span style="background:${geoBg(v)};color:${geoBc(v)};font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px">${v!==null?v+'/100':'N/D'}</span></div><div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden"><div style="height:6px;width:${v??0}%;background:${geoC2(v)};border-radius:3px"></div></div></div>`;}).join('');
+        const geoRows = [{k:'ai_readiness',l:'AI Readiness Score',d:'Prontezza complessiva per AI'},{k:'answer_extraction',l:'Answer Extraction',d:'Risposte dirette estraibili'},{k:'quality_safety',l:'Quality Safety',d:'Qualità e sicurezza contenuti'},{k:'ai_visibility',l:'AI Visibility',d:'Visibilità stimata su sistemi AI'},{k:'entity_authority',l:'Entity Authority',d:'Autorevolezza entità semantiche'},{k:'chunk_avg',l:'Chunk Citation avg',d:'Media citabilità blocchi contenuto'},{k:'citation_avg',l:'Citation Engine avg',d:'Media score citation engine'}].map(({k,l,d})=>{const v=geo[k]??null;return `<div style="margin-bottom:18px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div><span style="font-size:14px;font-weight:700">${l}</span><span style="font-size:12px;color:var(--grey);margin-left:8px">${d}</span></div><span style="background:${geoBg(v)};color:${geoBc(v)};font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px">${v!==null?v+'/100':'N/D'}</span></div><div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden"><div style="height:6px;width:${v??0}%;background:${geoC2(v)};border-radius:3px"></div></div></div>`;}).join('');
 
         el.innerHTML = `
             <button class="btn-back" id="btn-back-detail">← Torna alle installazioni</button>
