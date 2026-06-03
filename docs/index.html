@@ -839,11 +839,10 @@
                 const err = json.error || (res.status === 404 ? 'Endpoint mancante — plugin precedente alla v1.7.0' : `HTTP ${res.status}`);
                 return { site_id: site.site_id, site_name: site.site_name, ok: false, message: err };
             }
-            // Se già aggiornato, sincronizza la versione reale su Supabase (non aspettare il heartbeat)
-            if (json.skipped && json.current) {
-                _SB.from('isi_sites').update({ plugin_version: json.current }).eq('site_id', site.site_id).then(() => {});
-            }
-            return { site_id: site.site_id, site_name: site.site_name, ok: true, skipped: json.skipped ?? false, actualVersion: json.current || ver.version, message: json.skipped ? `Già v${json.current}` : `Aggiornato a v${ver.version}` };
+            // Sincronizza subito la versione su Supabase senza aspettare il heartbeat
+            const newVer = json.current || ver.version;
+            _SB.from('isi_sites').update({ plugin_version: newVer, pending_update: false }).eq('site_id', site.site_id).then(() => {});
+            return { site_id: site.site_id, site_name: site.site_name, ok: true, skipped: json.skipped ?? false, actualVersion: newVer, message: json.skipped ? `Già v${json.current}` : `Aggiornato a v${ver.version}` };
         } catch(e) {
             const offline = e.name === 'AbortError' || e.message === 'Failed to fetch' || e.message.includes('fetch');
             return { site_id: site.site_id, site_name: site.site_name, ok: false, message: offline ? 'Sito offline o non raggiungibile' : e.message };
