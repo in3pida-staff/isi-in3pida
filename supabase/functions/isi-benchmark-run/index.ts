@@ -3,7 +3,6 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 const SUPABASE_URL         = Deno.env.get('SUPABASE_URL')!;
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const ANON_KEY             = Deno.env.get('SUPABASE_ANON_KEY')!;
-const GEMINI_API_KEY       = Deno.env.get('GEMINI_API_KEY')!;
 
 const cors = {
   'Access-Control-Allow-Origin': '*',
@@ -21,7 +20,8 @@ async function isAuthorized(req: Request): Promise<boolean> {
 
 function cosineSimilarity(a: number[], b: number[]): number {
   let dot = 0, magA = 0, magB = 0;
-  for (let i = 0; i < a.length; i++) {
+  const len = Math.min(a.length, b.length);
+  for (let i = 0; i < len; i++) {
     dot  += a[i] * b[i];
     magA += a[i] * a[i];
     magB += b[i] * b[i];
@@ -30,26 +30,40 @@ function cosineSimilarity(a: number[], b: number[]): number {
   return denom === 0 ? 0 : dot / denom;
 }
 
-async function embed(text: string): Promise<number[]> {
-  const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1/models/gemini-embedding-001:embedContent?key=${GEMINI_API_KEY}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'models/gemini-embedding-001',
-        content: { parts: [{ text: text.slice(0, 8000) }] },
-      }),
+function tokenize(text: string): string[] {
+  return text.toLowerCase()
+    .replace(/[^\wàèéìíîòóùú\s]/g, ' ')
+    .split(/\s+/)
+    .filter(t => t.length > 2);
+}
+
+function buildVocab(texts: string[]): Map<string, number> {
+  const vocab = new Map<string, number>();
+  for (const text of texts) {
+    for (const token of tokenize(text)) {
+      if (!vocab.has(token)) vocab.set(token, vocab.size);
     }
-  );
-  const data = await res.json();
-  if (!data.embedding?.values) throw new Error('Gemini embedding error: ' + JSON.stringify(data).slice(0, 200));
-  return data.embedding.values;
+  }
+  return vocab;
+}
+
+function tfidf(text: string, vocab: Map<string, number>, df: Map<string, number>, N: number): number[] {
+  const tokens = tokenize(text);
+  const tf = new Map<string, number>();
+  for (const t of tokens) tf.set(t, (tf.get(t) || 0) + 1);
+  const vec = new Array(vocab.size).fill(0);
+  for (const [term, count] of tf) {
+    const idx = vocab.get(term);
+    if (idx !== undefined) {
+      const idf = Math.log((N + 1) / ((df.get(term) || 0) + 1)) + 1;
+      vec[idx] = (count / tokens.length) * idf;
+    }
+  }
+  return vec;
 }
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
-
   if (!(await isAuthorized(req))) {
     return new Response(JSON.stringify({ error: 'Non autorizzato' }), { status: 401, headers: cors });
   }
@@ -63,7 +77,7 @@ Deno.serve(async (req) => {
     if (!site_id) return new Response(JSON.stringify({ error: 'site_id richiesto' }), { status: 400, headers: cors });
 
     const [{ data: embeddings }, { data: tests }, { data: site }] = await Promise.all([
-      admin.from('isi_chunk_embeddings').select('chunk_id,chunk_title,chunk_type,embedding').eq('site_id', site_id),
+      admin.from('isi_chunk_embeddings').select('chunk_id,chunk_title,chunk_type,chunk_content,embedding').eq('site_id', site_id),
       admin.from('isi_benchmark_tests').select('query,expected_chunk_id').eq('site_id', site_id),
       admin.from('isi_sites').select('site_name').eq('site_id', site_id).single(),
     ]);
@@ -75,13 +89,23 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: 'Nessun test. Esegui prima Setup Benchmark.' }), { status: 400, headers: cors });
     }
 
+    // Rebuild vocabulary from stored chunk content
+    const allTexts = (embeddings as any[]).map(e => `${e.chunk_title} ${e.chunk_content ?? ''}`);
+    const vocab = buildVocab(allTexts);
+    const df = new Map<string, number>();
+    for (const text of allTexts) {
+      const seen = new Set(tokenize(text));
+      for (const t of seen) df.set(t, (df.get(t) || 0) + 1);
+    }
+    const N = allTexts.length;
+
     const results = [];
     let passed1 = 0, passed3 = 0, rrSum = 0;
     const t0 = Date.now();
 
-    for (const test of tests) {
+    for (const test of tests!) {
       const tq = Date.now();
-      const queryVec = await embed(test.query);
+      const queryVec = tfidf(test.query, vocab, df, N);
 
       const ranked = (embeddings as any[])
         .map(e => ({
@@ -111,7 +135,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    const total      = tests.length;
+    const total      = tests!.length;
     const precision1 = parseFloat(((passed1 / total) * 100).toFixed(1));
     const precision3 = parseFloat(((passed3 / total) * 100).toFixed(1));
     const mrr        = parseFloat((rrSum / total).toFixed(3));
