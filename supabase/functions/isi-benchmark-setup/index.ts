@@ -4,7 +4,7 @@ const SUPABASE_URL         = Deno.env.get('SUPABASE_URL')!;
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const ANON_KEY             = Deno.env.get('SUPABASE_ANON_KEY')!;
 const ANTHROPIC_API_KEY    = Deno.env.get('ANTHROPIC_API_KEY')!;
-const OPENAI_API_KEY       = Deno.env.get('OPENAI_API_KEY')!;
+const GEMINI_API_KEY       = Deno.env.get('GEMINI_API_KEY')!;
 
 const cors = {
   'Access-Control-Allow-Origin': '*',
@@ -24,14 +24,20 @@ async function isAuthorized(req: Request): Promise<boolean> {
 }
 
 async function embed(text: string): Promise<number[]> {
-  const res = await fetch('https://api.openai.com/v1/embeddings', {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${OPENAI_API_KEY}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ model: 'text-embedding-3-small', input: text.slice(0, 8000) }),
-  });
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:embedContent?key=${GEMINI_API_KEY}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'models/text-embedding-004',
+        content: { parts: [{ text: text.slice(0, 8000) }] },
+      }),
+    }
+  );
   const data = await res.json();
-  if (!data.data?.[0]?.embedding) throw new Error('OpenAI embedding error: ' + JSON.stringify(data).slice(0, 200));
-  return data.data[0].embedding;
+  if (!data.embedding?.values) throw new Error('Gemini embedding error: ' + JSON.stringify(data).slice(0, 200));
+  return data.embedding.values;
 }
 
 async function generateQuestions(chunkTitle: string, chunkContent: string): Promise<string[]> {
