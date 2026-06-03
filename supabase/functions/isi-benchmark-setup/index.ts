@@ -3,7 +3,6 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 const SUPABASE_URL         = Deno.env.get('SUPABASE_URL')!;
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const ANON_KEY             = Deno.env.get('SUPABASE_ANON_KEY')!;
-const ANTHROPIC_API_KEY    = Deno.env.get('ANTHROPIC_API_KEY')!;
 const GEMINI_API_KEY       = Deno.env.get('GEMINI_API_KEY')!;
 
 const cors = {
@@ -41,28 +40,22 @@ async function embed(text: string): Promise<number[]> {
 }
 
 async function generateQuestions(chunkTitle: string, chunkContent: string): Promise<string[]> {
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'x-api-key': ANTHROPIC_API_KEY,
-      'anthropic-version': '2023-06-01',
-      'content-type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 200,
-      system: `Sei un assistente che genera domande naturali in italiano per testare un sistema di retrieval.
-Dato un blocco di informazioni su una struttura ricettiva, genera esattamente 3 domande naturali a cui quel blocco risponde direttamente.
-Le domande devono essere quelle di un ospite reale: brevi, concrete, in italiano.
-Rispondi SOLO con un array JSON di 3 stringhe, nessun testo extra.`,
-      messages: [{
-        role: 'user',
-        content: `Titolo: ${chunkTitle}\nContenuto: ${chunkContent.slice(0, 500)}`,
-      }],
-    }),
-  });
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: `Sei un assistente che genera domande naturali in italiano per testare un sistema di retrieval. Dato un blocco di informazioni su una struttura ricettiva, genera esattamente 3 domande naturali a cui quel blocco risponde direttamente. Le domande devono essere quelle di un ospite reale: brevi, concrete, in italiano. Rispondi SOLO con un array JSON di 3 stringhe, nessun testo extra.\n\nTitolo: ${chunkTitle}\nContenuto: ${chunkContent.slice(0, 500)}` }] }],
+        generationConfig: { maxOutputTokens: 300 },
+      }),
+    }
+  );
   const data = await res.json();
-  try { return JSON.parse(data.content?.[0]?.text ?? '[]'); } catch { return []; }
+  try {
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text ?? '[]';
+    return JSON.parse(text.replace(/```json|```/g, '').trim());
+  } catch { return []; }
 }
 
 Deno.serve(async (req) => {
