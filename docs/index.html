@@ -504,8 +504,8 @@
         }
         const now = new Date();
         let html = `<table class="sites-table"><thead><tr>
-            <th>Stato</th><th>Sito</th><th>Segnale</th><th>Ver.</th>
-            <th>GEO</th><th>Missing</th><th>Completezza</th><th>Azioni</th>
+            <th>Stato</th><th>Sito</th><th>Ultimo segnale</th><th>Versione</th>
+            <th>GEO Score</th><th>Missing Answer</th><th>Completezza AI</th><th>Azioni</th>
         </tr></thead><tbody>`;
 
         data.forEach(site => {
@@ -552,7 +552,7 @@
                 <td>${geoHtml}</td>
                 <td>${covHtml}</td>
                 <td>${csHtml}</td>
-                <td style="white-space:nowrap"><div style="display:inline-flex;gap:5px;align-items:center">${isOld||!latestVersion?`<button class="btn-update" style="font-size:11px;padding:4px 10px" onclick="event.stopPropagation();aggiornaSito('${escHtml(site.site_id)}')">Aggiorna</button>`:`<button class="btn-update" style="font-size:11px;padding:4px 10px;background:var(--grey-dot);color:var(--grey);cursor:default" disabled>✓</button>`}<button class="btn-ping" style="font-size:11px;padding:4px 10px" onclick="event.stopPropagation();forceSync('${escHtml(site.site_id)}','${escHtml(site.site_url||'')}',this)" title="Sincronizza ora">⚡</button><button class="btn-ping" style="font-size:11px;padding:4px 10px" onclick="event.stopPropagation();toggleSitoAttivo('${escHtml(site.site_id)}','${escHtml(site.site_url||'')}',this)">Off</button></div></td>
+                <td style="white-space:nowrap"><div style="display:inline-flex;gap:5px;align-items:center">${isOld||!latestVersion?`<button class="btn-update" style="font-size:11px;padding:4px 10px" onclick="event.stopPropagation();aggiornaSito('${escHtml(site.site_id)}')">Aggiorna</button>`:`<button class="btn-update" style="font-size:11px;padding:4px 10px;background:var(--grey-dot);color:var(--grey);cursor:default" disabled>✓ OK</button>`}<button class="btn-ping" style="font-size:11px;padding:4px 10px" onclick="event.stopPropagation();forceSync('${escHtml(site.site_id)}','${escHtml(site.site_url||'')}',this)">⚡ Sync</button><button class="btn-ping" style="font-size:11px;padding:4px 10px" onclick="event.stopPropagation();toggleSitoAttivo('${escHtml(site.site_id)}','${escHtml(site.site_url||'')}',this)">Disattiva</button></div></td>
             </tr>`;
         });
         html += '</tbody></table>';
