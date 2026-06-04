@@ -401,22 +401,16 @@
         const file = e.target.files[0];
         if (!file) return;
         if (file.size > 2*1024*1024) { showProfileMsg('error','File troppo grande (max 2MB)'); return; }
-        const { data: { user } } = await _SB.auth.getUser();
-        const path = `avatars/${user.id}_${Date.now()}.${file.name.split('.').pop()}`;
-        const { error: upErr } = await _SB.storage.from('avatars').upload(path, file, { upsert:true });
-        if (upErr) {
-            const isBucket = upErr.message?.toLowerCase().includes('bucket') || upErr.message?.toLowerCase().includes('not found') || upErr.message?.toLowerCase().includes('object');
-            const msg = isBucket
-                ? 'Bucket "avatars" non trovato. Crealo in Supabase: Storage → New bucket → nome "avatars" → Public.'
-                : 'Errore upload: '+upErr.message;
-            showProfileMsg('error', msg);
-            return;
-        }
-        const { data: { publicUrl } } = _SB.storage.from('avatars').getPublicUrl(path);
-        document.getElementById('profile-avatar-preview').innerHTML = `<img src="${publicUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
-        await _SB.auth.updateUser({ data: { avatar_url: publicUrl } });
-        setAvatar(publicUrl);
-        showProfileMsg('success','Foto aggiornata!');
+        // Converte in base64 e salva nel metadata utente (evita dipendenza da policy RLS storage)
+        const reader = new FileReader();
+        reader.onload = async ev => {
+            const dataUrl = ev.target.result;
+            document.getElementById('profile-avatar-preview').innerHTML = `<img src="${dataUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+            await _SB.auth.updateUser({ data: { avatar_url: dataUrl } });
+            setAvatar(dataUrl);
+            showProfileMsg('success','Foto aggiornata!');
+        };
+        reader.readAsDataURL(file);
     });
 
     document.getElementById('btn-save-profile').addEventListener('click', async () => {
