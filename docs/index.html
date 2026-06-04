@@ -439,6 +439,7 @@
 
     // ─── NAVIGAZIONE ─────────────────────────────────────────────────────────────
     NAV_TABS.forEach(t => document.getElementById('nav-'+t).addEventListener('click', () => loadTab(t)));
+    document.getElementById('nav-home').addEventListener('click', () => loadTab('panoramica'));
 
     function showView(view) {
         ALL_VIEWS.forEach(v => {
@@ -851,14 +852,14 @@
                 signal: AbortSignal.timeout(20000),
             });
             if (r.ok) {
-                btn.textContent = '✓';
-                setTimeout(() => loadTab(currentTab), 1500);
+                btn.textContent = '✓ Sync OK';
+                setTimeout(() => loadSiteDetail(siteId), 800);
             } else {
-                btn.textContent = '✗';
+                btn.textContent = `✗ Errore (${r.status})`;
                 setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 3000);
             }
         } catch(e) {
-            btn.textContent = '✗';
+            btn.textContent = '✗ Non raggiungibile';
             setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 3000);
         }
     }
