@@ -1235,6 +1235,27 @@
     });
 
     init();
+
+    // Tooltip per .tip-q — appeso al body, sempre in primo piano
+    const _tipEl = document.createElement('div');
+    _tipEl.style.cssText = 'position:fixed;z-index:99999;background:#fff;color:#171b33;border:1.5px solid #009bb9;font-size:12px;font-weight:500;line-height:1.6;padding:10px 13px;border-radius:8px;width:210px;white-space:normal;pointer-events:none;box-shadow:0 4px 18px rgba(0,155,185,.18);display:none';
+    document.body.appendChild(_tipEl);
+    document.addEventListener('mouseover', e => {
+        const t = e.target.closest('.tip-q');
+        if (!t) return;
+        _tipEl.textContent = t.dataset.tip;
+        _tipEl.style.display = 'block';
+    });
+    document.addEventListener('mousemove', e => {
+        if (_tipEl.style.display === 'none') return;
+        const x = e.clientX, y = e.clientY;
+        const w = _tipEl.offsetWidth, h = _tipEl.offsetHeight;
+        _tipEl.style.left = (x + 14 + w > window.innerWidth ? x - w - 10 : x + 14) + 'px';
+        _tipEl.style.top  = (y - 10 + h > window.innerHeight ? y - h + 10 : y - 10) + 'px';
+    });
+    document.addEventListener('mouseout', e => {
+        if (e.target.closest('.tip-q')) _tipEl.style.display = 'none';
+    });
     </script>
 </body>
 </html>
