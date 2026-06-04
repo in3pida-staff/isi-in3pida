@@ -504,8 +504,8 @@
         }
         const now = new Date();
         let html = `<table class="sites-table"><thead><tr>
-            <th style="white-space:nowrap">Stato</th><th style="white-space:nowrap">Sito</th><th style="white-space:nowrap">Ultimo segnale</th><th>Versione</th>
-            <th>GEO Score</th><th style="white-space:nowrap">Missing Answer</th><th style="white-space:nowrap">Completezza AI</th><th style="white-space:nowrap">Registrato il</th><th>Azioni</th>
+            <th>Stato</th><th>Sito</th><th>Segnale</th><th>Ver.</th>
+            <th>GEO</th><th>Missing</th><th>Completezza</th><th>Azioni</th>
         </tr></thead><tbody>`;
 
         data.forEach(site => {
@@ -518,14 +518,14 @@
             const geoAvg = geo.completeness_score != null ? geo.completeness_score : (geo.ai_readiness != null ? geo.ai_readiness : (rawFallback.length ? Math.round(rawFallback.reduce((a,b)=>a+b,0)/rawFallback.length) : null));
             const geoAvgBg = geoAvg===null?'#fbf4f7':geoAvg>=70?'#e9f7fb':geoAvg>=40?'#fbf4f7':'#fce8ef';
             const geoAvgTc = geoAvg===null?'#666b84':geoAvg>=70?'#009bb9':geoAvg>=40?'#d82d6b':'#b00020';
-            const geoHtml = geoAvg!==null ? `<span style="background:${geoAvgBg};color:${geoAvgTc};font-size:13px;font-weight:700;padding:4px 14px;border-radius:20px">${geoAvg}/100</span>` : `<span style="color:#666b84;font-size:12px">—</span>`;
+            const geoHtml = geoAvg!==null ? `<span style="background:${geoAvgBg};color:${geoAvgTc};font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap">${geoAvg}/100</span>` : `<span style="color:#666b84;font-size:12px">—</span>`;
             const covPct = geo.coverage_pct ?? null;
             const covHtml = covPct !== null
-                ? `<span style="background:${covPct>=80?'#e9f7fb':covPct>=50?'#fbf4f7':'#fce8ef'};color:${covPct>=80?'#009bb9':covPct>=50?'#d82d6b':'#b00020'};font-size:13px;font-weight:700;padding:4px 14px;border-radius:20px;white-space:nowrap">${covPct}%</span>`
+                ? `<span style="background:${covPct>=80?'#e9f7fb':covPct>=50?'#fbf4f7':'#fce8ef'};color:${covPct>=80?'#009bb9':covPct>=50?'#d82d6b':'#b00020'};font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap">${covPct}%</span>`
                 : `<span style="color:#666b84;font-size:12px">—</span>`;
             const cs = geo.completeness_score ?? null;
             const csHtml = cs !== null
-                ? `<span style="background:${cs>=70?'#e9f7fb':cs>=40?'#fbf4f7':'#fce8ef'};color:${cs>=70?'#009bb9':cs>=40?'#d82d6b':'#b00020'};font-size:13px;font-weight:700;padding:4px 14px;border-radius:20px">${cs}/100</span>`
+                ? `<span style="background:${cs>=70?'#e9f7fb':cs>=40?'#fbf4f7':'#fce8ef'};color:${cs>=70?'#009bb9':cs>=40?'#d82d6b':'#b00020'};font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap">${cs}/100</span>`
                 : `<span style="color:#666b84;font-size:12px">—</span>`;
             const isOld = latestVersion && site.plugin_version && semverGt(latestVersion.version, site.plugin_version);
             const verHtml = `<span style="font-weight:600">${escHtml(site.plugin_version||'—')}</span>${isOld?` <span style="background:rgba(216,45,107,0.08);color:var(--magenta);font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;vertical-align:middle">aggiornare</span>`:''}`;
@@ -552,8 +552,7 @@
                 <td>${geoHtml}</td>
                 <td>${covHtml}</td>
                 <td>${csHtml}</td>
-                <td style="color:var(--grey);font-size:12px;white-space:nowrap">${regIl}</td>
-                <td style="white-space:nowrap"><div style="display:inline-flex;gap:6px;align-items:center">${isOld||!latestVersion?`<button class="btn-update" style="font-size:11px;padding:5px 12px" onclick="event.stopPropagation();aggiornaSito('${escHtml(site.site_id)}')">Aggiorna</button>`:`<button class="btn-update" style="font-size:11px;padding:5px 12px;background:var(--grey-dot);color:var(--grey);cursor:default" disabled>✓ OK</button>`}<button class="btn-ping" style="font-size:11px;padding:5px 12px" onclick="event.stopPropagation();forceSync('${escHtml(site.site_id)}','${escHtml(site.site_url||'')}',this)">⚡ Sync</button><button class="btn-ping" style="font-size:11px;padding:5px 10px" onclick="event.stopPropagation();toggleSitoAttivo('${escHtml(site.site_id)}','${escHtml(site.site_url||'')}',this)">Disattiva</button></div></td>
+                <td style="white-space:nowrap"><div style="display:inline-flex;gap:5px;align-items:center">${isOld||!latestVersion?`<button class="btn-update" style="font-size:11px;padding:4px 10px" onclick="event.stopPropagation();aggiornaSito('${escHtml(site.site_id)}')">Aggiorna</button>`:`<button class="btn-update" style="font-size:11px;padding:4px 10px;background:var(--grey-dot);color:var(--grey);cursor:default" disabled>✓</button>`}<button class="btn-ping" style="font-size:11px;padding:4px 10px" onclick="event.stopPropagation();forceSync('${escHtml(site.site_id)}','${escHtml(site.site_url||'')}',this)" title="Sincronizza ora">⚡</button><button class="btn-ping" style="font-size:11px;padding:4px 10px" onclick="event.stopPropagation();toggleSitoAttivo('${escHtml(site.site_id)}','${escHtml(site.site_url||'')}',this)">Off</button></div></td>
             </tr>`;
         });
         html += '</tbody></table>';
