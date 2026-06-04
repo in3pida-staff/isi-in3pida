@@ -505,7 +505,10 @@
         const now = new Date();
         let html = `<table class="sites-table"><thead><tr>
             <th>Stato</th><th>Sito</th><th>Ultimo segnale</th><th>Versione</th>
-            <th>GEO Score</th><th>Missing Answer</th><th>Completezza AI</th><th>Azioni</th>
+            <th class="th-center">GEO Score <span class="tip-q" data-tip="Quanto il sito è ottimizzato per essere citato dai motori AI come ChatGPT e Google.">?</span></th>
+            <th class="th-center">Missing Answer <span class="tip-q" data-tip="Percentuale di domande degli utenti a cui il sito sa rispondere. Più è alto, meno risposte mancano.">?</span></th>
+            <th class="th-center">Completezza AI <span class="tip-q" data-tip="Quanto il profilo dell'hotel è completo: nome, indirizzo, telefono, descrizione, FAQ ecc.">?</span></th>
+            <th>Azioni</th>
         </tr></thead><tbody>`;
 
         data.forEach(site => {
@@ -549,9 +552,9 @@
                 <td><div class="site-name-cell">${escHtml(site.site_name||'—')}</div><div style="font-size:11px;color:var(--grey);margin-top:2px">${escHtml(site.site_url||'')}</div></td>
                 <td style="font-size:12px;color:${hbColor};font-weight:600">${hbTesto}</td>
                 <td>${verHtml}</td>
-                <td>${geoHtml}</td>
-                <td>${covHtml}</td>
-                <td>${csHtml}</td>
+                <td class="td-center">${geoHtml}</td>
+                <td class="td-center">${covHtml}</td>
+                <td class="td-center">${csHtml}</td>
                 <td style="white-space:nowrap"><div style="display:inline-flex;gap:5px;align-items:center">${isOld||!latestVersion?`<button class="btn-update" style="font-size:11px;padding:4px 10px" onclick="event.stopPropagation();aggiornaSito('${escHtml(site.site_id)}')">Aggiorna</button>`:`<button class="btn-update" style="font-size:11px;padding:4px 10px;background:var(--grey-dot);color:var(--grey);cursor:default" disabled>✓ OK</button>`}<button class="btn-ping" style="font-size:11px;padding:4px 10px" onclick="event.stopPropagation();forceSync('${escHtml(site.site_id)}','${escHtml(site.site_url||'')}',this)">⚡ Sync</button><button class="btn-ping" style="font-size:11px;padding:4px 10px" onclick="event.stopPropagation();toggleSitoAttivo('${escHtml(site.site_id)}','${escHtml(site.site_url||'')}',this)">Disattiva</button></div></td>
             </tr>`;
         });
