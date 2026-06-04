@@ -471,11 +471,11 @@
         document.getElementById('kpi-siti').textContent = sitesRes.count ?? 0;
         if (latestVerRes.data) {
             const v = latestVerRes.data;
-            document.getElementById('kpi-latest-version').textContent = 'v' + v.version;
+            document.getElementById('kpi-latest-version').textContent = v.version;
             if (v.released_at) {
                 const d = new Date(v.released_at);
                 const fmt = d.toLocaleDateString('it-IT', {day:'2-digit', month:'2-digit', year:'numeric'});
-                document.getElementById('kpi-latest-label').textContent = fmt + ' — Ultima versione';
+                document.getElementById('kpi-latest-date').textContent = fmt;
             }
         }
         const siti = tuttiSiti.data ?? [];
