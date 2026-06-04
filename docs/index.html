@@ -175,10 +175,10 @@
                     <div class="sw-stat-text"><div class="sw-stat-num" id="kpi-siti">—</div><div class="sw-stat-label">Siti registrati</div></div>
                 </div>
                 <div class="sw-stat-card">
-                    <div class="sw-stat-icon" style="background:var(--cyan)">
-                        <svg width="24" height="24" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 20V10M18 20V4M6 20v-4"/></svg>
+                    <div class="sw-stat-icon" style="background:var(--magenta)">
+                        <svg width="24" height="24" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 4v12M6 10l6-6 6 6"/><path d="M6 20h12"/></svg>
                     </div>
-                    <div class="sw-stat-text"><div class="sw-stat-num" id="kpi-benchmark">—</div><div class="sw-stat-label">Benchmark eseguiti</div></div>
+                    <div class="sw-stat-text"><div class="sw-stat-num" id="kpi-latest-version">—</div><div class="sw-stat-label" id="kpi-latest-label">Ultima versione</div></div>
                 </div>
             </div>
             <div class="card">
@@ -459,15 +459,21 @@
 
     // ─── PANORAMICA ──────────────────────────────────────────────────────────────
     async function loadPanoramica() {
-        const now = new Date();
-        const inizioMese = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-        const [sitesRes, benchRes, tuttiSiti] = await Promise.all([
+        const [sitesRes, latestVerRes, tuttiSiti] = await Promise.all([
             _SB.from('isi_sites').select('site_id', {count:'exact'}),
-            _SB.from('isi_benchmark_runs').select('site_id', {count:'exact'}),
+            _SB.from('isi_plugin_versions').select('version,released_at').eq('is_current', true).single(),
             _SB.from('isi_sites').select('*').order('last_heartbeat',{ascending:false}),
         ]);
         document.getElementById('kpi-siti').textContent = sitesRes.count ?? 0;
-        document.getElementById('kpi-benchmark').textContent = benchRes.count ?? 0;
+        if (latestVerRes.data) {
+            const v = latestVerRes.data;
+            document.getElementById('kpi-latest-version').textContent = 'v' + v.version;
+            if (v.released_at) {
+                const d = new Date(v.released_at);
+                const fmt = d.toLocaleDateString('it-IT', {day:'2-digit', month:'2-digit', year:'numeric'});
+                document.getElementById('kpi-latest-label').textContent = fmt + ' — Ultima versione';
+            }
+        }
         const siti = tuttiSiti.data ?? [];
         document.getElementById('panoramica-count').textContent = siti.length+(siti.length===1?' sito':' siti');
         allSiti = siti;
@@ -863,6 +869,14 @@
             // Sincronizza subito la versione su Supabase senza aspettare il heartbeat
             const newVer = json.current || ver.version;
             _SB.from('isi_sites').update({ plugin_version: newVer, pending_update: false }).eq('site_id', site.site_id).then(() => {});
+            // Forza heartbeat immediato con il nuovo codice del plugin
+            if (!json.skipped) {
+                fetch(base + '/wp-json/in3pida/v1/force-heartbeat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    signal: AbortSignal.timeout(15000),
+                }).catch(() => {});
+            }
             return { site_id: site.site_id, site_name: site.site_name, ok: true, skipped: json.skipped ?? false, actualVersion: newVer, message: json.skipped ? `Già v${json.current}` : `Aggiornato a v${ver.version}` };
         } catch(e) {
             const offline = e.name === 'AbortError' || e.message === 'Failed to fetch' || e.message.includes('fetch');
