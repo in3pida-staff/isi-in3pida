@@ -510,7 +510,6 @@
 
         data.forEach(site => {
             const hrs = site.last_heartbeat ? (now - new Date(site.last_heartbeat))/3600000 : 9999;
-            const dotClass = hrs<25?'green':hrs<48?'yellow':'red';
             const hbTesto  = site.last_heartbeat ? timeAgo(site.last_heartbeat) : 'Mai';
             const hbColor  = hrs<25?'#009bb9':hrs<48?'#d82d6b':'#b00020';
             const geo = site.geo_scores || {};
