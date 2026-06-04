@@ -302,12 +302,12 @@ textarea.profile-input { resize: vertical; }
 /* ─── TABLE ──────────────────────────────────────────────────────────────── */
 table.sites-table { width: 100%; border-collapse: collapse; }
 table.sites-table th {
-    text-align: left; padding: 12px 26px;
+    text-align: left; padding: 12px 14px;
     font-size: 11px; font-weight: 700; color: #999;
     background: #fafafa; border-bottom: 1px solid var(--border);
     white-space: nowrap;
 }
-table.sites-table td { padding: 15px 26px; font-size: 13px; border-bottom: 1px solid #f4f4f8; }
+table.sites-table td { padding: 13px 14px; font-size: 13px; border-bottom: 1px solid #f4f4f8; }
 table.sites-table tr:last-child td { border-bottom: none; }
 table.sites-table tbody tr { transition: background .12s; }
 table.sites-table tbody tr:hover td { background: #fdf0f5; }
