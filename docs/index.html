@@ -579,7 +579,10 @@
         const geoRows = [{k:'ai_readiness',l:'AI Readiness Score',d:'Prontezza complessiva per AI'},{k:'answer_extraction',l:'Answer Extraction',d:'Risposte dirette estraibili'},{k:'quality_safety',l:'Quality Safety',d:'Qualità e sicurezza contenuti'},{k:'ai_visibility',l:'AI Visibility',d:'Visibilità stimata su sistemi AI'},{k:'entity_authority',l:'Entity Authority',d:'Autorevolezza entità semantiche'},{k:'chunk_avg',l:'Chunk Citation avg',d:'Media citabilità blocchi contenuto'},{k:'citation_avg',l:'Citation Engine avg',d:'Media score citation engine'}].map(({k,l,d})=>{const v=geo[k]??null;return `<div style="margin-bottom:18px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div><span style="font-size:14px;font-weight:700">${l}</span><span style="font-size:12px;color:var(--grey);margin-left:8px">${d}</span></div><span style="background:${geoBg(v)};color:${geoBc(v)};font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px">${v!==null?v+'/100':'N/D'}</span></div><div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden"><div style="height:6px;width:${v??0}%;background:${geoC2(v)};border-radius:3px"></div></div></div>`;}).join('');
 
         el.innerHTML = `
-            <button class="btn-back" id="btn-back-detail">← Torna alle installazioni</button>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+                <button class="btn-back" id="btn-back-detail">← Torna alle installazioni</button>
+                <button id="btn-force-sync" class="btn-ping" style="font-size:13px;padding:8px 18px">🔄 Sincronizza ora</button>
+            </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
                 <div class="card" style="margin:0">
                     <div class="card-header"><div class="card-title">Stato semafori</div></div>
@@ -645,6 +648,29 @@
             `;
 
         document.getElementById('btn-back-detail').addEventListener('click', () => loadTab(currentTab));
+        document.getElementById('btn-force-sync').addEventListener('click', async () => {
+            const btn = document.getElementById('btn-force-sync');
+            const base = (site?.site_url || '').replace(/\/$/, '');
+            btn.textContent = '⏳ Sincronizzazione...';
+            btn.disabled = true;
+            try {
+                const r = await fetch(base + '/wp-json/in3pida/v1/force-heartbeat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    signal: AbortSignal.timeout(20000),
+                });
+                if (r.ok) {
+                    btn.textContent = '✓ Sincronizzato';
+                    setTimeout(() => loadSiteDetail(siteId), 1500);
+                } else {
+                    btn.textContent = '✗ Errore ' + r.status;
+                    setTimeout(() => { btn.textContent = '🔄 Sincronizza ora'; btn.disabled = false; }, 3000);
+                }
+            } catch(e) {
+                btn.textContent = '✗ Sito non raggiungibile';
+                setTimeout(() => { btn.textContent = '🔄 Sincronizza ora'; btn.disabled = false; }, 3000);
+            }
+        });
     }
 
     // ─── AGGIORNAMENTI ────────────────────────────────────────────────────────────
@@ -869,14 +895,12 @@
             // Sincronizza subito la versione su Supabase senza aspettare il heartbeat
             const newVer = json.current || ver.version;
             _SB.from('isi_sites').update({ plugin_version: newVer, pending_update: false }).eq('site_id', site.site_id).then(() => {});
-            // Forza heartbeat immediato con il nuovo codice del plugin
-            if (!json.skipped) {
-                fetch(base + '/wp-json/in3pida/v1/force-heartbeat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    signal: AbortSignal.timeout(15000),
-                }).catch(() => {});
-            }
+            // Forza heartbeat immediato per sincronizzare subito i punteggi
+            fetch(base + '/wp-json/in3pida/v1/force-heartbeat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                signal: AbortSignal.timeout(15000),
+            }).catch(() => {});
             return { site_id: site.site_id, site_name: site.site_name, ok: true, skipped: json.skipped ?? false, actualVersion: newVer, message: json.skipped ? `Già v${json.current}` : `Aggiornato a v${ver.version}` };
         } catch(e) {
             const offline = e.name === 'AbortError' || e.message === 'Failed to fetch' || e.message.includes('fetch');
