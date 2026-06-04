@@ -512,22 +512,22 @@
             const hrs = site.last_heartbeat ? (now - new Date(site.last_heartbeat))/3600000 : 9999;
             const dotClass = hrs<25?'green':hrs<48?'yellow':'red';
             const hbTesto  = site.last_heartbeat ? timeAgo(site.last_heartbeat) : 'Mai';
-            const hbColor  = hrs<25?'var(--green-text)':hrs<48?'var(--magenta)':'var(--red-text)';
+            const hbColor  = hrs<25?'#009bb9':hrs<48?'#d82d6b':'#b00020';
             const geo = site.geo_scores || {};
             const aiScores = [{k:'ai_readiness',l:'AI Readiness Score'},{k:'answer_extraction',l:'Answer Extraction'},{k:'quality_safety',l:'Quality Safety'},{k:'ai_visibility',l:'AI Visibility'},{k:'entity_authority',l:'Entity Authority'},{k:'chunk_avg',l:'Chunk Citation avg'},{k:'citation_avg',l:'Citation Engine avg'}];
             const rawFallback = [geo.chunk_avg, geo.citation_avg].filter(s=>s!=null);
             const geoAvg = geo.completeness_score != null ? geo.completeness_score : (geo.ai_readiness != null ? geo.ai_readiness : (rawFallback.length ? Math.round(rawFallback.reduce((a,b)=>a+b,0)/rawFallback.length) : null));
-            const geoAvgBg = geoAvg===null?'var(--grey-bg)':geoAvg>=70?'var(--green-bg)':geoAvg>=40?'rgba(0,155,185,0.12)':'var(--red-bg)';
-            const geoAvgTc = geoAvg===null?'var(--grey-text)':geoAvg>=70?'var(--green-text)':geoAvg>=40?'var(--cyan)':'var(--red-text)';
-            const geoHtml = geoAvg!==null ? `<span style="background:${geoAvgBg};color:${geoAvgTc};font-size:13px;font-weight:700;padding:4px 14px;border-radius:20px">${geoAvg}/100</span>` : `<span style="color:var(--grey-text);font-size:12px">—</span>`;
+            const geoAvgBg = geoAvg===null?'#fbf4f7':geoAvg>=70?'#e9f7fb':geoAvg>=40?'#fbf4f7':'#fce8ef';
+            const geoAvgTc = geoAvg===null?'#666b84':geoAvg>=70?'#009bb9':geoAvg>=40?'#d82d6b':'#b00020';
+            const geoHtml = geoAvg!==null ? `<span style="background:${geoAvgBg};color:${geoAvgTc};font-size:13px;font-weight:700;padding:4px 14px;border-radius:20px">${geoAvg}/100</span>` : `<span style="color:#666b84;font-size:12px">—</span>`;
             const covPct = geo.coverage_pct ?? null;
             const covHtml = covPct !== null
-                ? `<span style="background:${covPct>=80?'#e9f7fb':'#fce8ef'};color:${covPct>=80?'#009bb9':'#d82d6b'};font-size:13px;font-weight:700;padding:4px 14px;border-radius:20px">${covPct}% coperto</span>`
-                : `<span style="color:var(--grey-text);font-size:12px">—</span>`;
+                ? `<span style="background:${covPct>=80?'#e9f7fb':covPct>=50?'#fbf4f7':'#fce8ef'};color:${covPct>=80?'#009bb9':covPct>=50?'#d82d6b':'#b00020'};font-size:13px;font-weight:700;padding:4px 14px;border-radius:20px">${covPct}% coperto</span>`
+                : `<span style="color:#666b84;font-size:12px">—</span>`;
             const cs = geo.completeness_score ?? null;
             const csHtml = cs !== null
-                ? `<span style="background:${cs>=80?'#e9f7fb':'#fce8ef'};color:${cs>=80?'#009bb9':'#d82d6b'};font-size:13px;font-weight:700;padding:4px 14px;border-radius:20px">${cs}/100</span>`
-                : `<span style="color:var(--grey-text);font-size:12px">—</span>`;
+                ? `<span style="background:${cs>=70?'#e9f7fb':cs>=40?'#fbf4f7':'#fce8ef'};color:${cs>=70?'#009bb9':cs>=40?'#d82d6b':'#b00020'};font-size:13px;font-weight:700;padding:4px 14px;border-radius:20px">${cs}/100</span>`
+                : `<span style="color:#666b84;font-size:12px">—</span>`;
             const isOld = latestVersion && site.plugin_version && semverGt(latestVersion.version, site.plugin_version);
             const verHtml = `<span style="font-weight:600">${escHtml(site.plugin_version||'—')}</span>${isOld?` <span style="background:rgba(216,45,107,0.08);color:var(--magenta);font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;vertical-align:middle">aggiornare</span>`:''}`;
             const regIl = site.created_at ? new Date(site.created_at).toLocaleDateString('it-IT') : '—';
