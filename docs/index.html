@@ -176,9 +176,13 @@
                 </div>
                 <div class="sw-stat-card">
                     <div class="sw-stat-icon" style="background:var(--magenta)">
-                        <svg width="24" height="24" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 4v12M6 10l6-6 6 6"/><path d="M6 20h12"/></svg>
+                        <svg width="24" height="24" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
                     </div>
-                    <div class="sw-stat-text"><div class="sw-stat-num" id="kpi-latest-version">—</div><div class="sw-stat-label" id="kpi-latest-label">Ultima versione</div></div>
+                    <div class="sw-stat-text">
+                        <div class="sw-stat-num" id="kpi-latest-version" style="font-size:52px">—</div>
+                        <div style="font-size:12px;color:var(--grey);font-weight:500;margin-top:4px" id="kpi-latest-date"></div>
+                        <div class="sw-stat-label" style="margin-top:2px">Ultima versione</div>
+                    </div>
                 </div>
             </div>
             <div class="card">
@@ -546,9 +550,8 @@
         const el = document.getElementById('sito-detail-container');
         el.innerHTML = '<div class="loading"><div class="spinner"></div> Caricamento...</div>';
         const now = new Date();
-        const [{ data:site }, { data:benchRuns }] = await Promise.all([
+        const [{ data:site }] = await Promise.all([
             _SB.from('isi_sites').select('*').eq('site_id',siteId).single(),
-            _SB.from('isi_benchmark_runs').select('run_at,precision_1,precision_3,mrr,total_queries').eq('site_id',siteId).order('run_at',{ascending:false}).limit(5),
         ]);
         const hrs = site?.last_heartbeat ? (now - new Date(site.last_heartbeat))/3600000 : 9999;
         const geo = site?.geo_scores || {};
@@ -570,12 +573,9 @@
             return `<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #f4f4f8"><div style="display:flex;align-items:center;gap:12px"><span style="width:12px;height:12px;border-radius:50%;background:${c};flex-shrink:0;display:inline-block"></span><span style="font-size:14px;font-weight:600">${l}</span></div><span style="font-size:12px;color:var(--grey)">${d}</span></div>`;
         };
         const regIl = site?.created_at ? new Date(site.created_at).toLocaleDateString('it-IT',{day:'2-digit',month:'long',year:'numeric'}) : '—';
-        const benchTabella = !benchRuns?.length
-            ? '<div class="empty-state" style="padding:32px"><div class="empty-title">Nessun benchmark eseguito per questo sito</div></div>'
-            : `<table class="sites-table"><thead><tr><th>Data</th><th>Precision@1</th><th>Precision@3</th><th>MRR</th><th>Query</th></tr></thead><tbody>${benchRuns.map(r=>`<tr><td style="font-size:12px;color:var(--grey);white-space:nowrap">${new Date(r.run_at).toLocaleString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})}</td><td><strong style="color:var(--magenta)">${r.precision_1??'—'}%</strong></td><td><strong>${r.precision_3??'—'}%</strong></td><td>${r.mrr??'—'}</td><td style="color:var(--grey)">${r.total_queries??'—'}</td></tr>`).join('')}</tbody></table>`;
-        const geoC2 = v => v===null?'var(--grey-dot)':v>=70?'var(--green)':v>=40?'var(--cyan)':'var(--red)';
-        const geoBg = v => v===null?'var(--grey-bg)':v>=70?'var(--green-bg)':v>=40?'rgba(0,155,185,0.12)':'var(--red-bg)';
-        const geoBc = v => v===null?'var(--grey-text)':v>=70?'var(--green-text)':v>=40?'var(--cyan)':'var(--red-text)';
+        const geoC2 = v => v===null?'#ead0dc':v>=70?'#009bb9':v>=40?'#009bb9':'#d82d6b';
+        const geoBg = v => v===null?'#fbf4f7':v>=70?'#e9f7fb':v>=40?'rgba(0,155,185,0.12)':'#fce8ef';
+        const geoBc = v => v===null?'#666b84':v>=70?'#009bb9':v>=40?'var(--cyan)':'#d82d6b';
         const geoRows = [{k:'ai_readiness',l:'AI Readiness Score',d:'Prontezza complessiva per AI'},{k:'answer_extraction',l:'Answer Extraction',d:'Risposte dirette estraibili'},{k:'quality_safety',l:'Quality Safety',d:'Qualità e sicurezza contenuti'},{k:'ai_visibility',l:'AI Visibility',d:'Visibilità stimata su sistemi AI'},{k:'entity_authority',l:'Entity Authority',d:'Autorevolezza entità semantiche'},{k:'chunk_avg',l:'Chunk Citation avg',d:'Media citabilità blocchi contenuto'},{k:'citation_avg',l:'Citation Engine avg',d:'Media score citation engine'}].map(({k,l,d})=>{const v=geo[k]??null;return `<div style="margin-bottom:18px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div><span style="font-size:14px;font-weight:700">${l}</span><span style="font-size:12px;color:var(--grey);margin-left:8px">${d}</span></div><span style="background:${geoBg(v)};color:${geoBc(v)};font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px">${v!==null?v+'/100':'N/D'}</span></div><div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden"><div style="height:6px;width:${v??0}%;background:${geoC2(v)};border-radius:3px"></div></div></div>`;}).join('');
 
         el.innerHTML = `
@@ -615,34 +615,34 @@
             ${cs !== null ? `<div class="card" style="margin-bottom:20px">
                 <div class="card-header">
                     <div class="card-title">Completezza profilo AI</div>
-                    <span style="background:${cs>=80?'var(--green-bg)':cs>=50?'rgba(245,158,11,0.12)':'var(--red-bg)'};color:${cs>=80?'var(--green-text)':cs>=50?'#b45309':'var(--red-text)'};font-size:13px;font-weight:700;padding:3px 12px;border-radius:20px">${cs}/100</span>
+                    <span style="background:${cs>=80?'#e9f7fb':'#fce8ef'};color:${cs>=80?'#009bb9':'#d82d6b'};font-size:13px;font-weight:700;padding:3px 12px;border-radius:20px">${cs}/100</span>
                 </div>
                 <div style="padding:16px 20px">
-                    <div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-bottom:8px"><div style="height:6px;width:${cs}%;background:${cs>=80?'var(--green)':cs>=50?'#f59e0b':'var(--red)'};border-radius:3px"></div></div>
+                    <div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-bottom:8px"><div style="height:6px;width:${cs}%;background:${cs>=80?'#009bb9':'#d82d6b'};border-radius:3px"></div></div>
                     <div style="font-size:12px;color:var(--grey);margin-bottom:12px">${12-checklist.length} di 12 campi fondamentali compilati</div>
-                    ${checklist.length ? `<div style="font-size:11px;font-weight:700;color:var(--grey);letter-spacing:.06em;margin-bottom:8px">COSA MANCA</div>${checklist.map(item=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #f4f4f8"><span style="color:var(--red-text);font-weight:800;font-size:12px">✗</span><span style="font-size:13px">${escHtml(item)}</span></div>`).join('')}` : `<div style="padding:10px;background:#f0fdf4;border-radius:6px;font-size:13px;color:#166534;font-weight:600">Profilo completo — tutti i campi fondamentali compilati.</div>`}
+                    ${checklist.length ? `<div style="font-size:11px;font-weight:700;color:var(--grey);letter-spacing:.06em;margin-bottom:8px">COSA MANCA</div>${checklist.map(item=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #f4f4f8"><span style="color:#d82d6b;font-weight:800;font-size:12px">✗</span><span style="font-size:13px">${escHtml(item)}</span></div>`).join('')}` : `<div style="padding:10px;background:#e9f7fb;border-radius:6px;font-size:13px;color:#009bb9;font-weight:600">Profilo completo — tutti i campi fondamentali compilati.</div>`}
                 </div>
             </div>` : ''}
-            ${covPct !== null ? `<div class="card" style="margin-bottom:20px">
+            <div class="card" style="margin-bottom:20px">
                 <div class="card-header">
                     <div class="card-title">🎯 Missing Answer Detector</div>
-                    <span style="background:${covPct>=80?'var(--green-bg)':covPct>=50?'rgba(245,158,11,0.12)':'var(--red-bg)'};color:${covPct>=80?'var(--green-text)':covPct>=50?'#b45309':'var(--red-text)'};font-size:13px;font-weight:700;padding:3px 12px;border-radius:20px">${covPct}% coperto</span>
+                    ${covPct !== null
+                        ? `<span style="background:${covPct>=80?'#e9f7fb':'#fce8ef'};color:${covPct>=80?'#009bb9':'#d82d6b'};font-size:13px;font-weight:700;padding:3px 12px;border-radius:20px">${covPct}% coperto</span>`
+                        : `<span style="background:#fbf4f7;color:#666b84;font-size:13px;font-weight:700;padding:3px 12px;border-radius:20px">N/D</span>`
+                    }
                 </div>
                 <div style="padding:16px 20px">
-                    <div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-bottom:8px"><div style="height:6px;width:${covPct}%;background:${covPct>=80?'var(--green)':covPct>=50?'#f59e0b':'var(--red)'};border-radius:3px"></div></div>
-                    <div style="font-size:12px;color:var(--grey);margin-bottom:16px">${missingAnswers} domande senza risposta</div>
-                    ${freshAlerts.length?`<div style="margin-bottom:12px">${freshAlerts.map(a=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f4f4f8"><span style="color:var(--red-text);font-weight:800;font-size:12px">⚠</span><span style="font-size:13px">${escHtml(a)}</span></div>`).join('')}</div>`:''}
+                    <div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-bottom:8px"><div style="height:6px;width:${covPct??0}%;background:${covPct!==null?(covPct>=80?'#009bb9':'#d82d6b'):'#ead0dc'};border-radius:3px"></div></div>
+                    <div style="font-size:12px;color:var(--grey);margin-bottom:16px">${covPct!==null?missingAnswers+' domande senza risposta':'Dati non ancora disponibili — aggiorna il plugin per sincronizzare'}</div>
+                    ${covPct!==null&&freshAlerts.length?`<div style="margin-bottom:12px">${freshAlerts.map(a=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f4f4f8"><span style="color:#d82d6b;font-weight:800;font-size:12px">⚠</span><span style="font-size:13px">${escHtml(a)}</span></div>`).join('')}</div>`:''}
                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;font-size:12px;color:var(--grey)">
                         <div>Ultima FAQ: <strong>${daysFaq!==null?daysFaq+' giorni fa':'N/D'}</strong></div>
                         <div>Ultimo Schema: <strong>${daysSchema!==null?daysSchema+' giorni fa':'N/D'}</strong></div>
                     </div>
-                    ${missingQueries.length?`<div style="font-size:11px;font-weight:700;color:var(--grey);letter-spacing:.06em;margin-bottom:8px">RISPOSTE MANCANTI</div>${missingQueries.map(q=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f4f4f8"><span style="color:var(--red-text);font-weight:800;font-size:12px">✗</span><span style="font-size:13px">${escHtml(q)}</span></div>`).join('')}`:''}
+                    ${covPct!==null&&missingQueries.length?`<div style="font-size:11px;font-weight:700;color:var(--grey);letter-spacing:.06em;margin-bottom:8px">RISPOSTE MANCANTI</div>${missingQueries.map(q=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f4f4f8"><span style="color:#d82d6b;font-weight:800;font-size:12px">✗</span><span style="font-size:13px">${escHtml(q)}</span></div>`).join('')}`:''}
                 </div>
-            </div>` : ''}
-            <div class="card">
-                <div class="card-header"><div class="card-title">Retrieval Benchmark — ultimi run</div></div>
-                ${benchTabella}
-            </div>`;
+            </div>
+            `;
 
         document.getElementById('btn-back-detail').addEventListener('click', () => loadTab(currentTab));
     }
