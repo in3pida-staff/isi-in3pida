@@ -529,7 +529,7 @@
                 <td>${verHtml}</td>
                 <td>${geoHtml}</td>
                 <td style="color:var(--grey);font-size:12px;white-space:nowrap">${regIl}</td>
-                <td style="white-space:nowrap"><div style="display:inline-flex;gap:6px;align-items:center">${isOld||!latestVersion?`<button class="btn-update" style="font-size:11px;padding:5px 12px" onclick="event.stopPropagation();aggiornaSito('${escHtml(site.site_id)}')">Aggiorna</button>`:`<button class="btn-update" style="font-size:11px;padding:5px 12px;background:var(--grey-dot);color:var(--grey);cursor:default" disabled>✓ OK</button>`}<button class="btn-ping" style="font-size:11px;padding:5px 10px" onclick="event.stopPropagation();toggleSitoAttivo('${escHtml(site.site_id)}','${escHtml(site.site_url||'')}',this)">Disattiva</button></div></td>
+                <td style="white-space:nowrap"><div style="display:inline-flex;gap:6px;align-items:center">${isOld||!latestVersion?`<button class="btn-update" style="font-size:11px;padding:5px 12px" onclick="event.stopPropagation();aggiornaSito('${escHtml(site.site_id)}')">Aggiorna</button>`:`<button class="btn-update" style="font-size:11px;padding:5px 12px;background:var(--grey-dot);color:var(--grey);cursor:default" disabled>✓ OK</button>`}<button class="btn-ping" style="font-size:11px;padding:5px 12px" onclick="event.stopPropagation();forceSync('${escHtml(site.site_id)}','${escHtml(site.site_url||'')}',this)">⚡ Sync</button><button class="btn-ping" style="font-size:11px;padding:5px 10px" onclick="event.stopPropagation();toggleSitoAttivo('${escHtml(site.site_id)}','${escHtml(site.site_url||'')}',this)">Disattiva</button></div></td>
             </tr>`;
         });
         html += '</tbody></table>';
@@ -838,6 +838,29 @@
         if (s<3600) return Math.floor(s/60)+' min fa';
         if (s<86400) return Math.floor(s/3600)+' ore fa';
         return Math.floor(s/86400)+' giorni fa';
+    }
+    async function forceSync(siteId, siteUrl, btn) {
+        const base = (siteUrl || '').replace(/\/$/, '');
+        const orig = btn.textContent;
+        btn.textContent = '⏳';
+        btn.disabled = true;
+        try {
+            const r = await fetch(base + '/wp-json/in3pida/v1/force-heartbeat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                signal: AbortSignal.timeout(20000),
+            });
+            if (r.ok) {
+                btn.textContent = '✓';
+                setTimeout(() => loadTab(currentTab), 1500);
+            } else {
+                btn.textContent = '✗';
+                setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 3000);
+            }
+        } catch(e) {
+            btn.textContent = '✗';
+            setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 3000);
+        }
     }
     function semverGt(a,b) {
         if (!a||!b) return false;
