@@ -521,7 +521,7 @@
             const geoHtml = geoAvg!==null ? `<span style="background:${geoAvgBg};color:${geoAvgTc};font-size:13px;font-weight:700;padding:4px 14px;border-radius:20px">${geoAvg}/100</span>` : `<span style="color:#666b84;font-size:12px">—</span>`;
             const covPct = geo.coverage_pct ?? null;
             const covHtml = covPct !== null
-                ? `<span style="background:${covPct>=80?'#e9f7fb':covPct>=50?'#fbf4f7':'#fce8ef'};color:${covPct>=80?'#009bb9':covPct>=50?'#d82d6b':'#b00020'};font-size:13px;font-weight:700;padding:4px 14px;border-radius:20px">${covPct}% coperto</span>`
+                ? `<span style="background:${covPct>=80?'#e9f7fb':covPct>=50?'#fbf4f7':'#fce8ef'};color:${covPct>=80?'#009bb9':covPct>=50?'#d82d6b':'#b00020'};font-size:13px;font-weight:700;padding:4px 14px;border-radius:20px;white-space:nowrap">${covPct}%</span>`
                 : `<span style="color:#666b84;font-size:12px">—</span>`;
             const cs = geo.completeness_score ?? null;
             const csHtml = cs !== null
