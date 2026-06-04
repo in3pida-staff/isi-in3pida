@@ -505,7 +505,7 @@
         const now = new Date();
         let html = `<table class="sites-table"><thead><tr>
             <th style="white-space:nowrap">Stato</th><th style="white-space:nowrap">Sito</th><th style="white-space:nowrap">Ultimo segnale</th><th>Versione</th>
-            <th>GEO Score</th><th style="white-space:nowrap">Missing Answer</th><th style="white-space:nowrap">Registrato il</th><th>Azioni</th>
+            <th>GEO Score</th><th style="white-space:nowrap">Missing Answer</th><th style="white-space:nowrap">Completezza AI</th><th style="white-space:nowrap">Registrato il</th><th>Azioni</th>
         </tr></thead><tbody>`;
 
         data.forEach(site => {
@@ -524,6 +524,10 @@
             const covHtml = covPct !== null
                 ? `<span style="background:${covPct>=80?'#e9f7fb':'#fce8ef'};color:${covPct>=80?'#009bb9':'#d82d6b'};font-size:13px;font-weight:700;padding:4px 14px;border-radius:20px">${covPct}% coperto</span>`
                 : `<span style="color:var(--grey-text);font-size:12px">—</span>`;
+            const cs = geo.completeness_score ?? null;
+            const csHtml = cs !== null
+                ? `<span style="background:${cs>=80?'#e9f7fb':'#fce8ef'};color:${cs>=80?'#009bb9':'#d82d6b'};font-size:13px;font-weight:700;padding:4px 14px;border-radius:20px">${cs}/100</span>`
+                : `<span style="color:var(--grey-text);font-size:12px">—</span>`;
             const isOld = latestVersion && site.plugin_version && semverGt(latestVersion.version, site.plugin_version);
             const verHtml = `<span style="font-weight:600">${escHtml(site.plugin_version||'—')}</span>${isOld?` <span style="background:rgba(216,45,107,0.08);color:var(--magenta);font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;vertical-align:middle">aggiornare</span>`:''}`;
             const regIl = site.created_at ? new Date(site.created_at).toLocaleDateString('it-IT') : '—';
@@ -535,6 +539,8 @@
             if (isOld)      dotProblems.push('Versione obsoleta: v' + (site.plugin_version||'?') + ' → v' + latestVersion.version);
             if (geoAvg !== null && geoAvg < 40)  dotProblems.push('GEO Score critico: ' + geoAvg + '/100');
             else if (geoAvg !== null && geoAvg < 70) dotWarnings.push('GEO Score basso: ' + geoAvg + '/100');
+            if (cs !== null && cs < 40)  dotProblems.push('Completezza profilo critica: ' + cs + '/100');
+            else if (cs !== null && cs < 70) dotWarnings.push('Completezza profilo bassa: ' + cs + '/100');
             if (covPct !== null && covPct < 50)  dotProblems.push('Missing Answer critico: ' + covPct + '% coperto');
             else if (covPct !== null && covPct < 80) dotWarnings.push('Missing Answer da migliorare: ' + covPct + '% coperto');
             const dotClass = dotProblems.length ? 'red' : dotWarnings.length ? 'yellow' : 'green';
@@ -546,6 +552,7 @@
                 <td>${verHtml}</td>
                 <td>${geoHtml}</td>
                 <td>${covHtml}</td>
+                <td>${csHtml}</td>
                 <td style="color:var(--grey);font-size:12px;white-space:nowrap">${regIl}</td>
                 <td style="white-space:nowrap"><div style="display:inline-flex;gap:6px;align-items:center">${isOld||!latestVersion?`<button class="btn-update" style="font-size:11px;padding:5px 12px" onclick="event.stopPropagation();aggiornaSito('${escHtml(site.site_id)}')">Aggiorna</button>`:`<button class="btn-update" style="font-size:11px;padding:5px 12px;background:var(--grey-dot);color:var(--grey);cursor:default" disabled>✓ OK</button>`}<button class="btn-ping" style="font-size:11px;padding:5px 12px" onclick="event.stopPropagation();forceSync('${escHtml(site.site_id)}','${escHtml(site.site_url||'')}',this)">⚡ Sync</button><button class="btn-ping" style="font-size:11px;padding:5px 10px" onclick="event.stopPropagation();toggleSitoAttivo('${escHtml(site.site_id)}','${escHtml(site.site_url||'')}',this)">Disattiva</button></div></td>
             </tr>`;
