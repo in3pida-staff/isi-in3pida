@@ -315,7 +315,7 @@ table.sites-table tbody tr:hover td { background: #fdf0f5; }
 .th-center { text-align: center !important; }
 .td-center { text-align: center; }
 .tip-q { display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:#009bb9;color:#fff;font-size:10px;font-weight:800;cursor:help;margin-left:5px;position:relative;vertical-align:middle;flex-shrink:0;border:2px solid #009bb9;box-shadow:0 0 0 2px rgba(0,155,185,.2); }
-.tip-q::after { content:attr(data-tip);position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:#171b33;color:#fff;font-size:12px;font-weight:400;line-height:1.5;padding:8px 12px;border-radius:7px;width:200px;text-align:left;white-space:normal;pointer-events:none;opacity:0;transition:opacity .15s;z-index:9999; }
+.tip-q::after { content:attr(data-tip);position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:#fff;color:#171b33;border:1.5px solid #009bb9;font-size:12px;font-weight:500;line-height:1.5;padding:8px 12px;border-radius:7px;width:200px;text-align:left;white-space:normal;pointer-events:none;opacity:0;transition:opacity .15s;z-index:9999;box-shadow:0 4px 16px rgba(0,155,185,.15); }
 .tip-q:hover::after { opacity:1; }
 
 /* ─── PSE TOGGLE ─────────────────────────────────────────────────────────── */
