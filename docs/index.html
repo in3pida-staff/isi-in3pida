@@ -319,7 +319,8 @@
     <script>
     const SUPABASE_URL = 'https://yyauvoqjdzrbmebeafit.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5YXV2b3FqZHpyYm1lYmVhZml0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3OTM2MDAsImV4cCI6MjA5NTM2OTYwMH0.M6kD56PEO_UcJ68Vjquo03vuORjv62MflIzGLzYKN9w';
-    const _SB = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const _SB  = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const _SBq = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
 
     const ALL_VIEWS = ['panoramica','siti','aggiornamenti','benchmark','utenti','sito-detail'];
     const NAV_TABS  = ['panoramica','benchmark','utenti'];
@@ -343,7 +344,7 @@
         const avatarUrl = user.user_metadata?.avatar_url;
         if (avatarUrl) setAvatar(avatarUrl);
 
-        const { data: vd } = await _SB.from('isi_plugin_versions').select('version,download_url').eq('is_current',true).single();
+        const { data: vd } = await _SBq.from('isi_plugin_versions').select('version,download_url').eq('is_current',true).single();
         if (vd) latestVersion = vd;
         loadTab('panoramica');
     }
@@ -459,9 +460,9 @@
     // ─── PANORAMICA ──────────────────────────────────────────────────────────────
     async function loadPanoramica() {
         const [sitesRes, latestVerRes, tuttiSiti] = await Promise.all([
-            _SB.from('isi_sites').select('site_id', {count:'exact'}),
-            _SB.from('isi_plugin_versions').select('version,released_at').eq('is_current', true).single(),
-            _SB.from('isi_sites').select('*').order('last_heartbeat',{ascending:false}),
+            _SBq.from('isi_sites').select('site_id', {count:'exact'}),
+            _SBq.from('isi_plugin_versions').select('version,released_at').eq('is_current', true).single(),
+            _SBq.from('isi_sites').select('*').order('last_heartbeat',{ascending:false}),
         ]);
         document.getElementById('kpi-siti').textContent = sitesRes.count ?? 0;
         if (latestVerRes.data) {
@@ -482,7 +483,7 @@
     // ─── TAB INSTALLAZIONI ────────────────────────────────────────────────────────
     async function loadSitiTab() {
         document.getElementById('siti-container').innerHTML = '<div class="loading"><div class="spinner"></div> Caricamento...</div>';
-        const { data, error } = await _SB.from('isi_sites').select('*').order('last_heartbeat',{ascending:false});
+        const { data, error } = await _SBq.from('isi_sites').select('*').order('last_heartbeat',{ascending:false});
         if (error||!data) { document.getElementById('siti-container').innerHTML = '<div class="empty-state"><div class="empty-title">Errore caricamento dati</div></div>'; return; }
         document.getElementById('siti-count').textContent = data.length+(data.length===1?' sito':' siti');
         allSiti = data;
@@ -571,7 +572,7 @@
         el.innerHTML = '<div class="loading"><div class="spinner"></div> Caricamento...</div>';
         const now = new Date();
         const [{ data:site }] = await Promise.all([
-            _SB.from('isi_sites').select('*').eq('site_id',siteId).single(),
+            _SBq.from('isi_sites').select('*').eq('site_id',siteId).single(),
         ]);
         const hrs = site?.last_heartbeat ? (now - new Date(site.last_heartbeat))/3600000 : 9999;
         const geo = site?.geo_scores || {};
@@ -695,7 +696,7 @@
 
     // ─── AGGIORNAMENTI ────────────────────────────────────────────────────────────
     async function loadVersions() {
-        const { data, error } = await _SB.from('isi_plugin_versions').select('*').order('released_at',{ascending:false});
+        const { data, error } = await _SBq.from('isi_plugin_versions').select('*').order('released_at',{ascending:false});
         if (error||!data) { document.getElementById('versions-container').innerHTML = '<div class="empty-state"><div class="empty-title">Errore caricamento versioni</div></div>'; return; }
         if (!data.length) { document.getElementById('versions-container').innerHTML = '<div class="empty-state"><div class="empty-icon">📦</div><div class="empty-title">Nessuna versione pubblicata</div></div>'; return; }
         let html = '<table class="sites-table"><thead><tr><th>Versione</th><th>Note di aggiornamento</th><th>Download</th><th>Stato</th><th>Data rilascio</th><th></th></tr></thead><tbody>';
@@ -718,8 +719,8 @@
     }
 
     async function impostaVersioneCorrente(version) {
-        await _SB.from('isi_plugin_versions').update({is_current:false}).neq('version',version);
-        await _SB.from('isi_plugin_versions').update({is_current:true}).eq('version',version);
+        await _SBq.from('isi_plugin_versions').update({is_current:false}).neq('version',version);
+        await _SBq.from('isi_plugin_versions').update({is_current:true}).eq('version',version);
         latestVersion = { version };
         loadVersions();
     }
@@ -731,8 +732,8 @@
         const download_url = document.getElementById('v-url').value.trim();
         const is_current = document.getElementById('v-current').checked;
         if (!version) { showVMsg('error','Inserisci il numero di versione'); return; }
-        if (is_current) await _SB.from('isi_plugin_versions').update({is_current:false}).neq('version','__none__');
-        const { error } = await _SB.from('isi_plugin_versions').insert({ version, changelog, download_url, is_current, released_at:new Date().toISOString() });
+        if (is_current) await _SBq.from('isi_plugin_versions').update({is_current:false}).neq('version','__none__');
+        const { error } = await _SBq.from('isi_plugin_versions').insert({ version, changelog, download_url, is_current, released_at:new Date().toISOString() });
         if (error) { showVMsg('error','Errore: '+error.message); return; }
         if (is_current) latestVersion = { version, download_url };
         showVMsg('success','Versione '+version+' pubblicata!');
@@ -908,7 +909,7 @@
 
     // ─── AGGIORNA SITO/I ─────────────────────────────────────────────────────────
     async function getLatestVersion() {
-        const { data, error } = await _SB.from('isi_plugin_versions')
+        const { data, error } = await _SBq.from('isi_plugin_versions')
             .select('version,download_url').eq('is_current', true).limit(1).single();
         if (error || !data) throw new Error('Versione corrente non trovata in isi_plugin_versions.');
         return data;
@@ -937,7 +938,7 @@
             }
             // Sincronizza subito la versione su Supabase senza aspettare il heartbeat
             const newVer = json.current || ver.version;
-            _SB.from('isi_sites').update({ plugin_version: newVer, pending_update: false }).eq('site_id', site.site_id).then(() => {});
+            _SBq.from('isi_sites').update({ plugin_version: newVer, pending_update: false }).eq('site_id', site.site_id).then(() => {});
             // Forza heartbeat immediato per sincronizzare subito i punteggi
             fetch(base + '/wp-json/in3pida/v1/force-heartbeat', {
                 method: 'POST',
@@ -1052,7 +1053,7 @@
 
     // ─── BENCHMARK ───────────────────────────────────────────────────────────────
     async function loadBenchmark() {
-        const { data: siti } = await _SB.from('isi_sites').select('site_id,site_name,site_url').order('site_name');
+        const { data: siti } = await _SBq.from('isi_sites').select('site_id,site_name,site_url').order('site_name');
         const sel = document.getElementById('bm-site-select');
         sel.innerHTML = '<option value="">— Seleziona sito —</option>' +
             (siti||[]).map(s=>`<option value="${escHtml(s.site_id)}" data-url="${escHtml(s.site_url||'')}">${escHtml(s.site_name||s.site_id)}</option>`).join('');
@@ -1189,7 +1190,7 @@
         const el = document.getElementById('bm-history-container');
         if (!siteId) { el.innerHTML = '<div style="padding:20px;color:var(--grey);font-size:13px">Seleziona un sito per vedere lo storico</div>'; return; }
         el.innerHTML = '<div class="loading"><div class="spinner"></div> Caricamento...</div>';
-        const { data, error } = await _SB.from('isi_benchmark_runs')
+        const { data, error } = await _SBq.from('isi_benchmark_runs')
             .select('id,run_at,precision_1,precision_3,mrr,total_queries,passed_1')
             .eq('site_id', siteId)
             .order('run_at', { ascending: false })
