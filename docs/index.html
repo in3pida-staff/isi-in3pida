@@ -1252,5 +1252,28 @@
         if (e.target.closest('.tip-q')) _tipEl.style.display = 'none';
     });
     </script>
+
+    <!-- ← Suite in3pida — pulsante ritorno (additivo: non modifica nulla del resto) -->
+    <style>
+      #suite-back-btn{position:fixed;top:12px;left:12px;z-index:9999;display:none;align-items:center;gap:7px;
+        background:#fff;border:1px solid #e8e8e8;border-radius:30px;padding:8px 16px 8px 13px;
+        font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;font-weight:700;
+        color:#d82d6b;cursor:pointer;box-shadow:0 3px 14px rgba(0,0,0,.12);transition:.15s}
+      #suite-back-btn:hover{box-shadow:0 5px 20px rgba(0,0,0,.18);transform:translateY(-1px)}
+    </style>
+    <button id="suite-back-btn" title="Torna alla Suite in3pida">← Suite</button>
+    <script>
+    (function(){
+      try{
+        if((location.hash||'').indexOf('type=login')!==-1) localStorage.setItem('suite_origin','true');
+        var fromSuite = (location.hash||'').indexOf('type=login')!==-1 || localStorage.getItem('suite_origin')==='true';
+        if(fromSuite){
+          var b=document.getElementById('suite-back-btn');
+          b.style.display='flex';
+          b.addEventListener('click',function(){ window.location.href='https://suite.in3pida.it'; });
+        }
+      }catch(e){}
+    })();
+    </script>
 </body>
 </html>
