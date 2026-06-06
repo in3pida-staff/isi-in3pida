@@ -402,14 +402,29 @@
         const file = e.target.files[0];
         if (!file) return;
         if (file.size > 2*1024*1024) { showProfileMsg('error','File troppo grande (max 2MB)'); return; }
-        // Converte in base64 e salva nel metadata utente (evita dipendenza da policy RLS storage)
+        // Carica su Supabase Storage e salva in user_metadata SOLO l'URL (corto):
+        // evita di gonfiare il JWT con la foto in base64 (causava errori 520 sulle API).
         const reader = new FileReader();
-        reader.onload = async ev => {
-            const dataUrl = ev.target.result;
-            document.getElementById('profile-avatar-preview').innerHTML = `<img src="${dataUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
-            await _SB.auth.updateUser({ data: { avatar_url: dataUrl } });
-            setAvatar(dataUrl);
-            showProfileMsg('success','Foto aggiornata!');
+        reader.onload = ev => {
+            const img = new Image();
+            img.onload = () => {
+                const S = 256, c = document.createElement('canvas'); c.width = S; c.height = S;
+                const ctx = c.getContext('2d');
+                const m = Math.min(img.width, img.height), sx = (img.width-m)/2, sy = (img.height-m)/2;
+                ctx.drawImage(img, sx, sy, m, m, 0, 0, S, S);
+                c.toBlob(async blob => {
+                    const { data: { user } } = await _SB.auth.getUser();
+                    const path = `${user.id}.jpg`;
+                    const { error: upErr } = await _SB.storage.from('avatars').upload(path, blob, { upsert: true, contentType: 'image/jpeg' });
+                    if (upErr) { showProfileMsg('error', 'Errore caricamento: ' + upErr.message); return; }
+                    const url = _SB.storage.from('avatars').getPublicUrl(path).data.publicUrl + '?t=' + Date.now();
+                    document.getElementById('profile-avatar-preview').innerHTML = `<img src="${url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+                    await _SB.auth.updateUser({ data: { avatar_url: url } });
+                    setAvatar(url);
+                    showProfileMsg('success', 'Foto aggiornata!');
+                }, 'image/jpeg', 0.85);
+            };
+            img.src = ev.target.result;
         };
         reader.readAsDataURL(file);
     });
