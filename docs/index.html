@@ -654,29 +654,31 @@
                 <button class="btn-back" id="btn-back-detail">← Torna alle installazioni</button>
                 <button id="btn-force-sync" class="btn-ping" style="font-size:13px;padding:8px 18px">🔄 Sincronizza ora</button>
             </div>
-            <div class="card" style="margin-bottom:20px">
-                <div style="display:grid;grid-template-columns:repeat(4,1fr)">
-                    <div style="padding:22px 26px;border-right:1px solid var(--border);text-align:center">
-                        <div style="font-size:42px;font-weight:800;line-height:1;color:${geoAvg!==null?(geoAvg>=70?'#009bb9':'#d82d6b'):'#ead0dc'}">${geoAvg!==null?geoAvg:'—'}</div>
-                        <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--grey);margin-top:7px">GEO SCORE</div>
-                    </div>
-                    <div style="padding:22px 26px;border-right:1px solid var(--border);text-align:center">
-                        <div style="font-size:42px;font-weight:800;line-height:1;color:${cs!==null?(cs>=70?'#009bb9':'#d82d6b'):'#ead0dc'}">${cs!==null?cs:'—'}</div>
-                        <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--grey);margin-top:7px">COMPLETEZZA AI</div>
-                    </div>
-                    <div style="padding:22px 26px;border-right:1px solid var(--border);text-align:center">
-                        <div style="font-size:42px;font-weight:800;line-height:1;color:${covPct!==null?(covPct>=80?'#009bb9':'#d82d6b'):'#ead0dc'}">${covPct!==null?covPct+'%':'—'}</div>
-                        <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--grey);margin-top:7px">COVERAGE FAQ</div>
-                    </div>
-                    <div style="padding:22px 26px;text-align:center">
-                        <div style="font-size:42px;font-weight:800;line-height:1;color:${qMapPct!==null?(qMapPct>=70?'#009bb9':'#d82d6b'):'#ead0dc'}">${qMapPct!==null?qMapPct+'%':'—'}</div>
-                        <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--grey);margin-top:7px">MAPPA QUERY</div>
-                    </div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
+                <div style="background:#fce8ef;border:1px solid #ead0dc;border-left:3px solid #d82d6b;border-radius:8px;padding:20px 22px">
+                    <div style="font-size:11px;font-weight:700;letter-spacing:.06em;color:#888;text-transform:uppercase;margin-bottom:10px">GEO SCORE</div>
+                    <div style="font-size:38px;font-weight:800;line-height:1;color:${geoAvg!==null?(geoAvg>=70?'#009bb9':'#d82d6b'):'#ead0dc'}">${geoAvg!==null?geoAvg:'—'}</div>
+                    <div style="font-size:12px;font-weight:600;color:${geoAvg!==null?(geoAvg>=70?'#009bb9':'#d82d6b'):'#ead0dc'};margin-top:7px">${geoAvg!==null?(geoAvg>=70?'ottimizzato':geoAvg>=40?'da migliorare':'critico'):'nessun dato'}</div>
+                </div>
+                <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:20px 22px">
+                    <div style="font-size:11px;font-weight:700;letter-spacing:.06em;color:#888;text-transform:uppercase;margin-bottom:10px">COMPLETEZZA AI</div>
+                    <div style="font-size:38px;font-weight:800;line-height:1;color:${cs!==null?(cs>=70?'#009bb9':'#d82d6b'):'#ead0dc'}">${cs!==null?cs:'—'}</div>
+                    <div style="font-size:12px;font-weight:600;color:${cs!==null?(cs>=70?'#009bb9':'#d82d6b'):'#ead0dc'};margin-top:7px">${cs!==null?(cs>=70?'ottimizzato':cs>=40?'da migliorare':'critico'):'nessun dato'}</div>
+                </div>
+                <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:20px 22px">
+                    <div style="font-size:11px;font-weight:700;letter-spacing:.06em;color:#888;text-transform:uppercase;margin-bottom:10px">COVERAGE FAQ</div>
+                    <div style="font-size:38px;font-weight:800;line-height:1;color:${covPct!==null?(covPct>=80?'#009bb9':'#d82d6b'):'#ead0dc'}">${covPct!==null?covPct+'%':'—'}</div>
+                    <div style="font-size:12px;font-weight:600;color:${covPct!==null?(covPct>=80?'#009bb9':'#d82d6b'):'#ead0dc'};margin-top:7px">${covPct!==null?covPct+'% coperto':'nessun dato'}</div>
+                </div>
+                <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:20px 22px">
+                    <div style="font-size:11px;font-weight:700;letter-spacing:.06em;color:#888;text-transform:uppercase;margin-bottom:10px">MAPPA QUERY</div>
+                    <div style="font-size:38px;font-weight:800;line-height:1;color:${qMapPct!==null?(qMapPct>=70?'#009bb9':'#d82d6b'):'#ead0dc'}">${qMapPct!==null?qMapPct+'%':'—'}</div>
+                    <div style="font-size:12px;font-weight:600;color:${qMapPct!==null?(qMapPct>=70?'#009bb9':'#d82d6b'):'#ead0dc'};margin-top:7px">${qMapPct!==null?qMapPct+'% coperto':'nessun dato'}</div>
                 </div>
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
-                <div class="card" style="margin:0">
-                    <div class="card-header" style="border-bottom:2px solid #fce8ef"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Stato semafori</div></div></div>
+                <div class="card" style="margin:0;border-radius:8px;border:1px solid #e4e4ec;box-shadow:none">
+                    <div class="card-header" style="border-bottom:1px solid #f0f0f4"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Stato semafori</div></div></div>
                     <div style="padding:0 20px 8px">
                         ${sf(statoGen,`<strong>Stato generale: ${statoGen==='ok'?'Tutto OK':statoGen==='warn'?'Attenzione':'Problemi rilevati'}</strong>`,'')}
                         ${sf(hrs<25?'ok':hrs<48?'warn':'err','Plugin attivo sul sito',site?.last_heartbeat?'Ultimo segnale: '+timeAgo(site.last_heartbeat):'Nessun segnale ricevuto')}
@@ -685,8 +687,8 @@
                         ${geo.has_ai_profile===true?sf('ok','/ai-profile','Endpoint attivo — leggibile dai crawler AI'):geo.has_ai_profile===false?sf('err','/ai-profile','LLM layer disabilitato — attivalo in AI Layer'):semverGt('1.9.1',site?.plugin_version||'0')?sf('warn','/ai-profile','Aggiorna il plugin alla v1.9.2 per vedere lo stato'):sf('warn','/ai-profile','In attesa del prossimo heartbeat (ogni ora)')}
                     </div>
                 </div>
-                <div class="card" style="margin:0">
-                    <div class="card-header" style="border-bottom:2px solid #fce8ef"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Informazioni sito</div></div></div>
+                <div class="card" style="margin:0;border-radius:8px;border:1px solid #e4e4ec;box-shadow:none">
+                    <div class="card-header" style="border-bottom:1px solid #f0f0f4"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Informazioni sito</div></div></div>
                     <div style="padding:16px 20px;display:grid;grid-template-columns:1fr 1fr;gap:14px">
                         <div><div style="font-size:11px;color:var(--grey);font-weight:700;margin-bottom:3px">Sito</div><div style="font-size:14px;font-weight:700">${escHtml(site?.site_name||'—')}</div></div>
                         <div><div style="font-size:11px;color:var(--grey);font-weight:700;margin-bottom:3px">URL</div><div style="font-size:12px"><a href="${escHtml(site?.site_url||'')}" target="_blank" style="color:var(--cyan);text-decoration:none">${escHtml(site?.site_url||'—')}</a></div></div>
@@ -699,15 +701,15 @@
                     </div>
                 </div>
             </div>
-            <div class="card" style="margin-bottom:20px">
-                <div class="card-header" style="border-bottom:2px solid #fce8ef">
+            <div class="card" style="margin-bottom:20px;border-radius:8px;border:1px solid #e4e4ec;box-shadow:none">
+                <div class="card-header" style="border-bottom:1px solid #f0f0f4">
                     <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Punteggi AI</div></div>
                     ${geoAvg!==null?`<span style="background:${geoBg(geoAvg)};color:${geoBc(geoAvg)};font-size:13px;font-weight:700;padding:3px 12px;border-radius:20px">${geoAvg}/100</span>`:''}
                 </div>
                 <div style="padding:16px 20px">${geoRows}</div>
             </div>
-            ${cs !== null ? `<div class="card" style="margin-bottom:20px">
-                <div class="card-header" style="border-bottom:2px solid #fce8ef">
+            ${cs !== null ? `<div class="card" style="margin-bottom:20px;border-radius:8px;border:1px solid #e4e4ec;box-shadow:none">
+                <div class="card-header" style="border-bottom:1px solid #f0f0f4">
                     <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Completezza profilo AI</div></div>
                     <span style="background:${cs>=80?'#e9f7fb':'#fce8ef'};color:${cs>=80?'#009bb9':'#d82d6b'};font-size:13px;font-weight:700;padding:3px 12px;border-radius:20px">${cs}/100</span>
                 </div>
@@ -717,8 +719,8 @@
                     ${checklist.length ? `<div style="font-size:11px;font-weight:700;color:var(--grey);letter-spacing:.06em;margin-bottom:8px">COSA MANCA</div>${checklist.map(item=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #f4f4f8"><span style="color:#d82d6b;font-weight:800;font-size:12px">✗</span><span style="font-size:13px">${escHtml(item)}</span></div>`).join('')}` : `<div style="padding:10px;background:#e9f7fb;border-radius:6px;font-size:13px;color:#009bb9;font-weight:600">Profilo completo — tutti i campi fondamentali compilati.</div>`}
                 </div>
             </div>` : ''}
-            <div class="card" style="margin-bottom:20px">
-                <div class="card-header" style="border-bottom:2px solid #fce8ef">
+            <div class="card" style="margin-bottom:20px;border-radius:8px;border:1px solid #e4e4ec;box-shadow:none">
+                <div class="card-header" style="border-bottom:1px solid #f0f0f4">
                     <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Missing Answer Detector</div></div>
                     ${covPct !== null
                         ? `<span style="background:${covPct>=80?'#e9f7fb':'#fce8ef'};color:${covPct>=80?'#009bb9':'#d82d6b'};font-size:13px;font-weight:700;padding:3px 12px;border-radius:20px">${covPct}% coperto</span>`
@@ -736,8 +738,8 @@
                     ${covPct!==null&&missingQueries.length?`<div style="font-size:11px;font-weight:700;color:var(--grey);letter-spacing:.06em;margin-bottom:8px">RISPOSTE MANCANTI</div>${missingQueries.map(q=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f4f4f8"><span style="color:#d82d6b;font-weight:800;font-size:12px">✗</span><span style="font-size:13px">${escHtml(q)}</span></div>`).join('')}`:''}
                 </div>
             </div>
-            <div class="card" style="margin-bottom:20px">
-                <div class="card-header" style="border-bottom:2px solid #fce8ef">
+            <div class="card" style="margin-bottom:20px;border-radius:8px;border:1px solid #e4e4ec;box-shadow:none">
+                <div class="card-header" style="border-bottom:1px solid #f0f0f4">
                     <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Mappa Query</div></div>
                     ${qMapPct !== null
                         ? `<span style="background:${qMapPct>=70?'#e9f7fb':'#fce8ef'};color:${qMapPct>=70?'#009bb9':'#d82d6b'};font-size:13px;font-weight:700;padding:3px 12px;border-radius:20px">${qMapPct}% coperto</span>`
@@ -756,8 +758,8 @@
                     ${qMapPct !== null && qMapPct >= 70 ? `<div style="padding:10px 14px;background:#e9f7fb;border-radius:6px;font-size:13px;color:#009bb9;font-weight:600">Buona copertura delle query conversazionali.</div>` : ''}
                 </div>
             </div>
-            <div class="card" style="margin-bottom:20px" id="card-hotel-profile">
-                <div class="card-header" style="border-bottom:2px solid #fce8ef">
+            <div class="card" style="margin-bottom:20px;border-radius:8px;border:1px solid #e4e4ec;box-shadow:none" id="card-hotel-profile">
+                <div class="card-header" style="border-bottom:1px solid #f0f0f4">
                     <div>
                         <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Profilo Hotel</div></div>
                         <div style="font-size:11px;margin-top:3px" id="profile-source-badge"></div>
@@ -776,8 +778,8 @@
                     <div id="hotel-profile-msg" style="margin-top:10px;font-size:13px;display:none"></div>
                 </div>
             </div>
-            <div class="card" style="margin-bottom:20px" id="card-site-faq">
-                <div class="card-header" style="border-bottom:2px solid #fce8ef">
+            <div class="card" style="margin-bottom:20px;border-radius:8px;border:1px solid #e4e4ec;box-shadow:none" id="card-site-faq">
+                <div class="card-header" style="border-bottom:1px solid #f0f0f4">
                     <div style="display:flex;align-items:center;gap:8px">
                         <span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span>
                         <div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">FAQ <span id="faq-admin-count" style="font-weight:400;text-transform:none;letter-spacing:0;font-size:11px;color:var(--grey)"></span></div>
