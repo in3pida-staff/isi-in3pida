@@ -187,26 +187,32 @@ function renderContent(site, pseData, now) {
     const el = document.getElementById('hotel-content');
     el.innerHTML = `
         <!-- KPI -->
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px">
-            <div style="background:linear-gradient(135deg,#ffffff 0%,#fce8ef 100%);border:1.5px solid #ead0dc;border-radius:8px;padding:20px 22px">
-                <div style="font-size:11px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:4px">GEO SCORE <span class='tip-q' data-tip='Punteggio complessivo AI. ≥70 ottimizzato, 40–69 da migliorare.'>?</span></div>
-                <div style="font-size:38px;font-weight:800;line-height:1;color:${geoAvg!==null?'#171b33':'#ead0dc'}">${geoAvg!==null?geoAvg:'—'}</div>
-                <div style="font-size:12px;font-weight:600;color:${geoAvg!==null?(geoAvg>=70?'#009bb9':'#d82d6b'):'#ead0dc'};margin-top:7px">${geoAvg!==null?(geoAvg>=70?'ottimizzato':geoAvg>=40?'da migliorare':'critico'):'nessun dato'}</div>
+        <div style="background:white;border-radius:16px;box-shadow:0 2px 20px rgba(0,0,0,0.07);overflow:hidden;margin-bottom:20px">
+            <div style="padding:14px 20px;border-bottom:1px solid #f0f0f6;display:flex;align-items:center;gap:8px">
+                <span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span>
+                <span style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">PANORAMICA GEO SCORE</span>
             </div>
-            <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:20px 22px">
-                <div style="font-size:11px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:4px">COMPLETEZZA AI <span class='tip-q' data-tip='Completezza del profilo AI: nome, indirizzo, descrizione, contatti, FAQ ecc.'>?</span></div>
-                <div style="font-size:38px;font-weight:800;line-height:1;color:${cs!==null?'#171b33':'#ead0dc'}">${cs!==null?cs:'—'}</div>
-                <div style="font-size:12px;font-weight:600;color:${cs!==null?(cs>=70?'#009bb9':'#d82d6b'):'#ead0dc'};margin-top:7px">${cs!==null?(cs>=70?'ottimizzato':cs>=40?'da migliorare':'critico'):'nessun dato'}</div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:#f0f0f6">
+            <div style="background:linear-gradient(135deg,#ffffff 0%,#fce8ef 100%);padding:18px 20px">
+                <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#4a4a6a;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:4px">GEO SCORE <span class='tip-q' data-tip='Punteggio complessivo AI. ≥70 ottimizzato, 40–69 da migliorare.'>?</span></div>
+                <div style="font-size:34px;font-weight:800;line-height:1;color:${geoAvg!==null?'#171b33':'#ead0dc'}">${geoAvg!==null?geoAvg:'—'}</div>
+                <div style="font-size:11px;font-weight:600;color:${geoAvg!==null?(geoAvg>=70?'#009bb9':'#d82d6b'):'#ead0dc'};margin-top:6px">${geoAvg!==null?(geoAvg>=70?'ottimizzato':geoAvg>=40?'da migliorare':'critico'):'nessun dato'}</div>
             </div>
-            <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:20px 22px">
-                <div style="font-size:11px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:4px">COVERAGE FAQ <span class='tip-q' data-tip='Percentuale di domande degli ospiti coperta dalle FAQ. ≥80% buona copertura.'>?</span></div>
-                <div style="font-size:38px;font-weight:800;line-height:1;color:${covPct!==null?'#171b33':'#ead0dc'}">${covPct!==null?covPct+'%':'—'}</div>
-                <div style="font-size:12px;font-weight:600;color:${covPct!==null?(covPct>=80?'#009bb9':'#d82d6b'):'#ead0dc'};margin-top:7px">${covPct!==null?covPct+'% coperto':'nessun dato'}</div>
+            <div style="background:white;padding:18px 20px">
+                <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#4a4a6a;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:4px">COMPLETEZZA AI <span class='tip-q' data-tip='Completezza del profilo AI: nome, indirizzo, descrizione, contatti, FAQ ecc.'>?</span></div>
+                <div style="font-size:34px;font-weight:800;line-height:1;color:${cs!==null?'#171b33':'#ead0dc'}">${cs!==null?cs:'—'}</div>
+                <div style="font-size:11px;font-weight:600;color:${cs!==null?(cs>=70?'#009bb9':'#d82d6b'):'#ead0dc'};margin-top:6px">${cs!==null?(cs>=70?'ottimizzato':cs>=40?'da migliorare':'critico'):'nessun dato'}</div>
             </div>
-            <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:20px 22px">
-                <div style="font-size:11px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:4px">MAPPA QUERY <span class='tip-q' data-tip='Percentuale di categorie di query conversazionali coperte. ≥70% buona copertura.'>?</span></div>
-                <div style="font-size:38px;font-weight:800;line-height:1;color:${qMapPct!==null?'#171b33':'#ead0dc'}">${qMapPct!==null?qMapPct+'%':'—'}</div>
-                <div style="font-size:12px;font-weight:600;color:${qMapPct!==null?(qMapPct>=70?'#009bb9':'#d82d6b'):'#ead0dc'};margin-top:7px">${qMapPct!==null?qMapPct+'% coperto':'nessun dato'}</div>
+            <div style="background:white;padding:18px 20px">
+                <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#4a4a6a;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:4px">COVERAGE FAQ <span class='tip-q' data-tip='Percentuale di domande degli ospiti coperta dalle FAQ. ≥80% buona copertura.'>?</span></div>
+                <div style="font-size:34px;font-weight:800;line-height:1;color:${covPct!==null?'#171b33':'#ead0dc'}">${covPct!==null?covPct+'%':'—'}</div>
+                <div style="font-size:11px;font-weight:600;color:${covPct!==null?(covPct>=80?'#009bb9':'#d82d6b'):'#ead0dc'};margin-top:6px">${covPct!==null?covPct+'% coperto':'nessun dato'}</div>
+            </div>
+            <div style="background:white;padding:18px 20px">
+                <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#4a4a6a;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:4px">MAPPA QUERY <span class='tip-q' data-tip='Percentuale di categorie di query conversazionali coperte. ≥70% buona copertura.'>?</span></div>
+                <div style="font-size:34px;font-weight:800;line-height:1;color:${qMapPct!==null?'#171b33':'#ead0dc'}">${qMapPct!==null?qMapPct+'%':'—'}</div>
+                <div style="font-size:11px;font-weight:600;color:${qMapPct!==null?(qMapPct>=70?'#009bb9':'#d82d6b'):'#ead0dc'};margin-top:6px">${qMapPct!==null?qMapPct+'% coperto':'nessun dato'}</div>
+            </div>
             </div>
         </div>
 
@@ -226,7 +232,7 @@ function renderContent(site, pseData, now) {
             <div style="display:grid;grid-template-columns:260px 1fr;gap:20px;margin-bottom:20px;align-items:start">
 
                 <!-- Stato contenuti (stile Statistiche) -->
-                <div style="background:white;border:1px solid #e4e4ec;border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(23,27,51,.06)">
+                <div style="background:white;border-radius:16px;overflow:hidden;box-shadow:0 2px 20px rgba(0,0,0,0.07)">
                     <div style="padding:16px 20px 14px">
                         <div style="font-size:18px;font-weight:800;color:#171b33;letter-spacing:-.01em">Stato contenuti</div>
                     </div>
@@ -241,8 +247,8 @@ function renderContent(site, pseData, now) {
                             {k:'pse',     l:'STATISTICHE PSE',v:(pseData.length||0)+' query registrate'},
                         ].map(({k,l,v})=>
                             '<div class="hstato-row" data-tab="'+k+'" style="display:flex;align-items:center;justify-content:space-between;padding:11px 20px;cursor:pointer;border-bottom:1px solid #f0f0f6;transition:background .15s" onmouseenter="this.style.background=\'#fbf4f7\'" onmouseleave="this.style.background=\'white\'">'
-                            + '<span style="font-size:10px;font-weight:700;color:#aaa;letter-spacing:.07em;text-transform:uppercase">'+l+'</span>'
-                            + '<span style="font-size:13px;color:#35364f;text-align:right;max-width:120px;font-weight:500">'+v+'</span>'
+                            + '<span style="font-size:10px;font-weight:700;color:#4a4a6a;letter-spacing:.07em;text-transform:uppercase">'+l+'</span>'
+                            + '<span style="font-size:13px;color:#181834;text-align:right;max-width:120px;font-weight:600">'+v+'</span>'
                             + '</div>'
                         ).join('')}
                         <div style="padding:16px 20px">
