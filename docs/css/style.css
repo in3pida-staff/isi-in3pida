@@ -379,37 +379,6 @@ table.sites-table tbody tr:hover td { background: #fdf0f5; }
 .site-big-num { font-size: 42px; font-weight: 800; line-height: 1; }
 .site-big-lbl { font-size: 10px; font-weight: 700; letter-spacing: .07em; color: var(--grey); text-transform: uppercase; margin-top: 8px; }
 
-/* ─── DETAIL PAGE (stile statistiche form) ───────────────────────────────── */
-.detail-sh {
-    display: flex; align-items: center; gap: 8px;
-    font-size: 11px; font-weight: 700; color: var(--grey);
-    letter-spacing: .09em; text-transform: uppercase;
-    margin: 0 0 14px;
-}
-.detail-sh::before { content: '●'; color: var(--magenta); font-size: 9px; }
-.detail-box {
-    border: 1px solid #e5e5ea; border-radius: 10px;
-    background: white; padding: 20px 24px;
-}
-.detail-box.hl-magenta {
-    border-left: 4px solid var(--magenta);
-    background: #fce8ef;
-}
-.detail-box.hl-cyan {
-    border-left: 4px solid var(--cyan);
-    background: #e9f7fb;
-}
-.detail-lbl {
-    font-size: 10px; font-weight: 700; letter-spacing: .09em;
-    color: var(--grey); text-transform: uppercase; margin-bottom: 10px;
-}
-.detail-num {
-    font-size: 40px; font-weight: 800; line-height: 1;
-}
-.detail-sub {
-    font-size: 12px; font-weight: 600; margin-top: 6px;
-}
-
 /* ─── EMPTY / LOADING ────────────────────────────────────────────────────── */
 .empty-state { text-align: center; padding: 60px 24px; color: var(--grey); }
 .empty-icon  { font-size: 40px; margin-bottom: 12px; }

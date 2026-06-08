@@ -679,121 +679,122 @@
         const geoRows = [{k:'ai_readiness',l:'AI Readiness Score',d:'Prontezza complessiva per AI'},{k:'answer_extraction',l:'Answer Extraction',d:'Risposte dirette estraibili'},{k:'quality_safety',l:'Quality Safety',d:'Qualità e sicurezza contenuti'},{k:'ai_visibility',l:'AI Visibility',d:'Visibilità stimata su sistemi AI'},{k:'entity_authority',l:'Entity Authority',d:'Autorevolezza entità semantiche'},{k:'chunk_avg',l:'Chunk Citation avg',d:'Media citabilità blocchi contenuto'},{k:'citation_avg',l:'Citation Engine avg',d:'Media score citation engine'}].map(({k,l,d})=>{const v=geo[k]??null;return `<div style="margin-bottom:18px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div><span style="font-size:14px;font-weight:700">${l}</span><span style="font-size:12px;color:var(--grey);margin-left:8px">${d}</span></div><span style="background:${geoBg(v)};color:${geoBc(v)};font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px">${v!==null?v+'/100':'N/D'}</span></div><div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden"><div style="height:6px;width:${v??0}%;background:${geoC2(v)};border-radius:3px"></div></div></div>`;}).join('');
 
         el.innerHTML = `
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:32px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
                 <button class="btn-back" id="btn-back-detail">← Torna alle installazioni</button>
                 <button id="btn-force-sync" class="btn-ping" style="font-size:13px;padding:8px 18px">🔄 Sincronizza ora</button>
             </div>
-
-            <div class="detail-sh">RIEPILOGO</div>
-            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:32px">
-                <div class="detail-box ${geoAvg!==null&&geoAvg<70?'hl-magenta':'hl-cyan'}">
-                    <div class="detail-lbl">GEO SCORE</div>
-                    <div class="detail-num" style="color:${geoAvg!==null?(geoAvg>=70?'#009bb9':'#d82d6b'):'#ead0dc'}">${geoAvg!==null?geoAvg:'—'}</div>
-                    <div class="detail-sub" style="color:${geoAvg!==null?(geoAvg>=70?'#009bb9':'#d82d6b'):'var(--grey)'}">${geoAvg!==null?(geoAvg>=70?'ottimo':'da migliorare'):'nessun dato'}</div>
-                </div>
-                <div class="detail-box">
-                    <div class="detail-lbl">COMPLETEZZA AI</div>
-                    <div class="detail-num" style="color:${cs!==null?(cs>=70?'#009bb9':'#d82d6b'):'#ead0dc'}">${cs!==null?cs:'—'}</div>
-                    <div class="detail-sub" style="color:var(--grey)">/ 100 punti</div>
-                </div>
-                <div class="detail-box">
-                    <div class="detail-lbl">COVERAGE FAQ</div>
-                    <div class="detail-num" style="color:${covPct!==null?(covPct>=80?'#009bb9':'#d82d6b'):'#ead0dc'}">${covPct!==null?covPct+'%':'—'}</div>
-                    <div class="detail-sub" style="color:${covPct!==null?(covPct>=80?'#009bb9':'#d82d6b'):'var(--grey)'}">${covPct!==null?'delle domande coperte':'nessun dato'}</div>
-                </div>
-                <div class="detail-box">
-                    <div class="detail-lbl">MAPPA QUERY</div>
-                    <div class="detail-num" style="color:${qMapPct!==null?(qMapPct>=70?'#009bb9':'#d82d6b'):'#ead0dc'}">${qMapPct!==null?qMapPct+'%':'—'}</div>
-                    <div class="detail-sub" style="color:${qMapPct!==null?(qMapPct>=70?'#009bb9':'#d82d6b'):'var(--grey)'}">${qMapPct!==null?'query coperte':'nessun dato'}</div>
-                </div>
-            </div>
-
-            <div class="detail-sh">STATO SITO</div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:32px">
-                <div class="detail-box" style="padding:0 24px 12px">
-                    <div class="detail-lbl" style="padding:18px 0 8px">SEMAFORI</div>
-                    ${sf(statoGen,`Stato generale: ${statoGen==='ok'?'Tutto OK':statoGen==='warn'?'Attenzione':'Problemi rilevati'}`,'')}
-                    ${sf(hrs<25?'ok':hrs<48?'warn':'err','Plugin attivo',site?.last_heartbeat?'Segnale: '+timeAgo(site.last_heartbeat):'Nessun segnale ricevuto')}
-                    ${sf(geoOk,'GEO Score',geoAvg!==null?geoAvg+'/100':'Nessun dato disponibile')}
-                    ${sf(isOld?'warn':'ok','Versione plugin',isOld?`v${escHtml(site?.plugin_version)} → v${escHtml(latestVersion?.version)}`:"All'ultima versione")}
-                </div>
-                <div class="detail-box" style="padding:0 24px 20px">
-                    <div class="detail-lbl" style="padding:18px 0 14px">INFORMAZIONI SITO</div>
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
-                        <div><div class="detail-lbl">NOME</div><div style="font-size:14px;font-weight:700">${escHtml(site?.site_name||'—')}</div></div>
-                        <div><div class="detail-lbl">URL</div><div style="font-size:12px"><a href="${escHtml(site?.site_url||'')}" target="_blank" style="color:var(--cyan);text-decoration:none">${escHtml(site?.site_url||'—')}</a></div></div>
-                        <div><div class="detail-lbl">PLUGIN</div><div style="font-size:14px;font-weight:700">${escHtml(site?.plugin_version||'—')}</div></div>
-                        <div><div class="detail-lbl">WORDPRESS</div><div style="font-size:14px;font-weight:700">${escHtml(site?.wp_version||'—')}</div></div>
-                        <div><div class="detail-lbl">PHP</div><div style="font-size:14px;font-weight:700">${escHtml(site?.php_version||'—')}</div></div>
-                        <div><div class="detail-lbl">INSTALLATO</div><div style="font-size:14px;font-weight:700">${regIl}</div></div>
-                        <div style="grid-column:1/-1"><div class="detail-lbl">HOTEL ID</div><div style="font-size:10px;color:var(--grey);word-break:break-all">${escHtml(site?.site_id||'—')}</div></div>
+            <div class="card" style="margin-bottom:20px">
+                <div style="display:grid;grid-template-columns:repeat(4,1fr)">
+                    <div style="padding:22px 26px;border-right:1px solid var(--border);text-align:center">
+                        <div style="font-size:42px;font-weight:800;line-height:1;color:${geoAvg!==null?(geoAvg>=70?'#009bb9':'#d82d6b'):'#ead0dc'}">${geoAvg!==null?geoAvg:'—'}</div>
+                        <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--grey);margin-top:7px">GEO SCORE</div>
+                    </div>
+                    <div style="padding:22px 26px;border-right:1px solid var(--border);text-align:center">
+                        <div style="font-size:42px;font-weight:800;line-height:1;color:${cs!==null?(cs>=70?'#009bb9':'#d82d6b'):'#ead0dc'}">${cs!==null?cs:'—'}</div>
+                        <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--grey);margin-top:7px">COMPLETEZZA AI</div>
+                    </div>
+                    <div style="padding:22px 26px;border-right:1px solid var(--border);text-align:center">
+                        <div style="font-size:42px;font-weight:800;line-height:1;color:${covPct!==null?(covPct>=80?'#009bb9':'#d82d6b'):'#ead0dc'}">${covPct!==null?covPct+'%':'—'}</div>
+                        <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--grey);margin-top:7px">COVERAGE FAQ</div>
+                    </div>
+                    <div style="padding:22px 26px;text-align:center">
+                        <div style="font-size:42px;font-weight:800;line-height:1;color:${qMapPct!==null?(qMapPct>=70?'#009bb9':'#d82d6b'):'#ead0dc'}">${qMapPct!==null?qMapPct+'%':'—'}</div>
+                        <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--grey);margin-top:7px">MAPPA QUERY</div>
                     </div>
                 </div>
             </div>
-
-            <div class="detail-sh">PUNTEGGI AI</div>
-            <div class="detail-box" style="margin-bottom:32px">
-                ${geoRows}
-            </div>
-
-            ${cs !== null ? `
-            <div class="detail-sh">COMPLETEZZA PROFILO AI</div>
-            <div style="display:grid;grid-template-columns:auto 1fr;gap:12px;margin-bottom:32px">
-                <div class="detail-box ${cs>=80?'hl-cyan':'hl-magenta'}" style="min-width:180px">
-                    <div class="detail-lbl">COMPLETEZZA</div>
-                    <div class="detail-num" style="color:${cs>=80?'#009bb9':'#d82d6b'}">${cs}/100</div>
-                    <div class="detail-sub" style="color:${cs>=80?'#009bb9':'#d82d6b'}">${cs>=80?'profilo completo':'campi mancanti'}</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+                <div class="card" style="margin:0">
+                    <div class="card-header" style="border-bottom:2px solid #fce8ef"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Stato semafori</div></div></div>
+                    <div style="padding:0 20px 8px">
+                        ${sf(statoGen,`<strong>Stato generale: ${statoGen==='ok'?'Tutto OK':statoGen==='warn'?'Attenzione':'Problemi rilevati'}</strong>`,'')}
+                        ${sf(hrs<25?'ok':hrs<48?'warn':'err','Plugin attivo sul sito',site?.last_heartbeat?'Ultimo segnale: '+timeAgo(site.last_heartbeat):'Nessun segnale ricevuto')}
+                        ${sf(geoOk,'GEO Score',geoAvg!==null?geoAvg+'/100':'Nessun dato disponibile')}
+                        ${sf(isOld?'warn':'ok','Versione plugin',isOld?`v${escHtml(site?.plugin_version)} — disponibile v${escHtml(latestVersion?.version)}`:"All'ultima versione")}
+                        ${geo.has_ai_profile===true?sf('ok','/ai-profile','Endpoint attivo — leggibile dai crawler AI'):geo.has_ai_profile===false?sf('err','/ai-profile','LLM layer disabilitato — attivalo in AI Layer'):semverGt('1.9.1',site?.plugin_version||'0')?sf('warn','/ai-profile','Aggiorna il plugin alla v1.9.2 per vedere lo stato'):sf('warn','/ai-profile','In attesa del prossimo heartbeat (ogni ora)')}
+                    </div>
                 </div>
-                <div class="detail-box">
-                    <div class="detail-lbl">DETTAGLIO</div>
-                    <div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-bottom:10px"><div style="height:6px;width:${cs}%;background:${cs>=80?'#009bb9':'#d82d6b'};border-radius:3px"></div></div>
+                <div class="card" style="margin:0">
+                    <div class="card-header" style="border-bottom:2px solid #fce8ef"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Informazioni sito</div></div></div>
+                    <div style="padding:16px 20px;display:grid;grid-template-columns:1fr 1fr;gap:14px">
+                        <div><div style="font-size:11px;color:var(--grey);font-weight:700;margin-bottom:3px">Sito</div><div style="font-size:14px;font-weight:700">${escHtml(site?.site_name||'—')}</div></div>
+                        <div><div style="font-size:11px;color:var(--grey);font-weight:700;margin-bottom:3px">URL</div><div style="font-size:12px"><a href="${escHtml(site?.site_url||'')}" target="_blank" style="color:var(--cyan);text-decoration:none">${escHtml(site?.site_url||'—')}</a></div></div>
+                        <div><div style="font-size:11px;color:var(--grey);font-weight:700;margin-bottom:3px">Versione plugin</div><div style="font-size:14px;font-weight:700">${escHtml(site?.plugin_version||'—')}</div></div>
+                        <div><div style="font-size:11px;color:var(--grey);font-weight:700;margin-bottom:3px">WordPress</div><div style="font-size:14px;font-weight:700">${escHtml(site?.wp_version||'—')}</div></div>
+                        <div><div style="font-size:11px;color:var(--grey);font-weight:700;margin-bottom:3px">PHP</div><div style="font-size:14px;font-weight:700">${escHtml(site?.php_version||'—')}</div></div>
+                        <div><div style="font-size:11px;color:var(--grey);font-weight:700;margin-bottom:3px">Pacchetto</div><div style="font-size:14px;font-weight:700">${site?.tier==='plus'?'<span style="color:var(--magenta)">Plus</span>':'Standard'}</div></div>
+                        <div><div style="font-size:11px;color:var(--grey);font-weight:700;margin-bottom:3px">Installato il</div><div style="font-size:14px;font-weight:700">${regIl}</div></div>
+                        <div><div style="font-size:11px;color:var(--grey);font-weight:700;margin-bottom:3px">Hotel ID</div><div style="font-size:10px;color:var(--grey);word-break:break-all">${escHtml(site?.site_id||'—')}</div></div>
+                    </div>
+                </div>
+            </div>
+            <div class="card" style="margin-bottom:20px">
+                <div class="card-header" style="border-bottom:2px solid #fce8ef">
+                    <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Punteggi AI</div></div>
+                    ${geoAvg!==null?`<span style="background:${geoBg(geoAvg)};color:${geoBc(geoAvg)};font-size:13px;font-weight:700;padding:3px 12px;border-radius:20px">${geoAvg}/100</span>`:''}
+                </div>
+                <div style="padding:16px 20px">${geoRows}</div>
+            </div>
+            ${cs !== null ? `<div class="card" style="margin-bottom:20px">
+                <div class="card-header" style="border-bottom:2px solid #fce8ef">
+                    <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Completezza profilo AI</div></div>
+                    <span style="background:${cs>=80?'#e9f7fb':'#fce8ef'};color:${cs>=80?'#009bb9':'#d82d6b'};font-size:13px;font-weight:700;padding:3px 12px;border-radius:20px">${cs}/100</span>
+                </div>
+                <div style="padding:16px 20px">
+                    <div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-bottom:8px"><div style="height:6px;width:${cs}%;background:${cs>=80?'#009bb9':'#d82d6b'};border-radius:3px"></div></div>
                     <div style="font-size:12px;color:var(--grey);margin-bottom:12px">${12-checklist.length} di 12 campi fondamentali compilati</div>
-                    ${checklist.length ? `<div class="detail-lbl" style="margin-bottom:8px">COSA MANCA</div>${checklist.map(item=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f4f4f8"><span style="color:#d82d6b;font-weight:800;font-size:12px">✗</span><span style="font-size:13px">${escHtml(item)}</span></div>`).join('')}` : `<div style="padding:10px 14px;background:#e9f7fb;border-radius:6px;font-size:13px;color:#009bb9;font-weight:600">Profilo completo — tutti i campi compilati.</div>`}
+                    ${checklist.length ? `<div style="font-size:11px;font-weight:700;color:var(--grey);letter-spacing:.06em;margin-bottom:8px">COSA MANCA</div>${checklist.map(item=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #f4f4f8"><span style="color:#d82d6b;font-weight:800;font-size:12px">✗</span><span style="font-size:13px">${escHtml(item)}</span></div>`).join('')}` : `<div style="padding:10px;background:#e9f7fb;border-radius:6px;font-size:13px;color:#009bb9;font-weight:600">Profilo completo — tutti i campi fondamentali compilati.</div>`}
                 </div>
             </div>` : ''}
-
-            <div class="detail-sh">MISSING ANSWER DETECTOR</div>
-            <div style="display:grid;grid-template-columns:${covPct!==null?'auto 1fr':'1fr'};gap:12px;margin-bottom:32px">
-                ${covPct!==null?`<div class="detail-box ${covPct>=80?'hl-cyan':'hl-magenta'}" style="min-width:180px">
-                    <div class="detail-lbl">COVERAGE FAQ</div>
-                    <div class="detail-num" style="color:${covPct>=80?'#009bb9':'#d82d6b'}">${covPct}%</div>
-                    <div class="detail-sub" style="color:${covPct>=80?'#009bb9':'#d82d6b'}">${covPct>=80?'ottima copertura':'da migliorare'}</div>
-                </div>`:''}
-                <div class="detail-box">
-                    <div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-bottom:10px"><div style="height:6px;width:${covPct??0}%;background:${covPct!==null?(covPct>=80?'#009bb9':'#d82d6b'):'#ead0dc'};border-radius:3px"></div></div>
-                    <div style="font-size:12px;color:var(--grey);margin-bottom:${missingQueries.length?'16':'4'}px">${covPct!==null?missingAnswers+' domande senza risposta':'Dati non disponibili — aggiorna il plugin e sincronizza'}</div>
-                    ${freshAlerts.length?`${freshAlerts.map(a=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f4f4f8"><span style="color:#d82d6b;font-weight:800">⚠</span><span style="font-size:13px">${escHtml(a)}</span></div>`).join('')}`:''}
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0;font-size:12px;color:var(--grey)">
-                        <div>Ultima FAQ: <strong>${daysFaq!==null?daysFaq+' gg fa':'N/D'}</strong></div>
-                        <div>Ultimo Schema: <strong>${daysSchema!==null?daysSchema+' gg fa':'N/D'}</strong></div>
+            <div class="card" style="margin-bottom:20px">
+                <div class="card-header" style="border-bottom:2px solid #fce8ef">
+                    <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Missing Answer Detector</div></div>
+                    ${covPct !== null
+                        ? `<span style="background:${covPct>=80?'#e9f7fb':'#fce8ef'};color:${covPct>=80?'#009bb9':'#d82d6b'};font-size:13px;font-weight:700;padding:3px 12px;border-radius:20px">${covPct}% coperto</span>`
+                        : `<span style="background:#fbf4f7;color:#666b84;font-size:13px;font-weight:700;padding:3px 12px;border-radius:20px">N/D</span>`
+                    }
+                </div>
+                <div style="padding:16px 20px">
+                    <div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-bottom:8px"><div style="height:6px;width:${covPct??0}%;background:${covPct!==null?(covPct>=80?'#009bb9':'#d82d6b'):'#ead0dc'};border-radius:3px"></div></div>
+                    <div style="font-size:12px;color:var(--grey);margin-bottom:16px">${covPct!==null?missingAnswers+' domande senza risposta':'Dati non ancora disponibili — aggiorna il plugin per sincronizzare'}</div>
+                    ${covPct!==null&&freshAlerts.length?`<div style="margin-bottom:12px">${freshAlerts.map(a=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f4f4f8"><span style="color:#d82d6b;font-weight:800;font-size:12px">⚠</span><span style="font-size:13px">${escHtml(a)}</span></div>`).join('')}</div>`:''}
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;font-size:12px;color:var(--grey)">
+                        <div>Ultima FAQ: <strong>${daysFaq!==null?daysFaq+' giorni fa':'N/D'}</strong></div>
+                        <div>Ultimo Schema: <strong>${daysSchema!==null?daysSchema+' giorni fa':'N/D'}</strong></div>
                     </div>
-                    ${missingQueries.length?`<div class="detail-lbl" style="margin-bottom:8px">RISPOSTE MANCANTI</div>${missingQueries.map(q=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f4f4f8"><span style="color:#d82d6b;font-size:12px">✗</span><span style="font-size:13px">${escHtml(q)}</span></div>`).join('')}`:''}
+                    ${covPct!==null&&missingQueries.length?`<div style="font-size:11px;font-weight:700;color:var(--grey);letter-spacing:.06em;margin-bottom:8px">RISPOSTE MANCANTI</div>${missingQueries.map(q=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f4f4f8"><span style="color:#d82d6b;font-weight:800;font-size:12px">✗</span><span style="font-size:13px">${escHtml(q)}</span></div>`).join('')}`:''}
                 </div>
             </div>
-
-            <div class="detail-sh">MAPPA QUERY</div>
-            <div style="display:grid;grid-template-columns:${qMapPct!==null?'auto 1fr':'1fr'};gap:12px;margin-bottom:32px">
-                ${qMapPct!==null?`<div class="detail-box ${qMapPct>=70?'hl-cyan':'hl-magenta'}" style="min-width:180px">
-                    <div class="detail-lbl">MAPPA QUERY</div>
-                    <div class="detail-num" style="color:${qMapPct>=70?'#009bb9':'#d82d6b'}">${qMapPct}%</div>
-                    <div class="detail-sub" style="color:${qMapPct>=70?'#009bb9':'#d82d6b'}">${qMapPct>=70?'buona copertura':'da completare'}</div>
-                </div>`:''}
-                <div class="detail-box">
-                    <div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-bottom:10px"><div style="height:6px;width:${qMapPct??0}%;background:${qMapPct!==null?(qMapPct>=70?'#009bb9':'#d82d6b'):'#ead0dc'};border-radius:3px"></div></div>
-                    ${qMapPct!==null?`<div style="font-size:12px;color:var(--grey);margin-bottom:12px">${qUncovered} quer${qUncovered===1?'y':'ies'} senza risposta su ${qTotal} totali</div>
-                    <div style="padding:10px 14px;background:${qMapPct>=70?'#e9f7fb':'#fce8ef'};border-radius:6px;font-size:13px;color:${qMapPct>=70?'#009bb9':'#d82d6b'};font-weight:600">${qMapPct>=70?'Buona copertura delle query conversazionali.':'Apri <strong>Mappa Query</strong> nel plugin per completare.'}</div>`
-                    :`<div style="font-size:12px;color:var(--grey)">Dati non disponibili — aggiorna il plugin alla v2.0.0 e sincronizza</div>`}
+            <div class="card" style="margin-bottom:20px">
+                <div class="card-header" style="border-bottom:2px solid #fce8ef">
+                    <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Mappa Query</div></div>
+                    ${qMapPct !== null
+                        ? `<span style="background:${qMapPct>=70?'#e9f7fb':'#fce8ef'};color:${qMapPct>=70?'#009bb9':'#d82d6b'};font-size:13px;font-weight:700;padding:3px 12px;border-radius:20px">${qMapPct}% coperto</span>`
+                        : `<span style="background:#fbf4f7;color:#666b84;font-size:13px;font-weight:700;padding:3px 12px;border-radius:20px">N/D</span>`
+                    }
+                </div>
+                <div style="padding:16px 20px">
+                    <div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-bottom:8px"><div style="height:6px;width:${qMapPct??0}%;background:${qMapPct!==null?(qMapPct>=70?'#009bb9':'#d82d6b'):'#ead0dc'};border-radius:3px"></div></div>
+                    <div style="font-size:12px;color:var(--grey);margin-bottom:12px">
+                        ${qMapPct !== null
+                            ? `${qUncovered} quer${qUncovered===1?'y':'ies'} senza risposta su ${qTotal} totali — vai su <strong>Mappa Query</strong> nel plugin per crearle`
+                            : 'Dati non ancora disponibili — aggiorna il plugin alla v2.0.0 e sincronizza'
+                        }
+                    </div>
+                    ${qMapPct !== null && qMapPct < 70 ? `<div style="padding:10px 14px;background:#fce8ef;border-radius:6px;font-size:13px;color:#d82d6b;font-weight:600">Alcune categorie di ospiti non hanno risposta. Apri <strong>Mappa Query</strong> nel plugin per vedere quali mancano.</div>` : ''}
+                    ${qMapPct !== null && qMapPct >= 70 ? `<div style="padding:10px 14px;background:#e9f7fb;border-radius:6px;font-size:13px;color:#009bb9;font-weight:600">Buona copertura delle query conversazionali.</div>` : ''}
                 </div>
             </div>
-
-            <div class="detail-sh">PROFILO HOTEL</div>
-            <div class="detail-box" style="margin-bottom:32px" id="card-hotel-profile">
-                <div style="display:flex;align-items:center;justify-content:space-between;padding-bottom:16px;border-bottom:1px solid #e5e5ea;margin-bottom:20px">
-                    <div style="font-size:11px" id="profile-source-badge"></div>
+            <div class="card" style="margin-bottom:20px" id="card-hotel-profile">
+                <div class="card-header" style="border-bottom:2px solid #fce8ef">
+                    <div>
+                        <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Profilo Hotel</div></div>
+                        <div style="font-size:11px;margin-top:3px" id="profile-source-badge"></div>
+                    </div>
                     <button id="btn-toggle-profile-edit" class="btn-ping">✏️ Modifica</button>
                 </div>
-                <div id="hotel-profile-view"></div>
-                <div id="hotel-profile-edit" style="display:none">
+                <div id="hotel-profile-view" style="padding:16px 20px"></div>
+                <div id="hotel-profile-edit" style="display:none;padding:16px 20px">
                     <div style="background:#e9f7fb;border:1px solid #b3e0ea;border-radius:8px;padding:12px 16px;font-size:13px;color:#009bb9;font-weight:600;margin-bottom:20px;line-height:1.5">ℹ️ I dati salvati qui restano attivi finché il plugin non invia un nuovo sync.</div>
                     <div id="hotel-profile-form"></div>
                     <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;align-items:center">
@@ -804,14 +805,15 @@
                     <div id="hotel-profile-msg" style="margin-top:10px;font-size:13px;display:none"></div>
                 </div>
             </div>
-
-            <div class="detail-sh">FAQ</div>
-            <div class="detail-box" style="margin-bottom:32px" id="card-site-faq">
-                <div style="display:flex;align-items:center;justify-content:space-between;padding-bottom:16px;border-bottom:1px solid #e5e5ea;margin-bottom:4px">
-                    <div style="font-size:13px;font-weight:600;color:#171b33">Domande frequenti <span id="faq-admin-count" style="font-weight:400;font-size:11px;color:var(--grey)"></span></div>
+            <div class="card" style="margin-bottom:20px" id="card-site-faq">
+                <div class="card-header" style="border-bottom:2px solid #fce8ef">
+                    <div style="display:flex;align-items:center;gap:8px">
+                        <span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span>
+                        <div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">FAQ <span id="faq-admin-count" style="font-weight:400;text-transform:none;letter-spacing:0;font-size:11px;color:var(--grey)"></span></div>
+                    </div>
                     <button id="btn-add-faq-admin" class="btn-update" style="margin-left:0">+ Aggiungi FAQ</button>
                 </div>
-                <div id="faq-admin-list"><div class="loading"><div class="spinner"></div></div></div>
+                <div id="faq-admin-list" style="padding:16px 20px"><div class="loading"><div class="spinner"></div></div></div>
             </div>
             `;
 
