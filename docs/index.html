@@ -856,6 +856,29 @@
                     ${qMapPct === null ? '<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-top:1px solid #f4f4f8;margin-top:4px"><span style="color:#666b84;font-size:12px">ℹ</span><span style="font-size:13px;color:#666b84">Dati non ancora disponibili — sincronizza dal plugin.</span></div>' : ''}
                 </div>
             </div>
+            <!-- PSE Andamento in Panoramica -->
+            <div class="card" style="margin-bottom:20px;border-radius:8px;border:1px solid #e4e4ec;box-shadow:none">
+                <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
+                    <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#009bb9;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">PSE — Andamento query ultimi 30 giorni</div></div>
+                </div>
+                <div style="padding:16px 20px">
+                    ${(()=>{
+                        const tot=pseData?.length||0;
+                        const cited=(pseData||[]).filter(r=>r.result?.cited||r.result?.found||r.result?.match_found).length;
+                        const pct=tot>0?Math.round(cited/tot*100):null;
+                        const cost=(pseData||[]).reduce((a,r)=>a+(parseFloat(r.cost_usd)||0),0);
+                        const bx=(l,v,sub,vc)=>'<div style="background:#f7f7fb;border-radius:8px;padding:12px 14px"><div style="font-size:10px;color:#aaa;font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:5px">'+l+'</div><div style="font-size:24px;font-weight:800;color:#171b33;line-height:1">'+v+'</div><div style="font-size:11px;font-weight:600;color:'+vc+';margin-top:4px">'+sub+'</div></div>';
+                        return '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px">'+
+                            bx('QUERY TOTALI',tot,'eseguite','#009bb9')+
+                            bx('CITAZIONI',cited,'trovate','#009bb9')+
+                            bx('TASSO CITAZ.',pct!==null?pct+'%':'—',pct!==null?(pct>=50?'buona visibilità':'da migliorare'):'nessun dato',pct!==null?(pct>=50?'#009bb9':'#d82d6b'):'#ead0dc')+
+                            bx('COSTO TOT.','€'+cost.toFixed(4),'speso','#666b84')+
+                        '</div>';
+                    })()}
+                    <canvas id="chart-overview-pse-bar" style="max-height:160px"></canvas>
+                    <div id="overview-pse-no-data" style="display:none;color:#aaa;font-size:13px;text-align:center;padding:20px 0">Nessun dato PSE disponibile — le query appariranno dopo la prima sincronizzazione.</div>
+                </div>
+            </div>
             </div><!-- /scontent-overview -->
 
             <!-- ═══ PANE: FAQ ═══ -->
@@ -1022,6 +1045,9 @@
 
         // ── tooltip re-init
         initTooltips(el);
+
+        // ── overview PSE chart (rendered on default view)
+        initOverviewPseChart(pseData);
 
         // ── existing inits
         initHotelProfile(site);
@@ -1621,6 +1647,52 @@
 
     // ─── PSE CHARTS ──────────────────────────────────────────────────────────────
     let _pseChartsInited = false;
+    function initOverviewPseChart(pse) {
+        const noData = document.getElementById('overview-pse-no-data');
+        const canvas = document.getElementById('chart-overview-pse-bar');
+        if (!canvas) return;
+        if (!pse || !pse.length) {
+            canvas.style.display = 'none';
+            if (noData) noData.style.display = 'block';
+            return;
+        }
+        const now = new Date();
+        const days = [], labels = [];
+        for (let i = 29; i >= 0; i--) {
+            const d = new Date(now); d.setDate(d.getDate() - i);
+            days.push(d.toISOString().slice(0,10));
+            labels.push(i===0 ? 'Oggi' : d.toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit'}));
+        }
+        const counts = {}, cited = {};
+        days.forEach(d => { counts[d]=0; cited[d]=0; });
+        pse.forEach(r => {
+            const day = r.created_at?.slice(0,10);
+            if (day && counts[day]!==undefined) {
+                counts[day]++;
+                if (r.result?.cited||r.result?.found||r.result?.match_found) cited[day]++;
+            }
+        });
+        if (window._overviewPseChart) { try { window._overviewPseChart.destroy(); } catch(e){} }
+        window._overviewPseChart = new Chart(canvas, {
+            type: 'bar',
+            data: {
+                labels,
+                datasets: [
+                    { label:'Query totali', data:days.map(d=>counts[d]), backgroundColor:'rgba(0,155,185,0.18)', borderColor:'#009bb9', borderWidth:1.5, borderRadius:3 },
+                    { label:'Citazioni', data:days.map(d=>cited[d]), backgroundColor:'rgba(216,45,107,0.18)', borderColor:'#d82d6b', borderWidth:1.5, borderRadius:3 },
+                ]
+            },
+            options: {
+                responsive:true, maintainAspectRatio:true,
+                plugins: { legend:{ position:'top', labels:{ font:{size:11}, color:'#666b84', boxWidth:10 } } },
+                scales: {
+                    x:{ ticks:{ font:{size:10}, color:'#aaa', maxTicksLimit:10 }, grid:{ display:false } },
+                    y:{ ticks:{ font:{size:11}, color:'#aaa', precision:0 }, grid:{ color:'#f4f4f8' }, beginAtZero:true }
+                }
+            }
+        });
+    }
+
     function initPseCharts(pseData) {
         if (_pseChartsInited) return;
         _pseChartsInited = true;
