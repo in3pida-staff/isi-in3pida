@@ -549,14 +549,19 @@
             return;
         }
         const now = new Date();
-        let html = '';
+        let html = `<table class="sites-table"><thead><tr>
+            <th>Stato</th><th>Sito</th><th>Ultimo segnale</th><th>Versione</th>
+            <th class="th-center">GEO Score <span class="tip-q" data-tip="Quanto il sito è ottimizzato per essere citato dai motori AI come ChatGPT e Google.">?</span></th>
+            <th class="th-center">Missing Answer <span class="tip-q" data-tip="Percentuale di domande degli utenti a cui il sito sa rispondere. Più è alto, meno risposte mancano.">?</span></th>
+            <th class="th-center">Completezza AI <span class="tip-q" data-tip="Quanto il profilo dell'hotel è completo: nome, indirizzo, telefono, descrizione, FAQ ecc.">?</span></th>
+            <th>Azioni</th>
+        </tr></thead><tbody>`;
 
         data.forEach(site => {
             const hrs = site.last_heartbeat ? (now - new Date(site.last_heartbeat))/3600000 : 9999;
             const hbTesto  = site.last_heartbeat ? timeAgo(site.last_heartbeat) : 'Mai';
             const hbColor  = hrs<25?'#009bb9':hrs<48?'#d82d6b':'#b00020';
             const geo = site.geo_scores || {};
-            const aiScores = [{k:'ai_readiness',l:'AI Readiness Score'},{k:'answer_extraction',l:'Answer Extraction'},{k:'quality_safety',l:'Quality Safety'},{k:'ai_visibility',l:'AI Visibility'},{k:'entity_authority',l:'Entity Authority'},{k:'chunk_avg',l:'Chunk Citation avg'},{k:'citation_avg',l:'Citation Engine avg'}];
             const rawFallback = [geo.chunk_avg, geo.citation_avg].filter(s=>s!=null);
             const geoAvg = geo.completeness_score != null ? geo.completeness_score : (geo.ai_readiness != null ? geo.ai_readiness : (rawFallback.length ? Math.round(rawFallback.reduce((a,b)=>a+b,0)/rawFallback.length) : null));
             const geoAvgBg = geoAvg===null?'#fbf4f7':geoAvg>=70?'#e9f7fb':geoAvg>=40?'#fbf4f7':'#fce8ef';
@@ -572,10 +577,7 @@
                 : `<span style="color:#666b84;font-size:12px">—</span>`;
             const isOld = latestVersion && site.plugin_version && semverGt(latestVersion.version, site.plugin_version);
             const verHtml = `<span style="font-weight:600">${escHtml(site.plugin_version||'—')}</span>${isOld?` <span style="background:rgba(216,45,107,0.08);color:var(--magenta);font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;vertical-align:middle">aggiornare</span>`:''}`;
-            const regIl = site.created_at ? new Date(site.created_at).toLocaleDateString('it-IT') : '—';
-            // Dot: calcola problemi e warnings
-            const dotProblems = [];
-            const dotWarnings = [];
+            const dotProblems = [], dotWarnings = [];
             if (hrs >= 48)  dotProblems.push('Nessun segnale da ' + Math.floor(hrs/24) + ' giorni');
             else if (hrs >= 24) dotWarnings.push('Segnale debole: ' + Math.floor(hrs) + ' ore fa');
             if (isOld)      dotProblems.push('Versione obsoleta: v' + (site.plugin_version||'?') + ' → v' + latestVersion.version);
@@ -587,55 +589,24 @@
             else if (covPct !== null && covPct < 80) dotWarnings.push('Missing Answer da migliorare: ' + covPct + '% coperto');
             const dotClass = dotProblems.length ? 'red' : dotWarnings.length ? 'yellow' : 'green';
             const dotTitle = [...dotProblems, ...dotWarnings].join('\n') || 'Tutto OK';
-            const geo1c = geoAvg===null?'#ead0dc':geoAvg>=70?'#009bb9':geoAvg>=40?'#d82d6b':'#b00020';
-            const cov1c = covPct===null?'#ead0dc':covPct>=80?'#009bb9':covPct>=50?'#d82d6b':'#b00020';
-            const cs1c  = cs===null?'#ead0dc':cs>=70?'#009bb9':cs>=40?'#d82d6b':'#b00020';
-            const updateBtn = isOld||!latestVersion
-                ? `<button class="btn-update" style="font-size:11px;padding:5px 12px" onclick="event.stopPropagation();aggiornaSito('${escHtml(site.site_id)}')">Aggiorna</button>`
-                : `<button style="font-size:11px;padding:5px 12px;background:#e9f7fb;color:#009bb9;border:none;border-radius:8px;font-weight:700;cursor:default;font-family:var(--font)" disabled>✓ OK</button>`;
-            html += `<div class="site-stat-card" data-site-id="${escHtml(site.site_id)}">
-                <div class="site-stat-card-header">
-                    <div style="display:flex;align-items:center;gap:12px">
-                        <span class="dot ${dotClass}" title="${escHtml(dotTitle)}" style="cursor:help"></span>
-                        <div>
-                            <div style="font-size:15px;font-weight:700;color:#171b33">${escHtml(site.site_name||'—')}</div>
-                            <div style="font-size:11px;color:var(--grey);margin-top:2px">
-                                ${escHtml(site.site_url||'')} &nbsp;·&nbsp;
-                                <span style="color:${hbColor};font-weight:600">${hbTesto}</span> &nbsp;·&nbsp;
-                                v${escHtml(site.plugin_version||'?')}
-                                ${isOld?`<span style="background:#fce8ef;color:#d82d6b;font-size:10px;font-weight:700;padding:2px 7px;border-radius:12px;margin-left:4px">aggiornare</span>`:''}
-                            </div>
-                        </div>
-                    </div>
-                    <div style="display:flex;gap:5px;align-items:center;flex-shrink:0">
-                        ${updateBtn}
-                        <button class="btn-ping" style="font-size:11px;padding:5px 10px" onclick="event.stopPropagation();forceSync('${escHtml(site.site_id)}','${escHtml(site.site_url||'')}',this)">⚡ Sync</button>
-                        <button class="btn-ping" style="font-size:11px;padding:5px 10px" onclick="event.stopPropagation();toggleSitoAttivo('${escHtml(site.site_id)}','${escHtml(site.site_url||'')}',this)">Disattiva</button>
-                    </div>
-                </div>
-                <div class="site-stat-nums">
-                    <div class="site-stat-num-cell">
-                        <div class="site-big-num" style="color:${geo1c}">${geoAvg!==null?geoAvg:'—'}</div>
-                        <div class="site-big-lbl">GEO Score</div>
-                    </div>
-                    <div class="site-stat-num-cell">
-                        <div class="site-big-num" style="color:${cov1c}">${covPct!==null?covPct+'%':'—'}</div>
-                        <div class="site-big-lbl">Coverage FAQ</div>
-                    </div>
-                    <div class="site-stat-num-cell">
-                        <div class="site-big-num" style="color:${cs1c}">${cs!==null?cs:'—'}</div>
-                        <div class="site-big-lbl">Completezza AI</div>
-                    </div>
-                </div>
-            </div>`;
+            html += `<tr data-site-id="${escHtml(site.site_id)}" style="cursor:pointer">
+                <td><span class="dot ${dotClass}" title="${escHtml(dotTitle)}" style="cursor:help"></span></td>
+                <td><div class="site-name-cell">${escHtml(site.site_name||'—')}</div><div style="font-size:11px;color:var(--grey);margin-top:2px">${escHtml(site.site_url||'')}</div></td>
+                <td style="font-size:12px;color:${hbColor};font-weight:600">${hbTesto}</td>
+                <td>${verHtml}</td>
+                <td class="td-center">${geoHtml}</td>
+                <td class="td-center">${covHtml}</td>
+                <td class="td-center">${csHtml}</td>
+                <td style="white-space:nowrap"><div style="display:inline-flex;gap:5px;align-items:center">${isOld||!latestVersion?`<button class="btn-update" style="font-size:11px;padding:4px 10px" onclick="event.stopPropagation();aggiornaSito('${escHtml(site.site_id)}')">Aggiorna</button>`:`<button class="btn-update" style="font-size:11px;padding:4px 10px;background:var(--grey-dot);color:var(--grey);cursor:default" disabled>✓ OK</button>`}<button class="btn-ping" style="font-size:11px;padding:4px 10px" onclick="event.stopPropagation();forceSync('${escHtml(site.site_id)}','${escHtml(site.site_url||'')}',this)">⚡ Sync</button><button class="btn-ping" style="font-size:11px;padding:4px 10px" onclick="event.stopPropagation();toggleSitoAttivo('${escHtml(site.site_id)}','${escHtml(site.site_url||'')}',this)">Disattiva</button></div></td>
+            </tr>`;
         });
-        el.innerHTML = html || '<div style="padding:20px;color:var(--grey);text-align:center">Nessun sito registrato</div>';
+        html += '</tbody></table>';
+        el.innerHTML = `<div style="overflow-x:auto">${html}</div>`;
 
-        el.querySelectorAll('.site-stat-card[data-site-id]').forEach(card => {
-            card.addEventListener('click', e => {
-                if (e.target.tagName === 'BUTTON') return;
-                const site = data.find(s => s.site_id === card.dataset.siteId);
-                loadSiteDetail(card.dataset.siteId, site);
+        el.querySelectorAll('tr[data-site-id]').forEach(row => {
+            row.addEventListener('click', e => {
+                const site = data.find(s => s.site_id === row.dataset.siteId);
+                loadSiteDetail(row.dataset.siteId, site);
             });
         });
     }
