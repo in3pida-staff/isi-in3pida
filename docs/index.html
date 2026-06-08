@@ -599,6 +599,9 @@
         const missingAnswers = geo.missing_answers ?? null;
         const missingQueries = geo.missing_queries || [];
         const freshAlerts = geo.freshness_alerts || [];
+        const qMapPct = geo.query_map_pct ?? null;
+        const qUncovered = geo.query_uncovered ?? null;
+        const qTotal = geo.query_total ?? null;
         const daysFaq = geo.days_since_faq ?? null;
         const daysSchema = geo.days_since_schema ?? null;
         const geoOk = geoAvg!==null?(geoAvg>=70?'ok':geoAvg>=40?'warn':'err'):'grey';
@@ -679,6 +682,26 @@
                         <div>Ultimo Schema: <strong>${daysSchema!==null?daysSchema+' giorni fa':'N/D'}</strong></div>
                     </div>
                     ${covPct!==null&&missingQueries.length?`<div style="font-size:11px;font-weight:700;color:var(--grey);letter-spacing:.06em;margin-bottom:8px">RISPOSTE MANCANTI</div>${missingQueries.map(q=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f4f4f8"><span style="color:#d82d6b;font-weight:800;font-size:12px">✗</span><span style="font-size:13px">${escHtml(q)}</span></div>`).join('')}`:''}
+                </div>
+            </div>
+            <div class="card" style="margin-bottom:20px">
+                <div class="card-header">
+                    <div class="card-title">🗺️ Mappa Query</div>
+                    ${qMapPct !== null
+                        ? `<span style="background:${qMapPct>=70?'#e9f7fb':'#fce8ef'};color:${qMapPct>=70?'#009bb9':'#d82d6b'};font-size:13px;font-weight:700;padding:3px 12px;border-radius:20px">${qMapPct}% coperto</span>`
+                        : `<span style="background:#fbf4f7;color:#666b84;font-size:13px;font-weight:700;padding:3px 12px;border-radius:20px">N/D</span>`
+                    }
+                </div>
+                <div style="padding:16px 20px">
+                    <div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-bottom:8px"><div style="height:6px;width:${qMapPct??0}%;background:${qMapPct!==null?(qMapPct>=70?'#009bb9':'#d82d6b'):'#ead0dc'};border-radius:3px"></div></div>
+                    <div style="font-size:12px;color:var(--grey);margin-bottom:12px">
+                        ${qMapPct !== null
+                            ? `${qUncovered} quer${qUncovered===1?'y':'ies'} senza risposta su ${qTotal} totali — vai su <strong>Mappa Query</strong> nel plugin per crearle`
+                            : 'Dati non ancora disponibili — aggiorna il plugin alla v2.0.0 e sincronizza'
+                        }
+                    </div>
+                    ${qMapPct !== null && qMapPct < 70 ? `<div style="padding:10px 14px;background:#fce8ef;border-radius:6px;font-size:13px;color:#d82d6b;font-weight:600">Alcune categorie di ospiti non hanno risposta. Apri <strong>Mappa Query</strong> nel plugin per vedere quali mancano.</div>` : ''}
+                    ${qMapPct !== null && qMapPct >= 70 ? `<div style="padding:10px 14px;background:#e9f7fb;border-radius:6px;font-size:13px;color:#009bb9;font-weight:600">Buona copertura delle query conversazionali.</div>` : ''}
                 </div>
             </div>
             `;
