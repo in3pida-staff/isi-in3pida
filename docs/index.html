@@ -700,14 +700,46 @@
 
             <!-- ═══ TAB: PANORAMICA ═══ -->
             <div id="dtab-panoramica">
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+
+            <!-- Box Stato Contenuti (stile form monitoring) -->
+            <div style="display:grid;grid-template-columns:260px 1fr;gap:20px;margin-bottom:20px;align-items:start">
+
+                <!-- COLONNA SINISTRA: box filtro sezioni -->
+                <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;overflow:hidden">
+                    <div style="padding:14px 18px;border-bottom:1px solid #e4e4ec">
+                        <div style="font-size:14px;font-weight:800;color:#171b33">Stato contenuti</div>
+                    </div>
+                    <div style="padding:4px 0">
+                        <div style="font-size:10px;font-weight:700;color:#aaa;letter-spacing:.06em;text-transform:uppercase;padding:10px 18px 4px">SEZIONI</div>
+                        ${[
+                            {k:'faq',    l:'FAQ',               v: covPct!==null?(covPct+'% coperto'):('1 pubblicata'),       ok: covPct===null||covPct>=80},
+                            {k:'schema', l:'Schema.org',         v: daysSchema===null?'Non aggiornato':(daysSchema+' giorni fa'), ok: daysSchema!==null&&daysSchema<180},
+                            {k:'mappa',  l:'Mappa Query',        v: qMapPct!==null?(qMapPct+'% coperto'):'Nessun dato',         ok: qMapPct!==null&&qMapPct>=70},
+                            {k:'coerenza',l:'Coerenza Contenuti',v:'Confronta canali',                                          ok: null},
+                            {k:'config', l:'Configurazione',     v:'Chiavi e abilitazioni',                                     ok: null},
+                            {k:'pse',    l:'Statistiche PSE',    v:(pseData?.length||0)+' query registrate',                    ok: (pseData?.length||0)>0},
+                        ].map(({k,l,v,ok})=>{
+                            const dot = ok===null?'#b3e0ea':ok?'#009bb9':'#d82d6b';
+                            return '<div class="stato-sezione-row" data-tab="'+k+'" style="display:flex;align-items:center;justify-content:space-between;padding:10px 18px;cursor:pointer;border-bottom:1px solid #f4f4f8;transition:background .15s" onmouseenter="this.style.background=\'#fbf4f7\'" onmouseleave="this.style.background=\'white\'">'
+                                + '<div style="display:flex;align-items:center;gap:10px"><span style="width:8px;height:8px;border-radius:50%;background:'+dot+';flex-shrink:0;display:inline-block"></span><span style="font-size:13px;font-weight:600;color:#35364f">'+l+'</span></div>'
+                                + '<span style="font-size:11px;color:#aaa;text-align:right;max-width:100px">'+v+'</span>'
+                                + '</div>';
+                        }).join('')}
+                        <div style="padding:14px 18px">
+                            <button id="btn-stato-sync-all" class="btn-update" style="width:100%;margin:0;justify-content:center">SINCRONIZZA</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- COLONNA DESTRA: Stato Semafori + Informazioni Sito -->
+                <div style="display:flex;flex-direction:column;gap:16px">
                 <div class="card" style="margin:0;border-radius:8px;border:1px solid #e4e4ec;box-shadow:none">
                     <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Stato semafori</div></div></div>
                     <div style="padding:0 20px 8px">
-                        ${sf(statoGen,`<strong>Stato generale: ${statoGen==='ok'?'Tutto OK':statoGen==='warn'?'Attenzione':'Problemi rilevati'}</strong>`,'')}
+                        ${sf(statoGen,'<strong>Stato generale: '+( statoGen==='ok'?'Tutto OK':statoGen==='warn'?'Attenzione':'Problemi rilevati')+'</strong>','')}
                         ${sf(hrs<25?'ok':hrs<48?'warn':'err','Plugin attivo sul sito',site?.last_heartbeat?'Ultimo segnale: '+timeAgo(site.last_heartbeat):'Nessun segnale ricevuto')}
                         ${sf(geoOk,'GEO Score',geoAvg!==null?geoAvg+'/100':'Nessun dato disponibile')}
-                        ${sf(isOld?'warn':'ok','Versione plugin',isOld?`v${escHtml(site?.plugin_version)} — disponibile v${escHtml(latestVersion?.version)}`:"All'ultima versione")}
+                        ${sf(isOld?'warn':'ok','Versione plugin',isOld?'v'+escHtml(site?.plugin_version)+' — disponibile v'+escHtml(latestVersion?.version):"All'ultima versione")}
                         ${geo.has_ai_profile===true?sf('ok','/ai-profile','Endpoint attivo — leggibile dai crawler AI'):geo.has_ai_profile===false?sf('err','/ai-profile','LLM layer disabilitato — attivalo in AI Layer'):semverGt('1.9.1',site?.plugin_version||'0')?sf('warn','/ai-profile','Aggiorna il plugin alla v1.9.2 per vedere lo stato'):sf('warn','/ai-profile','In attesa del prossimo heartbeat (ogni ora)')}
                     </div>
                 </div>
@@ -724,7 +756,9 @@
                         <div style="background:#f7f7fb;border-radius:8px;padding:12px 14px"><div style="font-size:10px;color:#aaa;font-weight:600;letter-spacing:.04em;text-transform:uppercase;margin-bottom:4px">Hotel ID</div><div style="font-size:10px;color:#888;word-break:break-all;font-weight:500">${escHtml(site?.site_id||'—')}</div></div>
                     </div>
                 </div>
-            </div>
+                </div><!-- /colonna destra -->
+            </div><!-- /grid stato contenuti -->
+
             <div class="card" style="margin-bottom:20px;border-radius:8px;border:1px solid #e4e4ec;box-shadow:none">
                 <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
                     <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Punteggi AI</div></div>
@@ -963,6 +997,15 @@
                 if (tab === 'mappa') initMappaQueryMgmt(site);
                 if (tab === 'coerenza') initCoerenzaTable(site);
                 if (tab === 'config') initConfigPanel(site);
+            });
+        });
+
+        // ── stato-sezione-row click → switch tab
+        el.querySelectorAll('.stato-sezione-row[data-tab]').forEach(row => {
+            row.addEventListener('click', () => {
+                const tab = row.dataset.tab;
+                const tabBtn = el.querySelector(`.dtab-btn[data-tab="${tab}"]`);
+                if (tabBtn) tabBtn.click();
             });
         });
 
