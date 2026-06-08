@@ -294,7 +294,8 @@ textarea.profile-input { resize: vertical; }
 }
 .card-header {
     padding: 18px 26px 15px;
-    border-bottom: 1px solid #f0f0f4;
+    border-bottom: 1px solid #ececf2;
+    background: #fafafa;
     display: flex; align-items: center; justify-content: space-between;
 }
 .card-title { font-size: 14px; font-weight: 700; }
