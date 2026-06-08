@@ -711,12 +711,31 @@
             ${cs !== null ? `<div class="card" style="margin-bottom:20px;border-radius:8px;border:1px solid #e4e4ec;box-shadow:none">
                 <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
                     <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Completezza profilo AI</div></div>
-                    <span style="background:${cs>=80?'#e9f7fb':'#fce8ef'};color:${cs>=80?'#009bb9':'#d82d6b'};font-size:13px;font-weight:700;padding:3px 12px;border-radius:20px">${cs}/100</span>
                 </div>
                 <div style="padding:16px 20px">
-                    <div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-bottom:8px"><div style="height:6px;width:${cs}%;background:${cs>=80?'#009bb9':'#d82d6b'};border-radius:3px"></div></div>
-                    <div style="font-size:12px;color:var(--grey);margin-bottom:12px">${12-checklist.length} di 12 campi fondamentali compilati</div>
-                    ${checklist.length ? `<div style="font-size:11px;font-weight:700;color:var(--grey);letter-spacing:.06em;margin-bottom:8px">COSA MANCA</div>${checklist.map(item=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #f4f4f8"><span style="color:#d82d6b;font-weight:800;font-size:12px">✗</span><span style="font-size:13px">${escHtml(item)}</span></div>`).join('')}` : `<div style="padding:10px;background:#e9f7fb;border-radius:6px;font-size:13px;color:#009bb9;font-weight:600">Profilo completo — tutti i campi fondamentali compilati.</div>`}
+                    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:${checklist.length?'20px':'0'}">
+                        <div style="background:${cs<60?'linear-gradient(135deg,#ffffff 0%,#fce8ef 100%)':'white'};border:1px solid ${cs<60?'#ead0dc':'#e4e4ec'};border-radius:8px;padding:16px 18px">
+                            <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:8px">PUNTEGGIO</div>
+                            <div style="font-size:32px;font-weight:800;line-height:1;color:${cs>=80?'#009bb9':'#d82d6b'}">${cs}/100</div>
+                            <div style="font-size:11px;font-weight:600;color:${cs>=80?'#009bb9':'#d82d6b'};margin-top:6px">${cs>=80?'ottimizzato':cs>=60?'da migliorare':'incompleto'}</div>
+                        </div>
+                        <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:16px 18px">
+                            <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:8px">CAMPI TOTALI</div>
+                            <div style="font-size:32px;font-weight:800;line-height:1;color:#009bb9">12</div>
+                            <div style="font-size:11px;font-weight:600;color:#009bb9;margin-top:6px">campi fondamentali</div>
+                        </div>
+                        <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:16px 18px">
+                            <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:8px">COMPILATI</div>
+                            <div style="font-size:32px;font-weight:800;line-height:1;color:#009bb9">${12-checklist.length}</div>
+                            <div style="font-size:11px;font-weight:600;color:#009bb9;margin-top:6px">di 12 totali</div>
+                        </div>
+                        <div style="background:${checklist.length>0?'linear-gradient(135deg,#ffffff 0%,#fce8ef 100%)':'white'};border:1px solid ${checklist.length>0?'#ead0dc':'#e4e4ec'};border-radius:8px;padding:16px 18px">
+                            <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:8px">MANCANTI</div>
+                            <div style="font-size:32px;font-weight:800;line-height:1;color:${checklist.length>0?'#d82d6b':'#009bb9'}">${checklist.length}</div>
+                            <div style="font-size:11px;font-weight:600;color:${checklist.length>0?'#d82d6b':'#009bb9'};margin-top:6px">${checklist.length>0?'da completare':'tutto compilato'}</div>
+                        </div>
+                    </div>
+                    ${checklist.length ? `<div style="font-size:11px;font-weight:700;color:var(--grey);letter-spacing:.06em;margin-bottom:8px">COSA MANCA</div>${checklist.map(item=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #f4f4f8"><span style="color:#d82d6b;font-weight:800;font-size:12px">✗</span><span style="font-size:13px">${escHtml(item)}</span></div>`).join('')}` : ''}
                 </div>
             </div>` : ''}
             <div class="card" style="margin-bottom:20px;border-radius:8px;border:1px solid #e4e4ec;box-shadow:none">
