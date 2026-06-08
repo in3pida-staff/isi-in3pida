@@ -656,22 +656,22 @@
             </div>
             <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
                 <div style="background:linear-gradient(135deg,#ffffff 0%,#fce8ef 100%);border:1.5px solid #ead0dc;border-radius:8px;padding:20px 22px">
-                    <div style="font-size:11px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:10px">GEO SCORE</div>
+                    <div style="font-size:11px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:4px">GEO SCORE <span class='tip-q' data-tip='Punteggio complessivo di ottimizzazione per AI. ≥70 ottimizzato, 40–69 da migliorare, <40 critico.'>?</span></div>
                     <div style="font-size:38px;font-weight:800;line-height:1;color:${geoAvg!==null?(geoAvg>=70?'#009bb9':'#d82d6b'):'#ead0dc'}">${geoAvg!==null?geoAvg:'—'}</div>
                     <div style="font-size:12px;font-weight:600;color:${geoAvg!==null?(geoAvg>=70?'#009bb9':'#d82d6b'):'#ead0dc'};margin-top:7px">${geoAvg!==null?(geoAvg>=70?'ottimizzato':geoAvg>=40?'da migliorare':'critico'):'nessun dato'}</div>
                 </div>
                 <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:20px 22px">
-                    <div style="font-size:11px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:10px">COMPLETEZZA AI</div>
+                    <div style="font-size:11px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:4px">COMPLETEZZA AI <span class='tip-q' data-tip='Quanto è completo il profilo AI dell hotel: nome, indirizzo, descrizione, contatti, FAQ ecc. ≥80 ottimizzato.'>?</span></div>
                     <div style="font-size:38px;font-weight:800;line-height:1;color:${cs!==null?(cs>=70?'#009bb9':'#d82d6b'):'#ead0dc'}">${cs!==null?cs:'—'}</div>
                     <div style="font-size:12px;font-weight:600;color:${cs!==null?(cs>=70?'#009bb9':'#d82d6b'):'#ead0dc'};margin-top:7px">${cs!==null?(cs>=70?'ottimizzato':cs>=40?'da migliorare':'critico'):'nessun dato'}</div>
                 </div>
                 <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:20px 22px">
-                    <div style="font-size:11px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:10px">COVERAGE FAQ</div>
+                    <div style="font-size:11px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:4px">COVERAGE FAQ <span class='tip-q' data-tip='Percentuale di domande degli ospiti a cui il sito risponde tramite FAQ. ≥80% buona copertura.'>?</span></div>
                     <div style="font-size:38px;font-weight:800;line-height:1;color:${covPct!==null?(covPct>=80?'#009bb9':'#d82d6b'):'#ead0dc'}">${covPct!==null?covPct+'%':'—'}</div>
                     <div style="font-size:12px;font-weight:600;color:${covPct!==null?(covPct>=80?'#009bb9':'#d82d6b'):'#ead0dc'};margin-top:7px">${covPct!==null?covPct+'% coperto':'nessun dato'}</div>
                 </div>
                 <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:20px 22px">
-                    <div style="font-size:11px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:10px">MAPPA QUERY</div>
+                    <div style="font-size:11px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:4px">MAPPA QUERY <span class='tip-q' data-tip='Percentuale di categorie di query conversazionali degli ospiti coperte dal sito. ≥70% buona copertura.'>?</span></div>
                     <div style="font-size:38px;font-weight:800;line-height:1;color:${qMapPct!==null?(qMapPct>=70?'#009bb9':'#d82d6b'):'#ead0dc'}">${qMapPct!==null?qMapPct+'%':'—'}</div>
                     <div style="font-size:12px;font-weight:600;color:${qMapPct!==null?(qMapPct>=70?'#009bb9':'#d82d6b'):'#ead0dc'};margin-top:7px">${qMapPct!==null?qMapPct+'% coperto':'nessun dato'}</div>
                 </div>
@@ -704,9 +704,15 @@
             <div class="card" style="margin-bottom:20px;border-radius:8px;border:1px solid #e4e4ec;box-shadow:none">
                 <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
                     <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Punteggi AI</div></div>
-                    ${geoAvg!==null?`<span style="background:${geoBg(geoAvg)};color:${geoBc(geoAvg)};font-size:13px;font-weight:700;padding:3px 12px;border-radius:20px">${geoAvg}/100</span>`:''}
                 </div>
-                <div style="padding:16px 20px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px">${geoRows}</div>
+                <div style="padding:16px 20px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+                    <div style="background:${geoAvg!==null&&geoAvg<40?'linear-gradient(135deg,#ffffff 0%,#fce8ef 100%)':geoAvg!==null?'linear-gradient(135deg,#ffffff 0%,#e9f7fb 100%)':'white'};border:1.5px solid ${geoAvg!==null&&geoAvg<40?'#ead0dc':'#b3e0ea'};border-radius:8px;padding:16px 18px">
+                        <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:4px">MEDIA PUNTEGGI <span class='tip-q' data-tip='Media ponderata di tutti i punteggi AI del sito. Rappresenta la prontezza complessiva per essere citato dai motori AI.'>?</span></div>
+                        <div style="font-size:38px;font-weight:800;line-height:1;color:${geoAvg!==null?(geoAvg>=70?'#009bb9':'#d82d6b'):'#ead0dc'}">${geoAvg!==null?geoAvg:'—'}</div>
+                        <div style="font-size:11px;font-weight:600;color:${geoAvg!==null?(geoAvg>=70?'#009bb9':'#d82d6b'):'#ead0dc'};margin-top:6px">${geoAvg!==null?(geoAvg>=70?'ottimizzato':geoAvg>=40?'da migliorare':'critico'):'nessun dato'} / 100</div>
+                    </div>
+                    ${geoRows}
+                </div>
             </div>
             ${cs !== null ? `<div class="card" style="margin-bottom:20px;border-radius:8px;border:1px solid #e4e4ec;box-shadow:none">
                 <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
