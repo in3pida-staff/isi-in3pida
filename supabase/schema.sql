@@ -13,11 +13,16 @@ CREATE TABLE IF NOT EXISTS isi_sites (
     tier text DEFAULT 'free',
     geo_scores jsonb DEFAULT '{}',
     hotel_profile jsonb DEFAULT '{}',
+    schema_data jsonb DEFAULT '{}',
+    faq_data jsonb DEFAULT '{}',
     last_heartbeat timestamptz,
     first_seen timestamptz DEFAULT now(),
     created_at timestamptz DEFAULT now()
 );
--- Per database esistenti: ALTER TABLE isi_sites ADD COLUMN IF NOT EXISTS hotel_profile jsonb DEFAULT '{}';
+-- Per database esistenti:
+-- ALTER TABLE isi_sites ADD COLUMN IF NOT EXISTS hotel_profile jsonb DEFAULT '{}';
+-- ALTER TABLE isi_sites ADD COLUMN IF NOT EXISTS schema_data jsonb DEFAULT '{}';
+-- ALTER TABLE isi_sites ADD COLUMN IF NOT EXISTS faq_data jsonb DEFAULT '{}';
 
 CREATE TABLE IF NOT EXISTS isi_pse_queries (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,

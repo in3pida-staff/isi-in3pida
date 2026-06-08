@@ -103,11 +103,46 @@
                     <select id="edit-user-role" class="profile-input">
                         <option value="utente">Utente</option>
                         <option value="admin">Admin</option>
+                        <option value="albergatore">Albergatore</option>
                     </select>
                 </div>
-                <div id="edit-user-error" style="color:var(--red-text);font-size:13px;margin-top:8px;display:none"></div>
+                <div class="profile-field" id="edit-user-siteid-wrap" style="display:none">
+                    <label class="profile-label">ID Sito (site_id)</label>
+                    <input type="text" id="edit-user-siteid" class="profile-input" placeholder="Es: abc12345-xxxx">
+                    <div style="font-size:11px;color:var(--grey);margin-top:4px">Collega l'albergatore al suo sito WordPress</div>
+                </div>
+                <div id="edit-user-error" style="color:#b00020;font-size:13px;margin-top:8px;display:none"></div>
                 <div class="profile-actions">
                     <button class="btn-save-profile" id="btn-save-user">Salva</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL FAQ ADMIN -->
+    <div id="faq-admin-modal" class="info-overlay" style="display:none">
+        <div class="info-card" style="max-width:600px">
+            <div class="info-card-header">
+                <span id="faq-modal-ttl-admin">Aggiungi FAQ</span>
+                <button class="info-close" id="faq-admin-modal-close">✕</button>
+            </div>
+            <div class="info-card-body">
+                <input type="hidden" id="fm-id-admin">
+                <div class="profile-field">
+                    <label class="profile-label">Domanda *</label>
+                    <input type="text" id="fm-q-admin" class="profile-input" placeholder="Es: Dove si trova l'hotel?">
+                </div>
+                <div class="profile-field">
+                    <label class="profile-label">Risposta</label>
+                    <textarea id="fm-a-admin" class="profile-input" rows="5" style="resize:vertical" placeholder="Scrivi la risposta..."></textarea>
+                </div>
+                <div class="profile-field" style="display:flex;align-items:center;gap:10px">
+                    <input type="checkbox" id="fm-ai-admin" style="width:16px;height:16px;cursor:pointer;accent-color:#d82d6b">
+                    <label for="fm-ai-admin" style="font-size:13px;font-weight:600;cursor:pointer;color:#171b33">Solo AI <span style="color:var(--grey);font-weight:400">— visibile solo al layer LLM</span></label>
+                </div>
+                <div id="fm-msg-admin" style="font-size:13px;margin-top:8px;display:none;padding:8px 12px;border-radius:8px"></div>
+                <div class="profile-actions" style="margin-top:16px">
+                    <button class="btn-save-profile" id="fm-save-admin">Salva FAQ</button>
                 </div>
             </div>
         </div>
@@ -333,6 +368,7 @@
         const { data: { session } } = await _SB.auth.getSession();
         if (!session) { window.location.href = 'login.html'; return; }
         const user = session.user;
+        if (user.user_metadata?.role === 'albergatore') { window.location.href = 'hotel.html'; return; }
         const name = user.user_metadata?.full_name || user.email?.split('@')[0] || 'Utente';
         const ini  = name.charAt(0).toUpperCase();
         document.getElementById('nav-name').textContent   = name;
@@ -744,6 +780,16 @@
                     <div id="hotel-profile-msg" style="margin-top:10px;font-size:13px;display:none"></div>
                 </div>
             </div>
+            <div class="card" style="margin-bottom:20px" id="card-site-faq">
+                <div class="card-header" style="border-bottom:2px solid #fce8ef">
+                    <div style="display:flex;align-items:center;gap:8px">
+                        <span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span>
+                        <div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">FAQ <span id="faq-admin-count" style="font-weight:400;text-transform:none;letter-spacing:0;font-size:11px;color:var(--grey)"></span></div>
+                    </div>
+                    <button id="btn-add-faq-admin" class="btn-update" style="margin-left:0">+ Aggiungi FAQ</button>
+                </div>
+                <div id="faq-admin-list" style="padding:16px 20px"><div class="loading"><div class="spinner"></div></div></div>
+            </div>
             `;
 
         document.getElementById('btn-back-detail').addEventListener('click', () => loadTab(currentTab));
@@ -771,6 +817,7 @@
             }
         });
         initHotelProfile(site);
+        initSiteFaq(site);
     }
 
     // ─── PROFILO HOTEL ───────────────────────────────────────────────────────────
@@ -1019,6 +1066,125 @@
         el.textContent=text; setTimeout(()=>el.style.display='none',4000);
     }
 
+    // ─── FAQ ADMIN (site detail) ──────────────────────────────────────────────────
+    let _aFaqItems = [], _aFaqBase = '', _aFaqSecret = '';
+
+    async function initSiteFaq(site) {
+        _aFaqBase   = (site.site_url || '').replace(/\/$/, '');
+        _aFaqSecret = site.site_id;
+        try {
+            const ctrl = new AbortController(); setTimeout(() => ctrl.abort(), 6000);
+            const r = await fetch(_aFaqBase + '/wp-json/in3pida/v1/site-id', { signal: ctrl.signal });
+            if (r.ok) { const d = await r.json().catch(() => ({})); if (d.site_id) _aFaqSecret = d.site_id; }
+        } catch (_) {}
+        const addBtn = document.getElementById('btn-add-faq-admin');
+        if (addBtn) addBtn.addEventListener('click', () => openAdminFaqModal(null));
+        loadAdminFaqList();
+    }
+
+    async function loadAdminFaqList() {
+        const el = document.getElementById('faq-admin-list');
+        if (!el) return;
+        el.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+        try {
+            const ctrl = new AbortController(); setTimeout(() => ctrl.abort(), 9000);
+            const r = await fetch(_aFaqBase + '/wp-json/in3pida/v1/faq', { signal: ctrl.signal });
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            const data = await r.json();
+            _aFaqItems = data.items || [];
+            const badge = document.getElementById('faq-admin-count');
+            if (badge) badge.textContent = _aFaqItems.length ? '(' + _aFaqItems.length + ')' : '';
+            renderAdminFaqList(el);
+        } catch (e) {
+            el.innerHTML = `<div style="color:#b00020;font-size:13px;padding:4px 0">FAQ non caricate: ${escHtml(e.message)}</div>`;
+        }
+    }
+
+    function renderAdminFaqList(el) {
+        if (!_aFaqItems.length) {
+            el.innerHTML = '<div style="color:var(--grey);font-size:13px">Nessuna FAQ pubblicata nel plugin.</div>';
+            return;
+        }
+        el.innerHTML = _aFaqItems.map((f, i) => `
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;padding:11px 0;border-bottom:1px solid #f4f4f8;gap:16px">
+                <div style="flex:1;min-width:0">
+                    <div style="font-size:13px;font-weight:700;color:#171b33;margin-bottom:3px">${i+1}. ${escHtml(f.question)}</div>
+                    <div style="font-size:12px;color:var(--grey);line-height:1.4">${escHtml((f.answer||'').substring(0,120))}${(f.answer||'').length>120?'...':''}</div>
+                    ${f.solo_ai ? '<span style="background:#fce8ef;color:#d82d6b;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;display:inline-block;margin-top:4px">Solo AI</span>' : ''}
+                </div>
+                <div style="display:flex;gap:5px;flex-shrink:0">
+                    <button class="btn-ping" style="font-size:11px" onclick="openAdminFaqModal(${f.id})">✏️</button>
+                    <button class="btn-ping" style="font-size:11px;color:#b00020" onclick="deleteAdminFaq(${f.id})">🗑️</button>
+                </div>
+            </div>`).join('');
+    }
+
+    function openAdminFaqModal(id) {
+        const f = id ? _aFaqItems.find(x => x.id === id) : null;
+        document.getElementById('faq-modal-ttl-admin').textContent = f ? 'Modifica FAQ' : 'Aggiungi FAQ';
+        document.getElementById('fm-id-admin').value   = f ? f.id : '';
+        document.getElementById('fm-q-admin').value    = f ? f.question : '';
+        document.getElementById('fm-a-admin').value    = f ? f.answer : '';
+        document.getElementById('fm-ai-admin').checked = f ? !!f.solo_ai : false;
+        document.getElementById('fm-msg-admin').style.display = 'none';
+        document.getElementById('faq-admin-modal').style.display = 'flex';
+    }
+
+    document.getElementById('faq-admin-modal-close').addEventListener('click', () => {
+        document.getElementById('faq-admin-modal').style.display = 'none';
+    });
+    document.getElementById('faq-admin-modal').addEventListener('click', e => {
+        if (e.target === document.getElementById('faq-admin-modal'))
+            document.getElementById('faq-admin-modal').style.display = 'none';
+    });
+
+    document.getElementById('fm-save-admin').addEventListener('click', async () => {
+        const btn = document.getElementById('fm-save-admin');
+        const msg = document.getElementById('fm-msg-admin');
+        const id  = document.getElementById('fm-id-admin').value;
+        const q   = document.getElementById('fm-q-admin').value.trim();
+        const a   = document.getElementById('fm-a-admin').value.trim();
+        const sa  = document.getElementById('fm-ai-admin').checked;
+        if (!q) {
+            msg.style.display = 'block'; msg.style.background = '#fce8ef'; msg.style.color = '#b00020';
+            msg.textContent = 'Inserisci la domanda.'; return;
+        }
+        btn.disabled = true; btn.textContent = 'Salvataggio...';
+        try {
+            const action = id ? 'update' : 'add';
+            const faq = { question: q, answer: a, solo_ai: sa, order: 0 };
+            if (id) faq.id = parseInt(id);
+            const ctrl = new AbortController(); setTimeout(() => ctrl.abort(), 12000);
+            const r = await fetch(_aFaqBase + '/wp-json/in3pida/v1/faq', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ secret: _aFaqSecret, action, faq }), signal: ctrl.signal,
+            });
+            const d = await r.json().catch(() => ({}));
+            if (r.ok && d.ok) {
+                document.getElementById('faq-admin-modal').style.display = 'none';
+                loadAdminFaqList();
+            } else { throw new Error(d.message || 'Errore ' + r.status); }
+        } catch (e) {
+            msg.style.display = 'block'; msg.style.background = '#fce8ef'; msg.style.color = '#b00020';
+            msg.textContent = 'Errore: ' + e.message;
+        } finally { btn.disabled = false; btn.textContent = 'Salva FAQ'; }
+    });
+
+    async function deleteAdminFaq(id) {
+        const f = _aFaqItems.find(x => x.id === id);
+        if (!f || !confirm('Eliminare la FAQ "' + (f.question||'').substring(0,60) + '"?')) return;
+        try {
+            const ctrl = new AbortController(); setTimeout(() => ctrl.abort(), 10000);
+            const r = await fetch(_aFaqBase + '/wp-json/in3pida/v1/faq', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ secret: _aFaqSecret, action: 'delete', faq: { id } }), signal: ctrl.signal,
+            });
+            const d = await r.json().catch(() => ({}));
+            if (r.ok && d.ok) loadAdminFaqList();
+            else alert('Errore durante eliminazione');
+        } catch (e) { alert('Errore: ' + e.message); }
+    }
+
     // ─── UTENTI ──────────────────────────────────────────────────────────────────
     async function loadUtenti() {
         document.getElementById('utenti-container').innerHTML = '<div class="loading"><div class="spinner"></div> Caricamento...</div>';
@@ -1072,12 +1238,18 @@
 
     function openEditUser(u) {
         const name = u.user_metadata?.full_name || u.email?.split('@')[0] || '';
-        document.getElementById('edit-user-id').value   = u.id;
-        document.getElementById('edit-user-name').value = name;
-        document.getElementById('edit-user-role').value = u.user_metadata?.role || 'utente';
+        const role = u.user_metadata?.role || 'utente';
+        document.getElementById('edit-user-id').value      = u.id;
+        document.getElementById('edit-user-name').value    = name;
+        document.getElementById('edit-user-role').value    = role;
+        document.getElementById('edit-user-siteid').value  = u.user_metadata?.site_id || '';
+        document.getElementById('edit-user-siteid-wrap').style.display = role === 'albergatore' ? '' : 'none';
         document.getElementById('edit-user-error').style.display = 'none';
         document.getElementById('edit-user-overlay').style.display = 'flex';
     }
+    document.getElementById('edit-user-role').addEventListener('change', function() {
+        document.getElementById('edit-user-siteid-wrap').style.display = this.value === 'albergatore' ? '' : 'none';
+    });
 
     document.getElementById('edit-user-close').addEventListener('click', () => {
         document.getElementById('edit-user-overlay').style.display = 'none';
@@ -1088,15 +1260,18 @@
     });
 
     document.getElementById('btn-save-user').addEventListener('click', async () => {
-        const id   = document.getElementById('edit-user-id').value;
-        const name = document.getElementById('edit-user-name').value.trim();
-        const role = document.getElementById('edit-user-role').value;
+        const id      = document.getElementById('edit-user-id').value;
+        const name    = document.getElementById('edit-user-name').value.trim();
+        const role    = document.getElementById('edit-user-role').value;
+        const site_id = role === 'albergatore' ? document.getElementById('edit-user-siteid').value.trim() : null;
         if (!name) { document.getElementById('edit-user-error').textContent='Inserisci il nome'; document.getElementById('edit-user-error').style.display='block'; return; }
         try {
             const { data:{ session } } = await _SB.auth.getSession();
+            const body = { user_id:id, full_name:name, role };
+            if (site_id !== null) body.site_id = site_id;
             const resp = await fetch(`${SUPABASE_URL}/functions/v1/isi-admin-users`, {
                 method:'PATCH', headers:{'Authorization':'Bearer '+session.access_token,'Content-Type':'application/json'},
-                body: JSON.stringify({ user_id:id, full_name:name, role })
+                body: JSON.stringify(body)
             });
             if (!resp.ok) throw new Error('Errore aggiornamento');
             document.getElementById('edit-user-overlay').style.display = 'none';

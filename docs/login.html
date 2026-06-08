@@ -57,9 +57,12 @@
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5YXV2b3FqZHpyYm1lYmVhZml0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3OTM2MDAsImV4cCI6MjA5NTM2OTYwMH0.M6kD56PEO_UcJ68Vjquo03vuORjv62MflIzGLzYKN9w'
     );
 
-    // Se già loggato → vai alla dashboard
+    // Se già loggato → vai alla dashboard corretta in base al ruolo
     _SB.auth.getSession().then(({ data: { session } }) => {
-        if (session) window.location.href = 'index.html';
+        if (session) {
+            const role = session.user?.user_metadata?.role;
+            window.location.href = role === 'albergatore' ? 'hotel.html' : 'index.html';
+        }
     });
 
     // Messaggi da URL params
@@ -85,7 +88,9 @@
             showMsg('error', msg);
             btn.textContent = 'Accedi'; btn.disabled = false;
         } else {
-            window.location.href = 'index.html';
+            const { data: { session: sess } } = await _SB.auth.getSession();
+            const role = sess?.user?.user_metadata?.role;
+            window.location.href = role === 'albergatore' ? 'hotel.html' : 'index.html';
         }
     });
 
@@ -110,7 +115,7 @@
         btn.disabled = true;
         await _SB.auth.signInWithOAuth({
             provider: 'google',
-            options: { redirectTo: 'https://isi.in3pida.it/index.html' },
+            options: { redirectTo: 'https://isi.in3pida.it/login.html' },
         });
     });
 

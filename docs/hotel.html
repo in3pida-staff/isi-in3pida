@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iSI — Pannello Hotel</title>
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .hotel-tabs{display:flex;gap:4px;background:white;border-radius:14px;padding:6px;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:22px;overflow-x:auto}
+        .hotel-tab{background:none;border:none;cursor:pointer;font-family:var(--font);font-size:13px;font-weight:600;color:#4b4d68;padding:10px 22px;border-radius:10px;transition:all .15s;white-space:nowrap;flex-shrink:0}
+        .hotel-tab:hover{background:#fbf4f7}
+        .hotel-tab.active{background:#d82d6b;color:white}
+        .faq-item{background:white;border-radius:12px;padding:16px 20px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,.05);border:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:16px;transition:box-shadow .15s}
+        .faq-item:hover{box-shadow:0 4px 16px rgba(0,0,0,.10)}
+        .faq-q{font-size:14px;font-weight:700;color:#171b33;margin-bottom:4px;line-height:1.4}
+        .faq-a{font-size:12px;color:var(--grey);line-height:1.5}
+        .badge-soloai{background:#fce8ef;color:#d82d6b;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;display:inline-block;margin-top:6px}
+        .sec-hdr{font-size:11px;font-weight:700;color:#666b84;letter-spacing:.06em;text-transform:uppercase;margin:20px 0 12px;padding-bottom:6px;border-bottom:2px solid #fce8ef}
+        .sec-hdr:first-child{margin-top:0}
+        .kpi-cell{padding:22px 20px;text-align:center}
+        .kpi-cell:not(:last-child){border-right:1px solid var(--border)}
+        .kpi-num{font-size:42px;font-weight:800;line-height:1;color:#ead0dc}
+        .kpi-lbl{font-size:10px;font-weight:700;letter-spacing:.07em;color:var(--grey);text-transform:uppercase;margin-top:8px}
+        .score-bar-wrap{margin-bottom:18px}
+        .score-bar-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+        .score-bar-bg{height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+        .score-bar-fill{height:6px;border-radius:3px}
+        .score-badge{font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px}
+        .dot-hdr{display:flex;align-items:center;gap:8px}
+        .dot-hdr .dot{width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0}
+        .dot-hdr .label{font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase}
+    </style>
+</head>
+<body>
+
+<!-- MODAL FAQ -->
+<div id="faq-modal" class="info-overlay" style="display:none">
+    <div class="info-card" style="max-width:600px">
+        <div class="info-card-header">
+            <span id="faq-modal-ttl">Aggiungi FAQ</span>
+            <button class="info-close" id="faq-modal-close">✕</button>
+        </div>
+        <div class="info-card-body">
+            <input type="hidden" id="fm-id">
+            <div class="profile-field">
+                <label class="profile-label">Domanda *</label>
+                <input type="text" id="fm-q" class="profile-input" placeholder="Es: Dove si trova l'hotel?">
+            </div>
+            <div class="profile-field">
+                <label class="profile-label">Risposta</label>
+                <textarea id="fm-a" class="profile-input" rows="5" style="resize:vertical" placeholder="Scrivi la risposta completa..."></textarea>
+            </div>
+            <div class="profile-field" style="display:flex;align-items:center;gap:10px">
+                <input type="checkbox" id="fm-solo-ai" style="width:16px;height:16px;cursor:pointer;accent-color:#d82d6b">
+                <label for="fm-solo-ai" style="font-size:13px;font-weight:600;cursor:pointer;color:#171b33">Solo AI <span style="color:var(--grey);font-weight:400">— visibile solo al layer LLM, non sul sito pubblico</span></label>
+            </div>
+            <div id="fm-msg" style="font-size:13px;margin-top:10px;display:none;padding:8px 12px;border-radius:8px"></div>
+            <div class="profile-actions" style="margin-top:16px">
+                <button class="btn-save-profile" id="fm-save">Salva FAQ</button>
+                <button class="btn-ping" id="fm-cancel" style="margin-left:8px">Annulla</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+    <div class="navbar-inner">
+        <div class="navbar-left">
+            <div class="navbar-logo"><img src="images/logo.png" alt="in3pida"></div>
+            <span class="navbar-badge">iSI</span>
+        </div>
+        <div class="navbar-center">
+            <span id="nav-site-name" style="font-size:13px;font-weight:600;color:var(--grey)"></span>
+        </div>
+        <div class="navbar-right">
+            <div class="navbar-user-pill" id="user-pill" style="cursor:pointer">
+                <div class="navbar-avatar" id="nav-avatar">H</div>
+                <div class="navbar-user-text">
+                    <div class="navbar-user-name" id="nav-name">Hotel</div>
+                    <div class="navbar-user-sub">Pannello Hotel</div>
+                </div>
+            </div>
+            <div class="user-dropdown" id="user-dropdown" style="display:none">
+                <div class="user-dropdown-header">
+                    <div class="user-dropdown-avatar" id="dd-avatar">H</div>
+                    <div>
+                        <div class="user-dropdown-name" id="dd-name">Hotel</div>
+                        <div class="user-dropdown-email" id="dd-email"></div>
+                    </div>
+                </div>
+                <div class="user-dropdown-divider"></div>
+                <button class="user-dropdown-item logout" id="dd-logout">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+                    Esci
+                </button>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+    <div class="hero">
+        <div class="hero-label">in3pida Sito Intelligente</div>
+        <div class="hero-sublabel">Pannello Hotel</div>
+        <div class="hero-title" id="hero-hotel-name">—</div>
+    </div>
+
+    <!-- KPI BAR -->
+    <div class="card" style="margin-bottom:22px">
+        <div style="display:grid;grid-template-columns:repeat(4,1fr)">
+            <div class="kpi-cell">
+                <div class="kpi-num" id="kpi-geo">—</div>
+                <div class="kpi-lbl">GEO Score</div>
+            </div>
+            <div class="kpi-cell">
+                <div class="kpi-num" id="kpi-cs">—</div>
+                <div class="kpi-lbl">Completezza AI</div>
+            </div>
+            <div class="kpi-cell">
+                <div class="kpi-num" id="kpi-cov">—</div>
+                <div class="kpi-lbl">Coverage FAQ</div>
+            </div>
+            <div class="kpi-cell">
+                <div class="kpi-num" id="kpi-faq">—</div>
+                <div class="kpi-lbl">FAQ attive</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB NAVIGATION -->
+    <div class="hotel-tabs">
+        <button class="hotel-tab active" id="htab-dash">Dashboard</button>
+        <button class="hotel-tab" id="htab-profilo">Profilo Hotel</button>
+        <button class="hotel-tab" id="htab-faq">FAQ</button>
+        <button class="hotel-tab" id="htab-punteggi">Punteggi AI</button>
+    </div>
+
+    <!-- ── DASHBOARD ── -->
+    <div id="hview-dash">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+            <div class="card">
+                <div class="card-header" style="border-bottom:2px solid #fce8ef">
+                    <div class="dot-hdr"><span class="dot"></span><span class="label">Stato semafori</span></div>
+                    <button id="btn-sync" class="btn-ping" style="font-size:12px">🔄 Sync</button>
+                </div>
+                <div id="semafori-container" style="padding:0 20px 8px"><div class="loading"><div class="spinner"></div></div></div>
+            </div>
+            <div class="card">
+                <div class="card-header" style="border-bottom:2px solid #fce8ef">
+                    <div class="dot-hdr"><span class="dot"></span><span class="label">Info sito</span></div>
+                </div>
+                <div id="info-sito-container" style="padding:16px 20px"><div class="loading"><div class="spinner"></div></div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── PROFILO HOTEL ── -->
+    <div id="hview-profilo" style="display:none">
+        <div class="card">
+            <div class="card-header" style="border-bottom:2px solid #fce8ef">
+                <div class="dot-hdr"><span class="dot"></span><span class="label">Profilo Hotel — Schema.org</span></div>
+                <div style="font-size:12px;color:var(--grey)" id="schema-sync-info"></div>
+            </div>
+            <div style="padding:20px 24px">
+                <div id="schema-form-container"><div class="loading"><div class="spinner"></div> Caricamento dati dal plugin...</div></div>
+                <div id="schema-save-msg" style="font-size:13px;margin-top:12px;display:none;padding:10px 14px;border-radius:8px"></div>
+                <div style="margin-top:22px;padding-top:16px;border-top:1px solid var(--border)">
+                    <button id="btn-save-schema" class="btn-update" style="margin-left:0">Salva e invia al plugin</button>
+                    <span style="font-size:12px;color:var(--grey);margin-left:12px">Le modifiche vengono scritte direttamente sul tuo WordPress</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── FAQ ── -->
+    <div id="hview-faq" style="display:none">
+        <div class="card">
+            <div class="card-header" style="border-bottom:2px solid #fce8ef">
+                <div class="dot-hdr"><span class="dot"></span><span class="label">FAQ <span id="faq-count-badge" style="font-weight:400;text-transform:none;letter-spacing:0;font-size:11px;color:var(--grey)"></span></span></div>
+                <button id="btn-add-faq" class="btn-update" style="margin-left:0">+ Aggiungi FAQ</button>
+            </div>
+            <div id="faq-list-container" style="padding:16px 20px">
+                <div class="loading"><div class="spinner"></div> Caricamento FAQ...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── PUNTEGGI AI ── -->
+    <div id="hview-punteggi" style="display:none">
+        <div class="card">
+            <div class="card-header" style="border-bottom:2px solid #fce8ef">
+                <div class="dot-hdr"><span class="dot"></span><span class="label">Punteggi AI dettagliati</span></div>
+            </div>
+            <div id="punteggi-container" style="padding:20px 24px"><div class="loading"><div class="spinner"></div></div></div>
+        </div>
+    </div>
+
+</div><!-- /main -->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+const SUPABASE_URL      = 'https://yyauvoqjdzrbmebeafit.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5YXV2b3FqZHpyYm1lYmVhZml0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3OTM2MDAsImV4cCI6MjA5NTM2OTYwMH0.M6kD56PEO_UcJ68Vjquo03vuORjv62MflIzGLzYKN9w';
+const _SB  = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const _SBq = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
+
+let currentSite  = null;
+let pluginBase   = '';
+let pluginSecret = '';
+let faqItems     = [];
+
+// ─── INIT ─────────────────────────────────────────────────────────────────
+async function init() {
+    const { data: { session } } = await _SB.auth.getSession();
+    if (!session) { window.location.href = 'login.html'; return; }
+    const user = session.user;
+    if (user.user_metadata?.role === 'admin') { window.location.href = 'index.html'; return; }
+
+    const name = user.user_metadata?.full_name || user.email?.split('@')[0] || 'Hotel';
+    const ini  = name.charAt(0).toUpperCase();
+    document.getElementById('nav-name').textContent   = name;
+    document.getElementById('nav-avatar').textContent = ini;
+    document.getElementById('dd-name').textContent    = name;
+    document.getElementById('dd-email').textContent   = user.email || '';
+    document.getElementById('dd-avatar').textContent  = ini;
+
+    const siteId = user.user_metadata?.site_id;
+    if (!siteId) {
+        document.getElementById('hero-hotel-name').textContent = 'Hotel non collegato';
+        document.querySelector('.hero-sublabel').textContent   = 'Contatta il supporto per collegare il tuo sito';
+        return;
+    }
+
+    const { data: site, error } = await _SBq.from('isi_sites').select('*').eq('site_id', siteId).single();
+    if (!site || error) {
+        document.getElementById('hero-hotel-name').textContent = 'Sito non trovato';
+        return;
+    }
+
+    currentSite = site;
+    pluginBase  = (site.site_url || '').replace(/\/$/, '');
+    pluginSecret = siteId;
+
+    try {
+        const ctrl = new AbortController();
+        setTimeout(() => ctrl.abort(), 6000);
+        const r = await fetch(pluginBase + '/wp-json/in3pida/v1/site-id', { signal: ctrl.signal });
+        if (r.ok) { const d = await r.json().catch(() => ({})); if (d.site_id) pluginSecret = d.site_id; }
+    } catch (_) {}
+
+    const siteName = site.site_name || site.site_url || '—';
+    document.getElementById('hero-hotel-name').textContent = siteName;
+    document.getElementById('nav-site-name').textContent   = siteName;
+
+    renderKpiBar(site);
+    loadTab('dash');
+}
+
+// ─── KPI BAR ──────────────────────────────────────────────────────────────
+function renderKpiBar(site) {
+    const geo    = site.geo_scores || {};
+    const geoAvg = geo.completeness_score ?? geo.ai_readiness ?? null;
+    const cs     = geo.completeness_score ?? null;
+    const cov    = geo.coverage_pct       ?? null;
+    const faqs   = site.faq_data?.total   ?? null;
+    setKpi('kpi-geo',  geoAvg, geoAvg !== null ? geoAvg + '' : '—',          70, false);
+    setKpi('kpi-cs',   cs,     cs     !== null ? cs     + '' : '—',          70, false);
+    setKpi('kpi-cov',  cov,    cov    !== null ? cov    + '%' : '—',         80, false);
+    setKpi('kpi-faq',  faqs,   faqs   !== null ? faqs   + '' : '—',          1,  false);
+}
+function setKpi(id, val, label, threshold) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = label;
+    el.style.color = val === null ? '#ead0dc' : (val >= threshold ? '#009bb9' : '#d82d6b');
+}
+
+// ─── TABS ─────────────────────────────────────────────────────────────────
+const TABS = ['dash','profilo','faq','punteggi'];
+let tabLoaded = {};
+
+function loadTab(tab) {
+    TABS.forEach(t => {
+        document.getElementById('hview-' + t).style.display  = t === tab ? '' : 'none';
+        document.getElementById('htab-' + t).classList.toggle('active', t === tab);
+    });
+    if (!tabLoaded[tab]) { tabLoaded[tab] = true; }
+    if (tab === 'dash')     renderDashboard();
+    if (tab === 'profilo')  loadSchemaForm();
+    if (tab === 'faq')      loadFaqList();
+    if (tab === 'punteggi') renderPunteggi();
+}
+
+document.getElementById('htab-dash').addEventListener('click',    () => loadTab('dash'));
+document.getElementById('htab-profilo').addEventListener('click', () => loadTab('profilo'));
+document.getElementById('htab-faq').addEventListener('click',     () => loadTab('faq'));
+document.getElementById('htab-punteggi').addEventListener('click',() => loadTab('punteggi'));
+
+// ─── DASHBOARD ────────────────────────────────────────────────────────────
+function renderDashboard() {
+    if (!currentSite) return;
+    const site = currentSite;
+    const geo  = site.geo_scores || {};
+    const now  = new Date();
+    const hrs  = site.last_heartbeat ? (now - new Date(site.last_heartbeat)) / 3600000 : 9999;
+    const geoAvg = geo.completeness_score ?? geo.ai_readiness ?? null;
+
+    const sf = (color, label, desc) => `
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid #f4f4f8">
+            <div style="display:flex;align-items:center;gap:12px">
+                <span style="width:11px;height:11px;border-radius:50%;background:${color};flex-shrink:0;display:inline-block"></span>
+                <span style="font-size:14px;font-weight:600;color:#171b33">${label}</span>
+            </div>
+            <span style="font-size:12px;color:var(--grey)">${desc}</span>
+        </div>`;
+
+    const heartbeatColor = hrs < 25 ? '#009bb9' : hrs < 72 ? '#d82d6b' : '#b00020';
+    const geoColor = geoAvg === null ? '#666b84' : geoAvg >= 70 ? '#009bb9' : geoAvg >= 40 ? '#d82d6b' : '#b00020';
+    const aiColor  = geo.has_ai_profile === true ? '#009bb9' : geo.has_ai_profile === false ? '#b00020' : '#666b84';
+
+    document.getElementById('semafori-container').innerHTML =
+        sf(heartbeatColor, 'Plugin attivo',       site.last_heartbeat ? timeAgo(site.last_heartbeat) : 'Mai sincronizzato') +
+        sf(geoColor,       'GEO Score',            geoAvg !== null ? geoAvg + '/100' : 'Nessun dato') +
+        sf(aiColor,        '/ai-profile',          geo.has_ai_profile === true ? 'Attivo e raggiungibile' : 'Non disponibile');
+
+    const kv = (l, v) => `
+        <div>
+            <div style="font-size:11px;color:var(--grey);font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px">${l}</div>
+            <div style="font-size:14px;font-weight:700;color:#171b33">${v || '—'}</div>
+        </div>`;
+    document.getElementById('info-sito-container').innerHTML = `
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+            ${kv('Nome',           esc(site.site_name || ''))}
+            ${kv('URL',            site.site_url ? `<a href="${esc(site.site_url)}" target="_blank" style="color:#009bb9;text-decoration:none;font-size:13px">${esc(site.site_url)}</a>` : '')}
+            ${kv('Plugin',         esc(site.plugin_version || ''))}
+            ${kv('Ultimo sync',    site.last_heartbeat ? timeAgo(site.last_heartbeat) : 'Mai')}
+        </div>`;
+}
+
+document.getElementById('btn-sync').addEventListener('click', async () => {
+    const btn = document.getElementById('btn-sync');
+    btn.textContent = '⏳ Sync...'; btn.disabled = true;
+    try {
+        const ctrl = new AbortController();
+        setTimeout(() => ctrl.abort(), 22000);
+        const r = await fetch(pluginBase + '/wp-json/in3pida/v1/force-heartbeat', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' }, signal: ctrl.signal,
+        });
+        if (r.ok) {
+            const { data: site } = await _SBq.from('isi_sites').select('*').eq('site_id', currentSite.site_id).single();
+            if (site) { currentSite = site; renderKpiBar(site); renderDashboard(); }
+            btn.textContent = '✓ OK';
+        } else { btn.textContent = '✗ Errore plugin'; }
+    } catch (e) { btn.textContent = '✗ Plugin non raggiungibile'; }
+    setTimeout(() => { btn.textContent = '🔄 Sync'; btn.disabled = false; }, 4000);
+});
+
+// ─── SCHEMA / PROFILO ─────────────────────────────────────────────────────
+async function loadSchemaForm() {
+    document.getElementById('schema-form-container').innerHTML = '<div class="loading"><div class="spinner"></div> Caricamento dati dal plugin...</div>';
+    let schema = {};
+    try {
+        const ctrl = new AbortController();
+        setTimeout(() => ctrl.abort(), 9000);
+        const r = await fetch(pluginBase + '/wp-json/in3pida/v1/schema', { signal: ctrl.signal });
+        if (r.ok) schema = await r.json();
+        document.getElementById('schema-sync-info').textContent =
+            schema._synced_at ? 'Dati plugin · ' + new Date(schema._synced_at).toLocaleString('it-IT', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' }) : '';
+    } catch (_) {
+        schema = currentSite.schema_data || {};
+        document.getElementById('schema-sync-info').textContent = 'Dati Supabase (plugin non raggiungibile)';
+    }
+    document.getElementById('schema-form-container').innerHTML = buildSchemaForm(schema);
+}
+
+function buildSchemaForm(s) {
+    const inp = (id, label, val, ph, type) =>
+        `<div><label class="profile-label">${label}</label><input type="${type||'text'}" id="sf-${id}" class="profile-input" value="${esc(val||'')}" placeholder="${esc(ph||'')}"></div>`;
+    const ta = (id, label, val, ph, rows) =>
+        `<div><label class="profile-label">${label}</label><textarea id="sf-${id}" class="profile-input" rows="${rows||3}" style="resize:vertical" placeholder="${esc(ph||'')}">${esc(val||'')}</textarea></div>`;
+    const sel = (id, label, val, opts) =>
+        `<div><label class="profile-label">${label}</label><select id="sf-${id}" class="profile-input">${opts.map(o=>`<option value="${esc(o)}"${val===o?' selected':''}>${esc(o)}</option>`).join('')}</select></div>`;
+
+    const tipi = ['Hotel','LodgingBusiness','BedAndBreakfast','Hostel','Motel','Resort','VacationRental'];
+
+    return `<div class="sec-hdr">IDENTITÀ</div>
+    <div style="display:grid;grid-template-columns:2fr 1fr auto;gap:12px;margin-bottom:12px">
+        ${inp('name', 'Nome hotel', s.name, 'Es: Hotel Bellevue')}
+        ${sel('type', 'Tipo struttura', s.type, tipi)}
+        <div><label class="profile-label">Stelle</label><select id="sf-official_rating" class="profile-input">
+            <option value="">—</option>
+            ${['1','2','3','4','5'].map(n=>`<option value="${n}"${(s.official_rating||'')==n?' selected':''}>${n} ★</option>`).join('')}
+        </select></div>
+    </div>
+    ${ta('description','Descrizione', s.description, 'Descrizione completa dell\'hotel per i motori AI...', 4)}
+    <div style="margin-top:12px">${inp('price_range','Fascia di prezzo', s.price_range,'€ / €€ / €€€ / €€€€')}</div>
+
+    <div class="sec-hdr">INDIRIZZO</div>
+    <div style="display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:12px">
+        ${inp('street','Via / Piazza', s.street,'Es: Via Roma, 10')}
+        ${inp('postal_code','CAP', s.postal_code,'47921')}
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-bottom:12px">
+        ${inp('city','Città', s.city,'Rimini')}
+        ${inp('region','Regione', s.region,'Emilia-Romagna')}
+        ${inp('country','Paese', s.country,'IT')}
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        ${inp('latitude','Latitudine', s.latitude,'44.0600')}
+        ${inp('longitude','Longitudine', s.longitude,'12.5657')}
+    </div>
+
+    <div class="sec-hdr">CONTATTI</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+        ${inp('telephone','Telefono', s.telephone,'+39 0541 000000','tel')}
+        ${inp('email','Email', s.email,'info@hotel.it','email')}
+        ${inp('url','Sito web', s.url,'https://www.hotel.it','url')}
+    </div>
+
+    <div class="sec-hdr">CHECK-IN / CHECK-OUT</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+        ${inp('checkin_time','Orario check-in', s.checkin_time,'14:00')}
+        ${inp('checkout_time','Orario check-out', s.checkout_time,'11:00')}
+        ${inp('pets_allowed','Animali ammessi', s.pets_allowed,'Sì / No / Su richiesta')}
+    </div>
+
+    <div class="sec-hdr">INFORMAZIONI AGGIUNTIVE</div>
+    ${inp('keywords','Parole chiave SEO', s.keywords,'hotel, rimini, mare, piscina, centro storico')}
+    <div style="margin-top:12px">
+    ${ta('nearby_attractions','Attrazioni vicine', s.nearby_attractions,'Es: Spiaggia (200m), Centro storico (1km), Porto (500m)...')}
+    </div>`;
+}
+
+document.getElementById('btn-save-schema').addEventListener('click', async () => {
+    const btn = document.getElementById('btn-save-schema');
+    const msg = document.getElementById('schema-save-msg');
+    btn.disabled = true; btn.textContent = 'Invio in corso...';
+    const g = id => (document.getElementById('sf-' + id)?.value || '').trim();
+    const schema = {
+        name: g('name'), type: g('type'), official_rating: g('official_rating'),
+        description: g('description'), price_range: g('price_range'),
+        street: g('street'), postal_code: g('postal_code'), city: g('city'),
+        region: g('region'), country: g('country'),
+        latitude: g('latitude'), longitude: g('longitude'),
+        telephone: g('telephone'), email: g('email'), url: g('url'),
+        checkin_time: g('checkin_time'), checkout_time: g('checkout_time'),
+        pets_allowed: g('pets_allowed'), keywords: g('keywords'),
+        nearby_attractions: g('nearby_attractions'),
+    };
+    try {
+        const ctrl = new AbortController();
+        setTimeout(() => ctrl.abort(), 15000);
+        const r = await fetch(pluginBase + '/wp-json/in3pida/v1/schema', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ secret: pluginSecret, schema }),
+            signal: ctrl.signal,
+        });
+        const d = await r.json().catch(() => ({}));
+        if (r.ok && d.ok) {
+            msg.style.display = 'block';
+            msg.style.background = '#e9f7fb'; msg.style.color = '#009bb9';
+            msg.textContent = '✓ Salvato correttamente sul plugin. Sincronizzazione Supabase in corso...';
+            fetch(pluginBase + '/wp-json/in3pida/v1/force-heartbeat', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+            }).catch(() => {});
+            setTimeout(() => { msg.style.display = 'none'; }, 5000);
+        } else {
+            throw new Error(d.message || 'Risposta ' + r.status);
+        }
+    } catch (e) {
+        msg.style.display = 'block';
+        msg.style.background = '#fce8ef'; msg.style.color = '#b00020';
+        msg.textContent = 'Errore: ' + e.message;
+    } finally {
+        btn.disabled = false; btn.textContent = 'Salva e invia al plugin';
+    }
+});
+
+// ─── FAQ ──────────────────────────────────────────────────────────────────
+async function loadFaqList() {
+    const el = document.getElementById('faq-list-container');
+    el.innerHTML = '<div class="loading"><div class="spinner"></div> Caricamento FAQ...</div>';
+    try {
+        const ctrl = new AbortController();
+        setTimeout(() => ctrl.abort(), 10000);
+        const r = await fetch(pluginBase + '/wp-json/in3pida/v1/faq', { signal: ctrl.signal });
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        const data = await r.json();
+        faqItems = data.items || [];
+        document.getElementById('faq-count-badge').textContent = faqItems.length ? '(' + faqItems.length + ')' : '';
+        renderFaqList(el);
+    } catch (e) {
+        el.innerHTML = `<div style="color:#b00020;font-size:13px;padding:8px 0">Impossibile caricare le FAQ: ${esc(e.message)}</div>`;
+    }
+}
+
+function renderFaqList(el) {
+    if (!faqItems.length) {
+        el.innerHTML = `<div style="color:var(--grey);font-size:13px;padding:8px 0;text-align:center">
+            <div style="font-size:32px;margin-bottom:8px">📋</div>
+            Nessuna FAQ ancora. Clicca <strong>+ Aggiungi FAQ</strong> per iniziare.
+        </div>`;
+        return;
+    }
+    el.innerHTML = faqItems.map((f, idx) => `
+        <div class="faq-item" id="faq-item-${f.id}">
+            <div style="flex:1;min-width:0">
+                <div class="faq-q">${idx + 1}. ${esc(f.question)}</div>
+                <div class="faq-a">${esc((f.answer || '').substring(0, 140))}${(f.answer || '').length > 140 ? '...' : ''}</div>
+                ${f.solo_ai ? '<span class="badge-soloai">Solo AI</span>' : ''}
+            </div>
+            <div style="display:flex;gap:6px;flex-shrink:0;align-items:flex-start;margin-top:2px">
+                <button class="btn-ping" style="font-size:11px" onclick="openFaqModal(${f.id})">✏️ Modifica</button>
+                <button class="btn-ping" style="font-size:11px;color:#b00020" onclick="deleteFaq(${f.id})">🗑️</button>
+            </div>
+        </div>`).join('');
+}
+
+function openFaqModal(id) {
+    const f = id ? faqItems.find(x => x.id === id) : null;
+    document.getElementById('faq-modal-ttl').textContent  = f ? 'Modifica FAQ' : 'Aggiungi FAQ';
+    document.getElementById('fm-id').value                = f ? f.id : '';
+    document.getElementById('fm-q').value                 = f ? f.question : '';
+    document.getElementById('fm-a').value                 = f ? f.answer : '';
+    document.getElementById('fm-solo-ai').checked         = f ? !!f.solo_ai : false;
+    document.getElementById('fm-msg').style.display       = 'none';
+    document.getElementById('faq-modal').style.display    = 'flex';
+    document.getElementById('fm-q').focus();
+}
+
+document.getElementById('btn-add-faq').addEventListener('click',    () => openFaqModal(null));
+document.getElementById('faq-modal-close').addEventListener('click', () => { document.getElementById('faq-modal').style.display = 'none'; });
+document.getElementById('fm-cancel').addEventListener('click',       () => { document.getElementById('faq-modal').style.display = 'none'; });
+document.getElementById('faq-modal').addEventListener('click', e => {
+    if (e.target === document.getElementById('faq-modal'))
+        document.getElementById('faq-modal').style.display = 'none';
+});
+
+document.getElementById('fm-save').addEventListener('click', async () => {
+    const btn = document.getElementById('fm-save');
+    const msg = document.getElementById('fm-msg');
+    const id  = document.getElementById('fm-id').value;
+    const q   = document.getElementById('fm-q').value.trim();
+    const a   = document.getElementById('fm-a').value.trim();
+    const sa  = document.getElementById('fm-solo-ai').checked;
+    if (!q) {
+        msg.style.display = 'block'; msg.style.background = '#fce8ef'; msg.style.color = '#b00020';
+        msg.textContent = 'Inserisci almeno la domanda.'; return;
+    }
+    btn.disabled = true; btn.textContent = 'Salvataggio...';
+    try {
+        const action = id ? 'update' : 'add';
+        const faq = { question: q, answer: a, solo_ai: sa, order: 0 };
+        if (id) faq.id = parseInt(id);
+        const ctrl = new AbortController();
+        setTimeout(() => ctrl.abort(), 12000);
+        const r = await fetch(pluginBase + '/wp-json/in3pida/v1/faq', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ secret: pluginSecret, action, faq }),
+            signal: ctrl.signal,
+        });
+        const d = await r.json().catch(() => ({}));
+        if (r.ok && d.ok) {
+            document.getElementById('faq-modal').style.display = 'none';
+            await loadFaqList();
+        } else {
+            throw new Error(d.message || 'Errore ' + r.status);
+        }
+    } catch (e) {
+        msg.style.display = 'block'; msg.style.background = '#fce8ef'; msg.style.color = '#b00020';
+        msg.textContent = 'Errore: ' + e.message;
+    } finally {
+        btn.disabled = false; btn.textContent = 'Salva FAQ';
+    }
+});
+
+async function deleteFaq(id) {
+    const f = faqItems.find(x => x.id === id);
+    if (!f) return;
+    if (!confirm('Eliminare questa FAQ?\n\n"' + f.question + '"')) return;
+    try {
+        const ctrl = new AbortController();
+        setTimeout(() => ctrl.abort(), 10000);
+        const r = await fetch(pluginBase + '/wp-json/in3pida/v1/faq', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ secret: pluginSecret, action: 'delete', faq: { id } }),
+            signal: ctrl.signal,
+        });
+        const d = await r.json().catch(() => ({}));
+        if (r.ok && d.ok) { await loadFaqList(); }
+        else { alert('Errore durante l\'eliminazione.'); }
+    } catch (e) { alert('Errore: ' + e.message); }
+}
+
+// ─── PUNTEGGI AI ──────────────────────────────────────────────────────────
+function renderPunteggi() {
+    const geo = currentSite?.geo_scores || {};
+    const rows = [
+        { k:'ai_readiness',      l:'AI Readiness Score',   d:'Prontezza complessiva per i sistemi AI' },
+        { k:'answer_extraction', l:'Answer Extraction',     d:'Risposte dirette estraibili dai contenuti' },
+        { k:'quality_safety',    l:'Quality Safety',        d:'Qualità e sicurezza dei contenuti' },
+        { k:'ai_visibility',     l:'AI Visibility',         d:'Visibilità stimata su motori AI' },
+        { k:'entity_authority',  l:'Entity Authority',      d:'Autorevolezza delle entità semantiche' },
+        { k:'chunk_avg',         l:'Chunk Citation avg',    d:'Media citabilità blocchi contenuto' },
+        { k:'citation_avg',      l:'Citation Engine avg',   d:'Media score citation engine' },
+        { k:'completeness_score',l:'Completezza Schema',    d:'Completezza dati Schema.org' },
+        { k:'coverage_pct',      l:'Coverage FAQ',          d:'Percentuale query coperte da FAQ' },
+    ];
+    const html = rows.map(({ k, l, d }) => {
+        const v  = geo[k] ?? null;
+        const bg = v === null ? '#fbf4f7' : v >= 70 ? '#e9f7fb' : '#fce8ef';
+        const tc = v === null ? '#666b84' : v >= 70 ? '#009bb9' : '#d82d6b';
+        const bc = v === null ? '#ead0dc' : v >= 70 ? '#009bb9' : '#d82d6b';
+        return `<div class="score-bar-wrap">
+            <div class="score-bar-head">
+                <div>
+                    <span style="font-size:14px;font-weight:700;color:#171b33">${l}</span>
+                    <span style="font-size:12px;color:var(--grey);margin-left:8px">${d}</span>
+                </div>
+                <span class="score-badge" style="background:${bg};color:${tc}">${v !== null ? v + '/100' : 'N/D'}</span>
+            </div>
+            <div class="score-bar-bg"><div class="score-bar-fill" style="width:${v ?? 0}%;background:${bc}"></div></div>
+        </div>`;
+    }).join('');
+    document.getElementById('punteggi-container').innerHTML = html ||
+        '<div style="color:var(--grey);font-size:13px">Nessun dato. Premi Sync nel tab Dashboard per aggiornare.</div>';
+}
+
+// ─── USER DROPDOWN ────────────────────────────────────────────────────────
+document.getElementById('user-pill').addEventListener('click', e => {
+    e.stopPropagation();
+    const dd = document.getElementById('user-dropdown');
+    dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
+});
+document.addEventListener('click', () => {
+    document.getElementById('user-dropdown').style.display = 'none';
+});
+document.getElementById('dd-logout').addEventListener('click', async () => {
+    await _SB.auth.signOut();
+    window.location.href = 'login.html';
+});
+
+// ─── UTIL ─────────────────────────────────────────────────────────────────
+function timeAgo(d) {
+    const s = (new Date() - new Date(d)) / 1000;
+    if (s < 60)    return 'Adesso';
+    if (s < 3600)  return Math.floor(s / 60) + ' min fa';
+    if (s < 86400) return Math.floor(s / 3600) + ' ore fa';
+    return Math.floor(s / 86400) + ' giorni fa';
+}
+function esc(str) {
+    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+init();
+</script>
+</body>
+</html>
