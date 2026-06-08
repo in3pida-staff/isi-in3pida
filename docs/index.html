@@ -741,40 +741,64 @@
             <div class="card" style="margin-bottom:20px;border-radius:8px;border:1px solid #e4e4ec;box-shadow:none">
                 <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
                     <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Missing Answer Detector</div></div>
-                    ${covPct !== null
-                        ? `<span style="background:${covPct>=80?'#e9f7fb':'#fce8ef'};color:${covPct>=80?'#009bb9':'#d82d6b'};font-size:13px;font-weight:700;padding:3px 12px;border-radius:20px">${covPct}% coperto</span>`
-                        : `<span style="background:#fbf4f7;color:#666b84;font-size:13px;font-weight:700;padding:3px 12px;border-radius:20px">N/D</span>`
-                    }
                 </div>
                 <div style="padding:16px 20px">
-                    <div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-bottom:8px"><div style="height:6px;width:${covPct??0}%;background:${covPct!==null?(covPct>=80?'#009bb9':'#d82d6b'):'#ead0dc'};border-radius:3px"></div></div>
-                    <div style="font-size:12px;color:var(--grey);margin-bottom:16px">${covPct!==null?missingAnswers+' domande senza risposta':'Dati non ancora disponibili — aggiorna il plugin per sincronizzare'}</div>
-                    ${covPct!==null&&freshAlerts.length?`<div style="margin-bottom:12px">${freshAlerts.map(a=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f4f4f8"><span style="color:#d82d6b;font-weight:800;font-size:12px">⚠</span><span style="font-size:13px">${escHtml(a)}</span></div>`).join('')}</div>`:''}
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;font-size:12px;color:var(--grey)">
-                        <div>Ultima FAQ: <strong>${daysFaq!==null?daysFaq+' giorni fa':'N/D'}</strong></div>
-                        <div>Ultimo Schema: <strong>${daysSchema!==null?daysSchema+' giorni fa':'N/D'}</strong></div>
+                    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:${(covPct!==null&&(freshAlerts.length||missingQueries.length))?'16px':'0'}">
+                        <div style="background:${covPct===null?'white':covPct<80?'linear-gradient(135deg,#ffffff 0%,#fce8ef 100%)':'white'};border:1px solid ${covPct!==null&&covPct<80?'#ead0dc':'#e4e4ec'};border-radius:8px;padding:16px 18px">
+                            <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:8px">COVERAGE FAQ</div>
+                            <div style="font-size:32px;font-weight:800;line-height:1;color:${covPct===null?'#ead0dc':covPct>=80?'#009bb9':'#d82d6b'}">${covPct!==null?covPct+'%':'—'}</div>
+                            <div style="font-size:11px;font-weight:600;color:${covPct===null?'#ead0dc':covPct>=80?'#009bb9':'#d82d6b'};margin-top:6px">${covPct===null?'nessun dato':covPct>=80?'buona copertura':'da migliorare'}</div>
+                        </div>
+                        <div style="background:${missingAnswers>0?'linear-gradient(135deg,#ffffff 0%,#fce8ef 100%)':'white'};border:1px solid ${missingAnswers>0?'#ead0dc':'#e4e4ec'};border-radius:8px;padding:16px 18px">
+                            <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:8px">SENZA RISPOSTA</div>
+                            <div style="font-size:32px;font-weight:800;line-height:1;color:${missingAnswers>0?'#d82d6b':'#009bb9'}">${missingAnswers!==null?missingAnswers:'—'}</div>
+                            <div style="font-size:11px;font-weight:600;color:${missingAnswers>0?'#d82d6b':'#009bb9'};margin-top:6px">${missingAnswers>0?'domande mancanti':'tutto coperto'}</div>
+                        </div>
+                        <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:16px 18px">
+                            <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:8px">ULTIMA FAQ</div>
+                            <div style="font-size:32px;font-weight:800;line-height:1;color:${daysFaq===null?'#ead0dc':daysFaq>180?'#d82d6b':'#009bb9'}">${daysFaq!==null?daysFaq:'—'}</div>
+                            <div style="font-size:11px;font-weight:600;color:${daysFaq===null?'#ead0dc':daysFaq>180?'#d82d6b':'#009bb9'};margin-top:6px">${daysFaq!==null?'giorni fa':'nessun dato'}</div>
+                        </div>
+                        <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:16px 18px">
+                            <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:8px">ULTIMO SCHEMA</div>
+                            <div style="font-size:32px;font-weight:800;line-height:1;color:${daysSchema===null?'#ead0dc':daysSchema>180?'#d82d6b':'#009bb9'}">${daysSchema!==null?daysSchema:'—'}</div>
+                            <div style="font-size:11px;font-weight:600;color:${daysSchema===null?'#ead0dc':daysSchema>180?'#d82d6b':'#009bb9'};margin-top:6px">${daysSchema!==null?'giorni fa':'nessun dato'}</div>
+                        </div>
                     </div>
-                    ${covPct!==null&&missingQueries.length?`<div style="font-size:11px;font-weight:700;color:var(--grey);letter-spacing:.06em;margin-bottom:8px">RISPOSTE MANCANTI</div>${missingQueries.map(q=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f4f4f8"><span style="color:#d82d6b;font-weight:800;font-size:12px">✗</span><span style="font-size:13px">${escHtml(q)}</span></div>`).join('')}`:''}
+                    ${covPct!==null&&freshAlerts.length?`<div style="margin-bottom:12px">${freshAlerts.map(a=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f4f4f8"><span style="color:#d82d6b;font-weight:800;font-size:12px">⚠</span><span style="font-size:13px">${escHtml(a)}</span></div>`).join('')}</div>`:''}
+                    ${covPct!==null&&missingQueries.length?`<div style="font-size:11px;font-weight:700;color:var(--grey);letter-spacing:.06em;margin-bottom:8px;margin-top:4px">RISPOSTE MANCANTI</div>${missingQueries.map(q=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f4f4f8"><span style="color:#d82d6b;font-weight:800;font-size:12px">✗</span><span style="font-size:13px">${escHtml(q)}</span></div>`).join('')}`:''}
                 </div>
             </div>
             <div class="card" style="margin-bottom:20px;border-radius:8px;border:1px solid #e4e4ec;box-shadow:none">
                 <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
                     <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Mappa Query</div></div>
-                    ${qMapPct !== null
-                        ? `<span style="background:${qMapPct>=70?'#e9f7fb':'#fce8ef'};color:${qMapPct>=70?'#009bb9':'#d82d6b'};font-size:13px;font-weight:700;padding:3px 12px;border-radius:20px">${qMapPct}% coperto</span>`
-                        : `<span style="background:#fbf4f7;color:#666b84;font-size:13px;font-weight:700;padding:3px 12px;border-radius:20px">N/D</span>`
-                    }
                 </div>
                 <div style="padding:16px 20px">
-                    <div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-bottom:8px"><div style="height:6px;width:${qMapPct??0}%;background:${qMapPct!==null?(qMapPct>=70?'#009bb9':'#d82d6b'):'#ead0dc'};border-radius:3px"></div></div>
-                    <div style="font-size:12px;color:var(--grey);margin-bottom:12px">
-                        ${qMapPct !== null
-                            ? `${qUncovered} quer${qUncovered===1?'y':'ies'} senza risposta su ${qTotal} totali — vai su <strong>Mappa Query</strong> nel plugin per crearle`
-                            : 'Dati non ancora disponibili — aggiorna il plugin alla v2.0.0 e sincronizza'
-                        }
+                    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:${qMapPct!==null?'16px':'0'}">
+                        <div style="background:${qMapPct===null?'white':qMapPct<70?'linear-gradient(135deg,#ffffff 0%,#fce8ef 100%)':'white'};border:1px solid ${qMapPct!==null&&qMapPct<70?'#ead0dc':'#e4e4ec'};border-radius:8px;padding:16px 18px">
+                            <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:8px">COPERTURA</div>
+                            <div style="font-size:32px;font-weight:800;line-height:1;color:${qMapPct===null?'#ead0dc':qMapPct>=70?'#009bb9':'#d82d6b'}">${qMapPct!==null?qMapPct+'%':'—'}</div>
+                            <div style="font-size:11px;font-weight:600;color:${qMapPct===null?'#ead0dc':qMapPct>=70?'#009bb9':'#d82d6b'};margin-top:6px">${qMapPct===null?'nessun dato':qMapPct>=70?'buona copertura':'da migliorare'}</div>
+                        </div>
+                        <div style="background:${qUncovered>0?'linear-gradient(135deg,#ffffff 0%,#fce8ef 100%)':'white'};border:1px solid ${qUncovered>0?'#ead0dc':'#e4e4ec'};border-radius:8px;padding:16px 18px">
+                            <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:8px">SENZA RISPOSTA</div>
+                            <div style="font-size:32px;font-weight:800;line-height:1;color:${qUncovered>0?'#d82d6b':'#009bb9'}">${qUncovered!==null?qUncovered:'—'}</div>
+                            <div style="font-size:11px;font-weight:600;color:${qUncovered>0?'#d82d6b':'#009bb9'};margin-top:6px">${qUncovered>0?'queries mancanti':'tutto coperto'}</div>
+                        </div>
+                        <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:16px 18px">
+                            <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:8px">QUERY TOTALI</div>
+                            <div style="font-size:32px;font-weight:800;line-height:1;color:#009bb9">${qTotal!==null?qTotal:'—'}</div>
+                            <div style="font-size:11px;font-weight:600;color:#009bb9;margin-top:6px">${qTotal!==null?'rilevate':'nessun dato'}</div>
+                        </div>
+                        <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:16px 18px">
+                            <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:8px">QUERY COPERTE</div>
+                            <div style="font-size:32px;font-weight:800;line-height:1;color:#009bb9">${qTotal!==null&&qUncovered!==null?qTotal-qUncovered:'—'}</div>
+                            <div style="font-size:11px;font-weight:600;color:#009bb9;margin-top:6px">${qTotal!==null?'con risposta':'nessun dato'}</div>
+                        </div>
                     </div>
                     ${qMapPct !== null && qMapPct < 70 ? `<div style="padding:10px 14px;background:#fce8ef;border-radius:6px;font-size:13px;color:#d82d6b;font-weight:600">Alcune categorie di ospiti non hanno risposta. Apri <strong>Mappa Query</strong> nel plugin per vedere quali mancano.</div>` : ''}
                     ${qMapPct !== null && qMapPct >= 70 ? `<div style="padding:10px 14px;background:#e9f7fb;border-radius:6px;font-size:13px;color:#009bb9;font-weight:600">Buona copertura delle query conversazionali.</div>` : ''}
+                    ${qMapPct === null ? `<div style="padding:10px 14px;background:#fbf4f7;border-radius:6px;font-size:13px;color:#666b84;font-weight:600">Dati non ancora disponibili — aggiorna il plugin alla v2.0.0 e sincronizza.</div>` : ''}
                 </div>
             </div>
             <div class="card" style="margin-bottom:20px;border-radius:8px;border:1px solid #e4e4ec;box-shadow:none" id="card-hotel-profile">
