@@ -704,6 +704,26 @@
                     ${qMapPct !== null && qMapPct >= 70 ? `<div style="padding:10px 14px;background:#e9f7fb;border-radius:6px;font-size:13px;color:#009bb9;font-weight:600">Buona copertura delle query conversazionali.</div>` : ''}
                 </div>
             </div>
+            <div class="card" style="margin-bottom:20px" id="card-hotel-profile">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title">🏨 Profilo Hotel</div>
+                        <div style="font-size:11px;margin-top:3px" id="profile-source-badge"></div>
+                    </div>
+                    <button id="btn-toggle-profile-edit" class="btn-ping">✏️ Modifica</button>
+                </div>
+                <div id="hotel-profile-view" style="padding:16px 20px"></div>
+                <div id="hotel-profile-edit" style="display:none;padding:16px 20px">
+                    <div style="background:#e9f7fb;border:1px solid #b3e0ea;border-radius:8px;padding:12px 16px;font-size:13px;color:#009bb9;font-weight:600;margin-bottom:20px;line-height:1.5">ℹ️ Puoi modificare il profilo qui dal pannello oppure dal plugin (tab Schema.org). I dati salvati qui restano attivi finché il plugin non invia un nuovo sync.</div>
+                    <div id="hotel-profile-form"></div>
+                    <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;align-items:center">
+                        <button id="btn-save-hotel-profile" class="btn-update" style="margin-left:0">Salva sul pannello</button>
+                        <button id="btn-cancel-hotel-profile" class="btn-ping">Annulla</button>
+                        <button id="btn-revert-plugin-profile" class="btn-ping" style="color:#666b84;font-size:11px">↩ Ripristina dati plugin</button>
+                    </div>
+                    <div id="hotel-profile-msg" style="margin-top:10px;font-size:13px;display:none"></div>
+                </div>
+            </div>
             `;
 
         document.getElementById('btn-back-detail').addEventListener('click', () => loadTab(currentTab));
@@ -730,6 +750,200 @@
                 setTimeout(() => { btn.textContent = '🔄 Sincronizza ora'; btn.disabled = false; }, 3000);
             }
         });
+        initHotelProfile(site);
+    }
+
+    // ─── PROFILO HOTEL ───────────────────────────────────────────────────────────
+    function initHotelProfile(site) {
+        const p = site.hotel_profile || {};
+        setupProfileBadge(p);
+        renderHotelProfileView(p);
+        setupHotelProfileForm(p);
+        const btnToggle = document.getElementById('btn-toggle-profile-edit');
+        const btnCancel = document.getElementById('btn-cancel-hotel-profile');
+        const btnSave   = document.getElementById('btn-save-hotel-profile');
+        const btnRevert = document.getElementById('btn-revert-plugin-profile');
+        if (btnToggle) btnToggle.addEventListener('click', () => toggleHotelProfileEdit());
+        if (btnCancel) btnCancel.addEventListener('click', () => toggleHotelProfileEdit(false));
+        if (btnSave)   btnSave.addEventListener('click', () => saveHotelProfile(site.site_id));
+        if (btnRevert) btnRevert.addEventListener('click', () => revertToPluginProfile(site));
+    }
+
+    function renderHotelProfileView(p) {
+        const f = (label, val) =>
+            '<div><div style="font-size:10px;color:var(--grey);font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:3px">' + label + '</div>' +
+            '<div style="font-size:14px;font-weight:600;color:#171b33">' + (val ? escHtml(String(val)) : '<span style="color:#ead0dc">—</span>') + '</div></div>';
+        const addr = [p.via, p.numero_civico, p.cap, p.citta, p.regione].filter(Boolean).join(', ') +
+            (p.paese && p.paese !== 'Italia' ? ', ' + p.paese : '');
+        const stelle = p.stelle ? '★'.repeat(parseInt(p.stelle)) + ' (' + p.stelle + ')' : null;
+        const checkin  = [p.checkin_dalle,  p.checkin_alle ].filter(Boolean).join(' — ') || null;
+        const checkout = [p.checkout_dalle, p.checkout_alle].filter(Boolean).join(' — ') || null;
+        const descHtml = p.descrizione
+            ? '<div style="margin-bottom:16px;padding:12px 14px;background:#fbf4f7;border-radius:8px"><div style="font-size:10px;color:var(--grey);font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px">DESCRIZIONE</div><div style="font-size:13px;color:#35364f;line-height:1.6">' + escHtml(p.descrizione) + '</div></div>'
+            : '';
+        const serviziHtml = p.servizi
+            ? '<div><div style="font-size:10px;color:var(--grey);font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px">SERVIZI</div><div style="display:flex;flex-wrap:wrap;gap:6px">' +
+              p.servizi.split(',').map(s => s.trim()).filter(Boolean).map(s =>
+                  '<span style="background:#fbf4f7;border:1px solid #ead0dc;color:#d82d6b;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px">' + escHtml(s) + '</span>'
+              ).join('') + '</div></div>'
+            : '';
+        const hasAny = p.nome_hotel || p.telefono || p.email || p.descrizione || addr;
+        const html = hasAny
+            ? '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px">' +
+              f('Nome hotel', p.nome_hotel) + f('Tipo struttura', p.tipo_struttura) + f('Stelle', stelle) + '</div>' +
+              descHtml +
+              '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px">' +
+              f('Indirizzo', addr || null) + f('Telefono', p.telefono) + f('Email', p.email) + '</div>' +
+              '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px">' +
+              f('Sito web', p.sito_web) + f('Check-in', checkin) + f('Check-out', checkout) + '</div>' +
+              serviziHtml
+            : '<div style="color:var(--grey);font-size:13px;padding:4px 0">Nessun profilo hotel. Clicca <strong>✏️ Modifica</strong> per inserire i dati, oppure sincronizza dal plugin.</div>';
+        const el = document.getElementById('hotel-profile-view');
+        if (el) el.innerHTML = html;
+    }
+
+    function setupProfileBadge(p) {
+        const el = document.getElementById('profile-source-badge');
+        if (!el) return;
+        if (!p || !p._source) {
+            el.innerHTML = '<span style="color:#666b84">Nessun dato — inserisci manualmente o sincronizza dal plugin</span>';
+        } else if (p._source === 'manual') {
+            const d = p._edited_at ? new Date(p._edited_at).toLocaleDateString('it-IT') : '';
+            el.innerHTML = '<span style="color:#d82d6b;font-weight:700">✏️ Modificato dal pannello' + (d ? ' · ' + d : '') + '</span>';
+        } else {
+            const d = p._synced_at ? new Date(p._synced_at).toLocaleDateString('it-IT') : '';
+            el.innerHTML = '<span style="color:#009bb9;font-weight:700">🔄 Dal plugin' + (d ? ' · ' + d : '') + '</span>';
+        }
+    }
+
+    function setupHotelProfileForm(p) {
+        const inp = (id, label, val, placeholder, type) =>
+            '<div><label class="profile-label">' + label + '</label>' +
+            '<input type="' + (type||'text') + '" id="pf-' + id + '" class="profile-input" value="' + escHtml(val||'') + '" placeholder="' + escHtml(placeholder||'') + '"></div>';
+        const selF = (id, label, val, opts) =>
+            '<div><label class="profile-label">' + label + '</label>' +
+            '<select id="pf-' + id + '" class="profile-input"><option value="">— Seleziona —</option>' +
+            opts.map(o => '<option value="' + escHtml(o) + '"' + (val===o?' selected':'') + '>' + escHtml(o) + '</option>').join('') +
+            '</select></div>';
+        const taF = (id, label, val, placeholder) =>
+            '<div><label class="profile-label">' + label + '</label>' +
+            '<textarea id="pf-' + id + '" class="profile-input" rows="3" placeholder="' + escHtml(placeholder||'') + '">' + escHtml(val||'') + '</textarea></div>';
+
+        const sec = title =>
+            '<div style="font-size:11px;font-weight:700;color:var(--grey);letter-spacing:.06em;margin:20px 0 12px;padding-bottom:6px;border-bottom:2px solid #fce8ef">' + title + '</div>';
+
+        const tipi = ['Hotel','B&B','Agriturismo','Appartamento','Ostello','Resort','Pensione','Villaggio turistico'];
+
+        const html =
+            sec('IDENTITÀ') +
+            '<div style="display:grid;grid-template-columns:1fr 1fr auto;gap:12px;margin-bottom:12px">' +
+            inp('nome_hotel','Nome hotel', p.nome_hotel,'Es: Hotel Bellevue') +
+            selF('tipo_struttura','Tipo struttura', p.tipo_struttura, tipi) +
+            '<div><label class="profile-label">Stelle</label><select id="pf-stelle" class="profile-input"><option value="">—</option>' +
+            [1,2,3,4,5].map(n => '<option value="'+n+'"'+(p.stelle==n?' selected':'')+'>'+n+' ★</option>').join('') +
+            '</select></div></div>' +
+            taF('descrizione','Descrizione breve', p.descrizione, 'Descrizione dell\'hotel per i motori AI...') +
+
+            sec('INDIRIZZO') +
+            '<div style="display:grid;grid-template-columns:1fr auto auto;gap:12px;margin-bottom:12px">' +
+            inp('via','Via / Piazza', p.via,'Es: Via Roma') +
+            inp('numero_civico','N. civico', p.numero_civico,'12') +
+            inp('cap','CAP', p.cap,'47921') + '</div>' +
+            '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:4px">' +
+            inp('citta','Città', p.citta,'Es: Rimini') +
+            inp('regione','Regione', p.regione,'Es: Emilia-Romagna') +
+            inp('paese','Paese', p.paese,'Italia') + '</div>' +
+
+            sec('CONTATTI') +
+            '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:4px">' +
+            inp('telefono','Telefono', p.telefono,'+39 0541 000000','tel') +
+            inp('email','Email', p.email,'info@hotel.it','email') +
+            inp('sito_web','Sito web', p.sito_web,'https://www.hotel.it','url') + '</div>' +
+
+            sec('CHECK-IN / CHECK-OUT') +
+            '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-bottom:4px">' +
+            inp('checkin_dalle','Check-in dalle', p.checkin_dalle,'14:00') +
+            inp('checkin_alle','Check-in alle', p.checkin_alle,'22:00') +
+            inp('checkout_dalle','Check-out dalle', p.checkout_dalle,'07:00') +
+            inp('checkout_alle','Check-out alle', p.checkout_alle,'11:00') + '</div>' +
+
+            sec('SERVIZI') +
+            '<div><label class="profile-label">Servizi principali (separati da virgola)</label>' +
+            '<input type="text" id="pf-servizi" class="profile-input" value="' + escHtml(p.servizi||'') + '" placeholder="Es: Parcheggio, WiFi, Piscina, Colazione, Spa"></div>' +
+            '<div style="font-size:12px;color:var(--grey);margin-top:4px">Inserisci i servizi separati da virgola.</div>';
+
+        const formEl = document.getElementById('hotel-profile-form');
+        if (formEl) formEl.innerHTML = html;
+    }
+
+    function toggleHotelProfileEdit(show) {
+        const view = document.getElementById('hotel-profile-view');
+        const edit = document.getElementById('hotel-profile-edit');
+        const btn  = document.getElementById('btn-toggle-profile-edit');
+        if (!view || !edit || !btn) return;
+        const isEdit = show !== undefined ? show : (edit.style.display === 'none');
+        view.style.display = isEdit ? 'none' : '';
+        edit.style.display = isEdit ? '' : 'none';
+        btn.textContent    = isEdit ? '← Vista' : '✏️ Modifica';
+    }
+
+    async function saveHotelProfile(siteId) {
+        const btn = document.getElementById('btn-save-hotel-profile');
+        const msg = document.getElementById('hotel-profile-msg');
+        btn.disabled = true;
+        btn.textContent = 'Salvataggio...';
+        const g = id => (document.getElementById('pf-' + id)?.value || '').trim();
+        const profile = {
+            nome_hotel:     g('nome_hotel'),
+            tipo_struttura: g('tipo_struttura'),
+            stelle:         g('stelle') ? parseInt(g('stelle')) : null,
+            descrizione:    g('descrizione'),
+            via:            g('via'),
+            numero_civico:  g('numero_civico'),
+            cap:            g('cap'),
+            citta:          g('citta'),
+            regione:        g('regione'),
+            paese:          g('paese') || 'Italia',
+            telefono:       g('telefono'),
+            email:          g('email'),
+            sito_web:       g('sito_web'),
+            checkin_dalle:  g('checkin_dalle'),
+            checkin_alle:   g('checkin_alle'),
+            checkout_dalle: g('checkout_dalle'),
+            checkout_alle:  g('checkout_alle'),
+            servizi:        g('servizi'),
+            _source:        'manual',
+            _edited_at:     new Date().toISOString(),
+        };
+        try {
+            const { error } = await _SBq.from('isi_sites').update({ hotel_profile: profile }).eq('site_id', siteId);
+            if (error) throw error;
+            msg.style.display = 'block';
+            msg.style.color   = '#009bb9';
+            msg.textContent   = '✓ Profilo salvato';
+            setupProfileBadge(profile);
+            renderHotelProfileView(profile);
+            setTimeout(() => { toggleHotelProfileEdit(false); msg.style.display = 'none'; }, 1600);
+        } catch(e) {
+            msg.style.display = 'block';
+            msg.style.color   = '#b00020';
+            msg.textContent   = 'Errore: ' + e.message;
+        } finally {
+            btn.disabled    = false;
+            btn.textContent = 'Salva sul pannello';
+        }
+    }
+
+    async function revertToPluginProfile(site) {
+        if (!confirm('Vuoi ripristinare i dati dal plugin? Le modifiche manuali verranno cancellate.')) return;
+        const { error } = await _SBq.from('isi_sites').update({ hotel_profile: {} }).eq('site_id', site.site_id);
+        if (!error) {
+            setupProfileBadge({});
+            renderHotelProfileView({});
+            setupHotelProfileForm({});
+            toggleHotelProfileEdit(false);
+            showToast('Profilo ripristinato — verrà aggiornato al prossimo sync del plugin');
+        }
     }
 
     // ─── AGGIORNAMENTI ────────────────────────────────────────────────────────────

@@ -12,10 +12,12 @@ CREATE TABLE IF NOT EXISTS isi_sites (
     pse_enabled boolean DEFAULT false,
     tier text DEFAULT 'free',
     geo_scores jsonb DEFAULT '{}',
+    hotel_profile jsonb DEFAULT '{}',
     last_heartbeat timestamptz,
     first_seen timestamptz DEFAULT now(),
     created_at timestamptz DEFAULT now()
 );
+-- Per database esistenti: ALTER TABLE isi_sites ADD COLUMN IF NOT EXISTS hotel_profile jsonb DEFAULT '{}';
 
 CREATE TABLE IF NOT EXISTS isi_pse_queries (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
