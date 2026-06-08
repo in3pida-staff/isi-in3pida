@@ -641,7 +641,7 @@
         const statoGen = (hrs<25&&!isOld&&(geoAvg===null||geoAvg>=40))?'ok':(hrs>48?'err':'warn');
         const sf = (s,l,d) => {
             const c = s==='ok'?'var(--cyan)':s==='warn'?'var(--magenta)':s==='err'?'var(--red)':'var(--grey-dot)';
-            return `<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #f4f4f8"><div style="display:flex;align-items:center;gap:12px"><span style="width:12px;height:12px;border-radius:50%;background:${c};flex-shrink:0;display:inline-block"></span><span style="font-size:14px;font-weight:600">${l}</span></div><span style="font-size:12px;color:var(--grey)">${d}</span></div>`;
+            return `<div style="display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid #f4f4f8"><div style="display:flex;align-items:center;gap:10px"><span style="width:10px;height:10px;border-radius:50%;background:${c};flex-shrink:0;display:inline-block"></span><span style="font-size:13px;font-weight:600;color:#4b4d68">${l}</span></div><span style="font-size:12px;color:#888">${d}</span></div>`;
         };
         const regIl = site?.created_at ? new Date(site.created_at).toLocaleDateString('it-IT',{day:'2-digit',month:'long',year:'numeric'}) : '—';
         const geoC2 = v => v===null?'#ead0dc':v>=70?'#009bb9':v>=40?'#009bb9':'#d82d6b';
