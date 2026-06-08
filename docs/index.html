@@ -656,7 +656,7 @@
         const geoRows = [{k:'ai_readiness',l:'AI Readiness'},{k:'answer_extraction',l:'Answer Extraction'},{k:'quality_safety',l:'Quality Safety'},{k:'ai_visibility',l:'AI Visibility'},{k:'entity_authority',l:'Entity Authority'},{k:'chunk_avg',l:'Chunk Citation'},{k:'citation_avg',l:'Citation Engine'}].map(({k,l})=>{const v=geo[k]??null;const vc=v===null?'#ead0dc':v>=70?'#009bb9':'#d82d6b';const bg=v!==null&&v<40?'linear-gradient(135deg,#ffffff 0%,#fce8ef 100%)':'white';const br=v!==null&&v<40?'#ead0dc':'#e4e4ec';const st=v===null?'nessun dato':v>=70?'ottimizzato':v>=40?'da migliorare':'critico';return `<div style="background:${bg};border:1px solid ${br};border-radius:8px;padding:16px 18px"><div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:4px">${l} <span class='tip-q' data-tip='${geoTips[k]}'>?</span></div><div style="font-size:32px;font-weight:800;line-height:1;color:${v!==null?'#171b33':'#ead0dc'}">${v!==null?v:'—'}</div><div style="font-size:11px;font-weight:600;color:${vc};margin-top:6px">${st}</div></div>`;}).join('');
 
         _aFaqFilter = 'all'; _aFaqSearch = '';
-        _pseChartsInited = false; _mappaInited = false; _coerenzaInited = false; _configInited = false;
+        _pseChartsInited = false; _mappaInited = false; _coerenzaInited = false; _configInited = false; _aiLayerInited = false;
         const dtabInact = 'padding:10px 20px;border:none;background:none;font-size:12px;font-weight:700;letter-spacing:.05em;cursor:pointer;white-space:nowrap;color:#666b84;border-bottom:2px solid transparent;margin-bottom:-2px';
         const dtabAct  = 'padding:10px 20px;border:none;background:none;font-size:12px;font-weight:700;letter-spacing:.05em;cursor:pointer;white-space:nowrap;color:#d82d6b;border-bottom:2px solid #d82d6b;margin-bottom:-2px';
         const faqData  = site?.faq_data || {};
@@ -683,6 +683,7 @@
                             {k:'schema',   l:'SCHEMA.ORG',         v: daysSchema===null?'Non aggiornato':(daysSchema+' giorni fa')},
                             {k:'mappa',    l:'MAPPA QUERY',        v: qMapPct!==null?(qMapPct+'% coperto'):'Nessun dato'},
                             {k:'coerenza', l:'COERENZA',           v:'Confronta canali'},
+                            {k:'ai_layer', l:'AI LAYER',           v: geo.has_ai_profile===true?'Attivo':'Non attivo'},
                             {k:'config',   l:'CONFIGURAZIONE',     v:'Chiavi e abilitazioni'},
                             {k:'pse',      l:'STATISTICHE PSE',    v:(pseData?.length||0)+' query registrate'},
                         ].map(({k,l,v},i)=>{
@@ -925,6 +926,11 @@
             </div>
             </div><!-- /scontent-coerenza -->
 
+            <!-- ═══ PANE: AI LAYER ═══ -->
+            <div id="scontent-ai_layer" style="display:none">
+            <div id="ai-layer-content"><div class="loading" style="padding:20px"><div class="spinner"></div></div></div>
+            </div><!-- /scontent-ai_layer -->
+
             <!-- ═══ PANE: CONFIGURAZIONE ═══ -->
             <div id="scontent-config" style="display:none">
             <div id="config-content"><div class="loading" style="padding:20px"><div class="spinner"></div></div></div>
@@ -973,7 +979,7 @@
         });
 
         // ── sidebar navigation
-        const allSecs = ['overview','faq','schema','mappa','coerenza','config','pse'];
+        const allSecs = ['overview','faq','schema','mappa','coerenza','ai_layer','config','pse'];
         el.querySelectorAll('.stato-sezione-row[data-sec]').forEach(row => {
             row.addEventListener('click', () => {
                 const sec = row.dataset.sec;
@@ -993,6 +999,7 @@
                 if (sec === 'pse') initPseCharts(pseData);
                 if (sec === 'mappa') initMappaQueryMgmt(site);
                 if (sec === 'coerenza') initCoerenzaTable(site);
+                if (sec === 'ai_layer') initAiLayerPanel(site);
                 if (sec === 'config') initConfigPanel(site);
             });
         });
@@ -1179,6 +1186,12 @@
         html += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px">' +
             textRow('Telefono', tel) + textRow('Email', email) + textRow('Sito web', sito) + '</div>';
 
+        const addr = [p.via, p.numero_civico, p.cap, p.citta, p.regione, p.paese].filter(Boolean).join(' ');
+        if (addr) html += '<div style="margin-bottom:14px">' + textRow('Indirizzo', addr) + '</div>';
+        if (p.latitudine||p.longitudine) html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">' + textRow('Latitudine', p.latitudine) + textRow('Longitudine', p.longitudine) + '</div>';
+        if (p.rating_medio) html += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px">' + textRow('Rating medio', (p.rating_medio||'') + (p.rating_scala ? '/'+p.rating_scala : '')) + textRow('N° recensioni', p.n_recensioni) + textRow('Piattaforma', p.piattaforma_recensioni) + '</div>';
+        if (p.target_clientela||p.stagionalita) html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">' + textRow('Target clientela', p.target_clientela) + textRow('Stagionalità', p.stagionalita) + '</div>';
+        if (p.usp) html += `<div style="margin-bottom:14px;padding:10px 14px;background:#fbf4f7;border-radius:8px"><div style="font-size:10px;font-weight:700;color:var(--grey);letter-spacing:.05em;text-transform:uppercase;margin-bottom:5px">PROPOSTE UNICHE (USP)</div><div style="font-size:13px;color:#35364f">${escHtml(p.usp)}</div></div>`;
         if (servizi) {
             const arr = servizi.split(',').map(s=>s.trim()).filter(Boolean);
             if (arr.length) html += '<div><div style="font-size:10px;font-weight:700;color:var(--grey);letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px">SERVIZI</div>' +
@@ -1186,6 +1199,8 @@
                 arr.map(s=>`<span style="background:#fbf4f7;border:1px solid #ead0dc;color:#d82d6b;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px">${escHtml(s)}</span>`).join('') +
                 '</div></div>';
         }
+        const socials = [['Facebook',p.facebook_url],['Instagram',p.instagram_url],['TripAdvisor',p.tripadvisor_url],['Google Business',p.google_business_url]].filter(([,v])=>v);
+        if (socials.length) html += '<div style="margin-top:14px;display:flex;flex-wrap:wrap;gap:8px">' + socials.map(([l,u])=>`<a href="${escHtml(u)}" target="_blank" style="font-size:11px;font-weight:700;color:#009bb9;padding:4px 12px;border:1px solid #b3e0ea;border-radius:20px;text-decoration:none">${escHtml(l)}</a>`).join('') + '</div>';
         el.innerHTML = html;
     }
 
@@ -1210,13 +1225,17 @@
             `<div><label class="profile-label">Stelle</label><select id="pf-stelle" class="profile-input"><option value="">—</option>${['1','2','3','4','5'].map(n=>`<option value="${n}"${(p.stelle||'')==n?' selected':''}>${n} ★</option>`).join('')}</select></div>` +
             '</div>' +
             taF('descrizione','Descrizione', p.descrizione,'Descrizione completa per i motori AI...', 4) +
+            '<div style="margin-top:12px">' + inp('prezzo_medio','Fascia di prezzo', p.prezzo_medio,'€ / €€ / €€€') + '</div>' +
 
-            sec('INDIRIZZO') +
+            sec('INDIRIZZO E GEOLOCALIZZAZIONE') +
             '<div style="display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:12px">' +
             inp('via','Via / Piazza', p.via,'Via Roma, 10') + inp('numero_civico','N° civico', p.numero_civico,'10') + '</div>' +
             '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px">' +
             inp('cap','CAP', p.cap,'47921') + inp('citta','Città', p.citta,'Rimini') + inp('regione','Regione', p.regione,'Emilia-Romagna') + '</div>' +
+            '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">' +
             inp('paese','Paese', p.paese||'IT','IT') +
+            inp('latitudine','Latitudine', p.latitudine,'44.0600') +
+            inp('longitudine','Longitudine', p.longitudine,'12.5657') + '</div>' +
 
             sec('CONTATTI') +
             '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">' +
@@ -1231,8 +1250,69 @@
             inp('checkout_dalle','Check-out dalle', p.checkout_dalle,'08:00') +
             inp('checkout_alle','Check-out alle', p.checkout_alle,'11:00') + '</div>' +
 
+            sec('IMMAGINI') +
+            '<div style="margin-bottom:12px">' + inp('foto_principale','URL foto principale', p.foto_principale,'https://hotel.it/foto-principale.jpg','url') + '</div>' +
+            taF('gallery_urls','Galleria — URL immagini (una per riga)', p.gallery_urls,'https://hotel.it/foto1.jpg\nhttps://hotel.it/foto2.jpg', 3) +
+
             sec('SERVIZI') +
-            taF('servizi','Servizi / Amenities (separati da virgola)', p.servizi,'Piscina, WiFi, Parcheggio, SPA, Colazione inclusa');
+            taF('servizi','Servizi / Amenities (separati da virgola)', p.servizi,'Piscina, WiFi, Parcheggio, SPA, Colazione inclusa') +
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">' +
+            taF('servizi_camera','Servizi in camera (separati da virgola)', p.servizi_camera,'TV, Aria condizionata, Minibar, Cassaforte') +
+            taF('servizi_accessibilita','Accessibilità (separati da virgola)', p.servizi_accessibilita,'Ascensore, Camere per disabili, Parcheggio disabili') + '</div>' +
+
+            sec('AUDIENCE E POSIZIONAMENTO AI') +
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">' +
+            inp('target_clientela','Target clientela', p.target_clientela,'Famiglie, Coppie, Business, Gruppi') +
+            inp('stagionalita','Stagionalità', p.stagionalita,'Estate, Tutto l\'anno') + '</div>' +
+            taF('usp','Proposte uniche (USP)', p.usp,'Vista mare, posizione centrale, ristorante stellato...') +
+            '<div style="margin-top:12px">' + inp('parole_chiave','Parole chiave SEO (separati da virgola)', p.parole_chiave,'hotel rimini, albergo fronte mare, hotel 4 stelle') + '</div>' +
+            '<div style="margin-top:12px">' + taF('descrizione_ai','Frase di posizionamento AI', p.descrizione_ai,'In una riga come vuoi che l\'AI presenti il tuo hotel...', 2) + '</div>' +
+
+            sec('CAMERE E APPARTAMENTI') +
+            '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px">' +
+            inp('n_camere','N° camere totali', p.n_camere,'42') +
+            inp('occupazione_min','Ospiti min per camera', p.occupazione_min,'1') +
+            inp('occupazione_max','Ospiti max per camera', p.occupazione_max,'4') + '</div>' +
+            taF('tipologie_camere','Tipologie disponibili (separati da virgola)', p.tipologie_camere,'Standard, Superior, Suite, Appartamento, Family Room') +
+
+            sec('OFFERTE E PRENOTAZIONI') +
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">' +
+            inp('url_prenotazione','URL prenotazione diretta', p.url_prenotazione,'https://hotel.it/prenota','url') +
+            inp('ota_principali','OTA principali (separati da virgola)', p.ota_principali,'Booking.com, Expedia, Airbnb') + '</div>' +
+            '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px">' +
+            inp('prezzo_min','Prezzo minimo/notte (€)', p.prezzo_min,'80') +
+            inp('prezzo_max','Prezzo massimo/notte (€)', p.prezzo_max,'350') +
+            inp('caparra','Acconto richiesto', p.caparra,'30%') + '</div>' +
+            taF('politica_cancellazione','Politica di cancellazione', p.politica_cancellazione,'Cancellazione gratuita fino a 48h prima dell\'arrivo...') +
+
+            sec('RECENSIONI') +
+            '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-bottom:12px">' +
+            inp('rating_medio','Punteggio medio', p.rating_medio,'9.2') +
+            inp('rating_scala','Scala (es: 10 o 5)', p.rating_scala,'10') +
+            inp('n_recensioni','N° recensioni totali', p.n_recensioni,'843') +
+            inp('piattaforma_recensioni','Piattaforma principale', p.piattaforma_recensioni,'Booking.com') + '</div>' +
+            inp('url_recensioni','URL pagina recensioni', p.url_recensioni,'https://www.booking.com/hotel/it/xxx.html','url') +
+
+            sec('SOCIAL E PROFILI ESTERNI') +
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">' +
+            inp('facebook_url','Facebook', p.facebook_url,'https://facebook.com/hotel','url') +
+            inp('instagram_url','Instagram', p.instagram_url,'https://instagram.com/hotel','url') + '</div>' +
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">' +
+            inp('tripadvisor_url','TripAdvisor', p.tripadvisor_url,'https://tripadvisor.com/Hotel_Review-...','url') +
+            inp('google_business_url','Google Business Profile', p.google_business_url,'https://g.page/hotel','url') + '</div>' +
+
+            sec('BREADCRUMB E NAVIGAZIONE') +
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">' +
+            inp('destinazione','Destinazione', p.destinazione,'Rimini') +
+            inp('regione_turistica','Regione turistica', p.regione_turistica,'Riviera Romagnola') + '</div>' +
+            inp('breadcrumb_path','Percorso breadcrumb (separato da >)', p.breadcrumb_path,'Hotel > Rimini > Rimini Centro') +
+
+            sec('DATI STRUTTURATI GOOGLE E AI') +
+            '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px">' +
+            inp('google_maps_url','Google Maps URL', p.google_maps_url,'https://maps.google.com/?cid=...','url') +
+            inp('orario_reception','Orario reception', p.orario_reception,'24/7') +
+            inp('schema_type_extra','Schema types aggiuntivi', p.schema_type_extra,'LodgingBusiness, Hotel') + '</div>' +
+            taF('structured_data_note','Note dati strutturati', p.structured_data_note,'Informazioni aggiuntive per Google e sistemi AI...', 2);
 
         formEl.innerHTML = html;
     }
@@ -1244,12 +1324,32 @@
         const g = id => (document.getElementById('pf-' + id)?.value || '').trim();
         const profile = {
             nome_hotel: g('nome_hotel'), tipo_struttura: g('tipo_struttura'), stelle: g('stelle'),
-            descrizione: g('descrizione'), via: g('via'), numero_civico: g('numero_civico'),
-            cap: g('cap'), citta: g('citta'), regione: g('regione'), paese: g('paese'),
+            descrizione: g('descrizione'), prezzo_medio: g('prezzo_medio'),
+            via: g('via'), numero_civico: g('numero_civico'), cap: g('cap'),
+            citta: g('citta'), regione: g('regione'), paese: g('paese'),
+            latitudine: g('latitudine'), longitudine: g('longitudine'),
             telefono: g('telefono'), email: g('email'), sito_web: g('sito_web'),
             checkin_dalle: g('checkin_dalle'), checkin_alle: g('checkin_alle'),
             checkout_dalle: g('checkout_dalle'), checkout_alle: g('checkout_alle'),
-            servizi: g('servizi'), _updated_at: new Date().toISOString(), _source: 'admin',
+            foto_principale: g('foto_principale'), gallery_urls: g('gallery_urls'),
+            servizi: g('servizi'), servizi_camera: g('servizi_camera'), servizi_accessibilita: g('servizi_accessibilita'),
+            target_clientela: g('target_clientela'), stagionalita: g('stagionalita'),
+            usp: g('usp'), parole_chiave: g('parole_chiave'), descrizione_ai: g('descrizione_ai'),
+            n_camere: g('n_camere'), occupazione_min: g('occupazione_min'), occupazione_max: g('occupazione_max'),
+            tipologie_camere: g('tipologie_camere'),
+            url_prenotazione: g('url_prenotazione'), ota_principali: g('ota_principali'),
+            prezzo_min: g('prezzo_min'), prezzo_max: g('prezzo_max'), caparra: g('caparra'),
+            politica_cancellazione: g('politica_cancellazione'),
+            rating_medio: g('rating_medio'), rating_scala: g('rating_scala'),
+            n_recensioni: g('n_recensioni'), piattaforma_recensioni: g('piattaforma_recensioni'),
+            url_recensioni: g('url_recensioni'),
+            facebook_url: g('facebook_url'), instagram_url: g('instagram_url'),
+            tripadvisor_url: g('tripadvisor_url'), google_business_url: g('google_business_url'),
+            destinazione: g('destinazione'), regione_turistica: g('regione_turistica'),
+            breadcrumb_path: g('breadcrumb_path'),
+            google_maps_url: g('google_maps_url'), orario_reception: g('orario_reception'),
+            schema_type_extra: g('schema_type_extra'), structured_data_note: g('structured_data_note'),
+            _updated_at: new Date().toISOString(), _source: 'admin',
         };
         const { error } = await _SBq.from('isi_sites').update({ hotel_profile: profile }).eq('site_id', siteId);
         btn.disabled = false; btn.textContent = 'Salva sul pannello';
@@ -1554,18 +1654,35 @@
 
     // ─── MAPPA QUERY MANAGEMENT ──────────────────────────────────────────────────
     let _mappaInited = false;
+    const MAPPA_DEFAULTS = {
+        'famiglie_con_bambini':   { queries:['Avete servizi per bambini?','C\'è un\'area giochi?','Lettini e seggioloni disponibili?','Attività per bambini?'], answer:'', covered:false },
+        'coppie_romantici':       { queries:['Pacchetti romantici?','Vista panoramica?','Cene romantiche?','Suite per la luna di miele?'], answer:'', covered:false },
+        'business_lavoro':        { queries:['Sala meeting disponibile?','WiFi veloce?','Fattura elettronica?','Area lavoro?'], answer:'', covered:false },
+        'animali_domestici':      { queries:['Accettate animali?','Costo extra per animali?','Dove possono fare i bisogni i cani?'], answer:'', covered:false },
+        'accessibilita_disabili': { queries:['Camere per disabili?','Parcheggio disabili?','Attrezzato per sedie a rotelle?'], answer:'', covered:false },
+        'terza_eta_anziani':      { queries:['Adatto per anziani?','Ci sono ascensori?','Pavimenti antiscivolo?'], answer:'', covered:false },
+        'sport_avventura':        { queries:['Biciclette a noleggio?','Palestra?','Piscina?','Escursioni organizzate?'], answer:'', covered:false },
+        'benessere_spa':          { queries:['Avete SPA?','Trattamenti benessere?','Sauna disponibile?'], answer:'', covered:false },
+        'matrimoni_eventi':       { queries:['Organizzate matrimoni?','Sala eventi?','Pacchetti cerimonie?'], answer:'', covered:false },
+        'parcheggio':             { queries:['Avete parcheggio?','Parcheggio incluso?','C\'è un garage?'], answer:'', covered:false },
+        'colazione':              { queries:['Colazione inclusa?','Orario colazione?','Buffet o menu?'], answer:'', covered:false },
+        'ristorante':             { queries:['Avete ristorante?','Servite la cena?','Cucina aperta a pranzo?'], answer:'', covered:false },
+        'spiaggia_mare':          { queries:['Siete vicini alla spiaggia?','Ombrelloni e lettini?','Accesso diretto al mare?'], answer:'', covered:false },
+        'trasporti_arrivo':       { queries:['Come si arriva?','Servizio navetta?','Vicini alla stazione?','Dall\'aeroporto?'], answer:'', covered:false },
+        'check_in_out':           { queries:['Orario check-in?','Late check-out?','Early check-in possibile?'], answer:'', covered:false },
+        'prenotazione_prezzi':    { queries:['Quali sono le tariffe?','Come prenotare?','Cancellazione gratuita?','Sconti last minute?'], answer:'', covered:false },
+    };
+
     async function initMappaQueryMgmt(site) {
         if (_mappaInited) return; _mappaInited = true;
         const cont = document.getElementById('mappa-query-mgmt');
         if (!cont) return;
         const faqData = site?.faq_data || {};
         const qmap = faqData.query_map || faqData.mappa_query || {};
-        const cats = Object.keys(qmap);
-        if (!cats.length) {
-            cont.innerHTML = '<div style="color:#aaa;font-size:13px">Nessuna categoria di query disponibile. Sincronizza dal plugin o aggiungi una categoria.</div>';
-            document.getElementById('btn-add-query-cat').style.display = 'block';
-            return;
-        }
+        const merged = {};
+        Object.keys(MAPPA_DEFAULTS).forEach(k => { merged[k] = { ...MAPPA_DEFAULTS[k] }; });
+        Object.keys(qmap).forEach(k => { merged[k] = { ...(merged[k]||{}), ...qmap[k] }; });
+        const cats = Object.keys(merged);
         cont.innerHTML = cats.map(cat => {
             const entry = qmap[cat] || {};
             const queries = Array.isArray(entry.queries) ? entry.queries : (entry.examples||[]);
@@ -1586,8 +1703,9 @@
                 </div>
             </div>`;
         }).join('');
-        document.getElementById('btn-add-query-cat').addEventListener('click', () => {
-            const cat = prompt('Nome categoria (es: parcheggio, colazione, animali):');
+        const btnAdd = document.getElementById('btn-add-query-cat');
+        if (btnAdd) btnAdd.addEventListener('click', () => {
+            const cat = prompt('Nome categoria (es: gruppi, escursioni, wedding):');
             if (!cat) return;
             const newMap = { ...qmap, [cat.toLowerCase()]: { queries:[], answer:'', covered:false } };
             _mappaInited = false;
@@ -1606,6 +1724,94 @@
         el.style.borderColor = error ? '#d82d6b' : '#009bb9';
         setTimeout(() => { el.style.borderColor = '#e4e4ec'; }, 2000);
     };
+
+    // ─── AI LAYER ────────────────────────────────────────────────────────────────
+    let _aiLayerInited = false;
+    function initAiLayerPanel(site) {
+        if (_aiLayerInited) return; _aiLayerInited = true;
+        const cont = document.getElementById('ai-layer-content');
+        if (!cont) return;
+        const geo = site?.geo_scores || {};
+        const hp = site?.hotel_profile || {};
+        const siteConfig = hp.isi_config || {};
+        const base = (site?.site_url || '').replace(/\/$/, '');
+        const aiProfileUrl = base + '/ai-profile';
+        const isActive = geo.has_ai_profile === true;
+        const statusColor = isActive ? '#009bb9' : '#d82d6b';
+        const statusBg = isActive ? '#e9f7fb' : '#fce8ef';
+        const statusBorder = isActive ? '#b3e0ea' : '#ead0dc';
+        const statusLabel = isActive ? 'Attivo' : 'Non attivo';
+
+        const infoCard = (label, val, note) =>
+            `<div style="background:#f7f7fb;border-radius:8px;padding:14px 16px">
+                <div style="font-size:10px;color:#aaa;font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:5px">${label}</div>
+                <div style="font-size:14px;font-weight:700;color:#171b33">${escHtml(String(val||'—'))}</div>
+                ${note ? '<div style="font-size:11px;color:#666b84;margin-top:4px">'+escHtml(note)+'</div>' : ''}
+             </div>`;
+
+        cont.innerHTML = `
+        <div class="card" style="margin-bottom:20px;border-radius:8px;border:1px solid #e4e4ec;box-shadow:none">
+            <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
+                <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Stato AI Layer</div></div>
+            </div>
+            <div style="padding:20px">
+                <div style="display:inline-flex;align-items:center;gap:10px;background:${statusBg};border:1px solid ${statusBorder};border-radius:10px;padding:14px 20px;margin-bottom:20px">
+                    <span style="width:12px;height:12px;border-radius:50%;background:${statusColor};display:inline-block;flex-shrink:0"></span>
+                    <span style="font-size:16px;font-weight:800;color:${statusColor}">${statusLabel}</span>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px">
+                    ${infoCard('Endpoint', '/ai-profile', isActive ? 'Leggibile dai crawler AI' : 'Non ancora attivo')}
+                    ${infoCard('Versione plugin', site?.plugin_version || '—', 'Richiesta v1.9.2+')}
+                    ${infoCard('Ultimo heartbeat', site?.last_heartbeat ? timeAgo(site.last_heartbeat) : '—', '')}
+                </div>
+                ${isActive ? `<div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:#e9f7fb;border:1px solid #b3e0ea;border-radius:8px;margin-bottom:16px">
+                    <span style="color:#009bb9;font-size:14px">🔗</span>
+                    <a href="${escHtml(aiProfileUrl)}" target="_blank" style="color:#009bb9;font-weight:700;font-size:13px;text-decoration:none">${escHtml(aiProfileUrl)}</a>
+                </div>` : `<div style="padding:12px 16px;background:#fce8ef;border:1px solid #ead0dc;border-radius:8px;margin-bottom:16px;font-size:13px;color:#d82d6b;font-weight:600">
+                    ⚠ AI Layer non attivo. Verifica che il plugin sia aggiornato alla v1.9.2+ e che l\'opzione sia abilitata in Configurazione.
+                </div>`}
+            </div>
+        </div>
+        <div class="card" style="margin-bottom:20px;border-radius:8px;border:1px solid #e4e4ec;box-shadow:none">
+            <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
+                <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Punteggi AI Layer</div></div>
+            </div>
+            <div style="padding:16px 20px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+                ${[
+                    {l:'AI Readiness',k:'ai_readiness'},
+                    {l:'Answer Extraction',k:'answer_extraction'},
+                    {l:'AI Visibility',k:'ai_visibility'},
+                    {l:'Entity Authority',k:'entity_authority'},
+                ].map(({l,k})=>{
+                    const v = geo[k] ?? null;
+                    return `<div style="background:${v!==null&&v<40?'linear-gradient(135deg,#ffffff 0%,#fce8ef 100%)':'#f7f7fb'};border:1px solid ${v!==null&&v<40?'#ead0dc':'#e4e4ec'};border-radius:8px;padding:14px 16px">
+                        <div style="font-size:10px;font-weight:700;color:#aaa;letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px">${l}</div>
+                        <div style="font-size:28px;font-weight:800;color:${v!==null?'#171b33':'#ead0dc'}">${v!==null?v:'—'}</div>
+                        <div style="font-size:11px;font-weight:600;color:${v===null?'#ead0dc':v>=70?'#009bb9':'#d82d6b'};margin-top:5px">${v===null?'nessun dato':v>=70?'ottimizzato':v>=40?'da migliorare':'critico'}</div>
+                    </div>`;
+                }).join('')}
+            </div>
+        </div>
+        <div class="card" style="border-radius:8px;border:1px solid #e4e4ec;box-shadow:none">
+            <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
+                <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Checklist AI Layer</div></div>
+            </div>
+            <div style="padding:16px 20px">
+                ${[
+                    {label:'Plugin versione ≥ 1.9.2', ok: !semverGt('1.9.2', site?.plugin_version||'0')},
+                    {label:'Heartbeat attivo (< 25h)', ok: site?.last_heartbeat && ((new Date()-new Date(site.last_heartbeat))/3600000)<25},
+                    {label:'Endpoint /ai-profile attivo', ok: geo.has_ai_profile === true},
+                    {label:'AI Readiness ≥ 40', ok: (geo.ai_readiness??-1) >= 40},
+                    {label:'FAQ configurate (coverage > 0)', ok: (geo.coverage_pct??0) > 0},
+                    {label:'Schema.org compilato', ok: (site?.schema_data?.name||site?.hotel_profile?.nome_hotel) != null},
+                    {label:'Profilo hotel compilato', ok: !!(site?.hotel_profile?.nome_hotel||site?.hotel_profile?.nome)},
+                ].map(({label,ok})=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f4f4f8">
+                    <span style="color:${ok?'#009bb9':'#d82d6b'};font-size:14px;font-weight:800">${ok?'✓':'✗'}</span>
+                    <span style="font-size:13px;color:${ok?'#35364f':'#4b4d68'}">${escHtml(label)}</span>
+                </div>`).join('')}
+            </div>
+        </div>`;
+    }
 
     // ─── COERENZA CONTENUTI ──────────────────────────────────────────────────────
     const COERENZA_FIELDS = ['Nome struttura','Descrizione','Telefono','Email','Indirizzo','Check-in','Check-out','Stelle','Servizi','Prezzi','Sito web'];
