@@ -549,13 +549,7 @@
             return;
         }
         const now = new Date();
-        let html = `<table class="sites-table"><thead><tr>
-            <th>Stato</th><th>Sito</th><th>Ultimo segnale</th><th>Versione</th>
-            <th class="th-center">GEO Score <span class="tip-q" data-tip="Quanto il sito è ottimizzato per essere citato dai motori AI come ChatGPT e Google.">?</span></th>
-            <th class="th-center">Missing Answer <span class="tip-q" data-tip="Percentuale di domande degli utenti a cui il sito sa rispondere. Più è alto, meno risposte mancano.">?</span></th>
-            <th class="th-center">Completezza AI <span class="tip-q" data-tip="Quanto il profilo dell'hotel è completo: nome, indirizzo, telefono, descrizione, FAQ ecc.">?</span></th>
-            <th>Azioni</th>
-        </tr></thead><tbody>`;
+        let html = '';
 
         data.forEach(site => {
             const hrs = site.last_heartbeat ? (now - new Date(site.last_heartbeat))/3600000 : 9999;
@@ -593,24 +587,55 @@
             else if (covPct !== null && covPct < 80) dotWarnings.push('Missing Answer da migliorare: ' + covPct + '% coperto');
             const dotClass = dotProblems.length ? 'red' : dotWarnings.length ? 'yellow' : 'green';
             const dotTitle = [...dotProblems, ...dotWarnings].join('\n') || 'Tutto OK';
-            html += `<tr data-site-id="${escHtml(site.site_id)}" style="cursor:pointer">
-                <td><span class="dot ${dotClass}" title="${escHtml(dotTitle)}" style="cursor:help"></span></td>
-                <td><div class="site-name-cell">${escHtml(site.site_name||'—')}</div><div style="font-size:11px;color:var(--grey);margin-top:2px">${escHtml(site.site_url||'')}</div></td>
-                <td style="font-size:12px;color:${hbColor};font-weight:600">${hbTesto}</td>
-                <td>${verHtml}</td>
-                <td class="td-center">${geoHtml}</td>
-                <td class="td-center">${covHtml}</td>
-                <td class="td-center">${csHtml}</td>
-                <td style="white-space:nowrap"><div style="display:inline-flex;gap:5px;align-items:center">${isOld||!latestVersion?`<button class="btn-update" style="font-size:11px;padding:4px 10px" onclick="event.stopPropagation();aggiornaSito('${escHtml(site.site_id)}')">Aggiorna</button>`:`<button class="btn-update" style="font-size:11px;padding:4px 10px;background:var(--grey-dot);color:var(--grey);cursor:default" disabled>✓ OK</button>`}<button class="btn-ping" style="font-size:11px;padding:4px 10px" onclick="event.stopPropagation();forceSync('${escHtml(site.site_id)}','${escHtml(site.site_url||'')}',this)">⚡ Sync</button><button class="btn-ping" style="font-size:11px;padding:4px 10px" onclick="event.stopPropagation();toggleSitoAttivo('${escHtml(site.site_id)}','${escHtml(site.site_url||'')}',this)">Disattiva</button></div></td>
-            </tr>`;
+            const geo1c = geoAvg===null?'#ead0dc':geoAvg>=70?'#009bb9':geoAvg>=40?'#d82d6b':'#b00020';
+            const cov1c = covPct===null?'#ead0dc':covPct>=80?'#009bb9':covPct>=50?'#d82d6b':'#b00020';
+            const cs1c  = cs===null?'#ead0dc':cs>=70?'#009bb9':cs>=40?'#d82d6b':'#b00020';
+            const updateBtn = isOld||!latestVersion
+                ? `<button class="btn-update" style="font-size:11px;padding:5px 12px" onclick="event.stopPropagation();aggiornaSito('${escHtml(site.site_id)}')">Aggiorna</button>`
+                : `<button style="font-size:11px;padding:5px 12px;background:#e9f7fb;color:#009bb9;border:none;border-radius:8px;font-weight:700;cursor:default;font-family:var(--font)" disabled>✓ OK</button>`;
+            html += `<div class="site-stat-card" data-site-id="${escHtml(site.site_id)}">
+                <div class="site-stat-card-header">
+                    <div style="display:flex;align-items:center;gap:12px">
+                        <span class="dot ${dotClass}" title="${escHtml(dotTitle)}" style="cursor:help"></span>
+                        <div>
+                            <div style="font-size:15px;font-weight:700;color:#171b33">${escHtml(site.site_name||'—')}</div>
+                            <div style="font-size:11px;color:var(--grey);margin-top:2px">
+                                ${escHtml(site.site_url||'')} &nbsp;·&nbsp;
+                                <span style="color:${hbColor};font-weight:600">${hbTesto}</span> &nbsp;·&nbsp;
+                                v${escHtml(site.plugin_version||'?')}
+                                ${isOld?`<span style="background:#fce8ef;color:#d82d6b;font-size:10px;font-weight:700;padding:2px 7px;border-radius:12px;margin-left:4px">aggiornare</span>`:''}
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:5px;align-items:center;flex-shrink:0">
+                        ${updateBtn}
+                        <button class="btn-ping" style="font-size:11px;padding:5px 10px" onclick="event.stopPropagation();forceSync('${escHtml(site.site_id)}','${escHtml(site.site_url||'')}',this)">⚡ Sync</button>
+                        <button class="btn-ping" style="font-size:11px;padding:5px 10px" onclick="event.stopPropagation();toggleSitoAttivo('${escHtml(site.site_id)}','${escHtml(site.site_url||'')}',this)">Disattiva</button>
+                    </div>
+                </div>
+                <div class="site-stat-nums">
+                    <div class="site-stat-num-cell">
+                        <div class="site-big-num" style="color:${geo1c}">${geoAvg!==null?geoAvg:'—'}</div>
+                        <div class="site-big-lbl">GEO Score</div>
+                    </div>
+                    <div class="site-stat-num-cell">
+                        <div class="site-big-num" style="color:${cov1c}">${covPct!==null?covPct+'%':'—'}</div>
+                        <div class="site-big-lbl">Coverage FAQ</div>
+                    </div>
+                    <div class="site-stat-num-cell">
+                        <div class="site-big-num" style="color:${cs1c}">${cs!==null?cs:'—'}</div>
+                        <div class="site-big-lbl">Completezza AI</div>
+                    </div>
+                </div>
+            </div>`;
         });
-        html += '</tbody></table>';
-        el.innerHTML = `<div style="overflow-x:auto">${html}</div>`;
+        el.innerHTML = html || '<div style="padding:20px;color:var(--grey);text-align:center">Nessun sito registrato</div>';
 
-        el.querySelectorAll('tr[data-site-id]').forEach(row => {
-            row.addEventListener('click', e => {
-                const site = data.find(s=>s.site_id===row.dataset.siteId);
-                loadSiteDetail(row.dataset.siteId, site);
+        el.querySelectorAll('.site-stat-card[data-site-id]').forEach(card => {
+            card.addEventListener('click', e => {
+                if (e.target.tagName === 'BUTTON') return;
+                const site = data.find(s => s.site_id === card.dataset.siteId);
+                loadSiteDetail(card.dataset.siteId, site);
             });
         });
     }
@@ -773,7 +798,7 @@
                     <div style="background:#e9f7fb;border:1px solid #b3e0ea;border-radius:8px;padding:12px 16px;font-size:13px;color:#009bb9;font-weight:600;margin-bottom:20px;line-height:1.5">ℹ️ Puoi modificare il profilo qui dal pannello oppure dal plugin (tab Schema.org). I dati salvati qui restano attivi finché il plugin non invia un nuovo sync.</div>
                     <div id="hotel-profile-form"></div>
                     <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;align-items:center">
-                        <button id="btn-save-hotel-profile" class="btn-update" style="margin-left:0">Salva sul pannello</button>
+                        <button id="btn-save-hotel-profile" class="btn-update" style="margin-left:0">Salva e invia al plugin</button>
                         <button id="btn-cancel-hotel-profile" class="btn-ping">Annulla</button>
                         <button id="btn-revert-plugin-profile" class="btn-ping" style="color:#666b84;font-size:11px">↩ Ripristina dati plugin</button>
                     </div>
@@ -820,123 +845,134 @@
         initSiteFaq(site);
     }
 
-    // ─── PROFILO HOTEL ───────────────────────────────────────────────────────────
-    function initHotelProfile(site) {
-        const p = site.hotel_profile || {};
-        setupProfileBadge(p);
-        renderHotelProfileView(p);
-        setupHotelProfileForm(p);
+    // ─── PROFILO HOTEL (Schema.org via plugin REST) ──────────────────────────────
+    async function initHotelProfile(site) {
+        const pluginBase = (site.site_url || '').replace(/\/$/, '');
+        let pluginSecret = site.site_id;
+        try {
+            const ctrl = new AbortController(); setTimeout(() => ctrl.abort(), 6000);
+            const r = await fetch(pluginBase + '/wp-json/in3pida/v1/site-id', { signal: ctrl.signal });
+            if (r.ok) { const d = await r.json().catch(()=>({})); if (d.site_id) pluginSecret = d.site_id; }
+        } catch(_) {}
+
+        const viewEl  = document.getElementById('hotel-profile-view');
+        const badge   = document.getElementById('profile-source-badge');
+        if (viewEl) viewEl.innerHTML = '<div class="loading"><div class="spinner"></div> Caricamento Schema.org dal plugin...</div>';
+
+        let schema = {}, fromPlugin = false;
+        try {
+            const ctrl = new AbortController(); setTimeout(() => ctrl.abort(), 9000);
+            const r = await fetch(pluginBase + '/wp-json/in3pida/v1/schema', { signal: ctrl.signal });
+            if (r.ok) { schema = await r.json(); fromPlugin = true; }
+        } catch(_) {}
+        if (!fromPlugin) schema = site.schema_data || {};
+
+        if (badge) badge.innerHTML = fromPlugin
+            ? `<span style="color:#009bb9;font-weight:700">🔄 Dal plugin${schema._synced_at?' · '+new Date(schema._synced_at).toLocaleString('it-IT',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):''}</span>`
+            : `<span style="color:#666b84">Dati Supabase (plugin non raggiungibile)</span>`;
+
+        renderSchemaView(schema);
+        buildSchemaEditForm(schema);
+
         const btnToggle = document.getElementById('btn-toggle-profile-edit');
         const btnCancel = document.getElementById('btn-cancel-hotel-profile');
         const btnSave   = document.getElementById('btn-save-hotel-profile');
         const btnRevert = document.getElementById('btn-revert-plugin-profile');
         if (btnToggle) btnToggle.addEventListener('click', () => toggleHotelProfileEdit());
         if (btnCancel) btnCancel.addEventListener('click', () => toggleHotelProfileEdit(false));
-        if (btnSave)   btnSave.addEventListener('click', () => saveHotelProfile(site.site_id));
-        if (btnRevert) btnRevert.addEventListener('click', () => revertToPluginProfile(site));
+        if (btnSave)   btnSave.addEventListener('click', () => saveSchemaToPlugin(pluginBase, pluginSecret));
+        if (btnRevert) btnRevert.style.display = 'none';
     }
 
-    function renderHotelProfileView(p) {
-        const f = (label, val) =>
+    function renderSchemaView(s) {
+        const f = (label, val) => !val ? '' :
             '<div><div style="font-size:10px;color:var(--grey);font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:3px">' + label + '</div>' +
-            '<div style="font-size:14px;font-weight:600;color:#171b33">' + (val ? escHtml(String(val)) : '<span style="color:#ead0dc">—</span>') + '</div></div>';
-        const addr = [p.via, p.numero_civico, p.cap, p.citta, p.regione].filter(Boolean).join(', ') +
-            (p.paese && p.paese !== 'Italia' ? ', ' + p.paese : '');
-        const stelle = p.stelle ? '★'.repeat(parseInt(p.stelle)) + ' (' + p.stelle + ')' : null;
-        const checkin  = [p.checkin_dalle,  p.checkin_alle ].filter(Boolean).join(' — ') || null;
-        const checkout = [p.checkout_dalle, p.checkout_alle].filter(Boolean).join(' — ') || null;
-        const descHtml = p.descrizione
-            ? '<div style="margin-bottom:16px;padding:12px 14px;background:#fbf4f7;border-radius:8px"><div style="font-size:10px;color:var(--grey);font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px">DESCRIZIONE</div><div style="font-size:13px;color:#35364f;line-height:1.6">' + escHtml(p.descrizione) + '</div></div>'
-            : '';
-        const serviziHtml = p.servizi
-            ? '<div><div style="font-size:10px;color:var(--grey);font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px">SERVIZI</div><div style="display:flex;flex-wrap:wrap;gap:6px">' +
-              p.servizi.split(',').map(s => s.trim()).filter(Boolean).map(s =>
-                  '<span style="background:#fbf4f7;border:1px solid #ead0dc;color:#d82d6b;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px">' + escHtml(s) + '</span>'
-              ).join('') + '</div></div>'
-            : '';
-        const hasAny = p.nome_hotel || p.telefono || p.email || p.descrizione || addr;
-        const html = hasAny
-            ? '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px">' +
-              f('Nome hotel', p.nome_hotel) + f('Tipo struttura', p.tipo_struttura) + f('Stelle', stelle) + '</div>' +
-              descHtml +
-              '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px">' +
-              f('Indirizzo', addr || null) + f('Telefono', p.telefono) + f('Email', p.email) + '</div>' +
-              '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px">' +
-              f('Sito web', p.sito_web) + f('Check-in', checkin) + f('Check-out', checkout) + '</div>' +
-              serviziHtml
-            : '<div style="color:var(--grey);font-size:13px;padding:4px 0">Nessun profilo hotel. Clicca <strong>✏️ Modifica</strong> per inserire i dati, oppure sincronizza dal plugin.</div>';
-        const el = document.getElementById('hotel-profile-view');
-        if (el) el.innerHTML = html;
-    }
-
-    function setupProfileBadge(p) {
-        const el = document.getElementById('profile-source-badge');
-        if (!el) return;
-        if (!p || !p._source) {
-            el.innerHTML = '<span style="color:#666b84">Nessun dato — inserisci manualmente o sincronizza dal plugin</span>';
-        } else if (p._source === 'manual') {
-            const d = p._edited_at ? new Date(p._edited_at).toLocaleDateString('it-IT') : '';
-            el.innerHTML = '<span style="color:#d82d6b;font-weight:700">✏️ Modificato dal pannello' + (d ? ' · ' + d : '') + '</span>';
-        } else {
-            const d = p._synced_at ? new Date(p._synced_at).toLocaleDateString('it-IT') : '';
-            el.innerHTML = '<span style="color:#009bb9;font-weight:700">🔄 Dal plugin' + (d ? ' · ' + d : '') + '</span>';
+            '<div style="font-size:14px;font-weight:600;color:#171b33">' + escHtml(String(val)) + '</div></div>';
+        if (!s.name && !s.telephone && !s.email && !s.description) {
+            document.getElementById('hotel-profile-view').innerHTML = '<div style="color:var(--grey);font-size:13px">Nessun dato Schema.org. Clicca ✏️ Modifica o sincronizza dal plugin.</div>';
+            return;
         }
+        const addr = [s.street, s.city, s.postal_code, s.region, s.country].filter(Boolean).join(', ');
+        const amenitiesHtml = (Array.isArray(s.amenities) ? s.amenities : (s.amenities||'').split(',').map(x=>x.trim()).filter(Boolean)).length
+            ? '<div style="margin-top:14px"><div style="font-size:10px;color:var(--grey);font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px">SERVIZI / AMENITIES</div><div style="display:flex;flex-wrap:wrap;gap:6px">' +
+              (Array.isArray(s.amenities) ? s.amenities : (s.amenities||'').split(',').map(x=>x.trim()).filter(Boolean))
+                  .map(a => '<span style="background:#fbf4f7;border:1px solid #ead0dc;color:#d82d6b;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px">' + escHtml(a) + '</span>').join('') + '</div></div>'
+            : '';
+        document.getElementById('hotel-profile-view').innerHTML =
+            '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px">' +
+            f('Nome', s.name) + f('Tipo struttura', s.type) + f('Stelle', s.official_rating ? s.official_rating + ' ★' : null) + '</div>' +
+            (s.description ? '<div style="margin-bottom:14px;padding:12px 14px;background:#fbf4f7;border-radius:8px"><div style="font-size:10px;color:var(--grey);font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px">DESCRIZIONE</div><div style="font-size:13px;color:#35364f;line-height:1.6">' + escHtml(s.description) + '</div></div>' : '') +
+            '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:14px">' +
+            f('Indirizzo', addr) + f('Telefono', s.telephone) + f('Email', s.email) + '</div>' +
+            '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:14px;margin-bottom:14px">' +
+            f('Sito web', s.url) + f('Check-in', s.checkin_time) + f('Check-out', s.checkout_time) + f('Animali', s.pets_allowed) + '</div>' +
+            '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:14px;margin-bottom:4px">' +
+            f('Prezzo', s.price_range) + f('Lingue', s.languages) + f('Latitudine', s.latitude) + f('Longitudine', s.longitude) + '</div>' +
+            (s.keywords ? '<div style="margin-top:10px">' + f('Keywords SEO', s.keywords) + '</div>' : '') +
+            (s.nearby_attractions ? '<div style="margin-top:10px">' + f('Attrazioni vicine', s.nearby_attractions) + '</div>' : '') +
+            amenitiesHtml;
     }
 
-    function setupHotelProfileForm(p) {
-        const inp = (id, label, val, placeholder, type) =>
+    function buildSchemaEditForm(s) {
+        const inp = (id, label, val, ph, type) =>
             '<div><label class="profile-label">' + label + '</label>' +
-            '<input type="' + (type||'text') + '" id="pf-' + id + '" class="profile-input" value="' + escHtml(val||'') + '" placeholder="' + escHtml(placeholder||'') + '"></div>';
+            '<input type="' + (type||'text') + '" id="sf-' + id + '" class="profile-input" value="' + escHtml(val||'') + '" placeholder="' + escHtml(ph||'') + '"></div>';
         const selF = (id, label, val, opts) =>
+            '<div><label class="profile-label">' + label + '</label><select id="sf-' + id + '" class="profile-input">' +
+            opts.map(o => '<option value="' + escHtml(o) + '"' + (val===o?' selected':'') + '>' + escHtml(o) + '</option>').join('') + '</select></div>';
+        const taF = (id, label, val, ph, rows) =>
             '<div><label class="profile-label">' + label + '</label>' +
-            '<select id="pf-' + id + '" class="profile-input"><option value="">— Seleziona —</option>' +
-            opts.map(o => '<option value="' + escHtml(o) + '"' + (val===o?' selected':'') + '>' + escHtml(o) + '</option>').join('') +
-            '</select></div>';
-        const taF = (id, label, val, placeholder) =>
-            '<div><label class="profile-label">' + label + '</label>' +
-            '<textarea id="pf-' + id + '" class="profile-input" rows="3" placeholder="' + escHtml(placeholder||'') + '">' + escHtml(val||'') + '</textarea></div>';
-
-        const sec = title =>
-            '<div style="font-size:11px;font-weight:700;color:var(--grey);letter-spacing:.06em;margin:20px 0 12px;padding-bottom:6px;border-bottom:2px solid #fce8ef">' + title + '</div>';
-
-        const tipi = ['Hotel','B&B','Agriturismo','Appartamento','Ostello','Resort','Pensione','Villaggio turistico'];
-
+            '<textarea id="sf-' + id + '" class="profile-input" rows="' + (rows||3) + '" style="resize:vertical" placeholder="' + escHtml(ph||'') + '">' + escHtml(val||'') + '</textarea></div>';
+        const sec = t =>
+            '<div style="font-size:11px;font-weight:700;color:var(--grey);letter-spacing:.06em;margin:20px 0 12px;padding-bottom:6px;border-bottom:2px solid #fce8ef;text-transform:uppercase">' + t + '</div>';
+        const tipi = ['Hotel','LodgingBusiness','BedAndBreakfast','Hostel','Motel','Resort','VacationRental'];
+        const amenitiesVal = Array.isArray(s.amenities) ? s.amenities.join(', ') : (s.amenities||'');
         const html =
             sec('IDENTITÀ') +
-            '<div style="display:grid;grid-template-columns:1fr 1fr auto;gap:12px;margin-bottom:12px">' +
-            inp('nome_hotel','Nome hotel', p.nome_hotel,'Es: Hotel Bellevue') +
-            selF('tipo_struttura','Tipo struttura', p.tipo_struttura, tipi) +
-            '<div><label class="profile-label">Stelle</label><select id="pf-stelle" class="profile-input"><option value="">—</option>' +
-            [1,2,3,4,5].map(n => '<option value="'+n+'"'+(p.stelle==n?' selected':'')+'>'+n+' ★</option>').join('') +
+            '<div style="display:grid;grid-template-columns:2fr 1fr auto;gap:12px;margin-bottom:12px">' +
+            inp('name','Nome hotel', s.name,'Es: Hotel Bellevue') +
+            selF('type','Tipo struttura', s.type, tipi) +
+            '<div><label class="profile-label">Stelle</label><select id="sf-official_rating" class="profile-input"><option value="">—</option>' +
+            ['1','2','3','4','5'].map(n => '<option value="'+n+'"'+((s.official_rating||'')==n?' selected':'')+'>'+n+' ★</option>').join('') +
             '</select></div></div>' +
-            taF('descrizione','Descrizione breve', p.descrizione, 'Descrizione dell\'hotel per i motori AI...') +
+            taF('description','Descrizione', s.description,'Descrizione completa per i motori AI...', 4) +
+            '<div style="margin-top:12px">' + inp('price_range','Fascia di prezzo', s.price_range,'€ / €€ / €€€') + '</div>' +
 
             sec('INDIRIZZO') +
-            '<div style="display:grid;grid-template-columns:1fr auto auto;gap:12px;margin-bottom:12px">' +
-            inp('via','Via / Piazza', p.via,'Es: Via Roma') +
-            inp('numero_civico','N. civico', p.numero_civico,'12') +
-            inp('cap','CAP', p.cap,'47921') + '</div>' +
-            '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:4px">' +
-            inp('citta','Città', p.citta,'Es: Rimini') +
-            inp('regione','Regione', p.regione,'Es: Emilia-Romagna') +
-            inp('paese','Paese', p.paese,'Italia') + '</div>' +
+            '<div style="display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:12px">' +
+            inp('street','Via / Piazza', s.street,'Via Roma, 10') + inp('postal_code','CAP', s.postal_code,'47921') + '</div>' +
+            '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px">' +
+            inp('city','Città', s.city,'Rimini') + inp('region','Regione', s.region,'Emilia-Romagna') + inp('country','Paese', s.country,'IT') + '</div>' +
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">' +
+            inp('latitude','Latitudine', s.latitude,'44.0600') + inp('longitude','Longitudine', s.longitude,'12.5657') + '</div>' +
 
             sec('CONTATTI') +
-            '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:4px">' +
-            inp('telefono','Telefono', p.telefono,'+39 0541 000000','tel') +
-            inp('email','Email', p.email,'info@hotel.it','email') +
-            inp('sito_web','Sito web', p.sito_web,'https://www.hotel.it','url') + '</div>' +
+            '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">' +
+            inp('telephone','Telefono', s.telephone,'+39 0541 000000','tel') +
+            inp('email','Email', s.email,'info@hotel.it','email') +
+            inp('url','Sito web', s.url,'https://www.hotel.it','url') + '</div>' +
 
             sec('CHECK-IN / CHECK-OUT') +
-            '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-bottom:4px">' +
-            inp('checkin_dalle','Check-in dalle', p.checkin_dalle,'14:00') +
-            inp('checkin_alle','Check-in alle', p.checkin_alle,'22:00') +
-            inp('checkout_dalle','Check-out dalle', p.checkout_dalle,'07:00') +
-            inp('checkout_alle','Check-out alle', p.checkout_alle,'11:00') + '</div>' +
+            '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">' +
+            inp('checkin_time','Check-in', s.checkin_time,'14:00') +
+            inp('checkout_time','Check-out', s.checkout_time,'11:00') +
+            inp('pets_allowed','Animali ammessi', s.pets_allowed,'Sì / No') + '</div>' +
 
-            sec('SERVIZI') +
-            '<div><label class="profile-label">Servizi principali (separati da virgola)</label>' +
-            '<input type="text" id="pf-servizi" class="profile-input" value="' + escHtml(p.servizi||'') + '" placeholder="Es: Parcheggio, WiFi, Piscina, Colazione, Spa"></div>' +
+            sec('INFORMAZIONI AGGIUNTIVE') +
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">' +
+            inp('languages','Lingue parlate', s.languages,'Italiano, Inglese, Tedesco') +
+            inp('keywords','Parole chiave SEO', s.keywords,'hotel, rimini, mare, piscina') + '</div>' +
+            taF('nearby_attractions','Attrazioni vicine', s.nearby_attractions,'Es: Spiaggia (200m), centro storico (1km)...') +
+            '<div style="margin-top:12px">' + taF('amenities_text','Servizi / Amenities (separati da virgola)', amenitiesVal,'Piscina, WiFi, Parcheggio, SPA, Colazione inclusa') + '</div>';
+
+        const formEl = document.getElementById('hotel-profile-form');
+        if (formEl) formEl.innerHTML = html;
+    }
+
+    // dummy placeholder — removed:
+    function setupProfileBadge(p) {}
+    function renderHotelProfileView(p) {}
+    function setupHotelProfileForm(p) {
             '<div style="font-size:12px;color:var(--grey);margin-top:4px">Inserisci i servizi separati da virgola.</div>';
 
         const formEl = document.getElementById('hotel-profile-form');
@@ -954,62 +990,45 @@
         btn.textContent    = isEdit ? '← Vista' : '✏️ Modifica';
     }
 
-    async function saveHotelProfile(siteId) {
+    async function saveSchemaToPlugin(pluginBase, pluginSecret) {
         const btn = document.getElementById('btn-save-hotel-profile');
         const msg = document.getElementById('hotel-profile-msg');
-        btn.disabled = true;
-        btn.textContent = 'Salvataggio...';
-        const g = id => (document.getElementById('pf-' + id)?.value || '').trim();
-        const profile = {
-            nome_hotel:     g('nome_hotel'),
-            tipo_struttura: g('tipo_struttura'),
-            stelle:         g('stelle') ? parseInt(g('stelle')) : null,
-            descrizione:    g('descrizione'),
-            via:            g('via'),
-            numero_civico:  g('numero_civico'),
-            cap:            g('cap'),
-            citta:          g('citta'),
-            regione:        g('regione'),
-            paese:          g('paese') || 'Italia',
-            telefono:       g('telefono'),
-            email:          g('email'),
-            sito_web:       g('sito_web'),
-            checkin_dalle:  g('checkin_dalle'),
-            checkin_alle:   g('checkin_alle'),
-            checkout_dalle: g('checkout_dalle'),
-            checkout_alle:  g('checkout_alle'),
-            servizi:        g('servizi'),
-            _source:        'manual',
-            _edited_at:     new Date().toISOString(),
+        btn.disabled = true; btn.textContent = 'Invio al plugin...';
+        const g = id => (document.getElementById('sf-' + id)?.value || '').trim();
+        const amenitiesText = g('amenities_text');
+        const schema = {
+            name: g('name'), type: g('type'), official_rating: g('official_rating'),
+            description: g('description'), price_range: g('price_range'),
+            street: g('street'), postal_code: g('postal_code'), city: g('city'),
+            region: g('region'), country: g('country'),
+            latitude: g('latitude'), longitude: g('longitude'),
+            telephone: g('telephone'), email: g('email'), url: g('url'),
+            checkin_time: g('checkin_time'), checkout_time: g('checkout_time'),
+            pets_allowed: g('pets_allowed'), languages: g('languages'),
+            keywords: g('keywords'), nearby_attractions: g('nearby_attractions'),
+            amenities: amenitiesText ? amenitiesText.split(',').map(s=>s.trim()).filter(Boolean) : [],
         };
         try {
-            const { error } = await _SBq.from('isi_sites').update({ hotel_profile: profile }).eq('site_id', siteId);
-            if (error) throw error;
-            msg.style.display = 'block';
-            msg.style.color   = '#009bb9';
-            msg.textContent   = '✓ Profilo salvato';
-            setupProfileBadge(profile);
-            renderHotelProfileView(profile);
-            setTimeout(() => { toggleHotelProfileEdit(false); msg.style.display = 'none'; }, 1600);
+            const ctrl = new AbortController(); setTimeout(() => ctrl.abort(), 15000);
+            const r = await fetch(pluginBase + '/wp-json/in3pida/v1/schema', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ secret: pluginSecret, schema }),
+                signal: ctrl.signal,
+            });
+            const d = await r.json().catch(() => ({}));
+            if (r.ok && d.ok) {
+                msg.style.display = 'block'; msg.style.color = '#009bb9';
+                msg.textContent = '✓ Salvato sul plugin. Sync Supabase in corso...';
+                renderSchemaView(schema);
+                fetch(pluginBase + '/wp-json/in3pida/v1/force-heartbeat', { method:'POST', headers:{'Content-Type':'application/json'} }).catch(()=>{});
+                setTimeout(() => { toggleHotelProfileEdit(false); msg.style.display = 'none'; }, 2000);
+            } else { throw new Error(d.message || 'Risposta ' + r.status); }
         } catch(e) {
-            msg.style.display = 'block';
-            msg.style.color   = '#b00020';
-            msg.textContent   = 'Errore: ' + e.message;
+            msg.style.display = 'block'; msg.style.color = '#b00020';
+            msg.textContent = 'Errore: ' + e.message;
         } finally {
-            btn.disabled    = false;
-            btn.textContent = 'Salva sul pannello';
-        }
-    }
-
-    async function revertToPluginProfile(site) {
-        if (!confirm('Vuoi ripristinare i dati dal plugin? Le modifiche manuali verranno cancellate.')) return;
-        const { error } = await _SBq.from('isi_sites').update({ hotel_profile: {} }).eq('site_id', site.site_id);
-        if (!error) {
-            setupProfileBadge({});
-            renderHotelProfileView({});
-            setupHotelProfileForm({});
-            toggleHotelProfileEdit(false);
-            showToast('Profilo ripristinato — verrà aggiornato al prossimo sync del plugin');
+            btn.disabled = false; btn.textContent = 'Salva e invia al plugin';
         }
     }
 
