@@ -653,7 +653,8 @@
         const geoBg = v => v===null?'#fbf4f7':v>=70?'#e9f7fb':v>=40?'rgba(0,155,185,0.12)':'#fce8ef';
         const geoBc = v => v===null?'#666b84':v>=70?'#009bb9':v>=40?'var(--cyan)':'#d82d6b';
         const geoTips = {ai_readiness:'Prontezza complessiva del sito per essere letto e citato dai sistemi AI.',answer_extraction:'Capacità del sito di fornire risposte dirette ed estraibili dai motori AI.',quality_safety:'Qualità e sicurezza dei contenuti — testo chiaro, non ambiguo, privo di contenuti problematici.',ai_visibility:'Visibilità stimata del sito sui principali sistemi AI come ChatGPT, Perplexity ecc.',entity_authority:"Autorevolezza delle entità semantiche — quanto il sito è riconosciuto come fonte affidabile.",chunk_avg:'Media della citabilità dei singoli blocchi di contenuto dal Chunk Engine.',citation_avg:'Media del punteggio Citation Engine — probabilità che il sito venga citato come fonte.'};
-        const geoRows = [{k:'ai_readiness',l:'AI Readiness'},{k:'answer_extraction',l:'Answer Extraction'},{k:'quality_safety',l:'Quality Safety'},{k:'ai_visibility',l:'AI Visibility'},{k:'entity_authority',l:'Entity Authority'},{k:'chunk_avg',l:'Chunk Citation'},{k:'citation_avg',l:'Citation Engine'}].map(({k,l})=>{const v=geo[k]??null;const vc=v===null?'#ead0dc':v>=70?'#009bb9':'#d82d6b';const bg=v!==null&&v<40?'linear-gradient(135deg,#ffffff 0%,#fce8ef 100%)':'white';const br=v!==null&&v<40?'#ead0dc':'#e4e4ec';const st=v===null?'nessun dato':v>=70?'ottimizzato':v>=40?'da migliorare':'critico';return `<div style="background:${bg};border:1px solid ${br};border-radius:8px;padding:16px 18px"><div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:4px">${l} <span class='tip-q' data-tip='${geoTips[k]}'>?</span></div><div style="font-size:32px;font-weight:800;line-height:1;color:${v!==null?'#171b33':'#ead0dc'}">${v!==null?v:'—'}</div><div style="font-size:11px;font-weight:600;color:${vc};margin-top:6px">${st}</div></div>`;}).join('');
+        const _noColorKeys = new Set(['entity_authority','chunk_avg','citation_avg']);
+        const geoRows = [{k:'ai_readiness',l:'AI Readiness'},{k:'answer_extraction',l:'Answer Extraction'},{k:'quality_safety',l:'Quality Safety'},{k:'ai_visibility',l:'AI Visibility'},{k:'entity_authority',l:'Entity Authority'},{k:'chunk_avg',l:'Chunk Citation'},{k:'citation_avg',l:'Citation Engine'}].map(({k,l})=>{const v=geo[k]??null;const vc=v===null?'#ead0dc':'#d82d6b';const noClr=_noColorKeys.has(k);const bg=(!noClr&&v!==null&&v<40)?'linear-gradient(135deg,#ffffff 0%,#fce8ef 100%)':'white';const br=(!noClr&&v!==null&&v<40)?'#ead0dc':'#e4e4ec';const st=v===null?'nessun dato':v>=70?'ottimizzato':v>=40?'da migliorare':'critico';return `<div style="background:${bg};border:1px solid ${br};border-radius:8px;padding:16px 18px"><div style="font-size:11px;font-weight:500;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;display:flex;align-items:center;gap:4px">${l} <span class='tip-q' data-tip='${geoTips[k]}'>?</span></div><div style="font-size:32px;font-weight:800;line-height:1;color:${v!==null?'#171b33':'#ead0dc'}">${v!==null?v:'—'}</div><div style="font-size:13px;font-weight:600;color:${vc};margin-top:6px">${st}</div></div>`;}).join('');
 
         _aFaqFilter = 'all'; _aFaqSearch = '';
         _pseChartsInited = false; _mappaInited = false; _coerenzaInited = false; _configInited = false; _aiLayerInited = false;
@@ -665,7 +666,6 @@
         el.innerHTML = `
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
                 <button class="btn-back" id="btn-back-detail">← Torna alle installazioni</button>
-                <button id="btn-force-sync" class="btn-ping" style="font-size:13px;padding:8px 18px">🔄 Sincronizza ora</button>
             </div>
             <!-- LAYOUT: sidebar sinistra persistente + contenuto destra -->
             <div style="display:grid;grid-template-columns:260px 1fr;gap:20px;align-items:start">
@@ -673,10 +673,10 @@
                 <!-- SIDEBAR SINISTRA PERSISTENTE: Stato contenuti -->
                 <div style="position:sticky;top:80px;background:white;border-radius:8px;overflow:hidden;box-shadow:0 2px 20px rgba(0,0,0,0.07)">
                     <div style="padding:16px 20px 14px">
-                        <div style="font-size:18px;font-weight:800;color:#171b33;letter-spacing:-.01em">Stato contenuti</div>
+                        <div style="font-size:18px;font-weight:600;color:#171b33;letter-spacing:-.01em">Stato contenuti</div>
                     </div>
                     <div style="border-top:1px solid #f0f0f6">
-                        <div style="font-size:10px;font-weight:700;color:#4a4a6a;letter-spacing:.08em;text-transform:uppercase;padding:12px 20px 6px">SEZIONI</div>
+                        <div style="font-size:11px;font-weight:500;color:#9ca3af;letter-spacing:.08em;text-transform:uppercase;padding:12px 20px 6px">SEZIONI</div>
                         ${[
                             {k:'overview', l:'PANORAMICA',         v:'Semafori e punteggi'},
                             {k:'faq',      l:'FAQ',                v: covPct!==null?(covPct+'% coperto'):'1 pubblicata'},
@@ -689,12 +689,12 @@
                         ].map(({k,l,v},i)=>{
                             const isAct=i===0;
                             return '<div class="stato-sezione-row" data-sec="'+k+'"'+(isAct?' data-active="1"':'')+' style="display:flex;align-items:center;justify-content:space-between;padding:11px 20px;cursor:pointer;border-bottom:1px solid #f0f0f6;transition:background .15s;background:'+(isAct?'#fce8ef':'white')+'">'
-                                + '<span class="ssec-label" style="font-size:10px;font-weight:700;color:'+(isAct?'#d82d6b':'#4a4a6a')+';letter-spacing:.07em;text-transform:uppercase">'+l+'</span>'
-                                + '<span style="font-size:13px;color:'+(isAct?'#d82d6b':'#181834')+';text-align:right;max-width:120px;font-weight:600">'+v+'</span>'
+                                + '<span class="ssec-label" style="font-size:11px;font-weight:500;color:'+(isAct?'#d82d6b':'#9ca3af')+';letter-spacing:.07em;text-transform:uppercase">'+l+'</span>'
+                                + '<span style="font-size:12px;color:'+(isAct?'#d82d6b':'#4a4a6a')+';text-align:right;max-width:120px;font-weight:400">'+v+'</span>'
                                 + '</div>';
                         }).join('')}
                         <div style="padding:16px 20px">
-                            <button id="btn-stato-sync-all" style="width:100%;background:#d82d6b;color:white;border:none;border-radius:8px;padding:12px;font-size:13px;font-weight:800;letter-spacing:.08em;cursor:pointer;font-family:var(--font)">SINCRONIZZA</button>
+                            <button id="btn-stato-sync-all" style="width:100%;background:#d82d6b;color:white;border:none;border-radius:6px;padding:10px;font-size:13px;font-weight:500;letter-spacing:.05em;cursor:pointer;font-family:var(--font)">SINCRONIZZA</button>
                         </div>
                     </div>
                 </div>
@@ -702,30 +702,30 @@
                 <!-- COLONNA DESTRA: KPI + content pane (cambia in base alla selezione sidebar) -->
                 <div>
                 <div style="background:white;border-radius:8px;box-shadow:0 2px 20px rgba(0,0,0,0.07);overflow:hidden;margin-bottom:20px">
-                    <div style="padding:14px 20px;border-bottom:1px solid #f0f0f6;display:flex;align-items:center;gap:8px">
+                    <div style="padding:14px 20px;border-bottom:1px solid #f0f0f6;background:#fafafa;display:flex;align-items:center;gap:8px">
                         <span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span>
                         <span style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">PANORAMICA GEO SCORE</span>
                     </div>
                     <div style="padding:16px 20px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
                         <div style="border:1.5px solid #d82d6b;border-radius:8px;padding:16px 18px">
-                            <div style="font-size:11px;font-weight:500;color:#4a4a6a;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;display:flex;align-items:center;gap:4px">GEO SCORE <span class='tip-q' data-tip='Punteggio complessivo di ottimizzazione per AI. ≥70 ottimizzato, 40–69 da migliorare, <40 critico.'>?</span></div>
+                            <div style="font-size:11px;font-weight:500;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;display:flex;align-items:center;gap:4px">GEO SCORE <span class='tip-q' data-tip='Punteggio complessivo di ottimizzazione per AI. ≥70 ottimizzato, 40–69 da migliorare, <40 critico.'>?</span></div>
                             <div style="font-size:32px;font-weight:800;line-height:1;color:${geoAvg!==null?'#171b33':'#ead0dc'}">${geoAvg!==null?geoAvg:'—'}</div>
-                            <div style="font-size:13px;font-weight:600;color:${geoAvg!==null?(geoAvg>=70?'#009bb9':'#d82d6b'):'#ead0dc'};margin-top:6px">${geoAvg!==null?(geoAvg>=70?'ottimizzato':geoAvg>=40?'da migliorare':'critico'):'nessun dato'}</div>
+                            <div style="font-size:13px;font-weight:600;color:${geoAvg!==null?'#d82d6b':'#ead0dc'};margin-top:6px">${geoAvg!==null?(geoAvg>=70?'ottimizzato':geoAvg>=40?'da migliorare':'critico'):'nessun dato'}</div>
                         </div>
                         <div style="border:1px solid #e4e4ec;border-radius:8px;padding:16px 18px">
-                            <div style="font-size:11px;font-weight:500;color:#4a4a6a;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;display:flex;align-items:center;gap:4px">COMPLETEZZA AI <span class='tip-q' data-tip='Quanto è completo il profilo AI dell hotel: nome, indirizzo, descrizione, contatti, FAQ ecc. ≥80 ottimizzato.'>?</span></div>
+                            <div style="font-size:11px;font-weight:500;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;display:flex;align-items:center;gap:4px">COMPLETEZZA AI <span class='tip-q' data-tip='Quanto è completo il profilo AI dell hotel: nome, indirizzo, descrizione, contatti, FAQ ecc. ≥80 ottimizzato.'>?</span></div>
                             <div style="font-size:32px;font-weight:800;line-height:1;color:${cs!==null?'#171b33':'#ead0dc'}">${cs!==null?cs:'—'}</div>
-                            <div style="font-size:13px;font-weight:600;color:${cs!==null?(cs>=70?'#009bb9':'#d82d6b'):'#ead0dc'};margin-top:6px">${cs!==null?(cs>=70?'ottimizzato':cs>=40?'da migliorare':'critico'):'nessun dato'}</div>
+                            <div style="font-size:13px;font-weight:600;color:${cs!==null?'#d82d6b':'#ead0dc'};margin-top:6px">${cs!==null?(cs>=70?'ottimizzato':cs>=40?'da migliorare':'critico'):'nessun dato'}</div>
                         </div>
                         <div style="border:1px solid #e4e4ec;border-radius:8px;padding:16px 18px">
-                            <div style="font-size:11px;font-weight:500;color:#4a4a6a;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;display:flex;align-items:center;gap:4px">COVERAGE FAQ <span class='tip-q' data-tip='Percentuale di domande degli ospiti a cui il sito risponde tramite FAQ. ≥80% buona copertura.'>?</span></div>
+                            <div style="font-size:11px;font-weight:500;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;display:flex;align-items:center;gap:4px">COVERAGE FAQ <span class='tip-q' data-tip='Percentuale di domande degli ospiti a cui il sito risponde tramite FAQ. ≥80% buona copertura.'>?</span></div>
                             <div style="font-size:32px;font-weight:800;line-height:1;color:${covPct!==null?'#171b33':'#ead0dc'}">${covPct!==null?covPct+'%':'—'}</div>
-                            <div style="font-size:13px;font-weight:600;color:${covPct!==null?(covPct>=80?'#009bb9':'#d82d6b'):'#ead0dc'};margin-top:6px">${covPct!==null?covPct+'% coperto':'nessun dato'}</div>
+                            <div style="font-size:13px;font-weight:600;color:${covPct!==null?'#d82d6b':'#ead0dc'};margin-top:6px">${covPct!==null?covPct+'% coperto':'nessun dato'}</div>
                         </div>
                         <div style="border:1px solid #e4e4ec;border-radius:8px;padding:16px 18px">
-                            <div style="font-size:11px;font-weight:500;color:#4a4a6a;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;display:flex;align-items:center;gap:4px">MAPPA QUERY <span class='tip-q' data-tip='Percentuale di categorie di query conversazionali degli ospiti coperte dal sito. ≥70% buona copertura.'>?</span></div>
+                            <div style="font-size:11px;font-weight:500;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;display:flex;align-items:center;gap:4px">MAPPA QUERY <span class='tip-q' data-tip='Percentuale di categorie di query conversazionali degli ospiti coperte dal sito. ≥70% buona copertura.'>?</span></div>
                             <div style="font-size:32px;font-weight:800;line-height:1;color:${qMapPct!==null?'#171b33':'#ead0dc'}">${qMapPct!==null?qMapPct+'%':'—'}</div>
-                            <div style="font-size:13px;font-weight:600;color:${qMapPct!==null?(qMapPct>=70?'#009bb9':'#d82d6b'):'#ead0dc'};margin-top:6px">${qMapPct!==null?qMapPct+'% coperto':'nessun dato'}</div>
+                            <div style="font-size:13px;font-weight:600;color:${qMapPct!==null?'#d82d6b':'#ead0dc'};margin-top:6px">${qMapPct!==null?qMapPct+'% coperto':'nessun dato'}</div>
                         </div>
                     </div>
                 </div>
@@ -764,7 +764,7 @@
                     <div style="background:${geoAvg!==null&&geoAvg<40?'linear-gradient(135deg,#ffffff 0%,#fce8ef 100%)':geoAvg!==null?'linear-gradient(135deg,#ffffff 0%,#e9f7fb 100%)':'white'};border:1.5px solid ${geoAvg!==null&&geoAvg<40?'#ead0dc':'#b3e0ea'};border-radius:8px;padding:16px 18px">
                         <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:4px">MEDIA PUNTEGGI <span class='tip-q' data-tip='Media ponderata di tutti i punteggi AI del sito. Rappresenta la prontezza complessiva per essere citato dai motori AI.'>?</span></div>
                         <div style="font-size:38px;font-weight:800;line-height:1;color:${geoAvg!==null?'#171b33':'#ead0dc'}">${geoAvg!==null?geoAvg:'—'}</div>
-                        <div style="font-size:11px;font-weight:600;color:${geoAvg!==null?(geoAvg>=70?'#009bb9':'#d82d6b'):'#ead0dc'};margin-top:6px">${geoAvg!==null?(geoAvg>=70?'ottimizzato':geoAvg>=40?'da migliorare':'critico'):'nessun dato'} / 100</div>
+                        <div style="font-size:11px;font-weight:600;color:${geoAvg!==null?'#d82d6b':'#ead0dc'};margin-top:6px">${geoAvg!==null?(geoAvg>=70?'ottimizzato':geoAvg>=40?'da migliorare':'critico'):'nessun dato'} / 100</div>
                     </div>
                     ${geoRows}
                 </div>
@@ -778,22 +778,22 @@
                         <div style="background:${cs<60?'linear-gradient(135deg,#ffffff 0%,#fce8ef 100%)':'white'};border:1.5px solid ${cs<60?'#d82d6b':'#e4e4ec'};border-radius:8px;padding:16px 18px">
                             <div style="font-size:11px;font-weight:500;color:#4a4a6a;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;display:flex;align-items:center;gap:4px">PUNTEGGIO <span class='tip-q' data-tip='Punteggio di completezza del profilo AI. ≥80 ottimizzato, 60-79 da migliorare, <60 incompleto.'>?</span></div>
                             <div style="font-size:32px;font-weight:800;line-height:1;color:#171b33">${cs}/100</div>
-                            <div style="font-size:13px;font-weight:600;color:${cs>=80?'#009bb9':'#d82d6b'};margin-top:6px">${cs>=80?'ottimizzato':cs>=60?'da migliorare':'incompleto'}</div>
+                            <div style="font-size:13px;font-weight:600;color:#d82d6b;margin-top:6px">${cs>=80?'ottimizzato':cs>=60?'da migliorare':'incompleto'}</div>
                         </div>
                         <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:16px 18px">
                             <div style="font-size:11px;font-weight:500;color:#4a4a6a;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;display:flex;align-items:center;gap:4px">CAMPI TOTALI <span class='tip-q' data-tip='Numero totale di campi fondamentali del profilo AI considerati per il punteggio di completezza.'>?</span></div>
                             <div style="font-size:32px;font-weight:800;line-height:1;color:#171b33">12</div>
-                            <div style="font-size:13px;font-weight:600;color:#009bb9;margin-top:6px">campi fondamentali</div>
+                            <div style="font-size:13px;font-weight:600;color:#d82d6b;margin-top:6px">campi fondamentali</div>
                         </div>
                         <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:16px 18px">
-                            <div style="font-size:11px;font-weight:500;color:#4a4a6a;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;display:flex;align-items:center;gap:4px">COMPILATI <span class='tip-q' data-tip='Campi fondamentali già compilati e disponibili per i motori AI.'>?</span></div>
+                            <div style="font-size:11px;font-weight:500;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;display:flex;align-items:center;gap:4px">COMPILATI <span class='tip-q' data-tip='Campi fondamentali già compilati e disponibili per i motori AI.'>?</span></div>
                             <div style="font-size:32px;font-weight:800;line-height:1;color:#171b33">${12-checklist.length}</div>
-                            <div style="font-size:13px;font-weight:600;color:#009bb9;margin-top:6px">di 12 totali</div>
+                            <div style="font-size:13px;font-weight:600;color:#d82d6b;margin-top:6px">di 12 totali</div>
                         </div>
                         <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:16px 18px">
                             <div style="font-size:11px;font-weight:500;color:#4a4a6a;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;display:flex;align-items:center;gap:4px">MANCANTI <span class='tip-q' data-tip='Campi fondamentali ancora vuoti — completali nel Profilo Hotel per migliorare la visibilità AI.'>?</span></div>
                             <div style="font-size:32px;font-weight:800;line-height:1;color:#171b33">${checklist.length}</div>
-                            <div style="font-size:13px;font-weight:600;color:${checklist.length>0?'#d82d6b':'#009bb9'};margin-top:6px">${checklist.length>0?'da completare':'tutto compilato'}</div>
+                            <div style="font-size:13px;font-weight:600;color:#d82d6b;margin-top:6px">${checklist.length>0?'da completare':'tutto compilato'}</div>
                         </div>
                     </div>
                     ${checklist.length ? `<div style="font-size:11px;font-weight:700;color:var(--grey);letter-spacing:.06em;margin-bottom:8px">COSA MANCA</div>${checklist.map(item=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #f4f4f8"><span style="color:#d82d6b;font-weight:800;font-size:12px">✗</span><span style="font-size:13px">${escHtml(item)}</span></div>`).join('')}` : ''}
@@ -808,22 +808,22 @@
                         <div style="background:${covPct===null?'white':covPct<80?'linear-gradient(135deg,#ffffff 0%,#fce8ef 100%)':'white'};border:1px solid ${covPct!==null&&covPct<80?'#ead0dc':'#e4e4ec'};border-radius:8px;padding:16px 18px">
                             <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:4px">COVERAGE FAQ <span class='tip-q' data-tip='Percentuale di domande degli ospiti coperta dalle FAQ pubblicate. ≥80% buona copertura.'>?</span></div>
                             <div style="font-size:32px;font-weight:800;line-height:1;color:${covPct===null?'#ead0dc':'#171b33'}">${covPct!==null?covPct+'%':'—'}</div>
-                            <div style="font-size:11px;font-weight:600;color:${covPct===null?'#ead0dc':covPct>=80?'#009bb9':'#d82d6b'};margin-top:6px">${covPct===null?'nessun dato':covPct>=80?'buona copertura':'da migliorare'}</div>
+                            <div style="font-size:11px;font-weight:600;color:${covPct===null?'#ead0dc':'#d82d6b'};margin-top:6px">${covPct===null?'nessun dato':covPct>=80?'buona copertura':'da migliorare'}</div>
                         </div>
                         <div style="background:${missingAnswers>0?'linear-gradient(135deg,#ffffff 0%,#fce8ef 100%)':'white'};border:1px solid ${missingAnswers>0?'#ead0dc':'#e4e4ec'};border-radius:8px;padding:16px 18px">
                             <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:4px">SENZA RISPOSTA <span class='tip-q' data-tip='Numero di domande degli ospiti senza una risposta FAQ disponibile sul sito.'>?</span></div>
                             <div style="font-size:32px;font-weight:800;line-height:1;color:#171b33">${missingAnswers!==null?missingAnswers:'—'}</div>
-                            <div style="font-size:11px;font-weight:600;color:${missingAnswers>0?'#d82d6b':'#009bb9'};margin-top:6px">${missingAnswers>0?'domande mancanti':'tutto coperto'}</div>
+                            <div style="font-size:11px;font-weight:600;color:#d82d6b;margin-top:6px">${missingAnswers>0?'domande mancanti':'tutto coperto'}</div>
                         </div>
                         <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:16px 18px">
                             <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:4px">ULTIMA FAQ <span class='tip-q' data-tip='Giorni dall ultima pubblicazione o aggiornamento di FAQ nel plugin. >180 giorni → aggiornare.'>?</span></div>
                             <div style="font-size:32px;font-weight:800;line-height:1;color:${daysFaq===null?'#ead0dc':'#171b33'}">${daysFaq!==null?daysFaq:'—'}</div>
-                            <div style="font-size:11px;font-weight:600;color:${daysFaq===null?'#ead0dc':daysFaq>180?'#d82d6b':'#009bb9'};margin-top:6px">${daysFaq!==null?'giorni fa':'nessun dato'}</div>
+                            <div style="font-size:11px;font-weight:600;color:${daysFaq===null?'#ead0dc':'#d82d6b'};margin-top:6px">${daysFaq!==null?'giorni fa':'nessun dato'}</div>
                         </div>
                         <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:16px 18px">
                             <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:4px">ULTIMO SCHEMA <span class='tip-q' data-tip='Giorni dall ultimo aggiornamento Schema.org (LodgingBusiness/HotelSchema). >180 giorni → aggiornare.'>?</span></div>
                             <div style="font-size:32px;font-weight:800;line-height:1;color:${daysSchema===null?'#ead0dc':'#171b33'}">${daysSchema!==null?daysSchema:'—'}</div>
-                            <div style="font-size:11px;font-weight:600;color:${daysSchema===null?'#ead0dc':daysSchema>180?'#d82d6b':'#009bb9'};margin-top:6px">${daysSchema!==null?'giorni fa':'nessun dato'}</div>
+                            <div style="font-size:11px;font-weight:600;color:${daysSchema===null?'#ead0dc':'#d82d6b'};margin-top:6px">${daysSchema!==null?'giorni fa':'nessun dato'}</div>
                         </div>
                     </div>
                     ${covPct!==null&&freshAlerts.length?`<div style="margin-bottom:12px">${freshAlerts.map(a=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f4f4f8"><span style="color:#d82d6b;font-weight:800;font-size:12px">⚠</span><span style="font-size:13px">${escHtml(a)}</span></div>`).join('')}</div>`:''}
@@ -839,26 +839,26 @@
                         <div style="background:${qMapPct===null?'white':qMapPct<70?'linear-gradient(135deg,#ffffff 0%,#fce8ef 100%)':'white'};border:1px solid ${qMapPct!==null&&qMapPct<70?'#ead0dc':'#e4e4ec'};border-radius:8px;padding:16px 18px">
                             <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:4px">COPERTURA <span class='tip-q' data-tip='Percentuale di categorie di query conversazionali degli ospiti con risposta configurata. ≥70% buona copertura.'>?</span></div>
                             <div style="font-size:32px;font-weight:800;line-height:1;color:${qMapPct===null?'#ead0dc':'#171b33'}">${qMapPct!==null?qMapPct+'%':'—'}</div>
-                            <div style="font-size:11px;font-weight:600;color:${qMapPct===null?'#ead0dc':qMapPct>=70?'#009bb9':'#d82d6b'};margin-top:6px">${qMapPct===null?'nessun dato':qMapPct>=70?'buona copertura':'da migliorare'}</div>
+                            <div style="font-size:11px;font-weight:600;color:${qMapPct===null?'#ead0dc':'#d82d6b'};margin-top:6px">${qMapPct===null?'nessun dato':qMapPct>=70?'buona copertura':'da migliorare'}</div>
                         </div>
                         <div style="background:${qUncovered>0?'linear-gradient(135deg,#ffffff 0%,#fce8ef 100%)':'white'};border:1px solid ${qUncovered>0?'#ead0dc':'#e4e4ec'};border-radius:8px;padding:16px 18px">
                             <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:4px">SENZA RISPOSTA <span class='tip-q' data-tip='Categorie di query conversazionali degli ospiti senza risposta configurata nella Mappa Query.'>?</span></div>
                             <div style="font-size:32px;font-weight:800;line-height:1;color:#171b33">${qUncovered!==null?qUncovered:'—'}</div>
-                            <div style="font-size:11px;font-weight:600;color:${qUncovered>0?'#d82d6b':'#009bb9'};margin-top:6px">${qUncovered>0?'queries mancanti':'tutto coperto'}</div>
+                            <div style="font-size:11px;font-weight:600;color:#d82d6b;margin-top:6px">${qUncovered>0?'queries mancanti':'tutto coperto'}</div>
                         </div>
                         <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:16px 18px">
                             <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:4px">QUERY TOTALI <span class='tip-q' data-tip='Numero totale di categorie di query conversazionali rilevate nel sistema Mappa Query.'>?</span></div>
                             <div style="font-size:32px;font-weight:800;line-height:1;color:#171b33">${qTotal!==null?qTotal:'—'}</div>
-                            <div style="font-size:11px;font-weight:600;color:#009bb9;margin-top:6px">${qTotal!==null?'rilevate':'nessun dato'}</div>
+                            <div style="font-size:11px;font-weight:600;color:#d82d6b;margin-top:6px">${qTotal!==null?'rilevate':'nessun dato'}</div>
                         </div>
                         <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:16px 18px">
                             <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:4px">QUERY COPERTE <span class='tip-q' data-tip='Categorie di query con risposta configurata — direttamente leggibili dai motori AI.'>?</span></div>
                             <div style="font-size:32px;font-weight:800;line-height:1;color:#171b33">${qTotal!==null&&qUncovered!==null?qTotal-qUncovered:'—'}</div>
-                            <div style="font-size:11px;font-weight:600;color:#009bb9;margin-top:6px">${qTotal!==null?'con risposta':'nessun dato'}</div>
+                            <div style="font-size:11px;font-weight:600;color:#d82d6b;margin-top:6px">${qTotal!==null?'con risposta':'nessun dato'}</div>
                         </div>
                     </div>
                     ${qMapPct !== null && qMapPct < 70 ? '<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-top:1px solid #f4f4f8;margin-top:4px"><span style="color:#d82d6b;font-weight:800;font-size:12px">⚠</span><span style="font-size:13px;color:#4b4d68">Alcune categorie di ospiti non hanno risposta — vai su <strong>Mappa Query</strong> nella sidebar per aggiungerle.</span></div>' : ''}
-                    ${qMapPct !== null && qMapPct >= 70 ? '<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-top:1px solid #f4f4f8;margin-top:4px"><span style="color:#009bb9;font-weight:800;font-size:12px">✓</span><span style="font-size:13px;color:#4b4d68">Buona copertura delle query conversazionali.</span></div>' : ''}
+                    ${qMapPct !== null && qMapPct >= 70 ? '<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-top:1px solid #f4f4f8;margin-top:4px"><span style="color:#d82d6b;font-weight:800;font-size:12px">✓</span><span style="font-size:13px;color:#4b4d68">Buona copertura delle query conversazionali.</span></div>' : ''}
                     ${qMapPct === null ? '<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-top:1px solid #f4f4f8;margin-top:4px"><span style="color:#666b84;font-size:12px">ℹ</span><span style="font-size:13px;color:#666b84">Dati non ancora disponibili — sincronizza dal plugin.</span></div>' : ''}
                 </div>
             </div>
@@ -897,10 +897,10 @@
                     <button id="btn-add-faq-admin" class="btn-update" style="margin-left:0">+ Aggiungi FAQ</button>
                 </div>
                 <div style="padding:10px 20px;border-bottom:1px solid #ececf2;display:flex;gap:6px;align-items:center;flex-wrap:wrap">
-                    <button class="faq-f-btn faq-f-active" data-f="all" style="padding:5px 14px;border-radius:20px;border:1px solid #d82d6b;background:#fce8ef;color:#d82d6b;font-size:11px;font-weight:700;cursor:pointer">Tutti</button>
-                    <button class="faq-f-btn" data-f="publish" style="padding:5px 14px;border-radius:20px;border:1px solid #e4e4ec;background:white;color:#666b84;font-size:11px;font-weight:700;cursor:pointer">Pubblicato</button>
-                    <button class="faq-f-btn" data-f="draft" style="padding:5px 14px;border-radius:20px;border:1px solid #e4e4ec;background:white;color:#666b84;font-size:11px;font-weight:700;cursor:pointer">Bozze</button>
-                    <button class="faq-f-btn" data-f="solo_ai" style="padding:5px 14px;border-radius:20px;border:1px solid #e4e4ec;background:white;color:#666b84;font-size:11px;font-weight:700;cursor:pointer">Solo AI</button>
+                    <button class="faq-f-btn faq-f-active" data-f="all" style="padding:5px 14px;border-radius:6px;border:1px solid #d82d6b;background:#fce8ef;color:#d82d6b;font-size:11px;font-weight:500;cursor:pointer">TUTTI</button>
+                    <button class="faq-f-btn" data-f="publish" style="padding:5px 14px;border-radius:6px;border:1px solid #e4e4ec;background:white;color:#4a4a6a;font-size:11px;font-weight:500;cursor:pointer">PUBBLICATO</button>
+                    <button class="faq-f-btn" data-f="draft" style="padding:5px 14px;border-radius:6px;border:1px solid #e4e4ec;background:white;color:#4a4a6a;font-size:11px;font-weight:500;cursor:pointer">BOZZE</button>
+                    <button class="faq-f-btn" data-f="solo_ai" style="padding:5px 14px;border-radius:6px;border:1px solid #e4e4ec;background:white;color:#4a4a6a;font-size:11px;font-weight:500;cursor:pointer">SOLO AI</button>
                     <input type="text" id="faq-search-input" placeholder="Cerca FAQ..." style="margin-left:auto;border:1px solid #e4e4ec;border-radius:6px;padding:6px 12px;font-size:12px;outline:none;width:220px;color:#171b33">
                 </div>
                 <div style="display:grid;grid-template-columns:1fr auto auto auto;gap:0;padding:8px 20px;background:#f7f7fb;border-bottom:1px solid #e4e4ec;font-size:10px;font-weight:700;color:#aaa;letter-spacing:.05em;text-transform:uppercase">
@@ -1042,7 +1042,7 @@
         el.querySelectorAll('.faq-f-btn').forEach(b => {
             b.addEventListener('click', () => {
                 el.querySelectorAll('.faq-f-btn').forEach(x => {
-                    x.style.background='white'; x.style.borderColor='#e4e4ec'; x.style.color='#666b84';
+                    x.style.background='white'; x.style.borderColor='#e4e4ec'; x.style.color='#4a4a6a';
                 });
                 b.style.background='#fce8ef'; b.style.borderColor='#d82d6b'; b.style.color='#d82d6b';
                 _aFaqFilter = b.dataset.f;
@@ -1820,14 +1820,14 @@
         const base = (site?.site_url || '').replace(/\/$/, '');
         const aiProfileUrl = base + '/ai-profile';
         const isActive = geo.has_ai_profile === true;
-        const statusColor = isActive ? '#009bb9' : '#d82d6b';
-        const statusBg = isActive ? '#e9f7fb' : '#fce8ef';
-        const statusBorder = isActive ? '#b3e0ea' : '#ead0dc';
+        const statusColor = '#d82d6b';
+        const statusBg = '#fce8ef';
+        const statusBorder = '#ead0dc';
         const statusLabel = isActive ? 'Attivo' : 'Non attivo';
 
         const infoCard = (label, val, note) =>
-            `<div style="background:#f7f7fb;border-radius:8px;padding:14px 16px">
-                <div style="font-size:10px;color:#aaa;font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:5px">${label}</div>
+            `<div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:14px 16px">
+                <div style="font-size:11px;color:#9ca3af;font-weight:500;letter-spacing:.05em;text-transform:uppercase;margin-bottom:5px">${label}</div>
                 <div style="font-size:14px;font-weight:700;color:#171b33">${escHtml(String(val||'—'))}</div>
                 ${note ? '<div style="font-size:11px;color:#666b84;margin-top:4px">'+escHtml(note)+'</div>' : ''}
              </div>`;
@@ -1847,9 +1847,9 @@
                     ${infoCard('Versione plugin', site?.plugin_version || '—', 'Richiesta v1.9.2+')}
                     ${infoCard('Ultimo heartbeat', site?.last_heartbeat ? timeAgo(site.last_heartbeat) : '—', '')}
                 </div>
-                ${isActive ? `<div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:#e9f7fb;border:1px solid #b3e0ea;border-radius:8px;margin-bottom:16px">
-                    <span style="color:#009bb9;font-size:14px">🔗</span>
-                    <a href="${escHtml(aiProfileUrl)}" target="_blank" style="color:#009bb9;font-weight:700;font-size:13px;text-decoration:none">${escHtml(aiProfileUrl)}</a>
+                ${isActive ? `<div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:white;border:1px solid #e4e4ec;border-radius:8px;margin-bottom:16px">
+                    <span style="color:#d82d6b;font-size:14px">🔗</span>
+                    <a href="${escHtml(aiProfileUrl)}" target="_blank" style="color:#d82d6b;font-weight:700;font-size:13px;text-decoration:none">${escHtml(aiProfileUrl)}</a>
                 </div>` : `<div style="padding:12px 16px;background:#fce8ef;border:1px solid #ead0dc;border-radius:8px;margin-bottom:16px;font-size:13px;color:#d82d6b;font-weight:600">
                     ⚠ AI Layer non attivo. Verifica che il plugin sia aggiornato alla v1.9.2+ e che l\'opzione sia abilitata in Configurazione.
                 </div>`}
@@ -1867,10 +1867,10 @@
                     {l:'Entity Authority',k:'entity_authority'},
                 ].map(({l,k})=>{
                     const v = geo[k] ?? null;
-                    return `<div style="background:${v!==null&&v<40?'linear-gradient(135deg,#ffffff 0%,#fce8ef 100%)':'#f7f7fb'};border:1px solid ${v!==null&&v<40?'#ead0dc':'#e4e4ec'};border-radius:8px;padding:14px 16px">
-                        <div style="font-size:10px;font-weight:700;color:#aaa;letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px">${l}</div>
+                    return `<div style="background:${v!==null&&v<40?'linear-gradient(135deg,#ffffff 0%,#fce8ef 100%)':'white'};border:1px solid ${v!==null&&v<40?'#ead0dc':'#e4e4ec'};border-radius:8px;padding:14px 16px">
+                        <div style="font-size:11px;font-weight:500;color:#9ca3af;letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px">${l}</div>
                         <div style="font-size:28px;font-weight:800;color:${v!==null?'#171b33':'#ead0dc'}">${v!==null?v:'—'}</div>
-                        <div style="font-size:11px;font-weight:600;color:${v===null?'#ead0dc':v>=70?'#009bb9':'#d82d6b'};margin-top:5px">${v===null?'nessun dato':v>=70?'ottimizzato':v>=40?'da migliorare':'critico'}</div>
+                        <div style="font-size:11px;font-weight:600;color:${v===null?'#ead0dc':'#d82d6b'};margin-top:5px">${v===null?'nessun dato':v>=70?'ottimizzato':v>=40?'da migliorare':'critico'}</div>
                     </div>`;
                 }).join('')}
             </div>
@@ -1965,13 +1965,13 @@
             toggl('faq_enabled','FAQ Pubbliche', cfg.faq_enabled!==false) +
             '</div><div style="padding:14px 20px;display:flex;gap:10px"><button id="btn-save-cfg-toggle" class="btn-update" style="margin-left:0">Salva abilitazioni</button></div></div>' +
 
-            cardH + chH('#009bb9','Chiavi API') +
+            cardH + chH('#d82d6b','Chiavi API') +
             '<div style="padding:0 20px">' +
             inp('gemini_key','Chiave API Google Gemini (Mappa Query → Genera risposta)', cfg.gemini_api_key?'••••••••••'+cfg.gemini_api_key.slice(-4):'','Incolla la chiave da aistudio.google.com') +
             inp('isi_token','Token ISI (sync con isi.in3pida.it)', cfg.isi_token?'••••'+cfg.isi_token.slice(-8):'','Token fornito da ISI') +
             '</div><div style="padding:14px 20px;display:flex;gap:10px"><button id="btn-save-cfg-keys" class="btn-update" style="margin-left:0">Salva chiavi</button><div id="cfg-keys-msg" style="font-size:13px;padding:8px 0"></div></div></div>' +
 
-            cardH + chH('#009bb9','Sync ISI — Visibilità AI') +
+            cardH + chH('#d82d6b','Sync ISI — Visibilità AI') +
             '<div style="padding:16px 20px">' +
             row('Ultimo sync ISI', cfg.last_isi_sync ? new Date(cfg.last_isi_sync).toLocaleString('it-IT') : '—') +
             row('Stato ultimo sync', cfg.last_isi_sync_status || '—') +
@@ -1997,7 +1997,7 @@
             if (iKey && !iKey.startsWith('•')) newCfg.isi_token = iKey;
             const hp2 = site?.hotel_profile || {};
             const { error } = await _SBq.from('isi_sites').update({ hotel_profile: { ...hp2, isi_config: newCfg } }).eq('site_id', site.site_id);
-            if (msg) { msg.style.color = error ? '#d82d6b' : '#009bb9'; msg.textContent = error ? '✗ Errore salvataggio' : '✓ Chiavi salvate'; setTimeout(()=>{ msg.textContent=''; }, 3000); }
+            if (msg) { msg.style.color = '#d82d6b'; msg.textContent = error ? '✗ Errore salvataggio' : '✓ Chiavi salvate'; setTimeout(()=>{ msg.textContent=''; }, 3000); }
             site.hotel_profile = { ...hp2, isi_config: newCfg };
         });
         document.getElementById('btn-force-isi-sync')?.addEventListener('click', () => {
