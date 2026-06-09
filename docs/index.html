@@ -22,6 +22,7 @@
         </div>
         <div class="navbar-center">
             <button class="nav-item active" id="nav-panoramica">Panoramica</button>
+            <button class="nav-item" id="nav-aggiornamenti">Aggiornamenti</button>
             <button class="nav-item" id="nav-benchmark">Benchmark</button>
             <button class="nav-item" id="nav-utenti">Utenti</button>
             <button class="nav-item" id="nav-legenda">Legenda</button>
@@ -362,7 +363,7 @@
     const _SBq = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
 
     const ALL_VIEWS = ['panoramica','siti','aggiornamenti','benchmark','utenti','sito-detail'];
-    const NAV_TABS  = ['panoramica','benchmark','utenti'];
+    const NAV_TABS  = ['panoramica','aggiornamenti','benchmark','utenti'];
     let currentTab = 'panoramica';
     let latestVersion = null;
     let allSiti = [];
