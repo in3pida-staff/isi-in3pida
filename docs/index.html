@@ -1005,7 +1005,6 @@
                 else { btn.textContent = '✗ Errore ' + r.status; setTimeout(() => { btn.textContent = resetText; btn.disabled = false; }, 3000); }
             } catch(e) { btn.textContent = '✗ Non raggiungibile'; setTimeout(() => { btn.textContent = resetText; btn.disabled = false; }, 3000); }
         };
-        document.getElementById('btn-force-sync').addEventListener('click', () => doSync(document.getElementById('btn-force-sync'), '🔄 Sincronizza ora'));
         document.getElementById('btn-stato-sync-all').addEventListener('click', () => doSync(document.getElementById('btn-stato-sync-all'), 'SINCRONIZZA'));
 
         // ── sidebar navigation
