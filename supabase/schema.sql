@@ -88,9 +88,46 @@ CREATE INDEX IF NOT EXISTS idx_chunk_emb_site ON isi_chunk_embeddings(site_id);
 CREATE INDEX IF NOT EXISTS idx_bench_tests_site ON isi_benchmark_tests(site_id);
 CREATE INDEX IF NOT EXISTS idx_bench_runs_site ON isi_benchmark_runs(site_id, run_at DESC);
 
-ALTER TABLE isi_sites DISABLE ROW LEVEL SECURITY;
-ALTER TABLE isi_pse_queries DISABLE ROW LEVEL SECURITY;
-ALTER TABLE isi_plugin_versions DISABLE ROW LEVEL SECURITY;
-ALTER TABLE isi_chunk_embeddings DISABLE ROW LEVEL SECURITY;
-ALTER TABLE isi_benchmark_tests DISABLE ROW LEVEL SECURITY;
-ALTER TABLE isi_benchmark_runs DISABLE ROW LEVEL SECURITY;
+-- ============================================================
+-- ROW LEVEL SECURITY
+-- ============================================================
+ALTER TABLE isi_sites ENABLE ROW LEVEL SECURITY;
+ALTER TABLE isi_pse_queries ENABLE ROW LEVEL SECURITY;
+ALTER TABLE isi_plugin_versions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE isi_chunk_embeddings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE isi_benchmark_tests ENABLE ROW LEVEL SECURITY;
+ALTER TABLE isi_benchmark_runs ENABLE ROW LEVEL SECURITY;
+
+-- isi_plugin_versions: lettura pubblica (il plugin WP verifica aggiornamenti senza auth)
+CREATE POLICY "plugin_versions_public_read" ON isi_plugin_versions
+  FOR SELECT USING (true);
+
+-- isi_sites: accesso completo per utenti autenticati (dashboard ISI)
+CREATE POLICY "sites_authenticated_all" ON isi_sites
+  FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+-- isi_sites: il plugin WP (anon key) può inserire e aggiornare heartbeat/dati
+CREATE POLICY "sites_anon_insert" ON isi_sites
+  FOR INSERT TO anon WITH CHECK (true);
+CREATE POLICY "sites_anon_update" ON isi_sites
+  FOR UPDATE TO anon USING (true) WITH CHECK (true);
+
+-- isi_pse_queries: accesso completo per utenti autenticati
+CREATE POLICY "pse_authenticated_all" ON isi_pse_queries
+  FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+-- isi_pse_queries: il plugin WP (anon) può inserire query PSE
+CREATE POLICY "pse_anon_insert" ON isi_pse_queries
+  FOR INSERT TO anon WITH CHECK (true);
+
+-- isi_chunk_embeddings: solo utenti autenticati
+CREATE POLICY "chunks_authenticated_all" ON isi_chunk_embeddings
+  FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+-- isi_benchmark_tests: solo utenti autenticati
+CREATE POLICY "bench_tests_authenticated_all" ON isi_benchmark_tests
+  FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+-- isi_benchmark_runs: solo utenti autenticati
+CREATE POLICY "bench_runs_authenticated_all" ON isi_benchmark_runs
+  FOR ALL TO authenticated USING (true) WITH CHECK (true);
