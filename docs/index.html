@@ -162,7 +162,7 @@
             </div>
             <div class="info-card-body">
                 <div style="font-size:11px;font-weight:700;color:var(--grey);letter-spacing:.06em;margin-bottom:12px">STATO SITO</div>
-                <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:10px"><span style="width:12px;height:12px;border-radius:50%;background:var(--cyan);box-shadow:0 0 0 4px rgba(0,155,185,.15);flex-shrink:0;margin-top:2px;display:inline-block"></span><div style="font-size:13px"><strong>Attivo</strong> — segnale ricevuto nelle ultime 25 ore</div></div>
+                <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:10px"><span style="width:12px;height:12px;border-radius:50%;background:var(--magenta);box-shadow:0 0 0 4px rgba(216,45,107,.15);flex-shrink:0;margin-top:2px;display:inline-block"></span><div style="font-size:13px"><strong>Attivo</strong> — segnale ricevuto nelle ultime 25 ore</div></div>
                 <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:10px"><span style="width:12px;height:12px;border-radius:50%;background:var(--magenta);box-shadow:0 0 0 4px rgba(216,45,107,.15);flex-shrink:0;margin-top:2px;display:inline-block"></span><div style="font-size:13px"><strong>In attesa</strong> — nessun segnale da 25–48 ore</div></div>
                 <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:20px"><span style="width:12px;height:12px;border-radius:50%;background:var(--red);box-shadow:0 0 0 4px rgba(239,68,68,.15);flex-shrink:0;margin-top:2px;display:inline-block"></span><div style="font-size:13px"><strong>Nessun segnale</strong> — nessun segnale da più di 48 ore</div></div>
 
@@ -170,7 +170,7 @@
 
                 <div style="font-size:11px;font-weight:700;color:var(--grey);letter-spacing:.06em;margin-bottom:12px">PUNTEGGI GEO</div>
                 <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px"><span style="background:var(--green-bg);color:var(--green-text);font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap">≥ 70</span><div style="font-size:13px"><strong>Ottimizzato</strong> — contenuto ben strutturato per AI</div></div>
-                <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px"><span style="background:rgba(0,155,185,0.12);color:var(--cyan);font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap">40–69</span><div style="font-size:13px"><strong>Da migliorare</strong> — ottimizzazione parziale</div></div>
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px"><span style="background:rgba(216,45,107,0.12);color:var(--magenta);font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap">40–69</span><div style="font-size:13px"><strong>Da migliorare</strong> — ottimizzazione parziale</div></div>
                 <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px"><span style="background:var(--red-bg);color:var(--red-text);font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap">&lt; 40</span><div style="font-size:13px"><strong>Critico</strong> — contenuto non ottimizzato per AI</div></div>
                 <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px"><span style="background:var(--grey-bg);color:var(--grey-text);font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap">N/D</span><div style="font-size:13px"><strong>Nessun dato</strong> — punteggio non ancora calcolato</div></div>
 
@@ -293,7 +293,7 @@
                             </select>
                         </div>
                         <button class="btn-update" id="btn-bm-setup" onclick="runBenchmarkSetup()" style="margin-left:0;white-space:nowrap">Setup Benchmark</button>
-                        <button class="btn-update" id="btn-bm-run" onclick="runBenchmarkRun()" style="margin-left:0;white-space:nowrap;background:var(--cyan)">Esegui Test</button>
+                        <button class="btn-update" id="btn-bm-run" onclick="runBenchmarkRun()" style="margin-left:0;white-space:nowrap">Esegui Test</button>
                     </div>
                     <div id="bm-status" style="margin-top:14px;font-size:13px;display:none"></div>
                     <div style="margin-top:10px;font-size:12px;color:var(--grey)">
@@ -308,17 +308,17 @@
                     <div class="card-header"><div class="card-title">Risultati ultima esecuzione</div><div id="bm-run-meta" style="font-size:12px;color:var(--grey)"></div></div>
                     <div style="padding:20px 26px">
                         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px">
-                            <div style="background:var(--light);border-radius:12px;padding:18px;text-align:center">
+                            <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:18px;text-align:center">
                                 <div id="bm-p1" style="font-size:36px;font-weight:800;color:var(--magenta)">—</div>
                                 <div style="font-size:12px;font-weight:600;color:var(--grey);margin-top:4px">Precision@1</div>
                                 <div style="font-size:11px;color:var(--grey);margin-top:2px">chunk corretto al 1° posto</div>
                             </div>
-                            <div style="background:var(--light);border-radius:12px;padding:18px;text-align:center">
-                                <div id="bm-p3" style="font-size:36px;font-weight:800;color:var(--cyan)">—</div>
+                            <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:18px;text-align:center">
+                                <div id="bm-p3" style="font-size:36px;font-weight:800;color:var(--magenta)">—</div>
                                 <div style="font-size:12px;font-weight:600;color:var(--grey);margin-top:4px">Precision@3</div>
                                 <div style="font-size:11px;color:var(--grey);margin-top:2px">chunk corretto nei top 3</div>
                             </div>
-                            <div style="background:var(--light);border-radius:12px;padding:18px;text-align:center">
+                            <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:18px;text-align:center">
                                 <div id="bm-mrr" style="font-size:36px;font-weight:800;color:#7c3aed">—</div>
                                 <div style="font-size:12px;font-weight:600;color:var(--grey);margin-top:4px">MRR</div>
                                 <div style="font-size:11px;color:var(--grey);margin-top:2px">Mean Reciprocal Rank</div>
@@ -565,20 +565,20 @@
         data.forEach(site => {
             const hrs = site.last_heartbeat ? (now - new Date(site.last_heartbeat))/3600000 : 9999;
             const hbTesto  = site.last_heartbeat ? timeAgo(site.last_heartbeat) : 'Mai';
-            const hbColor  = hrs<25?'#009bb9':hrs<48?'#d82d6b':'#b00020';
+            const hbColor  = hrs<25?'#d82d6b':hrs<48?'#d82d6b':'#b00020';
             const geo = site.geo_scores || {};
             const rawFallback = [geo.chunk_avg, geo.citation_avg].filter(s=>s!=null);
             const geoAvg = geo.completeness_score != null ? geo.completeness_score : (geo.ai_readiness != null ? geo.ai_readiness : (rawFallback.length ? Math.round(rawFallback.reduce((a,b)=>a+b,0)/rawFallback.length) : null));
-            const geoAvgBg = geoAvg===null?'#fbf4f7':geoAvg>=70?'#e9f7fb':geoAvg>=40?'#fbf4f7':'#fce8ef';
-            const geoAvgTc = geoAvg===null?'#666b84':geoAvg>=70?'#009bb9':geoAvg>=40?'#d82d6b':'#b00020';
+            const geoAvgBg = geoAvg===null?'#fbf4f7':geoAvg>=70?'#fbf4f7':geoAvg>=40?'#fbf4f7':'#fce8ef';
+            const geoAvgTc = geoAvg===null?'#666b84':geoAvg>=70?'#d82d6b':geoAvg>=40?'#d82d6b':'#b00020';
             const geoHtml = geoAvg!==null ? `<span style="background:${geoAvgBg};color:${geoAvgTc};font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap">${geoAvg}/100</span>` : `<span style="color:#666b84;font-size:12px">—</span>`;
             const covPct = geo.coverage_pct ?? null;
             const covHtml = covPct !== null
-                ? `<span style="background:${covPct>=80?'#e9f7fb':covPct>=50?'#fbf4f7':'#fce8ef'};color:${covPct>=80?'#009bb9':covPct>=50?'#d82d6b':'#b00020'};font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap">${covPct}%</span>`
+                ? `<span style="background:${covPct>=80?'#fbf4f7':covPct>=50?'#fbf4f7':'#fce8ef'};color:${covPct>=80?'#d82d6b':covPct>=50?'#d82d6b':'#b00020'};font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap">${covPct}%</span>`
                 : `<span style="color:#666b84;font-size:12px">—</span>`;
             const cs = geo.completeness_score ?? null;
             const csHtml = cs !== null
-                ? `<span style="background:${cs>=70?'#e9f7fb':cs>=40?'#fbf4f7':'#fce8ef'};color:${cs>=70?'#009bb9':cs>=40?'#d82d6b':'#b00020'};font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap">${cs}/100</span>`
+                ? `<span style="background:${cs>=70?'#fbf4f7':cs>=40?'#fbf4f7':'#fce8ef'};color:${cs>=70?'#d82d6b':cs>=40?'#d82d6b':'#b00020'};font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap">${cs}/100</span>`
                 : `<span style="color:#666b84;font-size:12px">—</span>`;
             const isOld = latestVersion && site.plugin_version && semverGt(latestVersion.version, site.plugin_version);
             const verHtml = `<span style="font-weight:600">${escHtml(site.plugin_version||'—')}</span>${isOld?` <span style="background:rgba(216,45,107,0.08);color:var(--magenta);font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;vertical-align:middle">aggiornare</span>`:''}`;
@@ -646,13 +646,13 @@
         const isOld = latestVersion && site?.plugin_version && semverGt(latestVersion.version, site.plugin_version);
         const statoGen = (hrs<25&&!isOld&&(geoAvg===null||geoAvg>=40))?'ok':(hrs>48?'err':'warn');
         const sf = (s,l,d) => {
-            const c = s==='ok'?'var(--cyan)':s==='warn'?'var(--magenta)':s==='err'?'var(--red)':'var(--grey-dot)';
+            const c = s==='ok'?'var(--magenta)':s==='warn'?'var(--magenta)':s==='err'?'var(--red)':'var(--grey-dot)';
             return `<div style="display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid #f4f4f8"><div style="display:flex;align-items:center;gap:10px"><span style="width:10px;height:10px;border-radius:50%;background:${c};flex-shrink:0;display:inline-block"></span><span style="font-size:13px;font-weight:600;color:#4b4d68">${l}</span></div><span style="font-size:12px;color:#888">${d}</span></div>`;
         };
         const regIl = site?.created_at ? new Date(site.created_at).toLocaleDateString('it-IT',{day:'2-digit',month:'long',year:'numeric'}) : '—';
-        const geoC2 = v => v===null?'#ead0dc':v>=70?'#009bb9':v>=40?'#009bb9':'#d82d6b';
-        const geoBg = v => v===null?'#fbf4f7':v>=70?'#e9f7fb':v>=40?'rgba(0,155,185,0.12)':'#fce8ef';
-        const geoBc = v => v===null?'#666b84':v>=70?'#009bb9':v>=40?'var(--cyan)':'#d82d6b';
+        const geoC2 = v => v===null?'#ead0dc':v>=70?'#d82d6b':v>=40?'#d82d6b':'#d82d6b';
+        const geoBg = v => v===null?'#fbf4f7':v>=70?'#fbf4f7':v>=40?'rgba(216,45,107,0.12)':'#fce8ef';
+        const geoBc = v => v===null?'#666b84':v>=70?'#d82d6b':v>=40?'var(--magenta)':'#d82d6b';
         const geoTips = {ai_readiness:'Prontezza complessiva del sito per essere letto e citato dai sistemi AI.',answer_extraction:'Capacità del sito di fornire risposte dirette ed estraibili dai motori AI.',quality_safety:'Qualità e sicurezza dei contenuti — testo chiaro, non ambiguo, privo di contenuti problematici.',ai_visibility:'Visibilità stimata del sito sui principali sistemi AI come ChatGPT, Perplexity ecc.',entity_authority:"Autorevolezza delle entità semantiche — quanto il sito è riconosciuto come fonte affidabile.",chunk_avg:'Media della citabilità dei singoli blocchi di contenuto dal Chunk Engine.',citation_avg:'Media del punteggio Citation Engine — probabilità che il sito venga citato come fonte.'};
         const _noColorKeys = new Set(['entity_authority','chunk_avg','citation_avg']);
         const geoRows = [{k:'ai_readiness',l:'AI Readiness'},{k:'answer_extraction',l:'Answer Extraction'},{k:'quality_safety',l:'Quality Safety'},{k:'ai_visibility',l:'AI Visibility'},{k:'entity_authority',l:'Entity Authority'},{k:'chunk_avg',l:'Chunk Citation'},{k:'citation_avg',l:'Citation Engine'}].map(({k,l})=>{const v=geo[k]??null;const vc=v===null?'#ead0dc':'#d82d6b';const st=v===null?'nessun dato':v>=70?'ottimizzato':v>=40?'da migliorare':'critico';return `<div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:16px 18px"><div style="font-size:11px;font-weight:500;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;display:flex;align-items:center;gap:4px">${l} <span class='tip-q' data-tip='${geoTips[k]}'>?</span></div><div style="font-size:32px;font-weight:800;line-height:1;color:${v!==null?'#171b33':'#ead0dc'}">${v!==null?v:'—'}</div><div style="font-size:13px;font-weight:600;color:${vc};margin-top:6px">${st}</div></div>`;}).join('');
@@ -746,7 +746,7 @@
                     <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Informazioni sito</div></div></div>
                     <div style="padding:14px 16px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
                         <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:14px 16px"><div style="font-size:11px;color:#4a4a6a;font-weight:500;letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px">Sito</div><div style="font-size:16px;font-weight:700;color:#171b33">${escHtml(site?.site_name||'—')}</div></div>
-                        <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:14px 16px"><div style="font-size:11px;color:#4a4a6a;font-weight:500;letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px">URL</div><div style="font-size:12px;font-weight:500"><a href="${escHtml(site?.site_url||'')}" target="_blank" style="color:var(--cyan);text-decoration:none">${escHtml(site?.site_url||'—')}</a></div></div>
+                        <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:14px 16px"><div style="font-size:11px;color:#4a4a6a;font-weight:500;letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px">URL</div><div style="font-size:12px;font-weight:500"><a href="${escHtml(site?.site_url||'')}" target="_blank" style="color:var(--magenta);text-decoration:none">${escHtml(site?.site_url||'—')}</a></div></div>
                         <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:14px 16px"><div style="font-size:11px;color:#4a4a6a;font-weight:500;letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px">Versione plugin</div><div style="font-size:16px;font-weight:700;color:#171b33">${escHtml(site?.plugin_version||'—')}</div></div>
                         <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:14px 16px"><div style="font-size:11px;color:#4a4a6a;font-weight:500;letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px">WordPress</div><div style="font-size:16px;font-weight:700;color:#171b33">${escHtml(site?.wp_version||'—')}</div></div>
                         <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:14px 16px"><div style="font-size:11px;color:#4a4a6a;font-weight:500;letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px">PHP</div><div style="font-size:16px;font-weight:700;color:#171b33">${escHtml(site?.php_version||'—')}</div></div>
@@ -876,9 +876,9 @@
                         const cost=(pseData||[]).reduce((a,r)=>a+(parseFloat(r.cost_usd)||0),0);
                         const bx=(l,v,sub,vc)=>'<div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:16px 18px"><div style="font-size:11px;color:#4a4a6a;font-weight:500;letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px">'+l+'</div><div style="font-size:24px;font-weight:800;color:#171b33;line-height:1">'+v+'</div><div style="font-size:13px;font-weight:600;color:'+vc+';margin-top:5px">'+sub+'</div></div>';
                         return '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px">'+
-                            bx('QUERY TOTALI',tot,'eseguite','#009bb9')+
-                            bx('CITAZIONI',cited,'trovate','#009bb9')+
-                            bx('TASSO CITAZ.',pct!==null?pct+'%':'—',pct!==null?(pct>=50?'buona visibilità':'da migliorare'):'nessun dato',pct!==null?(pct>=50?'#009bb9':'#d82d6b'):'#ead0dc')+
+                            bx('QUERY TOTALI',tot,'eseguite','#d82d6b')+
+                            bx('CITAZIONI',cited,'trovate','#d82d6b')+
+                            bx('TASSO CITAZ.',pct!==null?pct+'%':'—',pct!==null?(pct>=50?'buona visibilità':'da migliorare'):'nessun dato',pct!==null?(pct>=50?'#d82d6b':'#d82d6b'):'#ead0dc')+
                             bx('COSTO TOT.','€'+cost.toFixed(4),'speso','#666b84')+
                         '</div>';
                     })()}
@@ -921,7 +921,7 @@
                 </div>
                 <div id="hotel-profile-view" style="padding:16px 20px"></div>
                 <div id="hotel-profile-edit" style="display:none;padding:16px 20px">
-                    <div style="background:#e9f7fb;border:1px solid #b3e0ea;border-radius:8px;padding:12px 16px;font-size:13px;color:#009bb9;font-weight:600;margin-bottom:20px;line-height:1.5">ℹ️ I dati salvati qui restano attivi finché il plugin non invia un nuovo sync.</div>
+                    <div style="background:#fbf4f7;border:1px solid #e4e4ec;border-radius:8px;padding:12px 16px;font-size:13px;color:#d82d6b;font-weight:600;margin-bottom:20px;line-height:1.5">ℹ️ I dati salvati qui restano attivi finché il plugin non invia un nuovo sync.</div>
                     <div id="hotel-profile-form"></div>
                     <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;align-items:center">
                         <button id="btn-save-hotel-profile" class="btn-update" style="margin-left:0">Salva profilo</button>
@@ -1171,7 +1171,7 @@
         if (!badge) return;
         const hasData = p && (p.nome_hotel || p.nome || p.tipo_struttura);
         badge.innerHTML = hasData
-            ? '<span style="color:#009bb9;font-weight:700">✓ Dati manuali</span>'
+            ? '<span style="color:#d82d6b;font-weight:700">✓ Dati manuali</span>'
             : '<span style="color:#666b84">Nessun dato — compila il form</span>';
     }
 
@@ -1207,9 +1207,9 @@
         let html = '<div style="border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px">' +
             '<div style="display:flex;align-items:stretch">' +
             statCell(stelle || '—', 'STELLE', '#d82d6b') +
-            statCell(tipo || '—', 'TIPO', '#009bb9') +
-            statCell(cin || '—', 'CHECK-IN', '#009bb9') +
-            statCell(cout || '—', 'CHECK-OUT', '#009bb9') +
+            statCell(tipo || '—', 'TIPO', '#d82d6b') +
+            statCell(cin || '—', 'CHECK-IN', '#d82d6b') +
+            statCell(cout || '—', 'CHECK-OUT', '#d82d6b') +
             `<div style="flex:1;padding:20px 16px;background:#fbf4f7">
                 <div style="font-size:20px;font-weight:800;color:#171b33;margin-bottom:4px">${escHtml(nome)}</div>
                 ${citta ? `<div style="font-size:13px;color:var(--grey);font-weight:500">${escHtml(citta)}</div>` : ''}
@@ -1237,7 +1237,7 @@
                 '</div></div>';
         }
         const socials = [['Facebook',p.facebook_url],['Instagram',p.instagram_url],['TripAdvisor',p.tripadvisor_url],['Google Business',p.google_business_url]].filter(([,v])=>v);
-        if (socials.length) html += '<div style="margin-top:14px;display:flex;flex-wrap:wrap;gap:8px">' + socials.map(([l,u])=>`<a href="${escHtml(u)}" target="_blank" style="font-size:11px;font-weight:700;color:#009bb9;padding:4px 12px;border:1px solid #b3e0ea;border-radius:20px;text-decoration:none">${escHtml(l)}</a>`).join('') + '</div>';
+        if (socials.length) html += '<div style="margin-top:14px;display:flex;flex-wrap:wrap;gap:8px">' + socials.map(([l,u])=>`<a href="${escHtml(u)}" target="_blank" style="font-size:11px;font-weight:700;color:#d82d6b;padding:4px 12px;border:1px solid #e4e4ec;border-radius:20px;text-decoration:none">${escHtml(l)}</a>`).join('') + '</div>';
         el.innerHTML = html;
     }
 
@@ -1394,7 +1394,7 @@
             msg.style.display = 'block'; msg.style.color = '#b00020';
             msg.textContent = 'Errore: ' + error.message;
         } else {
-            msg.style.display = 'block'; msg.style.color = '#009bb9';
+            msg.style.display = 'block'; msg.style.color = '#d82d6b';
             msg.textContent = '✓ Profilo salvato.';
             renderHotelProfileView(profile);
             setTimeout(() => { toggleHotelProfileEdit(false); msg.style.display = 'none'; }, 1800);
@@ -1450,7 +1450,7 @@
             });
             const d = await r.json().catch(() => ({}));
             if (r.ok && d.ok) {
-                msg.style.display = 'block'; msg.style.color = '#009bb9';
+                msg.style.display = 'block'; msg.style.color = '#d82d6b';
                 msg.textContent = '✓ Salvato sul plugin. Sync Supabase in corso...';
                 renderSchemaView(schema);
                 fetch(pluginBase + '/wp-json/in3pida/v1/force-heartbeat', { method:'POST', headers:{'Content-Type':'application/json'} }).catch(()=>{});
@@ -1569,7 +1569,7 @@
         }
         const fmt = d => { if (!d) return '—'; const dt = new Date(d); return dt.toLocaleDateString('it-IT',{day:'2-digit',month:'short',year:'numeric'})+'\n'+dt.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'}); };
         el.innerHTML = items.map((f, i) => {
-            const pub = f.status === 'draft' ? '<span style="background:#fbf4f7;color:#d82d6b;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px">Bozza</span>' : '<span style="background:#e9f7fb;color:#009bb9;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px">Pubblicato</span>';
+            const pub = f.status === 'draft' ? '<span style="background:#fbf4f7;color:#d82d6b;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px">Bozza</span>' : '<span style="background:#fbf4f7;color:#d82d6b;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px">Pubblicato</span>';
             const ai  = f.solo_ai ? '<span style="background:#fce8ef;color:#d82d6b;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:4px">Solo AI</span>' : '';
             return `<div style="display:grid;grid-template-columns:1fr auto auto auto;gap:0;align-items:center;padding:12px 20px;border-bottom:1px solid #f4f4f8">
                 <div style="min-width:0">
@@ -1689,7 +1689,7 @@
             data: {
                 labels,
                 datasets: [
-                    { label:'Query totali', data:days.map(d=>counts[d]), backgroundColor:'rgba(0,155,185,0.18)', borderColor:'#009bb9', borderWidth:1.5, borderRadius:3 },
+                    { label:'Query totali', data:days.map(d=>counts[d]), backgroundColor:'rgba(216,45,107,0.18)', borderColor:'#d82d6b', borderWidth:1.5, borderRadius:3 },
                     { label:'Citazioni', data:days.map(d=>cited[d]), backgroundColor:'rgba(216,45,107,0.18)', borderColor:'#d82d6b', borderWidth:1.5, borderRadius:3 },
                 ]
             },
@@ -1714,11 +1714,11 @@
         if (donutCtx && items.length > 0) {
             new Chart(donutCtx, {
                 type: 'doughnut',
-                data: { labels:['Citato','Non citato'], datasets:[{ data:[cited,notCited], backgroundColor:['#009bb9','#ead0dc'], borderWidth:0 }] },
+                data: { labels:['Citato','Non citato'], datasets:[{ data:[cited,notCited], backgroundColor:['#d82d6b','#ead0dc'], borderWidth:0 }] },
                 options: { cutout:'70%', plugins:{ legend:{ display:false } } }
             });
             document.getElementById('pse-donut-legend').innerHTML =
-                '<span style="color:#009bb9;font-weight:700">'+cited+' citazioni</span> su '+items.length+' query';
+                '<span style="color:#d82d6b;font-weight:700">'+cited+' citazioni</span> su '+items.length+' query';
         } else if (donutCtx) {
             donutCtx.parentElement.innerHTML = '<div style="color:#aaa;font-size:13px;text-align:center">Nessuna query PSE registrata.</div>';
         }
@@ -1729,7 +1729,7 @@
             items.forEach(r => { const k = (r.created_at||'').slice(0,10); if (k in days) days[k]++; });
             new Chart(barCtx, {
                 type: 'bar',
-                data: { labels: Object.keys(days).map(d=>d.slice(5)), datasets:[{ data:Object.values(days), backgroundColor:'#b3e0ea', borderRadius:4 }] },
+                data: { labels: Object.keys(days).map(d=>d.slice(5)), datasets:[{ data:Object.values(days), backgroundColor:'#e4e4ec', borderRadius:4 }] },
                 options: { plugins:{ legend:{ display:false } }, scales:{ x:{ grid:{ display:false }, ticks:{ maxTicksLimit:8, color:'#aaa', font:{ size:10 } } }, y:{ beginAtZero:true, grid:{ color:'#f0f0f4' }, ticks:{ stepSize:1, color:'#aaa', font:{ size:10 } } } } }
             });
         }
@@ -1772,7 +1772,7 @@
             const answer = entry.answer || entry.risposta || '';
             const covered = entry.covered ?? !!answer;
             const badge = covered
-                ? '<span style="background:#e9f7fb;color:#009bb9;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px">Coperta</span>'
+                ? '<span style="background:#fbf4f7;color:#d82d6b;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px">Coperta</span>'
                 : '<span style="background:#fce8ef;color:#d82d6b;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px">Mancante</span>';
             return `<div style="padding:16px 20px;border-bottom:1px solid #f4f4f8">
                 <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
@@ -1804,7 +1804,7 @@
         const qm = fd.query_map || fd.mappa_query || {};
         qm[cat] = { ...(qm[cat]||{}), answer, covered: !!answer };
         const { error } = await _SBq.from('isi_sites').update({ faq_data: { ...fd, query_map: qm } }).eq('site_id', siteId);
-        el.style.borderColor = error ? '#d82d6b' : '#009bb9';
+        el.style.borderColor = error ? '#d82d6b' : '#d82d6b';
         setTimeout(() => { el.style.borderColor = '#e4e4ec'; }, 2000);
     };
 
@@ -1821,8 +1821,8 @@
         const aiProfileUrl = base + '/ai-profile';
         const isActive = geo.has_ai_profile === true;
         const statusColor = '#d82d6b';
-        const statusBg = '#fce8ef';
-        const statusBorder = '#ead0dc';
+        const statusBg = 'white';
+        const statusBorder = '#e4e4ec';
         const statusLabel = isActive ? 'Attivo' : 'Non attivo';
 
         const infoCard = (label, val, note) =>
@@ -1889,7 +1889,7 @@
                     {label:'Schema.org compilato', ok: (site?.schema_data?.name||site?.hotel_profile?.nome_hotel) != null},
                     {label:'Profilo hotel compilato', ok: !!(site?.hotel_profile?.nome_hotel||site?.hotel_profile?.nome)},
                 ].map(({label,ok})=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f4f4f8">
-                    <span style="color:${ok?'#009bb9':'#d82d6b'};font-size:14px;font-weight:800">${ok?'✓':'✗'}</span>
+                    <span style="color:${ok?'#d82d6b':'#d82d6b'};font-size:14px;font-weight:800">${ok?'✓':'✗'}</span>
                     <span style="font-size:13px;color:${ok?'#35364f':'#4b4d68'}">${escHtml(label)}</span>
                 </div>`).join('')}
             </div>
@@ -2410,7 +2410,7 @@
     }
 
     function renderBenchmarkResults(summary, results) {
-        const colorP = v => v >= 80 ? 'var(--green-text)' : v >= 50 ? 'var(--cyan)' : 'var(--magenta)';
+        const colorP = v => v >= 80 ? 'var(--green-text)' : v >= 50 ? 'var(--magenta)' : 'var(--magenta)';
         document.getElementById('bm-p1').textContent = summary.precision_1 + '%';
         document.getElementById('bm-p1').style.color = colorP(summary.precision_1);
         document.getElementById('bm-p3').textContent = summary.precision_3 + '%';
@@ -2426,14 +2426,14 @@
             const rankBadge = r.rank === 1
                 ? '<span style="background:var(--green-bg);color:var(--green-text);font-weight:700;padding:2px 8px;border-radius:20px">#1</span>'
                 : r.rank <= 3
-                    ? `<span style="background:#e0f7f9;color:var(--cyan);font-weight:700;padding:2px 8px;border-radius:20px">#${r.rank}</span>`
+                    ? `<span style="background:#e0f7f9;color:var(--magenta);font-weight:700;padding:2px 8px;border-radius:20px">#${r.rank}</span>`
                     : r.rank
                         ? `<span style="background:var(--red-bg);color:var(--red-text);font-weight:700;padding:2px 8px;border-radius:20px">#${r.rank}</span>`
                         : '<span style="color:var(--grey)">—</span>';
             const esito = r.passed_1
                 ? '<span style="color:var(--green-text);font-weight:700">✓ @1</span>'
                 : r.passed_3
-                    ? '<span style="color:var(--cyan);font-weight:700">✓ @3</span>'
+                    ? '<span style="color:var(--magenta);font-weight:700">✓ @3</span>'
                     : '<span style="color:var(--red-text);font-weight:700">✗</span>';
             const topChunk = r.top_chunk?.chunk_title !== r.expected_title
                 ? `<span style="color:var(--red-text)">${escHtml(r.top_chunk?.chunk_title||'—')}</span>`
@@ -2466,7 +2466,7 @@
             el.innerHTML = '<div style="padding:20px;color:var(--grey);font-size:13px">Nessuna esecuzione trovata. Esegui Setup e poi Esegui Test.</div>';
             return;
         }
-        const colorP = v => v >= 80 ? 'var(--green-text)' : v >= 50 ? 'var(--cyan)' : 'var(--magenta)';
+        const colorP = v => v >= 80 ? 'var(--green-text)' : v >= 50 ? 'var(--magenta)' : 'var(--magenta)';
         let html = `<table class="sites-table"><thead><tr>
             <th>Data</th><th>Precision@1</th><th>Precision@3</th><th>MRR</th><th>Query</th>
         </tr></thead><tbody>`;
@@ -2500,7 +2500,7 @@
 
     // Tooltip per .tip-q — appeso al body, sempre in primo piano
     const _tipEl = document.createElement('div');
-    _tipEl.style.cssText = 'position:fixed;z-index:99999;background:#fff;color:#171b33;border:1.5px solid #009bb9;font-size:12px;font-weight:500;line-height:1.6;padding:10px 13px;border-radius:8px;width:210px;white-space:normal;pointer-events:none;box-shadow:0 4px 18px rgba(0,155,185,.18);display:none';
+    _tipEl.style.cssText = 'position:fixed;z-index:99999;background:#fff;color:#171b33;border:1.5px solid #d82d6b;font-size:12px;font-weight:500;line-height:1.6;padding:10px 13px;border-radius:8px;width:210px;white-space:normal;pointer-events:none;box-shadow:0 4px 18px rgba(216,45,107,.18);display:none';
     document.body.appendChild(_tipEl);
     document.addEventListener('mouseover', e => {
         const t = e.target.closest('.tip-q');

@@ -12,7 +12,7 @@
     --border:     #e4e4ec;
     --shadow:     0 2px 20px rgba(0,0,0,0.07);
     --shadow-lg:  0 8px 40px rgba(0,0,0,0.12);
-    --radius:     16px;
+    --radius:     8px;
     --radius-sm:  10px;
     --font:       'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
     --green:      #22c55e;
@@ -155,7 +155,7 @@ body {
     font-family: var(--font); padding: 6px 14px; border-radius: 8px;
     transition: all .15s;
 }
-.btn-upload:hover { border-color: var(--cyan); color: var(--cyan); }
+.btn-upload:hover { border-color: var(--magenta); color: var(--magenta); }
 .profile-field { margin-bottom: 14px; }
 .profile-label { display: block; font-size: 11px; font-weight: 700; color: var(--grey); margin-bottom: 5px; }
 .profile-input {
@@ -164,7 +164,7 @@ body {
     padding: 9px 12px; font-family: var(--font); font-size: 13px; color: var(--dark);
     outline: none; transition: border-color .15s; background: var(--white);
 }
-.profile-input:focus { border-color: var(--cyan); }
+.profile-input:focus { border-color: var(--magenta); }
 textarea.profile-input { resize: vertical; }
 .profile-actions { margin-top: 20px; }
 .btn-save-profile {
@@ -315,7 +315,7 @@ table.sites-table tbody tr:hover td { background: #fdf0f5; }
 .site-name-cell { font-weight: 600; font-size: 14px; }
 .th-center { text-align: center !important; }
 .td-center { text-align: center; }
-.tip-q { display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:#009bb9;color:#fff;font-size:10px;font-weight:800;cursor:help;margin-left:5px;position:relative;vertical-align:middle;flex-shrink:0;border:2px solid #009bb9;box-shadow:0 0 0 2px rgba(0,155,185,.2); }
+.tip-q { display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:#d82d6b;color:#fff;font-size:10px;font-weight:800;cursor:help;margin-left:5px;position:relative;vertical-align:middle;flex-shrink:0;border:2px solid #d82d6b;box-shadow:0 0 0 2px rgba(216,45,107,.2); }
 
 /* ─── PSE TOGGLE ─────────────────────────────────────────────────────────── */
 .pse-toggle { position:relative; display:inline-block; width:44px; height:24px; }
@@ -333,7 +333,7 @@ table.sites-table tbody tr:hover td { background: #fdf0f5; }
     padding: 5px 12px; border-radius: 8px; cursor: pointer;
     transition: all .15s; white-space: nowrap;
 }
-.btn-ping:hover    { background: var(--cyan); border-color: var(--cyan); color: white; }
+.btn-ping:hover    { background: var(--magenta); border-color: var(--magenta); color: white; }
 .btn-ping:disabled { opacity: .5; cursor: default; }
 
 /* ─── BTN UPDATE ─────────────────────────────────────────────────────────── */
@@ -348,8 +348,8 @@ table.sites-table tbody tr:hover td { background: #fdf0f5; }
 
 /* ─── DOT ────────────────────────────────────────────────────────────────── */
 .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
-.dot.green  { background: var(--cyan);    box-shadow: 0 0 0 4px rgba(0,155,185,.15); }
-.dot.yellow { background: var(--magenta); box-shadow: 0 0 0 4px rgba(216,45,107,.15); }
+.dot.green  { background: #35364f;         box-shadow: 0 0 0 4px rgba(53,54,79,.15); }
+.dot.yellow { background: #ead0dc;         box-shadow: 0 0 0 4px rgba(216,45,107,.10); }
 .dot.red    { background: #b00020;        box-shadow: 0 0 0 4px rgba(176,0,32,.15); }
 .dot.grey   { background: var(--grey-dot); }
 
