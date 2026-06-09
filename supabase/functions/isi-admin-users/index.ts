@@ -29,9 +29,14 @@ Deno.serve(async (req) => {
   }
 
   if (req.method === 'PATCH') {
-    const { user_id, full_name, role } = await req.json();
+    const { user_id, full_name, role, site_id, avatar_url, plugin_features, menu_visibility } = await req.json();
     if (!user_id) return new Response(JSON.stringify({ error: 'user_id mancante' }), { status: 400, headers: cors });
-    const { error } = await admin.auth.admin.updateUserById(user_id, { user_metadata: { full_name, role } });
+    const meta: Record<string, unknown> = { full_name, role };
+    if (site_id !== undefined) meta.site_id = site_id;
+    if (avatar_url !== undefined) meta.avatar_url = avatar_url;
+    if (plugin_features !== undefined) meta.plugin_features = plugin_features;
+    if (menu_visibility !== undefined) meta.menu_visibility = menu_visibility;
+    const { error } = await admin.auth.admin.updateUserById(user_id, { user_metadata: meta });
     if (error) return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: cors });
     return new Response(JSON.stringify({ ok: true }), { headers: cors });
   }

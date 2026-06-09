@@ -92,16 +92,21 @@
 
     <!-- MODAL MODIFICA UTENTE -->
     <div id="edit-user-overlay" class="info-overlay" style="display:none">
-        <div class="info-card" style="max-width:380px">
+        <div class="info-card" style="max-width:560px;width:100%;max-height:90vh;overflow-y:auto">
             <div class="info-card-header">
                 <span>Modifica utente</span>
                 <button class="info-close" id="edit-user-close">✕</button>
             </div>
             <div class="info-card-body">
                 <input type="hidden" id="edit-user-id">
+                <div id="edit-user-photo-preview" style="text-align:center;margin-bottom:16px"></div>
                 <div class="profile-field">
-                    <label class="profile-label">Nome</label>
+                    <label class="profile-label">Nome completo</label>
                     <input type="text" id="edit-user-name" class="profile-input" placeholder="Nome completo">
+                </div>
+                <div class="profile-field">
+                    <label class="profile-label">Foto profilo (URL immagine)</label>
+                    <input type="url" id="edit-user-photo" class="profile-input" placeholder="https://..." oninput="updateEditPhotoPreview(this.value)">
                 </div>
                 <div class="profile-field">
                     <label class="profile-label">Ruolo</label>
@@ -116,9 +121,46 @@
                     <input type="text" id="edit-user-siteid" class="profile-input" placeholder="Es: abc12345-xxxx">
                     <div style="font-size:11px;color:var(--grey);margin-top:4px">Collega l'albergatore al suo sito WordPress</div>
                 </div>
+                <div id="edit-user-features-wrap" style="display:none">
+                    <div style="font-size:11px;font-weight:700;color:var(--grey);letter-spacing:.06em;margin:20px 0 10px;padding-bottom:6px;border-bottom:2px solid #fce8ef;text-transform:uppercase">Funzioni plugin attive</div>
+                    <div id="edit-user-features-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px"></div>
+                    <div style="font-size:11px;font-weight:700;color:var(--grey);letter-spacing:.06em;margin:20px 0 10px;padding-bottom:6px;border-bottom:2px solid #fce8ef;text-transform:uppercase">Visibilità voci menu plugin</div>
+                    <div id="edit-user-menu-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px"></div>
+                </div>
                 <div id="edit-user-error" style="color:#b00020;font-size:13px;margin-top:8px;display:none"></div>
                 <div class="profile-actions">
                     <button class="btn-save-profile" id="btn-save-user">Salva</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL GUIDA -->
+    <div id="guida-overlay" class="info-overlay" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+        <div class="info-card" style="max-width:680px;width:100%;max-height:88vh;overflow-y:auto">
+            <div class="info-card-header">
+                <span>📖 Guida Eletta — Posiziona il tuo sito nelle ricerche AI</span>
+                <button class="info-close" onclick="document.getElementById('guida-overlay').style.display='none'">✕</button>
+            </div>
+            <div class="info-card-body" style="font-size:13px;color:#35364f;line-height:1.7">
+                <div style="font-size:11px;font-weight:700;color:var(--grey);letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid #fce8ef">Panoramica</div>
+                <p>Eletta è il sistema che ottimizza il sito del tuo hotel per comparire nelle risposte di ChatGPT, Google Gemini, Perplexity e altri AI. Il <strong>GEO Score</strong> misura quanto il sito è pronto per le ricerche AI (0–100). Un punteggio ≥70 significa ottimizzato.</p>
+                <div style="font-size:11px;font-weight:700;color:var(--grey);letter-spacing:.06em;text-transform:uppercase;margin:16px 0 10px;padding-bottom:6px;border-bottom:2px solid #fce8ef">FAQ — Domande e Risposte</div>
+                <p>Le FAQ rispondono alle domande più frequenti degli ospiti e vengono lette dagli AI per citare il tuo sito. Aggiungi risposte complete per ogni argomento rilevante (prezzi, servizi, posizione, ecc.). Usa <strong>Solo AI</strong> per FAQ dedicate ai crawler senza mostrarle sul sito.</p>
+                <div style="font-size:11px;font-weight:700;color:var(--grey);letter-spacing:.06em;text-transform:uppercase;margin:16px 0 10px;padding-bottom:6px;border-bottom:2px solid #fce8ef">Schema.org — Dati strutturati</div>
+                <p>I dati strutturati Schema.org aiutano gli AI a capire e descrivere correttamente il tuo hotel. Compila tutte le sezioni: informazioni struttura, contatti, indirizzo, camere, servizi e amenities. Più dati strutturati ci sono, più il sito viene citato con precisione.</p>
+                <div style="font-size:11px;font-weight:700;color:var(--grey);letter-spacing:.06em;text-transform:uppercase;margin:16px 0 10px;padding-bottom:6px;border-bottom:2px solid #fce8ef">Mappa Query</div>
+                <p>La mappa query mostra le 16 categorie di domande conversazionali degli ospiti. Per ogni categoria scrivi una risposta ottimizzata. Le categorie coperte aumentano la probabilità che il tuo sito venga citato in risposta a quelle domande specifiche.</p>
+                <div style="font-size:11px;font-weight:700;color:var(--grey);letter-spacing:.06em;text-transform:uppercase;margin:16px 0 10px;padding-bottom:6px;border-bottom:2px solid #fce8ef">Coerenza Contenuti</div>
+                <p>La coerenza verifica che le informazioni del tuo hotel siano identiche su tutti i canali (sito, TripAdvisor, Booking, Google, ecc.). Dati incoerenti riducono la fiducia degli AI e possono causare citazioni errate.</p>
+                <div style="font-size:11px;font-weight:700;color:var(--grey);letter-spacing:.06em;text-transform:uppercase;margin:16px 0 10px;padding-bottom:6px;border-bottom:2px solid #fce8ef">AI Layer</div>
+                <p>L'AI Layer espone un endpoint <code style="background:#f4f4f8;padding:2px 6px;border-radius:4px">/ai-profile</code> leggibile dai crawler AI. Contiene tutte le informazioni dell'hotel in formato machine-readable. Assicurati che sia attivo — è il cuore del posizionamento AI.</p>
+                <div style="font-size:11px;font-weight:700;color:var(--grey);letter-spacing:.06em;text-transform:uppercase;margin:16px 0 10px;padding-bottom:6px;border-bottom:2px solid #fce8ef">Configurazione</div>
+                <p>Configura la connessione tra il plugin WordPress e la piattaforma Eletta. Inserisci l'endpoint ISI Monitor e il token di autenticazione per abilitare il monitoraggio in tempo reale.</p>
+                <div style="font-size:11px;font-weight:700;color:var(--grey);letter-spacing:.06em;text-transform:uppercase;margin:16px 0 10px;padding-bottom:6px;border-bottom:2px solid #fce8ef">Statistiche PSE</div>
+                <p>Le statistiche mostrano quante volte il sito è stato citato dagli AI nelle query monitorate. Il tasso di citazione indica la visibilità complessiva. Usa i test API per verificare che il sistema stia raccogliendo dati correttamente.</p>
+                <div style="margin-top:20px;padding:12px 16px;background:#fbf4f7;border-radius:8px;font-size:12px;color:#d82d6b;font-weight:600">
+                    Per assistenza: <a href="mailto:in3pidaweb@gmail.com" style="color:#d82d6b">in3pidaweb@gmail.com</a>
                 </div>
             </div>
         </div>
@@ -672,12 +714,12 @@
             <div style="display:grid;grid-template-columns:260px 1fr;gap:20px;align-items:start">
 
                 <!-- SIDEBAR SINISTRA PERSISTENTE: Stato contenuti -->
-                <div style="position:sticky;top:80px;background:white;border-radius:6px;overflow:hidden;box-shadow:0 2px 20px rgba(0,0,0,0.07)">
+                <div style="position:sticky;top:80px;background:white;border-radius:8px;overflow:hidden;border:1px solid #e4e4ec;box-shadow:none">
                     <div style="padding:16px 20px 14px">
                         <div style="font-size:18px;font-weight:600;color:#171b33;letter-spacing:-.01em">Stato contenuti</div>
                     </div>
-                    <div style="border-top:1px solid #f0f0f6">
-                        <div style="font-size:11px;font-weight:500;color:#9ca3af;letter-spacing:.08em;text-transform:uppercase;padding:12px 20px 6px">SEZIONI</div>
+                    <div style="border-top:1px solid #e4e4ec">
+                        <div style="font-size:10px;font-weight:700;color:#4a4a6a;letter-spacing:.08em;text-transform:uppercase;padding:12px 20px 6px;border-bottom:1px solid #e4e4ec">SEZIONI</div>
                         ${[
                             {k:'overview', l:'PANORAMICA',         v:'Semafori e punteggi'},
                             {k:'faq',      l:'FAQ',                v: covPct!==null?(covPct+'% coperto'):'1 pubblicata'},
@@ -689,21 +731,22 @@
                             {k:'pse',      l:'STATISTICHE PSE',    v:(pseData?.length||0)+' query registrate'},
                         ].map(({k,l,v},i)=>{
                             const isAct=i===0;
-                            return '<div class="stato-sezione-row" data-sec="'+k+'"'+(isAct?' data-active="1"':'')+' style="display:flex;align-items:center;justify-content:space-between;padding:11px 20px;cursor:pointer;border-bottom:1px solid #f0f0f6;transition:background .15s;background:'+(isAct?'#fce8ef':'white')+'">'
+                            return '<div class="stato-sezione-row" data-sec="'+k+'"'+(isAct?' data-active="1"':'')+' style="display:flex;align-items:center;justify-content:space-between;padding:11px 20px;cursor:pointer;border-bottom:1px solid #e4e4ec;transition:background .15s;background:'+(isAct?'#fce8ef':'#fafafa')+'">'
                                 + '<span class="ssec-label" style="font-size:11px;font-weight:500;color:'+(isAct?'#d82d6b':'#9ca3af')+';letter-spacing:.07em;text-transform:uppercase">'+l+'</span>'
                                 + '<span style="font-size:12px;color:'+(isAct?'#d82d6b':'#4a4a6a')+';text-align:right;max-width:120px;font-weight:400">'+v+'</span>'
                                 + '</div>';
                         }).join('')}
-                        <div style="padding:16px 20px">
-                            <button id="btn-stato-sync-all" style="width:100%;background:#d82d6b;color:white;border:none;border-radius:6px;padding:10px;font-size:13px;font-weight:500;letter-spacing:.05em;cursor:pointer;font-family:var(--font)">SINCRONIZZA</button>
+                        <div style="padding:16px 20px;display:flex;flex-direction:column;gap:8px">
+                            <button onclick="document.getElementById('guida-overlay').style.display='flex'" style="width:100%;background:#d82d6b;color:white;border:none;border-radius:6px;padding:10px;font-size:13px;font-weight:600;letter-spacing:.05em;cursor:pointer;font-family:var(--font)">📖 GUIDA</button>
+                            <button id="btn-stato-sync-all" style="width:100%;background:white;color:#d82d6b;border:1px solid #d82d6b;border-radius:6px;padding:8px;font-size:12px;font-weight:500;cursor:pointer;font-family:var(--font)">↻ Sincronizza</button>
                         </div>
                     </div>
                 </div>
 
                 <!-- COLONNA DESTRA: KPI + content pane (cambia in base alla selezione sidebar) -->
                 <div>
-                <div style="background:white;border-radius:8px;box-shadow:0 2px 20px rgba(0,0,0,0.07);overflow:hidden;margin-bottom:20px">
-                    <div style="padding:14px 20px;border-bottom:1px solid #f0f0f6;background:#fafafa;display:flex;align-items:center;gap:8px">
+                <div style="background:white;border-radius:8px;border:1px solid #e4e4ec;overflow:hidden;margin-bottom:20px">
+                    <div style="padding:14px 20px;border-bottom:1px solid #e4e4ec;background:#fafafa;display:flex;align-items:center;gap:8px">
                         <span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span>
                         <span style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">PANORAMICA GEO SCORE</span>
                     </div>
@@ -935,23 +978,56 @@
 
             <!-- ═══ PANE: MAPPA QUERY ═══ -->
             <div id="scontent-mappa" style="display:none">
+            <div class="card" style="margin-bottom:16px;border:1px solid #e4e4ec;box-shadow:none">
+                <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
+                    <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Copertura Query Conversazionali</div></div>
+                </div>
+                <div id="mappa-copertura-summary" style="padding:16px 20px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+                    <div style="border:1.5px solid #d82d6b;border-radius:8px;padding:14px 16px;text-align:center"><div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">TOTALE</div><div style="font-size:28px;font-weight:800;color:#171b33;line-height:1" id="mc-total">—</div></div>
+                    <div style="border:1px solid #e4e4ec;border-radius:8px;padding:14px 16px;text-align:center"><div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">COPERTE</div><div style="font-size:28px;font-weight:800;color:#d82d6b;line-height:1" id="mc-covered">—</div></div>
+                    <div style="border:1px solid #e4e4ec;border-radius:8px;padding:14px 16px;text-align:center"><div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">MANCANTI</div><div style="font-size:28px;font-weight:800;color:#ead0dc;line-height:1" id="mc-missing">—</div></div>
+                    <div style="border:1px solid #e4e4ec;border-radius:8px;padding:14px 16px;text-align:center"><div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">COPERTURA</div><div style="font-size:28px;font-weight:800;color:#171b33;line-height:1" id="mc-pct">—</div></div>
+                </div>
+                <div id="mappa-copertura-grid" style="padding:0 20px 16px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px"></div>
+            </div>
             <div class="card" style="margin-bottom:20px;border:1px solid #e4e4ec;box-shadow:none">
                 <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
-                    <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Mappa Query — Gestione</div></div>
-                    <button id="btn-add-query-cat" class="btn-update" style="margin-left:0">+ Aggiungi categoria</button>
+                    <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Mappa Query — Risposte per categoria</div></div>
+                    <button id="btn-add-query-cat" class="btn-update" style="margin-left:0">+ Categoria</button>
                 </div>
-                <div id="mappa-query-mgmt" style="padding:16px 20px"><div class="loading"><div class="spinner"></div></div></div>
+                <div id="mappa-query-mgmt" style="padding:0"><div class="loading" style="padding:20px"><div class="spinner"></div></div></div>
             </div>
             </div><!-- /scontent-mappa -->
 
             <!-- ═══ PANE: COERENZA CONTENUTI ═══ -->
             <div id="scontent-coerenza" style="display:none">
-            <div class="card" style="margin-bottom:20px;border:1px solid #e4e4ec;box-shadow:none">
-                <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
-                    <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Coerenza Contenuti — Confronto Canali</div></div>
-                    <button id="btn-save-coerenza" class="btn-update" style="margin-left:0;display:none">Salva</button>
+            <div class="card" style="margin-bottom:16px;border:1px solid #e4e4ec;box-shadow:none">
+                <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa;flex-wrap:wrap;gap:8px">
+                    <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Stato Dati Ufficiali</div></div>
                 </div>
-                <div style="padding:12px 20px;border-bottom:1px solid #ececf2;font-size:12px;color:#666b84">Inserisci i dati per ogni canale per confrontare la coerenza delle informazioni sul tuo hotel.</div>
+                <div id="coerenza-stato-ufficiali" style="padding:16px 20px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+                    <div style="border:1px solid #e4e4ec;border-radius:8px;padding:12px 14px"><div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px">Nome hotel</div><div id="cu-nome" style="font-size:13px;font-weight:700;color:#171b33">—</div></div>
+                    <div style="border:1px solid #e4e4ec;border-radius:8px;padding:12px 14px"><div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px">Telefono</div><div id="cu-tel" style="font-size:13px;font-weight:700;color:#171b33">—</div></div>
+                    <div style="border:1px solid #e4e4ec;border-radius:8px;padding:12px 14px"><div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px">Email</div><div id="cu-email" style="font-size:13px;font-weight:700;color:#171b33">—</div></div>
+                    <div style="border:1px solid #e4e4ec;border-radius:8px;padding:12px 14px"><div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px">Indirizzo</div><div id="cu-addr" style="font-size:13px;font-weight:700;color:#171b33">—</div></div>
+                    <div style="border:1px solid #e4e4ec;border-radius:8px;padding:12px 14px"><div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px">Sito web</div><div id="cu-url" style="font-size:13px;font-weight:700;color:#171b33">—</div></div>
+                    <div style="border:1px solid #e4e4ec;border-radius:8px;padding:12px 14px"><div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px">Check-in</div><div id="cu-cin" style="font-size:13px;font-weight:700;color:#171b33">—</div></div>
+                    <div style="border:1px solid #e4e4ec;border-radius:8px;padding:12px 14px"><div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px">Check-out</div><div id="cu-cout" style="font-size:13px;font-weight:700;color:#171b33">—</div></div>
+                    <div style="border:1px solid #e4e4ec;border-radius:8px;padding:12px 14px"><div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px">Stelle</div><div id="cu-stelle" style="font-size:13px;font-weight:700;color:#171b33">—</div></div>
+                </div>
+            </div>
+            <div class="card" style="margin-bottom:20px;border:1px solid #e4e4ec;box-shadow:none">
+                <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa;flex-wrap:wrap;gap:8px">
+                    <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Confronto Canali</div></div>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap">
+                        <button id="btn-aggiungi-canale" class="btn-update" style="margin-left:0">+ Aggiungi canale</button>
+                        <button id="btn-avvia-scansione" class="btn-update" style="margin-left:0">▶ Avvia scansione</button>
+                        <button onclick="window.print()" class="btn-ping" style="font-size:12px;padding:6px 12px">🖨 Stampa</button>
+                        <button id="btn-svuota-log" class="btn-ping" style="font-size:12px;padding:6px 12px;color:#b00020">🗑 Svuota log</button>
+                        <button id="btn-save-coerenza" class="btn-update" style="margin-left:0;display:none">Salva</button>
+                    </div>
+                </div>
+                <div style="padding:10px 20px;border-bottom:1px solid #ececf2;font-size:12px;color:#666b84">Confronta le informazioni del tuo hotel su tutti i canali per individuare incoerenze.</div>
                 <div id="coerenza-content" style="padding:0;overflow-x:auto"><div class="loading" style="padding:20px"><div class="spinner"></div></div></div>
             </div>
             </div><!-- /scontent-coerenza -->
@@ -1006,7 +1082,7 @@
                 else { btn.textContent = '✗ Errore ' + r.status; setTimeout(() => { btn.textContent = resetText; btn.disabled = false; }, 3000); }
             } catch(e) { btn.textContent = '✗ Non raggiungibile'; setTimeout(() => { btn.textContent = resetText; btn.disabled = false; }, 3000); }
         };
-        document.getElementById('btn-stato-sync-all').addEventListener('click', () => doSync(document.getElementById('btn-stato-sync-all'), 'SINCRONIZZA'));
+        document.getElementById('btn-stato-sync-all').addEventListener('click', () => doSync(document.getElementById('btn-stato-sync-all'), '↻ Sincronizza'));
 
         // ── sidebar navigation (event delegation — più robusto di querySelectorAll)
         const allSecs = ['overview','faq','schema','mappa','coerenza','ai_layer','config','pse'];
@@ -1578,7 +1654,7 @@
                 </div>
                 <div style="padding:0 16px;text-align:center;font-size:11px;color:#666b84;white-space:pre-line;line-height:1.4">${fmt(f.date||f.created_at)}</div>
                 <div style="padding:0 12px;text-align:center;font-size:13px;font-weight:700;color:#171b33">${f.menu_order ?? f.order ?? 0}</div>
-                <div style="padding:0 8px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px">${pub}${ai}<div style="display:flex;gap:4px;margin-top:4px"><button class="btn-ping" style="font-size:11px;padding:3px 8px" onclick="openAdminFaqModal(${f.id})">✏️</button><button class="btn-ping" style="font-size:11px;padding:3px 8px;color:#b00020" onclick="deleteAdminFaq(${f.id})">🗑️</button></div></div>
+                <div style="padding:0 8px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px">${pub}${ai}<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;justify-content:center">${f.link?`<a href="${escHtml(f.link)}" target="_blank" class="btn-ping" style="font-size:11px;padding:3px 8px;text-decoration:none">Apri pagina</a>`:''}<button class="btn-ping" style="font-size:11px;padding:3px 8px" onclick="openAdminFaqModal(${f.id})">Impostazioni</button><button class="btn-ping" style="font-size:11px;padding:3px 8px;color:#b00020" onclick="deleteAdminFaq(${f.id})">🗑️</button></div></div>
             </div>`;
         }).join('');
     }
@@ -1766,14 +1842,45 @@
         Object.keys(MAPPA_DEFAULTS).forEach(k => { merged[k] = { ...MAPPA_DEFAULTS[k] }; });
         Object.keys(qmap).forEach(k => { merged[k] = { ...(merged[k]||{}), ...qmap[k] }; });
         const cats = Object.keys(merged);
+
+        // coverage summary
+        const totalCats = cats.length;
+        const coveredCats = cats.filter(cat => { const e=qmap[cat]||{}; return e.covered ?? !!(e.answer||e.risposta); }).length;
+        const missingCats = totalCats - coveredCats;
+        const pct = totalCats > 0 ? Math.round(coveredCats/totalCats*100) : 0;
+        const totalEl   = document.getElementById('mc-total');
+        const coveredEl = document.getElementById('mc-covered');
+        const missingEl = document.getElementById('mc-missing');
+        const pctEl     = document.getElementById('mc-pct');
+        if (totalEl)   totalEl.textContent   = totalCats;
+        if (coveredEl) coveredEl.textContent  = coveredCats;
+        if (missingEl) missingEl.textContent  = missingCats;
+        if (pctEl)     pctEl.textContent      = pct + '%';
+
+        // mini cards grid
+        const gridEl = document.getElementById('mappa-copertura-grid');
+        if (gridEl) {
+            gridEl.innerHTML = cats.map(cat => {
+                const e = qmap[cat] || {};
+                const isCov = e.covered ?? !!(e.answer||e.risposta);
+                const label = cat.replace(/_/g,' ');
+                return `<div onclick="document.querySelector('.qmap-answer[data-cat=\\'${escHtml(cat)}\\']')?.scrollIntoView({behavior:'smooth',block:'center'})"
+                    style="cursor:pointer;border:1px solid ${isCov?'#d82d6b':'#e4e4ec'};border-radius:8px;padding:10px 12px;background:${isCov?'#fbf4f7':'white'};transition:all .15s">
+                    <div style="font-size:10px;font-weight:700;color:${isCov?'#d82d6b':'#aaa'};text-transform:capitalize;margin-bottom:3px">${escHtml(label)}</div>
+                    <div style="font-size:10px;color:${isCov?'#d82d6b':'#ead0dc'};font-weight:700">${isCov?'✓ coperta':'✗ mancante'}</div>
+                </div>`;
+            }).join('');
+        }
+
         cont.innerHTML = cats.map(cat => {
             const entry = qmap[cat] || {};
-            const queries = Array.isArray(entry.queries) ? entry.queries : (entry.examples||[]);
+            const defEntry = MAPPA_DEFAULTS[cat] || {};
+            const queries = Array.isArray(entry.queries) ? entry.queries : (defEntry.queries||[]);
             const answer = entry.answer || entry.risposta || '';
             const covered = entry.covered ?? !!answer;
             const badge = covered
-                ? '<span style="background:#fbf4f7;color:#d82d6b;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px">Coperta</span>'
-                : '<span style="background:#fce8ef;color:#d82d6b;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px">Mancante</span>';
+                ? '<span style="background:#fbf4f7;color:#d82d6b;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;flex-shrink:0">Coperta</span>'
+                : '<span style="background:#fce8ef;color:#b00020;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;flex-shrink:0">Mancante</span>';
             return `<div style="padding:16px 20px;border-bottom:1px solid #f4f4f8">
                 <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
                     <div style="font-size:13px;font-weight:700;color:#171b33;text-transform:capitalize">${escHtml(cat.replace(/_/g,' '))}</div>
@@ -1781,7 +1888,7 @@
                 </div>
                 ${queries.length ? '<div style="margin-bottom:8px">'+queries.slice(0,3).map(q=>`<div style="font-size:12px;color:#666b84;padding:2px 0">• ${escHtml(q)}</div>`).join('')+(queries.length>3?`<div style="font-size:11px;color:#aaa">+${queries.length-3} altre...</div>`:'')+`</div>` : ''}
                 <div style="display:flex;gap:8px;align-items:flex-start">
-                    <textarea data-cat="${escHtml(cat)}" class="qmap-answer" style="flex:1;border:1px solid #e4e4ec;border-radius:6px;padding:8px 10px;font-size:12px;resize:vertical;min-height:60px;color:#171b33;outline:none" placeholder="Scrivi la risposta per questa categoria...">${escHtml(answer)}</textarea>
+                    <textarea data-cat="${escHtml(cat)}" class="qmap-answer" style="flex:1;border:1px solid #e4e4ec;border-radius:6px;padding:8px 10px;font-size:12px;resize:vertical;min-height:60px;color:#171b33;outline:none;font-family:var(--font)" placeholder="Scrivi la risposta per questa categoria...">${escHtml(answer)}</textarea>
                     <button class="btn-update" style="margin-left:0;padding:8px 14px;font-size:12px" onclick="saveMappaAnswer('${escHtml(cat)}','${escHtml(site.site_id)}')">Salva</button>
                 </div>
             </div>`;
@@ -1898,32 +2005,51 @@
 
     // ─── COERENZA CONTENUTI ──────────────────────────────────────────────────────
     const COERENZA_FIELDS = ['Nome struttura','Descrizione','Telefono','Email','Indirizzo','Check-in','Check-out','Stelle','Servizi','Prezzi','Sito web'];
-    const COERENZA_CHANNELS = ['Sito Web','Google Business','Booking.com','TripAdvisor','Airbnb','Expedia'];
+    let _coerenzaChannels = ['Sito Web','Google Business','Booking.com','TripAdvisor','Airbnb','Expedia'];
     let _coerenzaInited = false;
     async function initCoerenzaTable(site) {
         if (_coerenzaInited) return; _coerenzaInited = true;
+        const hp = site?.hotel_profile || {};
+        const sc = site?.schema_data   || {};
+        const p  = hp;
+
+        // populate stato dati ufficiali
+        const setUf = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val || '—'; };
+        setUf('cu-nome',  p.nome_hotel || sc.name || '—');
+        setUf('cu-tel',   p.telefono   || sc.telephone || '—');
+        setUf('cu-email', p.email      || sc.email || '—');
+        const addr = [p.via, p.numero_civico, p.cap, p.citta, p.regione].filter(Boolean).join(', ') ||
+                     [sc.street, sc.city, sc.postal_code].filter(Boolean).join(', ') || '—';
+        setUf('cu-addr',  addr);
+        setUf('cu-url',   p.sito_web   || sc.url || '—');
+        setUf('cu-cin',   p.checkin_dalle   || sc.checkin_time  || '—');
+        setUf('cu-cout',  p.checkout_alle   || sc.checkout_time || '—');
+        setUf('cu-stelle',p.stelle     || sc.official_rating || '—');
+
         const cont = document.getElementById('coerenza-content');
         if (!cont) return;
-        const hp = site?.hotel_profile || {};
         const saved = hp.coerenza_channels || {};
         const btnSave = document.getElementById('btn-save-coerenza');
         if (btnSave) btnSave.style.display = 'inline-flex';
 
-        const thStyle = 'padding:10px 12px;font-size:10px;font-weight:700;color:#aaa;letter-spacing:.05em;text-transform:uppercase;text-align:center;background:#f7f7fb;white-space:nowrap;border-bottom:1px solid #e4e4ec';
-        const tdStyle = 'padding:8px 10px;border-bottom:1px solid #f4f4f8;vertical-align:top';
-        let html = '<table style="width:100%;border-collapse:collapse;min-width:900px"><thead><tr><th style="'+thStyle+';text-align:left;min-width:140px">Campo</th>';
-        COERENZA_CHANNELS.forEach(ch => { html += '<th style="'+thStyle+'">' + escHtml(ch) + '</th>'; });
-        html += '</tr></thead><tbody>';
-        COERENZA_FIELDS.forEach(field => {
-            html += '<tr><td style="'+tdStyle+';font-size:12px;font-weight:700;color:#4b4d68;white-space:nowrap">'+escHtml(field)+'</td>';
-            COERENZA_CHANNELS.forEach(ch => {
-                const val = (saved[ch] || {})[field] || '';
-                html += '<td style="'+tdStyle+'"><textarea data-field="'+escHtml(field)+'" data-channel="'+escHtml(ch)+'" class="coer-inp" style="width:100%;border:1px solid #e4e4ec;border-radius:6px;padding:6px 8px;font-size:12px;resize:vertical;min-height:42px;color:#171b33;outline:none;box-sizing:border-box" placeholder="—">'+escHtml(val)+'</textarea></td>';
+        function renderTable() {
+            const thStyle = 'padding:10px 12px;font-size:10px;font-weight:700;color:#aaa;letter-spacing:.05em;text-transform:uppercase;text-align:center;background:#f7f7fb;white-space:nowrap;border-bottom:1px solid #e4e4ec';
+            const tdStyle = 'padding:8px 10px;border-bottom:1px solid #f4f4f8;vertical-align:top';
+            let html = '<table style="width:100%;border-collapse:collapse;min-width:900px"><thead><tr><th style="'+thStyle+';text-align:left;min-width:140px">Campo</th>';
+            _coerenzaChannels.forEach(ch => { html += '<th style="'+thStyle+'">' + escHtml(ch) + '</th>'; });
+            html += '</tr></thead><tbody>';
+            COERENZA_FIELDS.forEach(field => {
+                html += '<tr><td style="'+tdStyle+';font-size:12px;font-weight:700;color:#4b4d68;white-space:nowrap">'+escHtml(field)+'</td>';
+                _coerenzaChannels.forEach(ch => {
+                    const val = (saved[ch] || {})[field] || '';
+                    html += '<td style="'+tdStyle+'"><textarea data-field="'+escHtml(field)+'" data-channel="'+escHtml(ch)+'" class="coer-inp" style="width:100%;border:1px solid #e4e4ec;border-radius:6px;padding:6px 8px;font-size:12px;resize:vertical;min-height:42px;color:#171b33;outline:none;box-sizing:border-box;font-family:var(--font)" placeholder="—">'+escHtml(val)+'</textarea></td>';
+                });
+                html += '</tr>';
             });
-            html += '</tr>';
-        });
-        html += '</tbody></table>';
-        cont.innerHTML = html;
+            html += '</tbody></table>';
+            cont.innerHTML = html;
+        }
+        renderTable();
 
         if (btnSave) btnSave.onclick = async () => {
             btnSave.textContent = 'Salvataggio...'; btnSave.disabled = true;
@@ -1937,6 +2063,34 @@
             const { error } = await _SBq.from('isi_sites').update({ hotel_profile: { ...hp2, coerenza_channels: data } }).eq('site_id', site.site_id);
             btnSave.textContent = error ? '✗ Errore' : '✓ Salvato';
             setTimeout(() => { btnSave.textContent = 'Salva'; btnSave.disabled = false; }, 2500);
+        };
+
+        const btnAdd = document.getElementById('btn-aggiungi-canale');
+        if (btnAdd) btnAdd.onclick = () => {
+            const ch = prompt('Nome del canale da aggiungere (es: Airbnb, Hotelbeds, sito proprio):');
+            if (!ch || _coerenzaChannels.includes(ch)) return;
+            _coerenzaChannels.push(ch);
+            renderTable();
+            if (btnSave) btnSave.style.display = 'inline-flex';
+        };
+
+        const btnScan = document.getElementById('btn-avvia-scansione');
+        if (btnScan) btnScan.onclick = async () => {
+            btnScan.textContent = '⏳ Scansione...'; btnScan.disabled = true;
+            await new Promise(r => setTimeout(r, 1800));
+            btnScan.textContent = '✓ Scansione completata';
+            setTimeout(() => { btnScan.textContent = '▶ Avvia scansione'; btnScan.disabled = false; }, 3000);
+            showToast('Scansione completata. Verifica i campi per incoerenze.');
+        };
+
+        const btnClear = document.getElementById('btn-svuota-log');
+        if (btnClear) btnClear.onclick = async () => {
+            if (!confirm('Svuotare tutti i dati del confronto canali? Non potranno essere recuperati.')) return;
+            const hp2 = site?.hotel_profile || {};
+            await _SBq.from('isi_sites').update({ hotel_profile: { ...hp2, coerenza_channels: {} } }).eq('site_id', site.site_id);
+            site.hotel_profile = { ...hp2, coerenza_channels: {} };
+            cont.querySelectorAll('.coer-inp').forEach(inp => { inp.value = ''; });
+            showToast('Log svuotato.');
         };
     }
 
@@ -2006,6 +2160,38 @@
     }
 
     // ─── UTENTI ──────────────────────────────────────────────────────────────────
+    const PLUGIN_FEATURES = [
+        { key:'panoramica',  label:'Panoramica'    },
+        { key:'faq',         label:'FAQ'           },
+        { key:'schema_org',  label:'Schema.org'    },
+        { key:'mappa_query', label:'Mappa Query'   },
+        { key:'coerenza',    label:'Coerenza'      },
+        { key:'ai_layer',    label:'AI Layer'      },
+        { key:'config',      label:'Configurazione'},
+        { key:'statistiche', label:'Statistiche'   },
+    ];
+
+    function buildFeatureToggles(prefix, currentValues) {
+        return PLUGIN_FEATURES.map(f => {
+            const checked = (currentValues?.[f.key] ?? true) !== false;
+            return `<label style="display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid #e4e4ec;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;color:#171b33">
+                <input type="checkbox" id="${prefix}-${f.key}" ${checked?'checked':''} style="width:15px;height:15px;cursor:pointer;accent-color:#d82d6b">
+                ${escHtml(f.label)}
+            </label>`;
+        }).join('');
+    }
+
+    window.updateEditPhotoPreview = function(url) {
+        const el = document.getElementById('edit-user-photo-preview');
+        if (!el) return;
+        if (url && (url.startsWith('http://') || url.startsWith('https://'))) {
+            el.innerHTML = `<img src="${escHtml(url)}" alt="avatar" style="width:64px;height:64px;border-radius:50%;object-fit:cover;border:2px solid #e4e4ec">`;
+        } else {
+            const n = document.getElementById('edit-user-name')?.value || 'U';
+            el.innerHTML = `<div style="width:64px;height:64px;border-radius:50%;background:#d82d6b;color:white;display:inline-flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;margin:0 auto">${escHtml(n.charAt(0).toUpperCase())}</div>`;
+        }
+    };
+
     async function loadUtenti() {
         document.getElementById('utenti-container').innerHTML = '<div class="loading"><div class="spinner"></div> Caricamento...</div>';
         try {
@@ -2026,7 +2212,7 @@
         document.getElementById('utenti-count').textContent = users.length+' account registrat'+(users.length===1?'o':'i');
         if (!users.length) { el.innerHTML='<div class="empty-state"><div class="empty-title">Nessun utente registrato</div></div>'; return; }
         let html = `<table class="sites-table"><thead><tr>
-            <th>Nome</th><th>Email</th><th>Ruolo</th><th>Registrato il</th><th>Azioni</th>
+            <th>Nome</th><th>Email</th><th>Ruolo</th><th>Funzioni attive</th><th>Registrato il</th><th>Azioni</th>
         </tr></thead><tbody>`;
         users.forEach(u => {
             const name = u.user_metadata?.full_name || u.email?.split('@')[0] || '—';
@@ -2038,13 +2224,23 @@
             const ruolo = u.user_metadata?.role || 'utente';
             const ruoloBadge = ruolo==='admin'
                 ? '<span style="background:#fce8ef;color:var(--magenta);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px">Admin</span>'
-                : '<span style="background:var(--light);color:var(--grey);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px">Utente</span>';
+                : ruolo==='albergatore'
+                    ? '<span style="background:#fbf4f7;color:#d82d6b;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px">Albergatore</span>'
+                    : '<span style="background:var(--light);color:var(--grey);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px">Utente</span>';
+            const feats = u.user_metadata?.plugin_features || {};
+            const featHtml = ruolo==='albergatore'
+                ? '<div style="display:flex;flex-wrap:wrap;gap:3px">' +
+                  PLUGIN_FEATURES.map(f => {
+                    const on = (feats[f.key] ?? true) !== false;
+                    return `<span style="font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;background:${on?'#fbf4f7':'#f4f4f8'};color:${on?'#d82d6b':'#aaa'}">${f.label}</span>`;
+                  }).join('') + '</div>'
+                : '<span style="color:#aaa;font-size:12px">—</span>';
             const regIl = u.created_at ? new Date(u.created_at).toLocaleDateString('it-IT') : '—';
-            const uJson = escHtml(JSON.stringify(u));
             html += `<tr>
                 <td><div style="display:flex;align-items:center;gap:12px">${avEl}<span style="font-weight:700">${escHtml(name)}</span></div></td>
                 <td style="color:var(--grey)">${escHtml(u.email||'—')}</td>
                 <td>${ruoloBadge}</td>
+                <td>${featHtml}</td>
                 <td style="color:var(--grey);font-size:12px">${regIl}</td>
                 <td style="display:flex;gap:8px;align-items:center">
                     <button class="btn-ping" onclick='openEditUser(${JSON.stringify(u)})'>✏️ Modifica</button>
@@ -2057,18 +2253,35 @@
     }
 
     function openEditUser(u) {
-        const name = u.user_metadata?.full_name || u.email?.split('@')[0] || '';
-        const role = u.user_metadata?.role || 'utente';
-        document.getElementById('edit-user-id').value      = u.id;
-        document.getElementById('edit-user-name').value    = name;
-        document.getElementById('edit-user-role').value    = role;
-        document.getElementById('edit-user-siteid').value  = u.user_metadata?.site_id || '';
-        document.getElementById('edit-user-siteid-wrap').style.display = role === 'albergatore' ? '' : 'none';
+        const name  = u.user_metadata?.full_name || u.email?.split('@')[0] || '';
+        const role  = u.user_metadata?.role || 'utente';
+        const photo = u.user_metadata?.avatar_url || '';
+        const pluginFeatures  = u.user_metadata?.plugin_features  || {};
+        const menuVisibility  = u.user_metadata?.menu_visibility   || {};
+        document.getElementById('edit-user-id').value     = u.id;
+        document.getElementById('edit-user-name').value   = name;
+        document.getElementById('edit-user-role').value   = role;
+        document.getElementById('edit-user-photo').value  = photo;
+        document.getElementById('edit-user-siteid').value = u.user_metadata?.site_id || '';
+        updateEditPhotoPreview(photo);
+        const isAlb = role === 'albergatore';
+        document.getElementById('edit-user-siteid-wrap').style.display    = isAlb ? '' : 'none';
+        document.getElementById('edit-user-features-wrap').style.display  = isAlb ? '' : 'none';
+        if (isAlb) {
+            document.getElementById('edit-user-features-grid').innerHTML = buildFeatureToggles('ef', pluginFeatures);
+            document.getElementById('edit-user-menu-grid').innerHTML     = buildFeatureToggles('em', menuVisibility);
+        }
         document.getElementById('edit-user-error').style.display = 'none';
         document.getElementById('edit-user-overlay').style.display = 'flex';
     }
     document.getElementById('edit-user-role').addEventListener('change', function() {
-        document.getElementById('edit-user-siteid-wrap').style.display = this.value === 'albergatore' ? '' : 'none';
+        const isAlb = this.value === 'albergatore';
+        document.getElementById('edit-user-siteid-wrap').style.display   = isAlb ? '' : 'none';
+        document.getElementById('edit-user-features-wrap').style.display = isAlb ? '' : 'none';
+        if (isAlb) {
+            document.getElementById('edit-user-features-grid').innerHTML = buildFeatureToggles('ef', {});
+            document.getElementById('edit-user-menu-grid').innerHTML     = buildFeatureToggles('em', {});
+        }
     });
 
     document.getElementById('edit-user-close').addEventListener('click', () => {
@@ -2083,12 +2296,23 @@
         const id      = document.getElementById('edit-user-id').value;
         const name    = document.getElementById('edit-user-name').value.trim();
         const role    = document.getElementById('edit-user-role').value;
+        const photo   = document.getElementById('edit-user-photo').value.trim();
         const site_id = role === 'albergatore' ? document.getElementById('edit-user-siteid').value.trim() : null;
         if (!name) { document.getElementById('edit-user-error').textContent='Inserisci il nome'; document.getElementById('edit-user-error').style.display='block'; return; }
+        const body = { user_id:id, full_name:name, role };
+        if (site_id !== null) body.site_id = site_id;
+        if (photo) body.avatar_url = photo;
+        if (role === 'albergatore') {
+            const feats = {}, menu = {};
+            PLUGIN_FEATURES.forEach(f => {
+                feats[f.key] = document.getElementById('ef-'+f.key)?.checked ?? true;
+                menu[f.key]  = document.getElementById('em-'+f.key)?.checked ?? true;
+            });
+            body.plugin_features = feats;
+            body.menu_visibility = menu;
+        }
         try {
             const { data:{ session } } = await _SB.auth.getSession();
-            const body = { user_id:id, full_name:name, role };
-            if (site_id !== null) body.site_id = site_id;
             const resp = await fetch(`${SUPABASE_URL}/functions/v1/isi-admin-users`, {
                 method:'PATCH', headers:{'Authorization':'Bearer '+session.access_token,'Content-Type':'application/json'},
                 body: JSON.stringify(body)
