@@ -676,7 +676,7 @@
                         <div style="font-size:18px;font-weight:800;color:#171b33;letter-spacing:-.01em">Stato contenuti</div>
                     </div>
                     <div style="border-top:1px solid #f0f0f6">
-                        <div style="font-size:10px;font-weight:700;color:#aaa;letter-spacing:.08em;text-transform:uppercase;padding:12px 20px 6px">SEZIONI</div>
+                        <div style="font-size:10px;font-weight:700;color:#4a4a6a;letter-spacing:.08em;text-transform:uppercase;padding:12px 20px 6px">SEZIONI</div>
                         ${[
                             {k:'overview', l:'PANORAMICA',         v:'Semafori e punteggi'},
                             {k:'faq',      l:'FAQ',                v: covPct!==null?(covPct+'% coperto'):'1 pubblicata'},
@@ -702,7 +702,7 @@
                 <!-- COLONNA DESTRA: KPI + content pane (cambia in base alla selezione sidebar) -->
                 <div>
                 <div style="background:white;border-radius:16px;box-shadow:0 2px 20px rgba(0,0,0,0.07);overflow:hidden;margin-bottom:20px">
-                    <div style="padding:14px 20px;border-bottom:1px solid #f0f0f6;display:flex;align-items:center;gap:8px">
+                    <div style="padding:14px 20px;border-bottom:1px solid #f0f0f6;background:#fafafa;display:flex;align-items:center;gap:8px">
                         <span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span>
                         <span style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">PANORAMICA GEO SCORE</span>
                     </div>
@@ -1020,12 +1020,16 @@
                     delete r.dataset.active;
                     r.style.background = 'white';
                     const lbl = r.querySelector('.ssec-label');
-                    if (lbl) lbl.style.color = '#aaa';
+                    if (lbl) lbl.style.color = '#4a4a6a';
+                    const val = r.querySelectorAll('span')[1];
+                    if (val) val.style.color = '#181834';
                 });
                 row.dataset.active = '1';
                 row.style.background = '#fce8ef';
                 const lbl = row.querySelector('.ssec-label');
                 if (lbl) lbl.style.color = '#d82d6b';
+                const val = row.querySelectorAll('span')[1];
+                if (val) val.style.color = '#d82d6b';
                 if (sec === 'pse') initPseCharts(pseData);
                 if (sec === 'mappa') initMappaQueryMgmt(site);
                 if (sec === 'coerenza') initCoerenzaTable(site);

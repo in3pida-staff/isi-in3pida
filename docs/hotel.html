@@ -188,7 +188,7 @@ function renderContent(site, pseData, now) {
     el.innerHTML = `
         <!-- KPI -->
         <div style="background:white;border-radius:16px;box-shadow:0 2px 20px rgba(0,0,0,0.07);overflow:hidden;margin-bottom:20px">
-            <div style="padding:14px 20px;border-bottom:1px solid #f0f0f6;display:flex;align-items:center;gap:8px">
+            <div style="padding:14px 20px;border-bottom:1px solid #f0f0f6;background:#fafafa;display:flex;align-items:center;gap:8px">
                 <span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span>
                 <span style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">PANORAMICA GEO SCORE</span>
             </div>
@@ -237,7 +237,7 @@ function renderContent(site, pseData, now) {
                         <div style="font-size:18px;font-weight:800;color:#171b33;letter-spacing:-.01em">Stato contenuti</div>
                     </div>
                     <div style="border-top:1px solid #f0f0f6">
-                        <div style="font-size:10px;font-weight:700;color:#aaa;letter-spacing:.08em;text-transform:uppercase;padding:12px 20px 6px">SEZIONI</div>
+                        <div style="font-size:10px;font-weight:700;color:#4a4a6a;letter-spacing:.08em;text-transform:uppercase;padding:12px 20px 6px">SEZIONI</div>
                         ${[
                             {k:'faq',     l:'FAQ',            v: covPct!==null?(covPct+'% coperto'):'1 pubblicata'},
                             {k:'schema',  l:'SCHEMA.ORG',     v: daysSchema===null?'Non aggiornato':(daysSchema+' giorni fa')},
