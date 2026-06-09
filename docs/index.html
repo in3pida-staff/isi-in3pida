@@ -654,7 +654,7 @@
         const geoBc = v => v===null?'#666b84':v>=70?'#009bb9':v>=40?'var(--cyan)':'#d82d6b';
         const geoTips = {ai_readiness:'Prontezza complessiva del sito per essere letto e citato dai sistemi AI.',answer_extraction:'Capacità del sito di fornire risposte dirette ed estraibili dai motori AI.',quality_safety:'Qualità e sicurezza dei contenuti — testo chiaro, non ambiguo, privo di contenuti problematici.',ai_visibility:'Visibilità stimata del sito sui principali sistemi AI come ChatGPT, Perplexity ecc.',entity_authority:"Autorevolezza delle entità semantiche — quanto il sito è riconosciuto come fonte affidabile.",chunk_avg:'Media della citabilità dei singoli blocchi di contenuto dal Chunk Engine.',citation_avg:'Media del punteggio Citation Engine — probabilità che il sito venga citato come fonte.'};
         const _noColorKeys = new Set(['entity_authority','chunk_avg','citation_avg']);
-        const geoRows = [{k:'ai_readiness',l:'AI Readiness'},{k:'answer_extraction',l:'Answer Extraction'},{k:'quality_safety',l:'Quality Safety'},{k:'ai_visibility',l:'AI Visibility'},{k:'entity_authority',l:'Entity Authority'},{k:'chunk_avg',l:'Chunk Citation'},{k:'citation_avg',l:'Citation Engine'}].map(({k,l})=>{const v=geo[k]??null;const vc=v===null?'#ead0dc':'#d82d6b';const noClr=_noColorKeys.has(k);const bg=(!noClr&&v!==null&&v<40)?'linear-gradient(135deg,#ffffff 0%,#fce8ef 100%)':'white';const br=(!noClr&&v!==null&&v<40)?'#ead0dc':'#e4e4ec';const st=v===null?'nessun dato':v>=70?'ottimizzato':v>=40?'da migliorare':'critico';return `<div style="background:${bg};border:1px solid ${br};border-radius:8px;padding:16px 18px"><div style="font-size:11px;font-weight:500;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;display:flex;align-items:center;gap:4px">${l} <span class='tip-q' data-tip='${geoTips[k]}'>?</span></div><div style="font-size:32px;font-weight:800;line-height:1;color:${v!==null?'#171b33':'#ead0dc'}">${v!==null?v:'—'}</div><div style="font-size:13px;font-weight:600;color:${vc};margin-top:6px">${st}</div></div>`;}).join('');
+        const geoRows = [{k:'ai_readiness',l:'AI Readiness'},{k:'answer_extraction',l:'Answer Extraction'},{k:'quality_safety',l:'Quality Safety'},{k:'ai_visibility',l:'AI Visibility'},{k:'entity_authority',l:'Entity Authority'},{k:'chunk_avg',l:'Chunk Citation'},{k:'citation_avg',l:'Citation Engine'}].map(({k,l})=>{const v=geo[k]??null;const vc=v===null?'#ead0dc':'#d82d6b';const st=v===null?'nessun dato':v>=70?'ottimizzato':v>=40?'da migliorare':'critico';return `<div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:16px 18px"><div style="font-size:11px;font-weight:500;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;display:flex;align-items:center;gap:4px">${l} <span class='tip-q' data-tip='${geoTips[k]}'>?</span></div><div style="font-size:32px;font-weight:800;line-height:1;color:${v!==null?'#171b33':'#ead0dc'}">${v!==null?v:'—'}</div><div style="font-size:13px;font-weight:600;color:${vc};margin-top:6px">${st}</div></div>`;}).join('');
 
         _aFaqFilter = 'all'; _aFaqSearch = '';
         _pseChartsInited = false; _mappaInited = false; _coerenzaInited = false; _configInited = false; _aiLayerInited = false;
@@ -671,7 +671,7 @@
             <div style="display:grid;grid-template-columns:260px 1fr;gap:20px;align-items:start">
 
                 <!-- SIDEBAR SINISTRA PERSISTENTE: Stato contenuti -->
-                <div style="position:sticky;top:80px;background:white;border-radius:8px;overflow:hidden;box-shadow:0 2px 20px rgba(0,0,0,0.07)">
+                <div style="position:sticky;top:80px;background:white;border-radius:6px;overflow:hidden;box-shadow:0 2px 20px rgba(0,0,0,0.07)">
                     <div style="padding:16px 20px 14px">
                         <div style="font-size:18px;font-weight:600;color:#171b33;letter-spacing:-.01em">Stato contenuti</div>
                     </div>
@@ -731,7 +731,7 @@
                 </div>
                 <div id="scontent-overview">
                 <div style="display:flex;flex-direction:column;gap:16px;margin-bottom:20px">
-                <div class="card" style="margin:0;border-radius:8px;border:1px solid #e4e4ec;box-shadow:none">
+                <div class="card" style="margin:0;border:1px solid #e4e4ec;box-shadow:none">
                     <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Stato semafori</div></div></div>
                     <div style="padding:0 20px 8px">
                         ${sf(statoGen,'<strong>Stato generale: '+( statoGen==='ok'?'Tutto OK':statoGen==='warn'?'Attenzione':'Problemi rilevati')+'</strong>','')}
@@ -741,7 +741,7 @@
                         ${geo.has_ai_profile===true?sf('ok','/ai-profile','Endpoint attivo — leggibile dai crawler AI'):geo.has_ai_profile===false?sf('err','/ai-profile','LLM layer disabilitato — attivalo in AI Layer'):semverGt('1.9.1',site?.plugin_version||'0')?sf('warn','/ai-profile','Aggiorna il plugin alla v1.9.2 per vedere lo stato'):sf('warn','/ai-profile','In attesa del prossimo heartbeat (ogni ora)')}
                     </div>
                 </div>
-                <div class="card" style="margin:0;border-radius:8px;border:1px solid #e4e4ec;box-shadow:none">
+                <div class="card" style="margin:0;border:1px solid #e4e4ec;box-shadow:none">
                     <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Informazioni sito</div></div></div>
                     <div style="padding:14px 16px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
                         <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:14px 16px"><div style="font-size:11px;color:#4a4a6a;font-weight:500;letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px">Sito</div><div style="font-size:16px;font-weight:700;color:#171b33">${escHtml(site?.site_name||'—')}</div></div>
@@ -756,12 +756,12 @@
                 </div>
                 </div><!-- /semafori+info sito -->
 
-            <div class="card" style="margin-bottom:20px;border-radius:8px;border:1px solid #e4e4ec;box-shadow:none">
+            <div class="card" style="margin-bottom:20px;border:1px solid #e4e4ec;box-shadow:none">
                 <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
                     <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Punteggi AI</div></div>
                 </div>
                 <div style="padding:16px 20px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
-                    <div style="background:${geoAvg!==null&&geoAvg<40?'linear-gradient(135deg,#ffffff 0%,#fce8ef 100%)':geoAvg!==null?'linear-gradient(135deg,#ffffff 0%,#e9f7fb 100%)':'white'};border:1.5px solid ${geoAvg!==null&&geoAvg<40?'#ead0dc':'#b3e0ea'};border-radius:8px;padding:16px 18px">
+                    <div style="background:white;border:1.5px solid #d82d6b;border-radius:8px;padding:16px 18px">
                         <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:4px">MEDIA PUNTEGGI <span class='tip-q' data-tip='Media ponderata di tutti i punteggi AI del sito. Rappresenta la prontezza complessiva per essere citato dai motori AI.'>?</span></div>
                         <div style="font-size:38px;font-weight:800;line-height:1;color:${geoAvg!==null?'#171b33':'#ead0dc'}">${geoAvg!==null?geoAvg:'—'}</div>
                         <div style="font-size:11px;font-weight:600;color:${geoAvg!==null?'#d82d6b':'#ead0dc'};margin-top:6px">${geoAvg!==null?(geoAvg>=70?'ottimizzato':geoAvg>=40?'da migliorare':'critico'):'nessun dato'} / 100</div>
@@ -769,13 +769,13 @@
                     ${geoRows}
                 </div>
             </div>
-            ${cs !== null ? `<div class="card" style="margin-bottom:20px;border-radius:8px;border:1px solid #e4e4ec;box-shadow:none">
+            ${cs !== null ? `<div class="card" style="margin-bottom:20px;border:1px solid #e4e4ec;box-shadow:none">
                 <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
                     <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Completezza profilo AI</div></div>
                 </div>
                 <div style="padding:16px 20px">
                     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:${checklist.length?'20px':'0'}">
-                        <div style="background:${cs<60?'linear-gradient(135deg,#ffffff 0%,#fce8ef 100%)':'white'};border:1.5px solid ${cs<60?'#d82d6b':'#e4e4ec'};border-radius:8px;padding:16px 18px">
+                        <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:16px 18px">
                             <div style="font-size:11px;font-weight:500;color:#4a4a6a;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;display:flex;align-items:center;gap:4px">PUNTEGGIO <span class='tip-q' data-tip='Punteggio di completezza del profilo AI. ≥80 ottimizzato, 60-79 da migliorare, <60 incompleto.'>?</span></div>
                             <div style="font-size:32px;font-weight:800;line-height:1;color:#171b33">${cs}/100</div>
                             <div style="font-size:13px;font-weight:600;color:#d82d6b;margin-top:6px">${cs>=80?'ottimizzato':cs>=60?'da migliorare':'incompleto'}</div>
@@ -799,18 +799,18 @@
                     ${checklist.length ? `<div style="font-size:11px;font-weight:700;color:var(--grey);letter-spacing:.06em;margin-bottom:8px">COSA MANCA</div>${checklist.map(item=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #f4f4f8"><span style="color:#d82d6b;font-weight:800;font-size:12px">✗</span><span style="font-size:13px">${escHtml(item)}</span></div>`).join('')}` : ''}
                 </div>
             </div>` : ''}
-            <div class="card" style="margin-bottom:20px;border-radius:8px;border:1px solid #e4e4ec;box-shadow:none">
+            <div class="card" style="margin-bottom:20px;border:1px solid #e4e4ec;box-shadow:none">
                 <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
                     <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Missing Answer Detector</div></div>
                 </div>
                 <div style="padding:16px 20px">
                     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:${(covPct!==null&&(freshAlerts.length||missingQueries.length))?'16px':'0'}">
-                        <div style="background:${covPct===null?'white':covPct<80?'linear-gradient(135deg,#ffffff 0%,#fce8ef 100%)':'white'};border:1px solid ${covPct!==null&&covPct<80?'#ead0dc':'#e4e4ec'};border-radius:8px;padding:16px 18px">
+                        <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:16px 18px">
                             <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:4px">COVERAGE FAQ <span class='tip-q' data-tip='Percentuale di domande degli ospiti coperta dalle FAQ pubblicate. ≥80% buona copertura.'>?</span></div>
                             <div style="font-size:32px;font-weight:800;line-height:1;color:${covPct===null?'#ead0dc':'#171b33'}">${covPct!==null?covPct+'%':'—'}</div>
                             <div style="font-size:11px;font-weight:600;color:${covPct===null?'#ead0dc':'#d82d6b'};margin-top:6px">${covPct===null?'nessun dato':covPct>=80?'buona copertura':'da migliorare'}</div>
                         </div>
-                        <div style="background:${missingAnswers>0?'linear-gradient(135deg,#ffffff 0%,#fce8ef 100%)':'white'};border:1px solid ${missingAnswers>0?'#ead0dc':'#e4e4ec'};border-radius:8px;padding:16px 18px">
+                        <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:16px 18px">
                             <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:4px">SENZA RISPOSTA <span class='tip-q' data-tip='Numero di domande degli ospiti senza una risposta FAQ disponibile sul sito.'>?</span></div>
                             <div style="font-size:32px;font-weight:800;line-height:1;color:#171b33">${missingAnswers!==null?missingAnswers:'—'}</div>
                             <div style="font-size:11px;font-weight:600;color:#d82d6b;margin-top:6px">${missingAnswers>0?'domande mancanti':'tutto coperto'}</div>
@@ -830,18 +830,18 @@
                     ${covPct!==null&&missingQueries.length?`<div style="font-size:11px;font-weight:700;color:var(--grey);letter-spacing:.06em;margin-bottom:8px;margin-top:4px">RISPOSTE MANCANTI</div>${missingQueries.map(q=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f4f4f8"><span style="color:#d82d6b;font-weight:800;font-size:12px">✗</span><span style="font-size:13px">${escHtml(q)}</span></div>`).join('')}`:''}
                 </div>
             </div>
-            <div class="card" style="margin-bottom:20px;border-radius:8px;border:1px solid #e4e4ec;box-shadow:none">
+            <div class="card" style="margin-bottom:20px;border:1px solid #e4e4ec;box-shadow:none">
                 <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
                     <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Mappa Query</div></div>
                 </div>
                 <div style="padding:16px 20px">
                     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:${qMapPct!==null?'16px':'0'}">
-                        <div style="background:${qMapPct===null?'white':qMapPct<70?'linear-gradient(135deg,#ffffff 0%,#fce8ef 100%)':'white'};border:1px solid ${qMapPct!==null&&qMapPct<70?'#ead0dc':'#e4e4ec'};border-radius:8px;padding:16px 18px">
+                        <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:16px 18px">
                             <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:4px">COPERTURA <span class='tip-q' data-tip='Percentuale di categorie di query conversazionali degli ospiti con risposta configurata. ≥70% buona copertura.'>?</span></div>
                             <div style="font-size:32px;font-weight:800;line-height:1;color:${qMapPct===null?'#ead0dc':'#171b33'}">${qMapPct!==null?qMapPct+'%':'—'}</div>
                             <div style="font-size:11px;font-weight:600;color:${qMapPct===null?'#ead0dc':'#d82d6b'};margin-top:6px">${qMapPct===null?'nessun dato':qMapPct>=70?'buona copertura':'da migliorare'}</div>
                         </div>
-                        <div style="background:${qUncovered>0?'linear-gradient(135deg,#ffffff 0%,#fce8ef 100%)':'white'};border:1px solid ${qUncovered>0?'#ead0dc':'#e4e4ec'};border-radius:8px;padding:16px 18px">
+                        <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:16px 18px">
                             <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:4px">SENZA RISPOSTA <span class='tip-q' data-tip='Categorie di query conversazionali degli ospiti senza risposta configurata nella Mappa Query.'>?</span></div>
                             <div style="font-size:32px;font-weight:800;line-height:1;color:#171b33">${qUncovered!==null?qUncovered:'—'}</div>
                             <div style="font-size:11px;font-weight:600;color:#d82d6b;margin-top:6px">${qUncovered>0?'queries mancanti':'tutto coperto'}</div>
@@ -863,9 +863,9 @@
                 </div>
             </div>
             <!-- PSE Andamento in Panoramica -->
-            <div class="card" style="margin-bottom:20px;border-radius:8px;border:1px solid #e4e4ec;box-shadow:none">
+            <div class="card" style="margin-bottom:20px;border:1px solid #e4e4ec;box-shadow:none">
                 <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
-                    <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#009bb9;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">PSE — Andamento query ultimi 30 giorni</div></div>
+                    <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">PSE — Andamento query ultimi 30 giorni</div></div>
                 </div>
                 <div style="padding:16px 20px">
                     ${(()=>{
@@ -889,7 +889,7 @@
 
             <!-- ═══ PANE: FAQ ═══ -->
             <div id="scontent-faq" style="display:none">
-            <div class="card" style="margin-bottom:20px;border-radius:8px;border:1px solid #e4e4ec;box-shadow:none">
+            <div class="card" style="margin-bottom:20px;border:1px solid #e4e4ec;box-shadow:none">
                 <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
                     <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span>
                         <div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">FAQ <span id="faq-admin-count" style="font-weight:400;text-transform:none;letter-spacing:0;font-size:11px;color:var(--grey)"></span></div>
@@ -912,7 +912,7 @@
 
             <!-- ═══ PANE: SCHEMA.ORG ═══ -->
             <div id="scontent-schema" style="display:none">
-            <div class="card" style="margin-bottom:20px;border-radius:8px;border:1px solid #e4e4ec;box-shadow:none" id="card-hotel-profile">
+            <div class="card" style="margin-bottom:20px;border:1px solid #e4e4ec;box-shadow:none" id="card-hotel-profile">
                 <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
                     <div><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Profilo Hotel / Schema.org</div></div>
                     <div style="font-size:11px;margin-top:3px" id="profile-source-badge"></div></div>
@@ -934,7 +934,7 @@
 
             <!-- ═══ PANE: MAPPA QUERY ═══ -->
             <div id="scontent-mappa" style="display:none">
-            <div class="card" style="margin-bottom:20px;border-radius:8px;border:1px solid #e4e4ec;box-shadow:none">
+            <div class="card" style="margin-bottom:20px;border:1px solid #e4e4ec;box-shadow:none">
                 <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
                     <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Mappa Query — Gestione</div></div>
                     <button id="btn-add-query-cat" class="btn-update" style="margin-left:0">+ Aggiungi categoria</button>
@@ -945,7 +945,7 @@
 
             <!-- ═══ PANE: COERENZA CONTENUTI ═══ -->
             <div id="scontent-coerenza" style="display:none">
-            <div class="card" style="margin-bottom:20px;border-radius:8px;border:1px solid #e4e4ec;box-shadow:none">
+            <div class="card" style="margin-bottom:20px;border:1px solid #e4e4ec;box-shadow:none">
                 <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
                     <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Coerenza Contenuti — Confronto Canali</div></div>
                     <button id="btn-save-coerenza" class="btn-update" style="margin-left:0;display:none">Salva</button>
@@ -968,22 +968,22 @@
             <!-- ═══ PANE: STATISTICHE PSE ═══ -->
             <div id="scontent-pse" style="display:none">
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px">
-                <div class="card" style="border-radius:8px;border:1px solid #e4e4ec;box-shadow:none;margin:0">
-                    <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#009bb9;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Presenza nei risultati AI</div></div></div>
+                <div class="card" style="border:1px solid #e4e4ec;box-shadow:none;margin:0">
+                    <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Presenza nei risultati AI</div></div></div>
                     <div style="padding:20px;display:flex;flex-direction:column;align-items:center;min-height:260px;justify-content:center">
                         <canvas id="chart-pse-donut" style="max-width:200px;max-height:200px"></canvas>
                         <div id="pse-donut-legend" style="margin-top:12px;font-size:12px;color:#666b84;text-align:center"></div>
                     </div>
                 </div>
-                <div class="card" style="border-radius:8px;border:1px solid #e4e4ec;box-shadow:none;margin:0">
-                    <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#009bb9;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Query nel tempo (ultimi 30 giorni)</div></div></div>
+                <div class="card" style="border:1px solid #e4e4ec;box-shadow:none;margin:0">
+                    <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Query nel tempo (ultimi 30 giorni)</div></div></div>
                     <div style="padding:20px"><canvas id="chart-pse-bar" style="max-height:200px"></canvas></div>
                 </div>
             </div>
-            <div class="card" style="border-radius:8px;border:1px solid #e4e4ec;box-shadow:none;margin:0">
-                <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#009bb9;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Riepilogo PSE</div></div></div>
+            <div class="card" style="border:1px solid #e4e4ec;box-shadow:none;margin:0">
+                <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Riepilogo PSE</div></div></div>
                 <div id="pse-stats-grid" style="padding:16px 20px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
-                    ${(()=>{const tot=pseData?.length||0;const totCost=(pseData||[]).reduce((a,r)=>a+(parseFloat(r.cost_usd)||0),0);const cited=(pseData||[]).filter(r=>(r.result?.cited||r.result?.found||r.result?.match_found)).length;const pct=tot>0?Math.round(cited/tot*100):null;const bx=(l,v,s,vc)=>'<div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:16px 18px"><div style="font-size:11px;color:#4a4a6a;font-weight:500;letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px">'+l+'</div><div style="font-size:28px;font-weight:800;color:#171b33;line-height:1">'+v+'</div><div style="font-size:13px;font-weight:600;color:'+vc+';margin-top:5px">'+s+'</div></div>';return bx('QUERY TOTALI',tot,'eseguite','#009bb9')+bx('CITAZIONI',cited,'trovate','#009bb9')+bx('TASSO CITAZIONE',pct!==null?pct+'%':'—',pct!==null?(pct>=50?'buona visibilità':'da migliorare'):'nessun dato',pct!==null?(pct>=50?'#009bb9':'#d82d6b'):'#ead0dc')+bx('COSTO TOTALE','€'+totCost.toFixed(4),'speso','#666b84');})()}
+                    ${(()=>{const tot=pseData?.length||0;const totCost=(pseData||[]).reduce((a,r)=>a+(parseFloat(r.cost_usd)||0),0);const cited=(pseData||[]).filter(r=>(r.result?.cited||r.result?.found||r.result?.match_found)).length;const pct=tot>0?Math.round(cited/tot*100):null;const bx=(l,v,s,vc)=>'<div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:16px 18px"><div style="font-size:11px;color:#4a4a6a;font-weight:500;letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px">'+l+'</div><div style="font-size:28px;font-weight:800;color:#171b33;line-height:1">'+v+'</div><div style="font-size:13px;font-weight:600;color:'+vc+';margin-top:5px">'+s+'</div></div>';return bx('QUERY TOTALI',tot,'eseguite','#d82d6b')+bx('CITAZIONI',cited,'trovate','#d82d6b')+bx('TASSO CITAZIONE',pct!==null?pct+'%':'—',pct!==null?(pct>=50?'buona visibilità':'da migliorare'):'nessun dato',pct!==null?'#d82d6b':'#ead0dc')+bx('COSTO TOTALE','€'+totCost.toFixed(4),'speso','#666b84');})()}
                 </div>
             </div>
             </div><!-- /scontent-pse -->
@@ -1007,34 +1007,34 @@
         };
         document.getElementById('btn-stato-sync-all').addEventListener('click', () => doSync(document.getElementById('btn-stato-sync-all'), 'SINCRONIZZA'));
 
-        // ── sidebar navigation
+        // ── sidebar navigation (event delegation — più robusto di querySelectorAll)
         const allSecs = ['overview','faq','schema','mappa','coerenza','ai_layer','config','pse'];
-        el.querySelectorAll('.stato-sezione-row[data-sec]').forEach(row => {
-            row.addEventListener('click', () => {
-                const sec = row.dataset.sec;
-                allSecs.forEach(s => { const p = document.getElementById('scontent-'+s); if(p) p.style.display='none'; });
-                const pane = document.getElementById('scontent-'+sec);
-                if (pane) pane.style.display = 'block';
-                el.querySelectorAll('.stato-sezione-row').forEach(r => {
-                    delete r.dataset.active;
-                    r.style.background = 'white';
-                    const lbl = r.querySelector('.ssec-label');
-                    if (lbl) lbl.style.color = '#4a4a6a';
-                    const val = r.querySelectorAll('span')[1];
-                    if (val) val.style.color = '#181834';
-                });
-                row.dataset.active = '1';
-                row.style.background = '#fce8ef';
-                const lbl = row.querySelector('.ssec-label');
-                if (lbl) lbl.style.color = '#d82d6b';
-                const val = row.querySelectorAll('span')[1];
-                if (val) val.style.color = '#d82d6b';
-                if (sec === 'pse') initPseCharts(pseData);
-                if (sec === 'mappa') initMappaQueryMgmt(site);
-                if (sec === 'coerenza') initCoerenzaTable(site);
-                if (sec === 'ai_layer') initAiLayerPanel(site);
-                if (sec === 'config') initConfigPanel(site);
+        el.addEventListener('click', e => {
+            const row = e.target.closest('.stato-sezione-row[data-sec]');
+            if (!row) return;
+            const sec = row.getAttribute('data-sec');
+            allSecs.forEach(s => { const p = document.getElementById('scontent-'+s); if(p) p.style.display='none'; });
+            const pane = document.getElementById('scontent-'+sec);
+            if (pane) pane.style.display = 'block';
+            el.querySelectorAll('.stato-sezione-row').forEach(r => {
+                delete r.dataset.active;
+                r.style.background = 'white';
+                const lbl = r.querySelector('.ssec-label');
+                if (lbl) lbl.style.color = '#9ca3af';
+                const val = r.querySelectorAll('span')[1];
+                if (val) val.style.color = '#4a4a6a';
             });
+            row.dataset.active = '1';
+            row.style.background = '#fce8ef';
+            const lbl = row.querySelector('.ssec-label');
+            if (lbl) lbl.style.color = '#d82d6b';
+            const val = row.querySelectorAll('span')[1];
+            if (val) val.style.color = '#d82d6b';
+            if (sec === 'pse') initPseCharts(pseData);
+            if (sec === 'mappa') initMappaQueryMgmt(site);
+            if (sec === 'coerenza') initCoerenzaTable(site);
+            if (sec === 'ai_layer') initAiLayerPanel(site);
+            if (sec === 'config') initConfigPanel(site);
         });
 
         // ── FAQ filter buttons
@@ -1832,7 +1832,7 @@
              </div>`;
 
         cont.innerHTML = `
-        <div class="card" style="margin-bottom:20px;border-radius:8px;border:1px solid #e4e4ec;box-shadow:none">
+        <div class="card" style="margin-bottom:20px;border:1px solid #e4e4ec;box-shadow:none">
             <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
                 <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Stato AI Layer</div></div>
             </div>
@@ -1854,7 +1854,7 @@
                 </div>`}
             </div>
         </div>
-        <div class="card" style="margin-bottom:20px;border-radius:8px;border:1px solid #e4e4ec;box-shadow:none">
+        <div class="card" style="margin-bottom:20px;border:1px solid #e4e4ec;box-shadow:none">
             <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
                 <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Punteggi AI Layer</div></div>
             </div>
@@ -1874,7 +1874,7 @@
                 }).join('')}
             </div>
         </div>
-        <div class="card" style="border-radius:8px;border:1px solid #e4e4ec;box-shadow:none">
+        <div class="card" style="border:1px solid #e4e4ec;box-shadow:none">
             <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
                 <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Checklist AI Layer</div></div>
             </div>
@@ -1948,7 +1948,7 @@
         const hp = site?.hotel_profile || {};
         const cfg = hp.isi_config || {};
         const geo = site?.geo_scores || {};
-        const cardH = '<div class="card" style="margin-bottom:20px;border-radius:8px;border:1px solid #e4e4ec;box-shadow:none">';
+        const cardH = '<div class="card" style="margin-bottom:20px;border:1px solid #e4e4ec;box-shadow:none">';
         const chH = (dot,title) => '<div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:'+dot+';display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">'+title+'</div></div></div>';
         const row = (l,v) => '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f4f4f8"><span style="font-size:13px;font-weight:600;color:#4b4d68">'+l+'</span><span style="font-size:13px;color:#171b33;font-weight:700">'+v+'</span></div>';
         const toggl = (id,label,checked) => '<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #f4f4f8"><span style="font-size:13px;font-weight:600;color:#4b4d68">'+label+'</span><label style="display:inline-flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="cfg-'+id+'" '+(checked?'checked':'')+' style="width:16px;height:16px;accent-color:#d82d6b"><span style="font-size:12px;color:#aaa">'+(checked?'Attivo':'Disattivo')+'</span></label></div>';
