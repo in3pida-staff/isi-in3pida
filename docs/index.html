@@ -427,7 +427,7 @@
         const avatarUrl = user.user_metadata?.avatar_url;
         if (avatarUrl) setAvatar(avatarUrl);
 
-        const { data: vd } = await _SBq.from('isi_plugin_versions').select('version,download_url').eq('is_current',true).single();
+        const { data: vd } = await _SBq.from('isi_plugin_versions').select('version,download_url').eq('is_current',true).limit(1).single();
         if (vd) latestVersion = vd;
         loadTab('panoramica');
     }
@@ -1730,7 +1730,7 @@
         data.forEach(v => {
             const d = v.released_at ? new Date(v.released_at).toLocaleDateString('it-IT') : '—';
             const badge = v.is_current
-                ? '<span style="background:#e0f7f9;color:var(--cyan2);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px">Corrente</span>'
+                ? '<span style="background:#fce8ef;color:#d82d6b;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px">Corrente</span>'
                 : '<span style="background:var(--light);color:var(--grey);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px">Archiviata</span>';
             const btnCurrent = !v.is_current
                 ? `<button class="btn-ping" onclick="impostaVersioneCorrente('${escHtml(v.version)}')">Imposta come corrente</button>` : '';
@@ -2831,7 +2831,7 @@
             const rankBadge = r.rank === 1
                 ? '<span style="background:var(--green-bg);color:var(--green-text);font-weight:700;padding:2px 8px;border-radius:20px">#1</span>'
                 : r.rank <= 3
-                    ? `<span style="background:#e0f7f9;color:var(--magenta);font-weight:700;padding:2px 8px;border-radius:20px">#${r.rank}</span>`
+                    ? `<span style="background:#fbf4f7;color:var(--magenta);font-weight:700;padding:2px 8px;border-radius:20px">#${r.rank}</span>`
                     : r.rank
                         ? `<span style="background:var(--red-bg);color:var(--red-text);font-weight:700;padding:2px 8px;border-radius:20px">#${r.rank}</span>`
                         : '<span style="color:var(--grey)">—</span>';

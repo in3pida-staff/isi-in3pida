@@ -2,12 +2,12 @@
 
 :root {
     --magenta:    #d82d6b;
-    --magenta2:   #b8235a;
-    --cyan:       #009bb9;
-    --cyan2:      #007a93;
-    --dark:       #181834;
-    --grey:       #4a4a6a;
-    --light:      #f0f0f4;
+    --magenta2:   #b00020;
+    --cyan:       #d82d6b;
+    --cyan2:      #666b84;
+    --dark:       #171b33;
+    --grey:       #666b84;
+    --light:      #fbf4f7;
     --white:      #ffffff;
     --border:     #e4e4ec;
     --shadow:     0 2px 20px rgba(0,0,0,0.07);
@@ -15,18 +15,18 @@
     --radius:     8px;
     --radius-sm:  10px;
     --font:       'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
-    --green:      #22c55e;
-    --green-bg:   #dcfce7;
-    --green-text: #16a34a;
-    --yellow:     #f59e0b;
-    --yellow-bg:  #fef9c3;
-    --yellow-text:#92400e;
-    --red:        #ef4444;
-    --red-bg:     #fee2e2;
-    --red-text:   #dc2626;
-    --grey-dot:   #94a3b8;
-    --grey-bg:    #f1f5f9;
-    --grey-text:  #64748b;
+    --green:      #d82d6b;
+    --green-bg:   #fbf4f7;
+    --green-text: #d82d6b;
+    --yellow:     #b00020;
+    --yellow-bg:  #fce8ef;
+    --yellow-text:#b00020;
+    --red:        #b00020;
+    --red-bg:     #fce8ef;
+    --red-text:   #b00020;
+    --grey-dot:   #666b84;
+    --grey-bg:    #f4f4f8;
+    --grey-text:  #4b4d68;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
