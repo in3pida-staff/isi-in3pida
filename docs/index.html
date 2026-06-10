@@ -582,23 +582,32 @@
     // ─── TAB INSTALLAZIONI ────────────────────────────────────────────────────────
     async function loadSitiTab() {
         document.getElementById('siti-container').innerHTML = '<div class="loading"><div class="spinner"></div> Caricamento...</div>';
-        const { data, error } = await _SBq.from('isi_sites').select('*').order('last_heartbeat',{ascending:false});
+        const [{ data, error }, { data: costRows }] = await Promise.all([
+            _SBq.from('isi_sites').select('*').order('last_heartbeat',{ascending:false}),
+            _SBq.from('isi_pse_queries').select('site_id,cost_usd'),
+        ]);
         if (error||!data) { document.getElementById('siti-container').innerHTML = '<div class="empty-state"><div class="empty-title">Errore caricamento dati</div></div>'; return; }
+        // Aggrega costi per site_id
+        const costsMap = {};
+        (costRows||[]).forEach(r => { costsMap[r.site_id] = (costsMap[r.site_id]||0) + (parseFloat(r.cost_usd)||0); });
         document.getElementById('siti-count').textContent = data.length+(data.length===1?' sito':' siti');
         allSiti = data;
-        renderSitiTable(data, 'siti-container');
+        renderSitiTable(data, 'siti-container', costsMap);
     }
 
     // ─── TABELLA SITI (condivisa) ─────────────────────────────────────────────────
-    function renderSitiTable(data, containerId) {
+    function renderSitiTable(data, containerId, costsMap) {
         const el = document.getElementById(containerId);
         if (!data.length) {
             el.innerHTML = '<div class="empty-state"><div class="empty-icon">🏨</div><div class="empty-title">Nessun sito registrato</div><div class="empty-sub">I siti appariranno qui dopo l\'attivazione del plugin</div></div>';
             return;
         }
         const now = new Date();
+        const totalCost = Object.values(costsMap||{}).reduce((a,b)=>a+(b||0),0);
         let html = `<table class="sites-table"><thead><tr>
-            <th>Stato</th><th>Sito</th><th>Ultimo segnale</th><th>Versione</th>
+            <th>Stato</th><th>Sito</th><th>Ultimo segnale</th>
+            <th>Versione</th>
+            <th class="th-center"><a href="costs.html" onclick="event.stopPropagation()" style="color:inherit;text-decoration:none">Costi AI <span style="background:#fbf4f7;border:1px solid #ead0dc;color:#d82d6b;font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;vertical-align:middle;margin-left:4px">€${totalCost.toFixed(4)}</span></a></th>
             <th class="th-center">GEO Score <span class="tip-q" data-tip="Quanto il sito è ottimizzato per essere citato dai motori AI come ChatGPT e Google.">?</span></th>
             <th class="th-center">Missing Answer <span class="tip-q" data-tip="Percentuale di domande degli utenti a cui il sito sa rispondere. Più è alto, meno risposte mancano.">?</span></th>
             <th class="th-center">Completezza AI <span class="tip-q" data-tip="Quanto il profilo dell'hotel è completo: nome, indirizzo, telefono, descrizione, FAQ ecc.">?</span></th>
@@ -628,11 +637,14 @@
             const isConnected = hrs < 25;
             const dotColor = isConnected ? '#009bb9' : '#666b84';
             const dotTitle = isConnected ? 'Collegamento con il sito attivo' : 'Collegamento con il sito non attivo';
+            const siteCost = costsMap?.[site.site_id] || 0;
+            const costHtml = `<a href="costs.html?site_id=${encodeURIComponent(site.site_id)}" onclick="event.stopPropagation()" style="font-size:12px;font-weight:700;color:#4b4d68;text-decoration:none">€${siteCost.toFixed(4)}</a>`;
             html += `<tr data-site-id="${escHtml(site.site_id)}" style="cursor:pointer">
                 <td><span class="dot" style="background:${dotColor};box-shadow:0 0 0 4px ${dotColor}26;cursor:help" title="${escHtml(dotTitle)}"></span></td>
                 <td><div class="site-name-cell">${escHtml(site.site_name||'—')}</div><div style="font-size:11px;color:var(--grey);margin-top:2px">${escHtml(site.site_url||'')}</div></td>
                 <td style="font-size:12px;color:${hbColor};font-weight:600">${hbTesto}</td>
                 <td>${verHtml}</td>
+                <td class="td-center">${costHtml}</td>
                 <td class="td-center">${geoHtml}</td>
                 <td class="td-center">${covHtml}</td>
                 <td class="td-center">${csHtml}</td>
@@ -1132,6 +1144,7 @@
                 </div>
             </div>
             <div id="sov-card" style="display:none;margin-bottom:20px"></div>
+            <div id="reason-gap-card" style="display:none;margin-bottom:20px"></div>
             <div id="mappa-query-mgmt" style="padding:0"><div class="loading" style="padding:20px"><div class="spinner"></div></div></div>
             </div><!-- /scontent-mappa -->
 
@@ -2305,6 +2318,97 @@
                 <div style="padding:12px 20px">${bodyHtml}</div>
             </div>`;
             sovEl.style.display = 'block';
+        }
+
+        // ── Reason Gap ──────────────────────────────────────────────────────────
+        const rgEl = document.getElementById('reason-gap-card');
+        if (rgEl) {
+            // Calcola query scoperte per il bottone
+            const uncovered = [];
+            cats.forEach(cat => {
+                const qs = MAPPA_DEFAULTS[cat];
+                const entry = qmap[cat] || {};
+                const coveredSet = new Set(Array.isArray(entry.covered_queries) ? entry.covered_queries : (entry.covered ? qs : []));
+                qs.forEach(q => { if (!coveredSet.has(q) && !coveredSet.has(q.toLowerCase())) uncovered.push({query: q, cat}); });
+            });
+
+            // Controlla rate limit locale (1x settimana)
+            const rgKey = 'rg_last_' + site.site_id;
+            const rgLast = localStorage.getItem(rgKey);
+            const rgDaysAgo = rgLast ? (Date.now() - parseInt(rgLast)) / 86400000 : 999;
+            const rgCanRun = rgDaysAgo >= 7;
+            const rgNextDate = rgLast ? new Date(parseInt(rgLast) + 7*86400000).toLocaleDateString('it-IT') : null;
+
+            // Carica ultimi risultati salvati
+            const { data: rgResults } = await _SB.from('isi_reason_gap_results')
+                .select('query,cat,gaps,created_at')
+                .eq('site_id', site.site_id)
+                .order('created_at', {ascending: false})
+                .limit(200);
+
+            const hasResults = rgResults?.length > 0;
+            const lastRunDate = hasResults ? new Date(rgResults[0].created_at).toLocaleDateString('it-IT') : null;
+
+            let rgBody = '';
+            if (hasResults) {
+                const byQuery = {};
+                rgResults.forEach(r => { if (!byQuery[r.query]) byQuery[r.query] = r; });
+                rgBody = Object.values(byQuery).map((r: any) =>
+                    `<div style="padding:10px 0;border-bottom:1px solid #f4f4f8">
+                        <div style="font-size:12px;font-weight:600;color:#171b33;margin-bottom:4px">${escHtml(r.query)}</div>
+                        <div style="display:flex;flex-direction:column;gap:3px">${(r.gaps||[]).map((g: string) =>
+                            `<div style="font-size:12px;color:#4b4d68;display:flex;align-items:flex-start;gap:6px"><span style="color:#d82d6b;flex-shrink:0">→</span>${escHtml(g)}</div>`
+                        ).join('')}</div>
+                    </div>`
+                ).join('');
+            }
+
+            const btnLabel = rgCanRun
+                ? `Analizza ${uncovered.length} query scoperte`
+                : `Prossima analisi disponibile il ${rgNextDate}`;
+
+            rgEl.innerHTML = `<div class="card" style="border:1px solid #e4e4ec;box-shadow:none">
+                <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
+                    <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Reason Gap</div><span class="tip-q" data-tip="Per ogni query scoperta, spiega cosa manca nel profilo per farla apparire nelle risposte AI." style="background:transparent;border:1px solid #aaa;color:#aaa;box-shadow:none">?</span></div>
+                    ${lastRunDate ? `<span style="font-size:11px;color:#666b84;font-family:var(--font)">Ultimo aggiornamento: ${lastRunDate}</span>` : ''}
+                </div>
+                <div style="padding:14px 20px">
+                    <div style="margin-bottom:${hasResults?'14px':'0'}">
+                        <button id="btn-reason-gap" class="${rgCanRun?'btn-update':'btn-ping'}" style="margin-left:0;${!rgCanRun?'cursor:not-allowed;opacity:.6':''}" ${!rgCanRun||!uncovered.length?'disabled':''}>
+                            ${uncovered.length===0 ? 'Tutte le query sono coperte' : btnLabel}
+                        </button>
+                    </div>
+                    ${hasResults ? `<div id="rg-results" style="max-height:400px;overflow-y:auto">${rgBody}</div>` : ''}
+                </div>
+            </div>`;
+            rgEl.style.display = 'block';
+
+            const rgBtn = document.getElementById('btn-reason-gap');
+            if (rgBtn && rgCanRun && uncovered.length) {
+                rgBtn.addEventListener('click', async () => {
+                    rgBtn.disabled = true;
+                    rgBtn.textContent = '⏳ Analisi in corso...';
+                    try {
+                        const { data: { session } } = await _SB.auth.getSession();
+                        if (!session) throw new Error('Sessione scaduta');
+                        const res = await fetch(`${SUPABASE_URL}/functions/v1/reason-gap`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
+                            body: JSON.stringify({ site_id: site.site_id, queries: uncovered.slice(0, 50) })
+                        });
+                        const json = await res.json();
+                        if (!res.ok) throw new Error(json.error || 'Errore analisi');
+                        localStorage.setItem(rgKey, Date.now().toString());
+                        // Ricarica sezione
+                        _mappaInited = false;
+                        initMappaQueryMgmt(site, pseData);
+                    } catch(e) {
+                        rgBtn.disabled = false;
+                        rgBtn.textContent = btnLabel;
+                        alert('Errore: ' + e.message);
+                    }
+                });
+            }
         }
 
         cont.innerHTML = cats.map(cat => {

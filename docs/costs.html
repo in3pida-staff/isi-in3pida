@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <title>Costi AI — Eletta</title>
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="navbar-inner">
+    <div class="navbar-left">
+      <div class="navbar-logo" onclick="window.location.href='index.html'" style="cursor:pointer"><img src="images/logo.png" alt="in3pida"></div>
+    </div>
+    <div class="navbar-right">
+      <button class="btn-back" onclick="window.location.href='index.html'" style="margin-bottom:0">← Torna alle installazioni</button>
+    </div>
+  </div>
+</nav>
+
+<div class="main-content" style="max-width:1100px;margin:0 auto;padding:30px 20px">
+
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+        <div>
+            <div style="font-size:22px;font-weight:800;color:#171b33;letter-spacing:-.02em">Costi AI</div>
+            <div style="font-size:13px;color:#666b84;margin-top:4px">Riepilogo di tutte le chiamate AI della piattaforma</div>
+        </div>
+        <div id="total-badge" style="text-align:right">
+            <div style="font-size:11px;font-weight:700;color:#666b84;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Totale dall'inizio</div>
+            <div id="grand-total" style="font-size:28px;font-weight:800;color:#d82d6b">—</div>
+        </div>
+    </div>
+
+    <!-- FILTRI -->
+    <div class="card" style="margin-bottom:20px;border:1px solid #e4e4ec;box-shadow:none">
+        <div style="padding:14px 20px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <div style="display:flex;gap:6px" id="period-btns">
+                <button class="period-btn active" data-period="all">Dall'inizio</button>
+                <button class="period-btn" data-period="today">Oggi</button>
+                <button class="period-btn" data-period="week">Ultima settimana</button>
+                <button class="period-btn" data-period="month">Ultimo mese</button>
+                <button class="period-btn" data-period="custom">Personalizzato</button>
+            </div>
+            <div id="custom-range" style="display:none;display:flex;align-items:center;gap:8px;margin-left:8px">
+                <input type="date" id="date-from" class="profile-input" style="padding:6px 10px;font-size:12px;width:140px">
+                <span style="font-size:12px;color:#666b84">→</span>
+                <input type="date" id="date-to" class="profile-input" style="padding:6px 10px;font-size:12px;width:140px">
+                <button class="btn-update" id="btn-apply-custom" style="margin-left:0;padding:6px 14px">Applica</button>
+            </div>
+            <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
+                <select id="filter-site" class="profile-input" style="padding:6px 10px;font-size:12px;min-width:180px">
+                    <option value="">Tutti i siti</option>
+                </select>
+                <select id="filter-type" class="profile-input" style="padding:6px 10px;font-size:12px">
+                    <option value="">Tutti i tipi</option>
+                    <option value="pse">PSE Query</option>
+                    <option value="reason_gap">Reason Gap</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPI -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px" id="kpi-grid">
+        <div class="card" style="border:1px solid #e4e4ec;box-shadow:none;padding:16px 18px">
+            <div style="font-size:11px;font-weight:700;color:#666b84;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Costo totale</div>
+            <div id="kpi-cost" style="font-size:28px;font-weight:800;color:#171b33">—</div>
+        </div>
+        <div class="card" style="border:1px solid #e4e4ec;box-shadow:none;padding:16px 18px">
+            <div style="font-size:11px;font-weight:700;color:#666b84;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Chiamate totali</div>
+            <div id="kpi-calls" style="font-size:28px;font-weight:800;color:#171b33">—</div>
+        </div>
+        <div class="card" style="border:1px solid #e4e4ec;box-shadow:none;padding:16px 18px">
+            <div style="font-size:11px;font-weight:700;color:#666b84;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Costo medio/chiamata</div>
+            <div id="kpi-avg" style="font-size:28px;font-weight:800;color:#171b33">—</div>
+        </div>
+        <div class="card" style="border:1px solid #e4e4ec;box-shadow:none;padding:16px 18px">
+            <div style="font-size:11px;font-weight:700;color:#666b84;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Siti attivi</div>
+            <div id="kpi-sites" style="font-size:28px;font-weight:800;color:#171b33">—</div>
+        </div>
+    </div>
+
+    <!-- TABELLA DETTAGLIO -->
+    <div class="card" style="border:1px solid #e4e4ec;box-shadow:none">
+        <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
+            <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Dettaglio chiamate</div></div>
+            <span id="rows-count" style="font-size:12px;color:#666b84"></span>
+        </div>
+        <div style="overflow-x:auto">
+            <table class="sites-table" id="costs-table">
+                <thead><tr>
+                    <th>Data</th>
+                    <th>Hotel</th>
+                    <th>Tipo</th>
+                    <th>Query</th>
+                    <th class="th-center">Costo</th>
+                </tr></thead>
+                <tbody id="costs-tbody"><tr><td colspan="5" style="text-align:center;padding:30px;color:#666b84">Caricamento...</td></tr></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+.period-btn { padding:6px 14px; border:1px solid #e4e4ec; border-radius:4px; background:white; font-size:12px; font-weight:600; color:#4b4d68; cursor:pointer; font-family:var(--font); transition:all .15s; }
+.period-btn.active { background:#fce8ef; border-color:#d82d6b; color:#d82d6b; }
+.period-btn:hover:not(.active) { border-color:#d82d6b; color:#d82d6b; }
+</style>
+
+<script>
+const SUPABASE_URL = 'https://yyauvoqjdzrbmebeafit.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5YXV2b3FqZHpyYm1lYmVhZml0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3OTM2MDAsImV4cCI6MjA5NTM2OTYwMH0.M6kD56PEO_UcJ68Vjquo03vuORjv62MflIzGLzYKN9w';
+const _SB = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let allRows = [];
+let currentPeriod = 'all';
+let customFrom = null, customTo = null;
+let filterSite = '', filterType = '';
+
+const urlParams = new URLSearchParams(window.location.search);
+const presetSiteId = urlParams.get('site_id') || '';
+
+async function init() {
+    const { data: { user } } = await _SB.auth.getUser();
+    if (!user || user.user_metadata?.role === 'albergatore') { window.location.href = 'login.html'; return; }
+
+    // Carica tutti i dati PSE
+    const { data: pse } = await _SB.from('isi_pse_queries')
+        .select('created_at,cost_usd,site_id,site_name,query')
+        .order('created_at', {ascending: false})
+        .limit(5000);
+
+    // Carica reason gap
+    const { data: rg } = await _SB.from('isi_reason_gap_results')
+        .select('created_at,cost_usd,site_id,site_name,query')
+        .order('created_at', {ascending: false})
+        .limit(5000);
+
+    allRows = [
+        ...(pse||[]).map(r => ({...r, type:'pse', type_label:'PSE Query'})),
+        ...(rg||[]).map(r => ({...r, type:'reason_gap', type_label:'Reason Gap'})),
+    ].sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+
+    // Totale dall'inizio (sempre)
+    const grandTotal = allRows.reduce((s,r) => s+(parseFloat(r.cost_usd)||0), 0);
+    document.getElementById('grand-total').textContent = '€' + grandTotal.toFixed(4);
+
+    // Popola filtro siti
+    const sites = [...new Set(allRows.map(r => JSON.stringify({id:r.site_id,name:r.site_name||r.site_id})))].map(s=>JSON.parse(s));
+    const sel = document.getElementById('filter-site');
+    sites.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s.id; opt.textContent = s.name;
+        sel.appendChild(opt);
+    });
+    if (presetSiteId) { sel.value = presetSiteId; filterSite = presetSiteId; }
+
+    render();
+}
+
+function getDateRange() {
+    const now = new Date();
+    if (currentPeriod === 'today') {
+        const s = new Date(now); s.setHours(0,0,0,0);
+        return [s, now];
+    }
+    if (currentPeriod === 'week') {
+        const s = new Date(now); s.setDate(s.getDate()-7);
+        return [s, now];
+    }
+    if (currentPeriod === 'month') {
+        const s = new Date(now); s.setMonth(s.getMonth()-1);
+        return [s, now];
+    }
+    if (currentPeriod === 'custom' && customFrom && customTo) {
+        return [new Date(customFrom), new Date(customTo + 'T23:59:59')];
+    }
+    return [null, null];
+}
+
+function render() {
+    const [from, to] = getDateRange();
+    const filtered = allRows.filter(r => {
+        const d = new Date(r.created_at);
+        if (from && d < from) return false;
+        if (to   && d > to)   return false;
+        if (filterSite && r.site_id !== filterSite) return false;
+        if (filterType && r.type !== filterType) return false;
+        return true;
+    });
+
+    const total = filtered.reduce((s,r) => s+(parseFloat(r.cost_usd)||0), 0);
+    const avg = filtered.length ? total/filtered.length : 0;
+    const sitesCount = new Set(filtered.map(r=>r.site_id)).size;
+
+    document.getElementById('kpi-cost').textContent  = '€' + total.toFixed(4);
+    document.getElementById('kpi-calls').textContent = filtered.length;
+    document.getElementById('kpi-avg').textContent   = '€' + avg.toFixed(6);
+    document.getElementById('kpi-sites').textContent = sitesCount;
+    document.getElementById('rows-count').textContent = filtered.length + ' righe';
+
+    const tbody = document.getElementById('costs-tbody');
+    if (!filtered.length) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:30px;color:#666b84">Nessun dato per il periodo selezionato</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = filtered.slice(0, 500).map(r => `
+        <tr>
+            <td style="font-size:12px;color:#666b84;white-space:nowrap">${new Date(r.created_at).toLocaleString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})}</td>
+            <td style="font-size:13px;font-weight:600;color:#171b33">${r.site_name||r.site_id||'—'}</td>
+            <td><span style="background:${r.type==='pse'?'#fbf4f7':'#f4f4f8'};color:${r.type==='pse'?'#d82d6b':'#4b4d68'};font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px">${r.type_label}</span></td>
+            <td style="font-size:12px;color:#4b4d68;max-width:320px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.query||'—'}</td>
+            <td class="td-center" style="font-size:12px;font-weight:700;color:#171b33">€${(parseFloat(r.cost_usd)||0).toFixed(6)}</td>
+        </tr>
+    `).join('');
+}
+
+// Event listeners
+document.querySelectorAll('.period-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentPeriod = btn.dataset.period;
+        document.getElementById('custom-range').style.display = currentPeriod === 'custom' ? 'flex' : 'none';
+        render();
+    });
+});
+
+document.getElementById('btn-apply-custom').addEventListener('click', () => {
+    customFrom = document.getElementById('date-from').value;
+    customTo   = document.getElementById('date-to').value;
+    render();
+});
+
+document.getElementById('filter-site').addEventListener('change', e => { filterSite = e.target.value; render(); });
+document.getElementById('filter-type').addEventListener('change', e => { filterType = e.target.value; render(); });
+
+init();
+</script>
+</body>
+</html>
