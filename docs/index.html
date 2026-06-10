@@ -2417,7 +2417,7 @@
             const thStyle = 'padding:10px 12px;font-size:10px;font-weight:700;color:#aaa;letter-spacing:.05em;text-transform:uppercase;text-align:center;background:#f7f7fb;white-space:nowrap;border-bottom:1px solid #e4e4ec';
             const tdStyle = 'padding:8px 10px;border-bottom:1px solid #f4f4f8;vertical-align:top';
             let html = '<table style="width:100%;border-collapse:collapse;min-width:900px"><thead><tr><th style="'+thStyle+';text-align:left;min-width:140px">Campo</th>';
-            _coerenzaChannels.forEach(ch => { html += '<th style="'+thStyle+'">' + escHtml(ch) + '</th>'; });
+            _coerenzaChannels.forEach((ch, ci) => { html += '<th style="'+thStyle+'"><div style="display:flex;align-items:center;justify-content:center;gap:6px">' + escHtml(ch) + '<button onclick="window._removeCoerenzaChannel('+ci+')" style="background:transparent;border:none;cursor:pointer;color:#aaa;font-size:11px;padding:0;line-height:1;font-weight:700" title="Rimuovi canale">✕</button></div></th>'; });
             html += '</tr></thead><tbody>';
             COERENZA_FIELDS.forEach(field => {
                 html += '<tr><td style="'+tdStyle+';font-size:12px;font-weight:700;color:#4b4d68;white-space:nowrap">'+escHtml(field)+'</td>';
@@ -2431,6 +2431,13 @@
             cont.innerHTML = html;
         }
         renderTable();
+
+        window._removeCoerenzaChannel = (ci) => {
+            if (!confirm('Rimuovere il canale "' + _coerenzaChannels[ci] + '"?')) return;
+            _coerenzaChannels.splice(ci, 1);
+            renderTable();
+            if (btnSave) btnSave.style.display = 'inline-flex';
+        };
 
         if (btnSave) btnSave.onclick = async () => {
             btnSave.textContent = 'Salvataggio...'; btnSave.disabled = true;
