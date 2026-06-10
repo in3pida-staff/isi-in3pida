@@ -940,7 +940,10 @@
                     <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span>
                         <div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">FAQ <span id="faq-admin-count" style="font-weight:400;text-transform:none;letter-spacing:0;font-size:11px;color:var(--grey)"></span></div>
                     </div>
-                    <button id="btn-add-faq-admin" class="btn-update" style="margin-left:0">+ Aggiungi FAQ</button>
+                    <div style="display:flex;gap:8px">
+                        <button id="btn-faq-settings-toggle" class="btn-ping" style="font-size:11px;padding:5px 12px">⚙️ Impostazioni</button>
+                        <button id="btn-add-faq-admin" class="btn-update" style="margin-left:0">+ Aggiungi FAQ</button>
+                    </div>
                 </div>
                 <div style="padding:10px 20px;border-bottom:1px solid #ececf2;display:flex;gap:6px;align-items:center;flex-wrap:wrap">
                     <button class="faq-f-btn faq-f-active" data-f="all" style="padding:5px 14px;border-radius:6px;border:1px solid #d82d6b;background:#fce8ef;color:#d82d6b;font-size:11px;font-weight:500;cursor:pointer">TUTTI</button>
@@ -956,7 +959,7 @@
             </div>
 
             <!-- Impostazioni Plugin FAQ -->
-            <div class="card" style="margin-top:20px;border:1px solid #e4e4ec;box-shadow:none" id="card-faq-settings">
+            <div class="card" style="display:none;margin-top:20px;border:1px solid #e4e4ec;box-shadow:none" id="card-faq-settings">
                 <div class="card-header" style="border-bottom:1px solid #ececf2;background:#f4f4f8">
                     <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Impostazioni Plugin FAQ</div></div>
                     <button id="btn-save-faq-settings" class="btn-update" style="margin-left:0">Salva impostazioni</button>
@@ -1001,6 +1004,28 @@
                                 <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:#666b84;cursor:pointer"><input id="faq-setting-color4-inherit" type="checkbox" style="margin:0"> Eredita dal sito</label>
                             </div>
                         </div>
+                    </div>
+                    <div style="font-size:10px;font-weight:700;color:#4a4a6a;letter-spacing:.08em;text-transform:uppercase;margin-top:20px;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid #e4e4ec">⬆️ ORDINAMENTO FAQ</div>
+                    <div style="font-size:12px;color:#666b84;margin-bottom:12px">Per l'ordine manuale usa il drag &amp; drop nella lista FAQ. Il salvataggio avviene via AJAX quando sposti le domande.</div>
+                    <div style="margin-bottom:12px">
+                        <label style="display:block;font-size:12px;font-weight:600;color:#4b4d68;margin-bottom:6px">Ordina FAQ per</label>
+                        <div style="display:flex;gap:8px">
+                            <label style="display:flex;align-items:center;gap:6px;padding:8px 16px;border:1px solid #e4e4ec;border-radius:6px;cursor:pointer;font-size:13px;color:#171b33;font-weight:500">
+                                <input id="faq-order-manual" type="radio" name="faq-order" value="manual" checked style="margin:0;accent-color:#d82d6b"> Ordine manuale
+                            </label>
+                            <label style="display:flex;align-items:center;gap:6px;padding:8px 16px;border:1px solid #e4e4ec;border-radius:6px;cursor:pointer;font-size:13px;color:#171b33;font-weight:500">
+                                <input id="faq-order-asc" type="radio" name="faq-order" value="asc" style="margin:0;accent-color:#d82d6b"> Crescente
+                            </label>
+                        </div>
+                    </div>
+                    <div style="font-size:10px;font-weight:700;color:#4a4a6a;letter-spacing:.08em;text-transform:uppercase;margin-top:20px;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid #e4e4ec">⚙️ COMPORTAMENTO</div>
+                    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:4px">
+                        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:#171b33;font-weight:500">
+                            <input id="faq-setting-open-first" type="checkbox" style="margin:0;width:16px;height:16px;accent-color:#d82d6b"> Apri la prima FAQ
+                        </label>
+                        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:#171b33;font-weight:500">
+                            <input id="faq-setting-schema-seo" type="checkbox" checked style="margin:0;width:16px;height:16px;accent-color:#d82d6b"> Aggiungi dati strutturati FAQPage per SEO nella pagina FAQ
+                        </label>
                     </div>
                     <div id="faq-settings-msg" style="display:none;margin-top:12px;padding:8px 12px;border-radius:6px;font-size:12px;font-weight:600"></div>
                     <div style="margin-top:16px;padding:10px 14px;background:#f4f4f8;border-radius:6px;font-size:11px;color:#666b84">
@@ -1843,10 +1868,20 @@
         } catch (_) {}
         const addBtn = document.getElementById('btn-add-faq-admin');
         if (addBtn) addBtn.addEventListener('click', () => openAdminFaqModal(null));
-        loadAdminFaqList();
-        loadFaqPluginSettings();
+        const toggleBtn = document.getElementById('btn-faq-settings-toggle');
+        if (toggleBtn) toggleBtn.addEventListener('click', () => {
+            const card = document.getElementById('card-faq-settings');
+            if (!card) return;
+            const open = card.style.display === 'none';
+            card.style.display = open ? 'block' : 'none';
+            toggleBtn.style.background = open ? '#fce8ef' : '';
+            toggleBtn.style.color = open ? '#d82d6b' : '';
+            toggleBtn.style.borderColor = open ? '#d82d6b' : '';
+            if (open) loadFaqPluginSettings();
+        });
         const saveBtn = document.getElementById('btn-save-faq-settings');
         if (saveBtn) saveBtn.addEventListener('click', saveFaqPluginSettings);
+        loadAdminFaqList();
     }
 
     async function loadFaqPluginSettings() {
@@ -1861,6 +1896,12 @@
             if (s.color_accent !== undefined)  { document.getElementById('faq-setting-color2').value = s.color_accent  || '#d82d6b'; document.getElementById('faq-setting-color2-inherit').checked = !!s.color_accent_inherit; }
             if (s.color_text !== undefined)    { document.getElementById('faq-setting-color3').value = s.color_text    || '#171b33'; document.getElementById('faq-setting-color3-inherit').checked = !!s.color_text_inherit; }
             if (s.color_bg !== undefined)      { document.getElementById('faq-setting-color4').value = s.color_bg      || '#ffffff'; document.getElementById('faq-setting-color4-inherit').checked = !!s.color_bg_inherit; }
+            if (s.order_by !== undefined) {
+                document.getElementById('faq-order-manual').checked = s.order_by !== 'asc';
+                document.getElementById('faq-order-asc').checked = s.order_by === 'asc';
+            }
+            if (s.open_first !== undefined) document.getElementById('faq-setting-open-first').checked = !!s.open_first;
+            if (s.schema_seo !== undefined) document.getElementById('faq-setting-schema-seo').checked = !!s.schema_seo;
         } catch (_) {}
     }
 
@@ -1880,6 +1921,9 @@
             color_text_inherit:    document.getElementById('faq-setting-color3-inherit').checked,
             color_bg:              document.getElementById('faq-setting-color4').value,
             color_bg_inherit:      document.getElementById('faq-setting-color4-inherit').checked,
+            order_by:    document.getElementById('faq-order-asc').checked ? 'asc' : 'manual',
+            open_first:  document.getElementById('faq-setting-open-first').checked,
+            schema_seo:  document.getElementById('faq-setting-schema-seo').checked,
         };
         try {
             const ctrl = new AbortController(); setTimeout(() => ctrl.abort(), 8000);
@@ -1889,7 +1933,7 @@
                 body: JSON.stringify(payload)
             });
             if (!r.ok) throw new Error('HTTP ' + r.status);
-            msg.style.display='block'; msg.style.background='#f0fdf4'; msg.style.color='#166534'; msg.textContent='Impostazioni salvate!';
+            msg.style.display='block'; msg.style.background='#f4fff8'; msg.style.color='#166534'; msg.textContent='Impostazioni salvate!';
         } catch (e) {
             msg.style.display='block'; msg.style.background='#fce8ef'; msg.style.color='#b00020'; msg.textContent='Errore: '+e.message+' — aggiorna il plugin per abilitare questa funzione.';
         }
