@@ -2852,24 +2852,24 @@
         // Carica stato canali salvato (nuovo formato: {url, last_scan_at, results})
         const savedRaw = hp.coerenza_channels || {};
         const channels = {};
-        _DEFAULT_COERENZA_CHANNELS.forEach(ch => {
-            const s = savedRaw[ch];
-            if (s && typeof s === 'object' && ('url' in s || 'results' in s)) {
-                channels[ch] = { url: s.url || '', last_scan_at: s.last_scan_at || null, results: s.results || [], error: s.error || null };
-            } else {
-                channels[ch] = { url: '', last_scan_at: null, results: [], error: null };
-            }
-        });
-        // Carica canali custom salvati su Supabase (non presenti nei default)
-        Object.keys(savedRaw).forEach(ch => {
-            if (!_DEFAULT_COERENZA_CHANNELS.includes(ch)) {
-                _DEFAULT_COERENZA_CHANNELS.push(ch);
+
+        if (Object.keys(savedRaw).length === 0) {
+            // Prima configurazione: inizializza tutti i default e salva su Supabase
+            _DEFAULT_COERENZA_CHANNELS.forEach(ch => { channels[ch] = { url: '', last_scan_at: null, results: [], error: null }; });
+            const hp2 = { ...hp, coerenza_channels: channels };
+            site.hotel_profile = hp2;
+            _SBq.from('isi_sites').update({ hotel_profile: hp2 }).eq('site_id', site.site_id);
+        } else {
+            // Carica esattamente ciò che è salvato — canali eliminati non tornano
+            _DEFAULT_COERENZA_CHANNELS.length = 0;
+            Object.keys(savedRaw).forEach(ch => {
                 const s = savedRaw[ch];
+                _DEFAULT_COERENZA_CHANNELS.push(ch);
                 channels[ch] = s && typeof s === 'object'
                     ? { url: s.url || '', last_scan_at: s.last_scan_at || null, results: s.results || [], error: s.error || null }
                     : { url: '', last_scan_at: null, results: [], error: null };
-            }
-        });
+            });
+        }
 
         // Dati di riferimento per confronto
         const refData = {
@@ -2927,14 +2927,13 @@
                     }
                 }
 
-                const isDefault = ['Google Business','Booking.com','TripAdvisor','Airbnb','Expedia'].includes(ch);
                 return `<div style="border:1px solid #e4e4ec;border-radius:8px;padding:14px 16px;margin-bottom:12px">
                     <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">
                         <div style="font-size:13px;font-weight:700;color:#171b33;min-width:110px">${escHtml(ch)}</div>
                         <input type="url" class="coer-url-inp" data-channel="${escHtml(ch)}" value="${escHtml(d.url||'')}" placeholder="https://..." style="flex:1;min-width:200px;border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:12px;font-family:var(--font);outline:none;color:#171b33;background:#fff">
                         <button type="button" class="btn-scan-ch" data-channel="${escHtml(ch)}" style="background:#d82d6b;color:white;border:none;border-radius:6px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);white-space:nowrap;flex-shrink:0">Scansiona</button>
-                        <button type="button" class="btn-save-ch" data-channel="${escHtml(ch)}" style="background:transparent;color:#171b33;border:1.5px solid #e4e4ec;border-radius:6px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);white-space:nowrap;flex-shrink:0">Salva</button>
-                        ${!isDefault ? `<button type="button" class="btn-remove-ch" data-channel="${escHtml(ch)}" style="background:transparent;border:none;padding:4px 8px;font-size:16px;color:#b00020;cursor:pointer;font-family:var(--font);white-space:nowrap;flex-shrink:0;line-height:1">✕</button>` : ''}
+                        <button type="button" class="btn-save-ch" data-channel="${escHtml(ch)}" style="background:transparent;color:#171b33;border:1.5px solid #e4e4ec;border-radius:4px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);white-space:nowrap;flex-shrink:0">Salva</button>
+                        <button type="button" class="btn-remove-ch info-close" data-channel="${escHtml(ch)}">✕</button>
                     </div>
                     <div>${statusHtml}</div>
                     ${resultsHtml}
@@ -3072,8 +3071,9 @@
                 </tr></thead><tbody>`;
             _DEFAULT_COERENZA_CHANNELS.forEach(ch => {
                 const d = channels[ch]; if (!d) return;
-                html += `<tr><td colspan="4" style="background:#f7f7fb;font-weight:700;font-size:13px;padding:10px 12px;border-bottom:2px solid #e4e4ec;color:#171b33">${escHtml(ch)}`;
-                if (d.url) html += ` <span style="font-weight:400;color:#009bb9;font-size:11px">${escHtml(d.url)}</span>`;
+                const shortUrl = d.url ? (d.url.length > 60 ? d.url.slice(0,58)+'…' : d.url) : '';
+                html += `<tr><td colspan="4" style="background:#fdf1f6;font-weight:700;font-size:13px;padding:10px 12px;border-bottom:2px solid #ead0dc;color:#d82d6b">${escHtml(ch)}`;
+                if (shortUrl) html += ` <span style="font-weight:400;color:#666b84;font-size:11px">${escHtml(shortUrl)}</span>`;
                 html += `</td></tr>`;
                 if (!d.url) {
                     html += `<tr><td colspan="4" style="padding:8px 12px;color:#9ca3af;font-size:12px">URL non configurato</td></tr>`;
@@ -3103,22 +3103,45 @@
             return html;
         }
 
-        window._printCoerenzaReport = () => {
+        function buildFullReportHtml() {
             const hotelNome = document.getElementById('cu-nome')?.textContent || site.site_name || '';
-            const hotelAddr = document.getElementById('cu-addr')?.textContent || '';
             const oggi = new Date().toLocaleDateString('it-IT');
             const rows = buildReportRows();
+            return `<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8">
+<title>Report Confronto Canali — ${escHtml(hotelNome)}</title>
+<style>
+  body{font-family:Arial,Helvetica,sans-serif;color:#171b33;padding:32px;max-width:900px;margin:0 auto}
+  h2{margin:0 0 4px;font-size:22px;color:#d82d6b}
+  .sub{font-size:13px;color:#666b84;margin:0 0 24px}
+  table{width:100%;border-collapse:collapse;margin-top:0}
+  @media print{button{display:none!important}}
+  .footer{margin-top:24px;font-size:11px;color:#9ca3af;border-top:1px solid #e4e4ec;padding-top:12px}
+</style>
+</head><body>
+<h2>Report Confronto Canali</h2>
+<p class="sub">${escHtml(hotelNome)} &nbsp;·&nbsp; ${oggi}</p>
+${rows}
+<p class="footer">Generato da Eletta — isi.in3pida.it &nbsp;·&nbsp; ${oggi}</p>
+<br><button onclick="window.print()" style="background:#d82d6b;color:white;border:none;padding:10px 24px;font-size:14px;font-weight:700;border-radius:6px;cursor:pointer">🖨 Stampa / Salva PDF</button>
+</body></html>`;
+        }
+
+        window._printCoerenzaReport = () => {
             const w = window.open('', '_blank');
             if (!w) { showToast('Consenti i popup per stampare.'); return; }
-            w.document.write(`<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><title>Report Confronto Canali</title>
-<style>body{font-family:Arial,sans-serif;color:#171b33;padding:24px}table{width:100%;border-collapse:collapse}@media print{button{display:none}}</style>
-</head><body><h2 style="margin:0 0 4px">Report Confronto Canali</h2>
-<p style="color:#666b84;margin:0 0 20px;font-size:13px">${escHtml(hotelNome)} · ${oggi}</p>
-${rows}
-<p style="font-size:11px;color:#9ca3af;margin-top:20px">Generato da Eletta — isi.in3pida.it</p>
-<button onclick="window.print()" style="margin-top:16px;background:#d82d6b;color:white;border:none;padding:10px 24px;font-size:14px;font-weight:700;border-radius:6px;cursor:pointer">🖨 Stampa / Salva PDF</button>
-</body></html>`);
+            w.document.write(buildFullReportHtml());
             w.document.close();
+        };
+
+        window._exportCoerenzaReport = () => {
+            const hotelNome = document.getElementById('cu-nome')?.textContent || site.site_name || 'hotel';
+            const html = buildFullReportHtml();
+            const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'report-canali-' + hotelNome.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') + '-' + new Date().toISOString().slice(0,10) + '.html';
+            a.click();
+            URL.revokeObjectURL(a.href);
         };
 
         if (btnReport) btnReport.onclick = () => {
@@ -3865,6 +3888,7 @@ ${rows}
         <div id="modal-report-sub" style="font-size:12px;color:#666b84;margin-top:2px"></div>
       </div>
       <div style="display:flex;gap:8px;align-items:center">
+        <button onclick="window._exportCoerenzaReport()" class="btn-ping" style="font-size:12px;padding:7px 16px">⬇ Esporta HTML</button>
         <button onclick="window._printCoerenzaReport()" class="btn-update" style="margin:0;font-size:12px;padding:7px 16px">🖨 Stampa / PDF</button>
         <button onclick="document.getElementById('modal-report-coerenza').style.display='none'" class="btn-ping" style="font-size:12px;padding:7px 14px">✕ Chiudi</button>
       </div>
