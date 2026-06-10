@@ -659,7 +659,7 @@
         const now = new Date();
         const [{ data:site }, { data:pseData }] = await Promise.all([
             _SBq.from('isi_sites').select('*').eq('site_id',siteId).single(),
-            _SBq.from('isi_pse_queries').select('created_at,cost_usd,result').eq('site_id',siteId).order('created_at',{ascending:false}).limit(500),
+            _SBq.from('isi_pse_queries').select('created_at,cost_usd,result,query').eq('site_id',siteId).order('created_at',{ascending:false}).limit(500),
         ]);
         const hrs = site?.last_heartbeat ? (now - new Date(site.last_heartbeat))/3600000 : 9999;
         const geo = site?.geo_scores || {};
@@ -776,17 +776,17 @@
                     else if (geoAvg !== null && geoAvg < 70) notifs.push({lvl:'warn', text:'GEO Score basso ('+geoAvg+'/100) — ottimizza il profilo hotel per migliorare la visibilità AI'});
                     const schemaEmpty = !site?.schema_data || !Object.keys(site?.schema_data||{}).filter(k=>site.schema_data[k]).length;
                     if (schemaEmpty) notifs.push({lvl:'warn', text:'Schema.org non configurato — compila il profilo nella sezione Schema.org'});
-                    if (!notifs.length) return '';
-                    const rows = notifs.map(n => {
+                    const rows = notifs.length ? notifs.map(n => {
                         const dotC = n.lvl==='err' ? '#b00020' : '#d82d6b';
                         const bg   = n.lvl==='err' ? '#fce8ef' : '#fbf4f7';
                         const tc   = n.lvl==='err' ? '#b00020' : '#4b4d68';
                         return `<div style="display:flex;align-items:flex-start;gap:10px;padding:10px 14px;background:${bg};border-radius:4px"><span style="width:8px;height:8px;border-radius:50%;background:${dotC};flex-shrink:0;margin-top:4px;display:inline-block"></span><span style="font-size:13px;font-weight:400;color:${tc};font-family:var(--font);line-height:1.4">${n.text}</span></div>`;
-                    }).join('');
+                    }).join('') : `<div style="font-size:13px;font-weight:400;color:#666b84;font-family:var(--font)">Nessuna notifica</div>`;
+                    const badge = notifs.length ? `<span style="background:#d82d6b;color:white;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;font-family:var(--font)">${notifs.length}</span>` : '';
                     return `<div class="card" style="margin-bottom:20px;border:1px solid #e4e4ec;box-shadow:none">
                         <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
                             <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Notifiche</div></div>
-                            <span style="background:#d82d6b;color:white;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;font-family:var(--font)">${notifs.length}</span>
+                            ${badge}
                         </div>
                         <div style="padding:14px 20px;display:flex;flex-direction:column;gap:8px">${rows}</div>
                     </div>`;
@@ -1131,6 +1131,7 @@
                     </div>
                 </div>
             </div>
+            <div id="sov-card" style="display:none;margin-bottom:20px"></div>
             <div id="mappa-query-mgmt" style="padding:0"><div class="loading" style="padding:20px"><div class="spinner"></div></div></div>
             </div><!-- /scontent-mappa -->
 
@@ -1243,7 +1244,7 @@
             const val = row.querySelectorAll('span')[1];
             if (val) val.style.color = '#d82d6b';
             if (sec === 'pse') initPseCharts(pseData);
-            if (sec === 'mappa') initMappaQueryMgmt(site);
+            if (sec === 'mappa') initMappaQueryMgmt(site, pseData);
             if (sec === 'coerenza') initCoerenzaTable(site);
             if (sec === 'ai_layer') initAiLayerPanel(site);
             if (sec === 'config') initConfigPanel(site);
@@ -2228,7 +2229,7 @@
         'prenotazione_prezzi':    ['tariffe hotel per notte','cancellazione gratuita hotel','offerte last minute hotel','prezzo minimo garantito hotel','caparra prenotazione hotel','sconto prenotazione diretta hotel','hotel bambini gratis','pacchetti tutto incluso hotel'],
     };
 
-    async function initMappaQueryMgmt(site) {
+    async function initMappaQueryMgmt(site, pseData) {
         if (_mappaInited) return; _mappaInited = true;
         const cont = document.getElementById('mappa-query-mgmt');
         if (!cont) return;
@@ -2257,6 +2258,51 @@
         if (missingEl) missingEl.textContent  = totalQ - coveredQ;
         if (scoreEl)   scoreEl.textContent    = pct + '/100';
         if (barEl)     barEl.style.width      = pct + '%';
+
+        // ── Share of Voice ──────────────────────────────────────────────────────
+        const sovEl = document.getElementById('sov-card');
+        if (sovEl) {
+            const pseItems = (pseData || []).filter(p => p.query);
+            if (pseItems.length) {
+                const isCited = p => p.result?.cited || p.result?.found || p.result?.match_found;
+                const clusterRows = cats.map(cat => {
+                    const label = cat.replace(/_/g,' ').replace(/\b\w/g, c => c.toUpperCase());
+                    const qs = new Set(MAPPA_DEFAULTS[cat].map(q => q.toLowerCase()));
+                    const matched = pseItems.filter(p => qs.has((p.query||'').toLowerCase()));
+                    if (!matched.length) return null;
+                    const cited = matched.filter(isCited).length;
+                    const pct = Math.round(cited / matched.length * 100);
+                    return {label, total: matched.length, cited, pct};
+                }).filter(Boolean);
+
+                const totCited = pseItems.filter(isCited).length;
+                const totPct = Math.round(totCited / pseItems.length * 100);
+
+                const rowsHtml = clusterRows.map(r =>
+                    `<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f4f4f8">
+                        <div style="font-size:12px;font-weight:600;color:#4b4d68;width:140px;flex-shrink:0">${escHtml(r.label)}</div>
+                        <div style="flex:1;background:#e4e4ec;border-radius:4px;height:6px;overflow:hidden"><div style="height:100%;background:#d82d6b;border-radius:4px;width:${r.pct}%;transition:width .4s"></div></div>
+                        <div style="font-size:12px;color:#666b84;width:90px;text-align:right;flex-shrink:0">${r.cited}/${r.total} citate</div>
+                        <div style="font-size:14px;font-weight:700;color:#d82d6b;width:38px;text-align:right;flex-shrink:0">${r.pct}%</div>
+                    </div>`
+                ).join('');
+
+                const emptyMsg = clusterRows.length ? '' :
+                    `<div style="font-size:13px;color:#666b84;padding:12px 0">Nessuna query PSE corrisponde ai cluster della mappa.</div>`;
+
+                sovEl.innerHTML = `<div class="card" style="border:1px solid #e4e4ec;box-shadow:none">
+                    <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
+                        <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">AI Share of Voice</div></div>
+                        <span style="font-size:12px;color:#666b84;font-family:var(--font)">${pseItems.length} monitorate &mdash; <strong style="color:#d82d6b">${totCited}</strong> citate (${totPct}%)</span>
+                    </div>
+                    <div style="padding:0 20px 4px">
+                        <div style="font-size:12px;color:#666b84;padding:10px 0 4px">Per cluster: quante query PSE monitorate citano il sito nella risposta AI.</div>
+                        ${clusterRows.length ? rowsHtml : emptyMsg}
+                    </div>
+                </div>`;
+                sovEl.style.display = 'block';
+            }
+        }
 
         cont.innerHTML = cats.map(cat => {
             const label = cat.replace(/_/g,' ').replace(/\b\w/g, c => c.toUpperCase());
