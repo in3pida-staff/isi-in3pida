@@ -269,7 +269,7 @@
             </div>
             <div class="card">
                 <div class="card-header">
-                    <div class="card-title">Installazioni — Sito Intelligente</div>
+                    <div class="card-title">Installazioni — Eletta</div>
                     <div style="display:flex;align-items:center;gap:12px">
                         <span id="panoramica-count" style="font-size:13px;font-weight:600;color:var(--grey)"></span>
                         <button class="btn-update" id="btn-refresh-panoramica">Aggiorna tutti</button>
@@ -414,6 +414,8 @@
     async function init() {
         const { data: { session } } = await _SB.auth.getSession();
         if (!session) { window.location.href = 'login.html'; return; }
+        // Propaga il JWT a _SBq (client separato con persistSession:false) per superare RLS
+        await _SBq.auth.setSession({ access_token: session.access_token, refresh_token: session.refresh_token || '' });
         const user = session.user;
         if (user.user_metadata?.role === 'albergatore') { window.location.href = 'hotel.html'; return; }
         const name = user.user_metadata?.full_name || user.email?.split('@')[0] || 'Utente';

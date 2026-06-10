@@ -108,6 +108,7 @@ let _pseChartsInited = false, _mappaInited = false, _coerenzaInited = false, _co
 async function init() {
     const { data:{ session } } = await _SB.auth.getSession();
     if (!session) { window.location.href = 'login.html'; return; }
+    await _SBq.auth.setSession({ access_token: session.access_token, refresh_token: session.refresh_token || '' });
     const user = session.user;
     if (user.user_metadata?.role === 'admin') { window.location.href = 'index.html'; return; }
 
