@@ -661,7 +661,7 @@
                 <td class="td-center">${geoHtml}</td>
                 <td class="td-center">${covHtml}</td>
                 <td class="td-center">${csHtml}</td>
-                <td style="white-space:nowrap"><div style="display:inline-flex;gap:5px;align-items:center"><button class="btn-update" style="font-size:11px;padding:4px 10px${isOld?'':';background:#f4f4f8;color:#666b84;border:1px solid #e4e4ec'}" onclick="event.stopPropagation();aggiornaSito('${escHtml(site.site_id)}')">Aggiorna</button><button class="btn-ping" style="font-size:11px;padding:4px 10px" onclick="event.stopPropagation();forceSync('${escHtml(site.site_id)}','${escHtml(site.site_url||'')}',this)">⚡ Sync</button><button class="btn-ping" style="font-size:11px;padding:4px 10px" onclick="event.stopPropagation();toggleSitoAttivo('${escHtml(site.site_id)}','${escHtml(site.site_url||'')}',this)">Disattiva</button></div></td>
+                <td style="white-space:nowrap"><div style="display:inline-flex;gap:5px;align-items:center"><button class="btn-update" style="font-size:11px;padding:4px 10px${isOld?'':';background:#f4f4f8;color:#666b84;border:1px solid #e4e4ec'}" onclick="event.stopPropagation();aggiornaSito('${escHtml(site.site_id)}')">Aggiorna</button><button class="btn-ping" style="font-size:11px;padding:4px 10px" onclick="event.stopPropagation();toggleSitoAttivo('${escHtml(site.site_id)}','${escHtml(site.site_url||'')}',this)">Disattiva</button></div></td>
             </tr>`;
         });
         html += '</tbody></table>';
@@ -3004,17 +3004,26 @@
                 };
             });
             cont.querySelectorAll('.btn-remove-ch').forEach(btn => {
-                btn.onclick = async () => {
+                btn.onclick = () => {
                     const ch = btn.dataset.channel;
-                    const idx = _DEFAULT_COERENZA_CHANNELS.indexOf(ch);
-                    if (idx > -1) _DEFAULT_COERENZA_CHANNELS.splice(idx, 1);
-                    delete channels[ch];
-                    expandedChannels.delete(ch);
-                    const hp2 = site?.hotel_profile || {};
-                    hp2.coerenza_channels = channels;
-                    site.hotel_profile = hp2;
-                    await _SBq.from('isi_sites').update({ hotel_profile: hp2 }).eq('site_id', site.site_id);
-                    renderChannels();
+                    const modal = document.getElementById('modal-del-canale');
+                    document.getElementById('modal-del-canale-msg').textContent = 'Rimuovere il canale "' + ch + '"?';
+                    modal.style.display = 'flex';
+                    const okBtn = document.getElementById('btn-ok-del-canale');
+                    const newOkBtn = okBtn.cloneNode(true);
+                    okBtn.parentNode.replaceChild(newOkBtn, okBtn);
+                    newOkBtn.onclick = async () => {
+                        modal.style.display = 'none';
+                        const idx = _DEFAULT_COERENZA_CHANNELS.indexOf(ch);
+                        if (idx > -1) _DEFAULT_COERENZA_CHANNELS.splice(idx, 1);
+                        delete channels[ch];
+                        expandedChannels.delete(ch);
+                        const hp2 = site?.hotel_profile || {};
+                        hp2.coerenza_channels = channels;
+                        site.hotel_profile = hp2;
+                        await _SBq.from('isi_sites').update({ hotel_profile: hp2 }).eq('site_id', site.site_id);
+                        renderChannels();
+                    };
                 };
             });
             // Toggle accordion: click sulla freccia o sulla status row
@@ -3202,7 +3211,7 @@ ${rows}
             doc.setFont('helvetica', 'normal');
             doc.setFontSize(9);
             doc.setTextColor(102, 107, 132);
-            const subLine = hotelNome + (hotelAddr && hotelAddr !== '—' ? '  -  ' + hotelAddr : '') + '   Generato il ' + oggi;
+            const subLine = hotelNome + (hotelAddr && hotelAddr !== '—' ? '  -  ' + hotelAddr : '') + '   Generato il ' + oggi + ' da Eletta';
             doc.text(subLine, ml, y);
             y += 10;
 
@@ -3215,19 +3224,20 @@ ${rows}
 
                 // Header canale (sfondo grigio chiaro)
                 doc.setFillColor(247, 247, 251);
-                doc.roundedRect(ml, y, cw, 9, 1.5, 1.5, 'F');
+                const boxH = d.url ? 14 : 9;
+                doc.roundedRect(ml, y, cw, boxH, 1.5, 1.5, 'F');
                 doc.setFont('helvetica', 'bold');
                 doc.setFontSize(10);
                 doc.setTextColor(23, 27, 51);
                 doc.text(ch, ml + 3, y + 6);
                 if (d.url) {
-                    const shortUrl = d.url.length > 70 ? d.url.slice(0,68)+'…' : d.url;
+                    const shortUrl = d.url.length > 90 ? d.url.slice(0,88)+'…' : d.url;
                     doc.setFont('helvetica', 'normal');
                     doc.setFontSize(7.5);
                     doc.setTextColor(0, 155, 185);
-                    doc.text(shortUrl, ml + 3 + doc.getTextWidth(ch) + 4, y + 6);
+                    doc.text(shortUrl, ml + 3, y + 11.5);
                 }
-                y += 11;
+                y += boxH + 2;
 
                 if (!d.url) {
                     doc.setFont('helvetica', 'italic'); doc.setFontSize(9); doc.setTextColor(156, 163, 175);
