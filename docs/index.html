@@ -1477,11 +1477,11 @@
         const taF = (id, label, val, ph, rows) =>
             `<div><label class="profile-label">${label}</label><textarea id="pf-${id}" class="profile-input" rows="${rows||3}" style="resize:vertical" placeholder="${escHtml(ph||'')}">${escHtml(val||'')}</textarea></div>`;
         const _CH = t =>
-            `<div style="border:1px solid #e4e4ec;border-radius:4px;overflow:hidden">` +
-            `<div style="background:#fafafa;padding:10px 16px;border-bottom:1px solid #ececf2;display:flex;align-items:center;gap:8px">` +
-            `<span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span>` +
-            `<div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">${t}</div>` +
-            `</div><div style="padding:14px 16px">`;
+            `<div class="card" style="border:1px solid #e4e4ec;box-shadow:none">` +
+            `<div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">` +
+            `<div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span>` +
+            `<div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">${t}</div></div>` +
+            `</div><div style="padding:14px 20px">`;
         const sec = t => `</div></div>` + _CH(t);
         const tipi = ['Hotel','LodgingBusiness','BedAndBreakfast','Hostel','Motel','Resort','VacationRental'];
 
