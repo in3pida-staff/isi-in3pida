@@ -1713,6 +1713,22 @@
             inp('google_maps_url','Google Maps URL', p.google_maps_url,'https://maps.google.com/?cid=...','url') +
             inp('destinazione','Destinazione principale', p.destinazione,'Rimini') + '</div>' +
             taF('structured_data_note','Note dati strutturati', p.structured_data_note,'Informazioni aggiuntive...', 2) +
+
+            sec('IMPOSTAZIONI AVANZATE') +
+            '<div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">' +
+            `<label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;color:#4b4d68;font-family:var(--font)"><input type="checkbox" id="pf-show_only_if_complete" ${p.show_only_if_complete?'checked':''} style="width:16px;height:16px;accent-color:#d82d6b;cursor:pointer;flex-shrink:0">Mostra JSON-LD solo se i campi obbligatori sono compilati</label>` +
+            `<label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;color:#4b4d68;font-family:var(--font)"><input type="checkbox" id="pf-avoid_seo_conflicts" ${p.avoid_seo_conflicts?'checked':''} style="width:16px;height:16px;accent-color:#d82d6b;cursor:pointer;flex-shrink:0">Evita conflitti Schema con plugin SEO compatibili (Yoast, RankMath, AIOSEO)</label>` +
+            '</div>' +
+            '<div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">' +
+            `<label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;color:#4b4d68;font-family:var(--font)"><input type="checkbox" id="pf-genera_website" ${p.genera_website!==false?'checked':''} style="width:16px;height:16px;accent-color:#d82d6b;cursor:pointer;flex-shrink:0">Genera WebSite</label>` +
+            `<label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;color:#4b4d68;font-family:var(--font)"><input type="checkbox" id="pf-genera_faqpage" ${p.genera_faqpage!==false?'checked':''} style="width:16px;height:16px;accent-color:#d82d6b;cursor:pointer;flex-shrink:0">Genera FAQPage se sono presenti FAQ</label>` +
+            `<label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;color:#4b4d68;font-family:var(--font)"><input type="checkbox" id="pf-genera_breadcrumb" ${p.genera_breadcrumb!==false?'checked':''} style="width:16px;height:16px;accent-color:#d82d6b;cursor:pointer;flex-shrink:0">Genera BreadcrumbList se compilato</label>` +
+            '</div>' +
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">' +
+            `<div><label class="profile-label">Dove mostrarlo</label><select id="pf-dove_mostrarlo" class="profile-input"><option value="homepage" ${(p.dove_mostrarlo||'homepage')==='homepage'?'selected':''}>Solo homepage</option><option value="tutto" ${p.dove_mostrarlo==='tutto'?'selected':''}>Tutto il sito</option><option value="pagine" ${p.dove_mostrarlo==='pagine'?'selected':''}>Pagine selezionate</option></select></div>` +
+            inp('id_pagine_selezionate','ID pagine selezionate', p.id_pagine_selezionate,'1, 42, 105') +
+            '</div>' +
+
             `</div></div>`;
 
         formEl.innerHTML = html;
@@ -1984,6 +2000,13 @@
             social_custom: _socialCustomTmp.filter(s=>s.url),
             google_maps_url: g('google_maps_url'), destinazione: g('destinazione'),
             structured_data_note: g('structured_data_note'),
+            show_only_if_complete: document.getElementById('pf-show_only_if_complete')?.checked||false,
+            avoid_seo_conflicts: document.getElementById('pf-avoid_seo_conflicts')?.checked||false,
+            genera_website: document.getElementById('pf-genera_website')?.checked!==false,
+            genera_faqpage: document.getElementById('pf-genera_faqpage')?.checked!==false,
+            genera_breadcrumb: document.getElementById('pf-genera_breadcrumb')?.checked!==false,
+            dove_mostrarlo: g('dove_mostrarlo')||'homepage',
+            id_pagine_selezionate: g('id_pagine_selezionate'),
             _updated_at: new Date().toISOString(), _source: 'admin',
         };
         const { error } = await _SBq.from('isi_sites').update({ hotel_profile: profile }).eq('site_id', siteId);
