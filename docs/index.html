@@ -743,8 +743,8 @@
                             {k:'mappa',    l:'MAPPA QUERY',        v: qMapPct!==null?(qMapPct+'% coperto'):'Nessun dato'},
                             {k:'coerenza', l:'COERENZA',           v:'Confronta canali'},
                             {k:'ai_layer', l:'AI LAYER',           v: geo.has_ai_profile===true?'Attivo':'Non attivo'},
-                            {k:'config',   l:'CONFIGURAZIONE',     v:'Chiavi e abilitazioni'},
                             {k:'pse',      l:'STATISTICHE PSE',    v:(pseData?.length||0)+' query registrate'},
+                            {k:'config',   l:'CONFIGURAZIONE',     v:'Chiavi e abilitazioni'},
                         ].map(({k,l,v},i)=>{
                             const isAct=i===0;
                             return '<div class="stato-sezione-row" data-sec="'+k+'"'+(isAct?' data-active="1"':'')+' style="display:flex;align-items:stretch;cursor:pointer;border-bottom:1px solid #e2e2e2;transition:background .15s">'
