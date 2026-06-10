@@ -73,10 +73,20 @@ Deno.serve(async (req) => {
       }), { headers: cors })
     }
 
-    if (!pageText) {
+    if (!pageText || pageText.length < 200) {
       return new Response(JSON.stringify({
-        error: 'empty_page',
-        message: 'La pagina è vuota o non leggibile.',
+        error: 'blocked',
+        message: `${channel} ha bloccato la scansione automatica (protezione anti-bot). Verifica i dati manualmente aprendo il link.`,
+      }), { headers: cors })
+    }
+
+    // Rileva pagine captcha/errore comuni
+    const lower = pageText.toLowerCase()
+    const isBlocked = lower.includes('captcha') || lower.includes('robot') || lower.includes('verify you are human') || lower.includes('access denied') || lower.includes('403 forbidden')
+    if (isBlocked) {
+      return new Response(JSON.stringify({
+        error: 'blocked',
+        message: `${channel} ha richiesto una verifica anti-bot. Scansione automatica non disponibile per questo portale.`,
       }), { headers: cors })
     }
 

@@ -2885,6 +2885,8 @@
                 let statusHtml;
                 if (!hasUrl) {
                     statusHtml = '<span style="font-size:12px;color:#9ca3af">URL non configurato — inserisci il link alla tua scheda su questo portale</span>';
+                } else if (d.error) {
+                    statusHtml = '<span style="font-size:12px;color:#b00020">⚠ ' + escHtml(d.error) + '</span>';
                 } else if (!hasResults) {
                     statusHtml = '<span style="font-size:12px;color:#666b84">Non ancora scansionato</span>';
                 } else if (matchCount === totalCount) {
@@ -2964,6 +2966,7 @@
                 if (res.results && res.results.length) {
                     channels[ch].results = res.results;
                     channels[ch].last_scan_at = new Date().toISOString();
+                    channels[ch].error = null;
                     const hp2 = site?.hotel_profile || {};
                     hp2.coerenza_channels = channels;
                     site.hotel_profile = hp2;
@@ -2971,8 +2974,10 @@
                     renderChannels();
                     showToast('Scansione ' + ch + ' completata.');
                 } else {
-                    const msg = res.message || res.error || 'Risposta vuota';
-                    showToast('Scansione ' + ch + ': ' + msg);
+                    const msg = res.message || (res.error === 'blocked' ? ch + ' ha bloccato la scansione automatica. Verifica i dati manualmente aprendo il link.' : 'Impossibile leggere la pagina.');
+                    channels[ch].error = msg;
+                    renderChannels();
+                    showToast(msg);
                 }
             } catch(e) {
                 showToast('Errore: ' + e.message);
