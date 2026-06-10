@@ -1714,9 +1714,18 @@
             inp('destinazione','Destinazione principale', p.destinazione,'Rimini') + '</div>' +
             taF('structured_data_note','Note dati strutturati', p.structured_data_note,'Informazioni aggiuntive...', 2) +
 
-            sec('IMPOSTAZIONI AVANZATE') +
+            `</div></div>` +
+            `<div class="card" style="border:1px solid #e4e4ec;box-shadow:none;margin-top:12px">
+                <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa;cursor:pointer;user-select:none" onclick="const b=this.nextElementSibling;const open=b.style.display!=='none';b.style.display=open?'none':'block';this.querySelector('.adv-arrow').textContent=open?'▶':'▼'">
+                    <div style="display:flex;align-items:center;gap:8px">
+                        <span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span>
+                        <div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase;flex:1">IMPOSTAZIONI AVANZATE</div>
+                        <span class="adv-arrow" style="font-size:11px;color:#666b84">▶</span>
+                    </div>
+                </div>
+                <div style="display:none;padding:14px 20px">` +
             '<div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">' +
-            `<label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;color:#4b4d68;font-family:var(--font)"><input type="checkbox" id="pf-show_only_if_complete" ${p.show_only_if_complete?'checked':''} style="width:16px;height:16px;accent-color:#d82d6b;cursor:pointer;flex-shrink:0">Mostra JSON-LD solo se i campi obbligatori sono compilati</label>` +
+            `<label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;color:#4b4d68;font-family:var(--font)"><input type="checkbox" id="pf-show_only_if_complete" ${p.show_only_if_complete!==false?'checked':''} style="width:16px;height:16px;accent-color:#d82d6b;cursor:pointer;flex-shrink:0">Mostra JSON-LD solo se i campi obbligatori sono compilati</label>` +
             `<label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;color:#4b4d68;font-family:var(--font)"><input type="checkbox" id="pf-avoid_seo_conflicts" ${p.avoid_seo_conflicts?'checked':''} style="width:16px;height:16px;accent-color:#d82d6b;cursor:pointer;flex-shrink:0">Evita conflitti Schema con plugin SEO compatibili (Yoast, RankMath, AIOSEO)</label>` +
             '</div>' +
             '<div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">' +
@@ -1727,9 +1736,7 @@
             '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">' +
             `<div><label class="profile-label">Dove mostrarlo</label><select id="pf-dove_mostrarlo" class="profile-input"><option value="homepage" ${(p.dove_mostrarlo||'homepage')==='homepage'?'selected':''}>Solo homepage</option><option value="tutto" ${p.dove_mostrarlo==='tutto'?'selected':''}>Tutto il sito</option><option value="pagine" ${p.dove_mostrarlo==='pagine'?'selected':''}>Pagine selezionate</option></select></div>` +
             inp('id_pagine_selezionate','ID pagine selezionate', p.id_pagine_selezionate,'1, 42, 105') +
-            '</div>' +
-
-            `</div></div>`;
+            `</div></div></div>`;
 
         formEl.innerHTML = html;
         renderCameraRows();
@@ -3193,21 +3200,37 @@
         btn.textContent = '⏳';
         btn.disabled = true;
         try {
-            const r = await fetch(base + '/wp-json/in3pida/v1/force-heartbeat', {
+            // 1. Leggi hotel_profile + sync_secret da Supabase
+            const { data: site, error } = await _SBq
+                .from('isi_sites')
+                .select('hotel_profile, sync_secret')
+                .eq('site_id', siteId)
+                .single();
+            if (error || !site) throw new Error('Sito non trovato in Supabase');
+            if (!site.sync_secret) throw new Error('Secret non configurato — salva le impostazioni nel plugin almeno una volta');
+
+            // 2. Push hotel_profile al plugin
+            const ctrl = new AbortController();
+            setTimeout(() => ctrl.abort(), 15000);
+            const r = await fetch(base + '/wp-json/in3pida/v1/receive-profile', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                signal: AbortSignal.timeout(20000),
+                body: JSON.stringify({ secret: site.sync_secret, hotel_profile: site.hotel_profile || {} }),
+                signal: ctrl.signal,
             });
-            if (r.ok) {
-                btn.textContent = '✓ Sync OK';
-                setTimeout(() => loadSiteDetail(siteId), 800);
-            } else {
-                btn.textContent = `✗ Errore (${r.status})`;
-                setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 3000);
-            }
+            const d = await r.json().catch(() => ({}));
+            if (!r.ok) throw new Error(d.error || `Errore ${r.status}`);
+
+            // 3. Trigger heartbeat per aggiornare Supabase con versione/stato
+            fetch(base + '/wp-json/in3pida/v1/force-heartbeat', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' }
+            }).catch(() => {});
+
+            btn.textContent = '✓ Sync OK';
+            setTimeout(() => { loadSiteDetail(siteId); btn.disabled = false; }, 1000);
         } catch(e) {
-            btn.textContent = '✗ Non raggiungibile';
-            setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 3000);
+            btn.textContent = '✗ ' + e.message.slice(0, 25);
+            setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 4000);
         }
     }
     function semverGt(a,b) {
