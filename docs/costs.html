@@ -63,8 +63,8 @@
 
             <!-- Date personalizzate (solo se custom) -->
             <div id="custom-range" style="display:none;flex-direction:column;gap:6px;padding:10px 14px;border-bottom:1px solid #e2e2e2;background:#fafafa">
-                <input type="date" id="date-from" class="profile-input" style="padding:6px 10px;font-size:12px;width:100%;box-sizing:border-box">
-                <input type="date" id="date-to" class="profile-input" style="padding:6px 10px;font-size:12px;width:100%;box-sizing:border-box">
+                <input type="text" id="date-from" class="profile-input" placeholder="gg/mm/aaaa" maxlength="10" style="padding:6px 10px;font-size:12px;width:100%;box-sizing:border-box">
+                <input type="text" id="date-to" class="profile-input" placeholder="gg/mm/aaaa" maxlength="10" style="padding:6px 10px;font-size:12px;width:100%;box-sizing:border-box">
             </div>
 
             <!-- TIPO row -->
@@ -192,10 +192,10 @@ function render() {
     else if (period === 'week') { from = new Date(now); from.setDate(from.getDate()-7); to = now; }
     else if (period === 'month') { from = new Date(now); from.setMonth(from.getMonth()-1); to = now; }
     else if (period === 'custom') {
-        const df = document.getElementById('date-from').value;
-        const dt = document.getElementById('date-to').value;
-        if (df) from = new Date(df);
-        if (dt) to = new Date(dt + 'T23:59:59');
+        const parseIt = s => { const p=s.split('/'); return p.length===3?new Date(+p[2],+p[1]-1,+p[0]):null; };
+        from = parseIt(document.getElementById('date-from').value||'');
+        to   = parseIt(document.getElementById('date-to').value||'');
+        if (to) to.setHours(23,59,59,999);
     }
 
     const filtered = allRows.filter(r => {
@@ -232,6 +232,15 @@ function render() {
 
 document.getElementById('filter-period').addEventListener('change', e => {
     document.getElementById('custom-range').style.display = e.target.value === 'custom' ? 'flex' : 'none';
+});
+
+['date-from','date-to'].forEach(id => {
+    document.getElementById(id).addEventListener('input', e => {
+        let v = e.target.value.replace(/\D/g,'');
+        if (v.length > 2) v = v.slice(0,2) + '/' + v.slice(2);
+        if (v.length > 5) v = v.slice(0,5) + '/' + v.slice(5,9);
+        e.target.value = v;
+    });
 });
 
 document.getElementById('btn-carica').addEventListener('click', render);
