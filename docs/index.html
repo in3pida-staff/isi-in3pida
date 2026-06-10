@@ -1108,9 +1108,9 @@
                 </div>
             </div>
             <div class="card" style="margin-bottom:20px;border:1px solid #e4e4ec;box-shadow:none">
-                <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa;flex-wrap:wrap;gap:8px">
+                <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
                     <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Confronto Canali</div></div>
-                    <div style="display:flex;gap:8px;flex-wrap:wrap">
+                    <div style="display:flex;gap:8px;align-items:center">
                         <button id="btn-aggiungi-canale" class="btn-update" style="margin-left:0">+ Aggiungi canale</button>
                         <button id="btn-avvia-scansione" class="btn-update" style="margin-left:0">▶ Avvia scansione</button>
                         <button onclick="window.print()" class="btn-ping" style="font-size:12px;padding:7px 16px">🖨 Stampa</button>
@@ -2237,48 +2237,47 @@
         const origText = btn.textContent;
         btn.disabled = true;
         btn.textContent = '⏳ Generazione...';
+        let aiAnswer = null;
         try {
-            // 1. Genera risposta via AI
             const { data: { session: _faqSess } } = await _SB.auth.getSession();
+            if (!_faqSess) throw new Error('Sessione scaduta');
             const res = await fetch(`${SUPABASE_URL}/functions/v1/pse-query`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + _faqSess.access_token },
                 body: JSON.stringify({ site_id: siteId, query, action: 'faq_generate' })
             });
             const json = await res.json();
-            if (!json.answer) throw new Error(json.error || 'no answer');
+            if (!json.answer) throw new Error(json.error || 'Nessuna risposta generata');
+            aiAnswer = json.answer;
 
-            // 2. Salva FAQ automaticamente via plugin WP
             btn.textContent = '💾 Salvataggio...';
+            if (!_aFaqBase) throw new Error('Plugin non configurato');
             const ctrl = new AbortController(); setTimeout(() => ctrl.abort(), 12000);
             const r = await fetch(_aFaqBase + '/wp-json/in3pida/v1/faq', {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ secret: _aFaqSecret, action: 'add', faq: { question: query, answer: json.answer, solo_ai: true, order: 0 } }),
+                body: JSON.stringify({ secret: _aFaqSecret, action: 'add', faq: { question: query, answer: aiAnswer, solo_ai: true, order: 0 } }),
                 signal: ctrl.signal,
             });
             const d = await r.json().catch(() => ({}));
             if (!r.ok || !d.ok) throw new Error(d.message || 'Salvataggio fallito');
 
-            // 3. Aggiorna UI — mostra "Coperta ✓"
             const row = btn.closest('div[style*="display:flex"]');
             if (row) {
-                const icon = row.querySelector('span[style*="font-weight:800"]');
-                if (icon) { icon.textContent = '✓'; icon.style.color = '#d82d6b'; }
                 btn.outerHTML = '<span style="font-size:11px;color:#d82d6b;font-weight:700;flex-shrink:0;margin-left:12px">Coperta ✓</span>';
             }
             loadAdminFaqList();
         } catch(e) {
             btn.disabled = false;
             btn.textContent = origText;
-            apriModaleFaqManuale(query);
+            apriModaleFaqManuale(query, aiAnswer);
         }
     };
 
-    window.apriModaleFaqManuale = function(query) {
+    window.apriModaleFaqManuale = function(query, prefillAnswer) {
         document.getElementById('faq-modal-ttl-admin').textContent = 'Aggiungi FAQ';
         document.getElementById('fm-id-admin').value   = '';
         document.getElementById('fm-q-admin').value    = query;
-        document.getElementById('fm-a-admin').value    = '';
+        document.getElementById('fm-a-admin').value    = prefillAnswer || '';
         document.getElementById('fm-ai-admin').checked = true;
         document.getElementById('fm-msg-admin').style.display = 'none';
         document.getElementById('faq-admin-modal').style.display = 'flex';
@@ -2433,10 +2432,15 @@
         renderTable();
 
         window._removeCoerenzaChannel = (ci) => {
-            if (!confirm('Rimuovere il canale "' + _coerenzaChannels[ci] + '"?')) return;
-            _coerenzaChannels.splice(ci, 1);
-            renderTable();
-            if (btnSave) btnSave.style.display = 'inline-flex';
+            const modal = document.getElementById('modal-del-canale');
+            document.getElementById('modal-del-canale-msg').textContent = 'Rimuovere il canale "' + _coerenzaChannels[ci] + '"?';
+            modal.style.display = 'flex';
+            document.getElementById('btn-ok-del-canale').onclick = () => {
+                _coerenzaChannels.splice(ci, 1);
+                renderTable();
+                if (btnSave) btnSave.style.display = 'inline-flex';
+                modal.style.display = 'none';
+            };
         };
 
         if (btnSave) btnSave.onclick = async () => {
@@ -2455,11 +2459,20 @@
 
         const btnAdd = document.getElementById('btn-aggiungi-canale');
         if (btnAdd) btnAdd.onclick = () => {
-            const ch = prompt('Nome del canale da aggiungere (es: Airbnb, Hotelbeds, sito proprio):');
-            if (!ch || _coerenzaChannels.includes(ch)) return;
-            _coerenzaChannels.push(ch);
-            renderTable();
-            if (btnSave) btnSave.style.display = 'inline-flex';
+            const inp = document.getElementById('input-nuovo-canale');
+            inp.value = '';
+            const modal = document.getElementById('modal-canale');
+            modal.style.display = 'flex';
+            setTimeout(() => inp.focus(), 50);
+            document.getElementById('btn-ok-canale').onclick = () => {
+                const ch = inp.value.trim();
+                if (!ch || _coerenzaChannels.includes(ch)) return;
+                _coerenzaChannels.push(ch);
+                renderTable();
+                if (btnSave) btnSave.style.display = 'inline-flex';
+                modal.style.display = 'none';
+            };
+            inp.onkeydown = (e) => { if (e.key === 'Enter') document.getElementById('btn-ok-canale').click(); };
         };
 
         const btnScan = document.getElementById('btn-avvia-scansione');
@@ -3154,5 +3167,30 @@
       }catch(e){}
     })();
     </script>
+
+<!-- ═══ MODAL AGGIUNGI CANALE ═══ -->
+<div id="modal-canale" style="display:none;position:fixed;inset:0;background:rgba(24,24,52,.45);z-index:9999;align-items:center;justify-content:center;padding:20px">
+  <div style="background:white;border-radius:4px;box-shadow:0 8px 40px rgba(0,0,0,.18);width:100%;max-width:380px;padding:24px 28px">
+    <div style="font-size:14px;font-weight:800;color:#171b33;margin-bottom:4px">Aggiungi canale</div>
+    <div style="font-size:12px;color:#666b84;margin-bottom:14px">Es: Airbnb, Hotelbeds, sito proprio</div>
+    <input id="input-nuovo-canale" type="text" class="profile-input" placeholder="Nome canale..." style="margin-bottom:16px;font-size:13px">
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button onclick="document.getElementById('modal-canale').style.display='none'" class="btn-ping">Annulla</button>
+      <button id="btn-ok-canale" class="btn-update" style="margin-left:0">Aggiungi</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL RIMUOVI CANALE ═══ -->
+<div id="modal-del-canale" style="display:none;position:fixed;inset:0;background:rgba(24,24,52,.45);z-index:9999;align-items:center;justify-content:center;padding:20px">
+  <div style="background:white;border-radius:4px;box-shadow:0 8px 40px rgba(0,0,0,.18);width:100%;max-width:360px;padding:24px 28px">
+    <div id="modal-del-canale-msg" style="font-size:14px;color:#171b33;margin-bottom:20px;font-weight:600"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button onclick="document.getElementById('modal-del-canale').style.display='none'" class="btn-ping">Annulla</button>
+      <button id="btn-ok-del-canale" class="btn-update" style="margin-left:0;background:#b00020">Rimuovi</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
