@@ -417,6 +417,7 @@
     let currentTab = 'panoramica';
     let latestVersion = null;
     let allSiti = [];
+    let _currentUserRole = '';
 
     // ─── AUTH ────────────────────────────────────────────────────────────────────
     async function init() {
@@ -426,6 +427,7 @@
         await _SBq.auth.setSession({ access_token: session.access_token, refresh_token: session.refresh_token || '' });
         const user = session.user;
         if (user.user_metadata?.role === 'albergatore') { window.location.href = 'hotel.html'; return; }
+        _currentUserRole = user.user_metadata?.role || 'admin';
         const name = user.user_metadata?.full_name || user.email?.split('@')[0] || 'Utente';
         const ini  = name.charAt(0).toUpperCase();
         document.getElementById('nav-name').textContent   = name;
@@ -1303,6 +1305,7 @@
     // ─── PROFILO HOTEL / SCHEMA.ORG ──────────────────────────────────────────────
     let _schemaProfile = {};
     let _camereTmp = [], _offerteTmp = [], _socialCustomTmp = [];
+    let _galleryTmp = [], _serviziCustomTmp = [], _targetCustomTmp = [], _knowsaboutCustomTmp = [];
 
     function initHotelProfile(site) {
         const p = site.hotel_profile || {};
@@ -1542,6 +1545,14 @@
         _camereTmp      = JSON.parse(JSON.stringify(p.camere||[]));
         _offerteTmp     = JSON.parse(JSON.stringify(p.offerte||[]));
         _socialCustomTmp= JSON.parse(JSON.stringify(p.social_custom||[]));
+        _galleryTmp     = (p.gallery_urls||'').split('\n').map(u=>u.trim()).filter(Boolean);
+        const _serviziPreset = ['Wi-Fi gratuito','Colazione','Aria condizionata','Parcheggio','Ristorante','Camere familiari','Ascensore','Self check-in','Piscina','Bar','Camere non fumatori','Reception','Reception 24 ore','Late check-in','Accessibilità per ospiti con disabilità','Ricarica auto elettriche'];
+        _serviziCustomTmp   = (p.servizi||'').split(',').map(s=>s.trim()).filter(s=>s&&!_serviziPreset.map(x=>x.toLowerCase()).includes(s.toLowerCase()));
+        const _targetPreset = ['Famiglie','Coppie','Business traveler','Turisti internazionali','Gruppi','Cicloturisti','Digital nomad'];
+        _targetCustomTmp    = (p.target_clientela||'').split(',').map(s=>s.trim()).filter(s=>s&&!_targetPreset.map(x=>x.toLowerCase()).includes(s.toLowerCase()));
+        const _knowsaboutPreset = ['Vacanze in famiglia','Weekend romantici','Viaggi business','Turismo locale','Soggiorni con parcheggio','Hotel con colazione','Soggiorni vicino ad attrazioni'];
+        const _kaArr = Array.isArray(p.knowsabout)?p.knowsabout:(p.knowsabout||'').split(',').map(s=>s.trim()).filter(Boolean);
+        _knowsaboutCustomTmp = _kaArr.filter(s=>!_knowsaboutPreset.map(x=>x.toLowerCase()).includes(s.toLowerCase()));
         const inp = (id, label, val, ph, type) =>
             `<div><label class="profile-label">${label}</label><input type="${type||'text'}" id="pf-${id}" class="profile-input" value="${escHtml(val||'')}" placeholder="${escHtml(ph||'')}"></div>`;
         const selF = (id, label, val, opts) =>
@@ -1590,20 +1601,44 @@
 
             sec('IMMAGINI') +
             '<div style="margin-bottom:12px">' + inp('foto_principale','URL foto principale', p.foto_principale,'https://hotel.it/foto.jpg','url') + '</div>' +
-            taF('gallery_urls','Galleria — URL (una per riga)', p.gallery_urls,'https://hotel.it/foto1.jpg', 3) +
+            '<div><label class="profile-label">Galleria foto</label><div id="schema-gallery-list"></div>' +
+            '<button type="button" onclick="addGalleryRow()" style="margin-top:8px;background:none;border:1px solid #d82d6b;border-radius:6px;padding:7px 14px;font-size:12px;font-weight:700;color:#d82d6b;cursor:pointer;font-family:var(--font)">+ Aggiungi foto</button></div>' +
 
             sec('SERVIZI E AMENITIES') +
-            taF('servizi','Servizi generali (separati da virgola)', p.servizi,'Piscina, WiFi, Parcheggio, SPA, Colazione inclusa') +
-            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">' +
+            '<div style="font-size:13px;color:#666b84;margin-bottom:14px">Seleziona i servizi già presenti oppure aggiungi servizi specifici della struttura.</div>' +
+            '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">' +
+            (()=>{ const s=(p.servizi||'').split(',').map(x=>x.trim().toLowerCase()); return ['Wi-Fi gratuito','Colazione','Aria condizionata','Parcheggio','Ristorante','Camere familiari','Ascensore','Self check-in','Piscina','Bar','Camere non fumatori','Reception','Reception 24 ore','Late check-in','Accessibilità per ospiti con disabilità','Ricarica auto elettriche'].map(item=>`<label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:400;color:#4b4d68;font-family:var(--font)"><input type="checkbox" class="pf-servizi-chk" value="${escHtml(item)}" ${s.includes(item.toLowerCase())?'checked':''} style="width:16px;height:16px;accent-color:#d82d6b;cursor:pointer;flex-shrink:0">${escHtml(item)}</label>`).join(''); })() +
+            '</div>' +
+            '<div id="schema-servizi-custom-list"></div>' +
+            '<button type="button" onclick="addServiziCustomRow()" style="margin-top:8px;background:none;border:1px solid #d82d6b;border-radius:6px;padding:7px 14px;font-size:12px;font-weight:700;color:#d82d6b;cursor:pointer;font-family:var(--font)">+ Aggiungi servizi</button>' +
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px">' +
             taF('servizi_camera','Servizi in camera', p.servizi_camera,'TV, Aria condizionata, Minibar') +
             taF('servizi_accessibilita','Accessibilità', p.servizi_accessibilita,'Ascensore, Camere per disabili') + '</div>' +
 
             sec('AUDIENCE E POSIZIONAMENTO AI') +
+            '<div style="font-size:13px;color:#666b84;margin-bottom:14px">Aiuta i motori di ricerca e gli assistenti AI a capire per chi è adatta la struttura e su quali temi è rilevante.</div>' +
             '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">' +
-            inp('target_clientela','Target clientela', p.target_clientela,'Famiglie, Coppie, Business') +
-            inp('stagionalita','Stagionalità', p.stagionalita,'Estate, Tutto l\'anno') + '</div>' +
-            taF('usp','Proposte uniche (USP)', p.usp,'Vista mare, posizione centrale...') +
-            '<div style="margin-top:12px">' + inp('parole_chiave','Parole chiave SEO (virgola)', p.parole_chiave,'hotel rimini, albergo fronte mare') + '</div>' +
+            inp('lingue_parlate','Lingue parlate', p.lingue_parlate,'italiano, inglese') +
+            inp('zone_turistiche','Zone turistiche collegate', p.zone_turistiche,'Riviera Adriatica, Alba Adriatica...') + '</div>' +
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">' +
+            inp('attrazioni_vicine','Attrazioni vicine', p.attrazioni_vicine,'centro storico, spiaggia, fiera') +
+            inp('keywords_semantiche','Keywords semantiche', p.keywords_semantiche,'hotel per famiglie a Rimini...') + '</div>' +
+            '<div style="font-size:10px;font-weight:700;color:#4a4a6a;margin-bottom:10px;text-transform:uppercase;letter-spacing:.05em">Target clienti</div>' +
+            '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px">' +
+            (()=>{ const s=(p.target_clientela||'').split(',').map(x=>x.trim().toLowerCase()); return ['Famiglie','Coppie','Business traveler','Turisti internazionali','Gruppi','Cicloturisti','Digital nomad'].map(item=>`<label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:400;color:#4b4d68;font-family:var(--font)"><input type="checkbox" class="pf-target-chk" value="${escHtml(item)}" ${s.includes(item.toLowerCase())?'checked':''} style="width:16px;height:16px;accent-color:#d82d6b;cursor:pointer;flex-shrink:0">${escHtml(item)}</label>`).join(''); })() +
+            '</div>' +
+            '<div id="schema-target-custom-list"></div>' +
+            '<button type="button" onclick="addTargetCustomRow()" style="margin-top:8px;margin-bottom:16px;background:none;border:1px solid #d82d6b;border-radius:6px;padding:7px 14px;font-size:12px;font-weight:700;color:#d82d6b;cursor:pointer;font-family:var(--font)">+ Aggiungi target</button>' +
+            '<div style="font-size:10px;font-weight:700;color:#4a4a6a;margin-bottom:10px;text-transform:uppercase;letter-spacing:.05em">Temi di pertinenza</div>' +
+            '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px">' +
+            (()=>{ const ka=Array.isArray(p.knowsabout)?p.knowsabout:(p.knowsabout||'').split(',').map(s=>s.trim()).filter(Boolean); const s=ka.map(x=>x.toLowerCase()); return ['Vacanze in famiglia','Weekend romantici','Viaggi business','Turismo locale','Soggiorni con parcheggio','Hotel con colazione','Soggiorni vicino ad attrazioni'].map(item=>`<label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:400;color:#4b4d68;font-family:var(--font)"><input type="checkbox" class="pf-knowsabout-chk" value="${escHtml(item)}" ${s.includes(item.toLowerCase())?'checked':''} style="width:16px;height:16px;accent-color:#d82d6b;cursor:pointer;flex-shrink:0">${escHtml(item)}</label>`).join(''); })() +
+            '</div>' +
+            '<div id="schema-knowsabout-custom-list"></div>' +
+            '<button type="button" onclick="addKnowsaboutCustomRow()" style="margin-top:8px;margin-bottom:16px;background:none;border:1px solid #d82d6b;border-radius:6px;padding:7px 14px;font-size:12px;font-weight:700;color:#d82d6b;cursor:pointer;font-family:var(--font)">+ Aggiungi tema</button>' +
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px">' +
+            inp('stagionalita','Stagionalità', p.stagionalita,'Estate, Tutto l\'anno') +
+            inp('parole_chiave','Keywords SEO (virgola)', p.parole_chiave,'hotel rimini, albergo fronte mare') + '</div>' +
+            '<div style="margin-top:12px">' + taF('usp','Proposte uniche (USP)', p.usp,'Vista mare, posizione centrale...') + '</div>' +
             '<div style="margin-top:12px">' + taF('descrizione_ai','Frase di posizionamento AI', p.descrizione_ai,'Come vuoi che l\'AI presenti il tuo hotel...', 2) + '</div>' +
 
             sec('CAMERE E APPARTAMENTI') +
@@ -1613,12 +1648,12 @@
             inp('occupazione_max','Ospiti max/camera', p.occupazione_max,'4') + '</div>' +
             '<div style="font-size:10px;font-weight:700;color:#4a4a6a;margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em">Elenco camere / appartamenti</div>' +
             '<div id="schema-camere-list"></div>' +
-            '<button type="button" onclick="addCamera()" style="margin-top:8px;background:none;border:1px solid #d82d6b;border-radius:6px;padding:7px 14px;font-size:12px;font-weight:700;color:#d82d6b;cursor:pointer;font-family:var(--font)">+ Aggiungi camera / appartamento</button>' +
+            '<button type="button" onclick="addCamera()" style="margin-top:8px;background:#d82d6b;color:white;border:none;border-radius:6px;padding:8px 16px;font-size:12px;font-weight:700;letter-spacing:.05em;cursor:pointer;font-family:var(--font)">AGGIUNGI CAMERA/APPARTAMENTO</button>' +
 
             sec('OFFERTE E PRENOTAZIONI') +
-            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">' +
+            '<div style="margin-bottom:12px">' +
             inp('url_prenotazione','URL prenotazione diretta', p.url_prenotazione,'https://hotel.it/prenota','url') +
-            inp('ota_principali','OTA principali', p.ota_principali,'Booking.com, Expedia, Airbnb') + '</div>' +
+            '</div>' +
             '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px">' +
             inp('prezzo_min','Prezzo min/notte (€)', p.prezzo_min,'80') +
             inp('prezzo_max','Prezzo max/notte (€)', p.prezzo_max,'350') +
@@ -1629,11 +1664,21 @@
             '<button type="button" onclick="addOfferta()" style="margin-top:8px;background:none;border:1px solid #d82d6b;border-radius:6px;padding:7px 14px;font-size:12px;font-weight:700;color:#d82d6b;cursor:pointer;font-family:var(--font)">+ Aggiungi offerta</button>' +
 
             sec('RECENSIONI') +
-            '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-bottom:12px">' +
-            inp('rating_medio','Punteggio medio', p.rating_medio,'9.2') +
-            inp('rating_scala','Scala (es. 10)', p.rating_scala,'10') +
-            inp('n_recensioni','N° recensioni totali', p.n_recensioni,'843') +
-            inp('piattaforma_recensioni','Piattaforma', p.piattaforma_recensioni,'Booking.com') + '</div>' +
+            '<div style="background:#fce8ef;border-radius:4px;padding:10px 14px;margin-bottom:14px;font-size:12px;font-weight:600;color:#b00020">Usa solo dati reali e visibili anche nella pagina del sito. Il dato inserito nello Schema.org deve corrispondere a recensioni realmente mostrate agli utenti.</div>' +
+            '<div style="background:#f4f4f8;border-radius:4px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:#4b4d68"><strong>Rating medio nello Schema.org:</strong> è il punteggio aggregato pubblico che vuoi dichiarare. Se hai fonti diverse, compila Google, Tripadvisor e Booking; poi scegli quale valore usare come rating principale oppure inserisci un aggregato reale visibile sul sito.</div>' +
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">' +
+            inp('fonte_rating','Fonte rating principale', p.fonte_rating,'Google, Tripadvisor, Booking, oppure Aggregato sito') +
+            inp('rating_medio','Rating medio principale', p.rating_medio,'9.2') + '</div>' +
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">' +
+            inp('n_recensioni','Numero recensioni principale', p.n_recensioni,'843') +
+            inp('google_rating','Google rating', p.google_rating,'') + '</div>' +
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">' +
+            inp('google_n_recensioni','Google numero recensioni', p.google_n_recensioni,'') +
+            inp('tripadvisor_rating','Tripadvisor rating', p.tripadvisor_rating,'') + '</div>' +
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">' +
+            inp('tripadvisor_n_recensioni','Tripadvisor numero recensioni', p.tripadvisor_n_recensioni,'') +
+            inp('booking_rating','Booking rating', p.booking_rating,'') + '</div>' +
+            '<div style="margin-bottom:12px">' + inp('booking_n_recensioni','Booking numero recensioni', p.booking_n_recensioni,'') + '</div>' +
             inp('url_recensioni','URL pagina recensioni', p.url_recensioni,'https://www.booking.com/hotel/it/xxx.html','url') +
 
             sec('SOCIAL E PROFILI ESTERNI') +
@@ -1658,22 +1703,57 @@
         renderCameraRows();
         renderOfferteRows();
         renderSocialCustomRows();
+        renderGalleryRows();
+        renderServiziCustomRows();
+        renderTargetCustomRows();
+        renderKnowsaboutCustomRows();
     }
+
+    const _camServPreset = ['Bagno privato','Aria condizionata','Wi-Fi','TV','Minibar','Balcone','Cucina','Frigorifero','Accessibile'];
 
     function renderCameraRows() {
         const el = document.getElementById('schema-camere-list');
         if (!el) return;
         if (!_camereTmp.length) { el.innerHTML = '<div style="color:#aaa;font-size:12px;padding:4px 0">Nessuna camera. Clicca + per aggiungerne una.</div>'; return; }
-        el.innerHTML = _camereTmp.map((c,i)=>
-            `<div style="display:grid;grid-template-columns:2fr 70px 2fr auto;gap:8px;align-items:center;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid #f4f4f8">
-                <input type="text" value="${escHtml(c.nome||'')}" oninput="_camereTmp[${i}].nome=this.value" placeholder="Nome (es. Suite, Standard)" style="border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:12px;font-family:var(--font)">
-                <input type="number" value="${escHtml(String(c.n_max||''))}" oninput="_camereTmp[${i}].n_max=this.value" placeholder="Max osp." style="border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:12px;font-family:var(--font)">
-                <input type="text" value="${escHtml(c.servizi||'')}" oninput="_camereTmp[${i}].servizi=this.value" placeholder="Servizi (TV, WiFi...)" style="border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:12px;font-family:var(--font)">
-                <button type="button" onclick="removeCamera(${i})" style="background:none;border:1px solid #ead0dc;border-radius:6px;padding:6px 10px;cursor:pointer;color:#b00020;font-size:13px;font-family:var(--font)">✕</button>
-            </div>`
-        ).join('');
+        el.innerHTML = _camereTmp.map((c,i) => {
+            const saved = (c.servizi||'').split(',').map(s=>s.trim().toLowerCase());
+            const customSvz = (c.servizi||'').split(',').map(s=>s.trim()).filter(s=>s&&!_camServPreset.map(x=>x.toLowerCase()).includes(s.toLowerCase())).join(', ');
+            return `<div id="camera-row-${i}" style="border:1px solid #e4e4ec;border-radius:6px;padding:14px;margin-bottom:12px">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+                    <input type="text" value="${escHtml(c.nome||'')}" oninput="_camereTmp[${i}].nome=this.value" placeholder="Nome camera" style="border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:12px;font-family:var(--font)">
+                    <input type="url" value="${escHtml(c.url||'')}" oninput="_camereTmp[${i}].url=this.value" placeholder="URL pagina camera" style="border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:12px;font-family:var(--font)">
+                </div>
+                <textarea rows="2" oninput="_camereTmp[${i}].descrizione=this.value" placeholder="Descrizione AI-oriented" style="width:100%;border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:12px;font-family:var(--font);resize:vertical;box-sizing:border-box;margin-bottom:8px">${escHtml(c.descrizione||'')}</textarea>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px">
+                    <input type="number" value="${escHtml(String(c.n_camere||''))}" oninput="_camereTmp[${i}].n_camere=this.value" placeholder="N° camere" style="border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:12px;font-family:var(--font)">
+                    <input type="number" value="${escHtml(String(c.n_max||''))}" oninput="_camereTmp[${i}].n_max=this.value" placeholder="N° max ospiti" style="border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:12px;font-family:var(--font)">
+                    <input type="text" value="${escHtml(c.tipo_letto||'')}" oninput="_camereTmp[${i}].tipo_letto=this.value" placeholder="Tipo letto" style="border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:12px;font-family:var(--font)">
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px">
+                    <input type="text" value="${escHtml(c.prezzo_da||'')}" oninput="_camereTmp[${i}].prezzo_da=this.value" placeholder="Prezzo da" style="border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:12px;font-family:var(--font)">
+                    <input type="text" value="${escHtml(c.valuta||'EUR')}" oninput="_camereTmp[${i}].valuta=this.value" placeholder="EUR" style="border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:12px;font-family:var(--font)">
+                    <input type="text" value="${escHtml(c.disponibilita||'')}" oninput="_camereTmp[${i}].disponibilita=this.value" placeholder="Disponibilità / note" style="border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:12px;font-family:var(--font)">
+                </div>
+                <div style="margin-bottom:10px">
+                    <input type="text" value="${escHtml(c.vista||'')}" oninput="_camereTmp[${i}].vista=this.value" placeholder="Vista" style="width:33%;border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:12px;font-family:var(--font);box-sizing:border-box">
+                </div>
+                <div style="font-size:11px;font-weight:700;color:#4a4a6a;margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em">Servizi camera</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:8px">
+                    ${_camServPreset.map(item=>`<label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;font-weight:400;color:#4b4d68;font-family:var(--font);border:1px solid #e4e4ec;border-radius:4px;padding:6px 8px"><input type="checkbox" class="cam-servizi-chk" data-idx="${i}" value="${escHtml(item)}" ${saved.includes(item.toLowerCase())?'checked':''} onchange="updateCameraServizi(${i})" style="width:14px;height:14px;accent-color:#d82d6b;cursor:pointer;flex-shrink:0">${escHtml(item)}</label>`).join('')}
+                </div>
+                <input type="text" id="cam-custom-svz-${i}" value="${escHtml(customSvz)}" oninput="updateCameraServizi(${i})" placeholder="Servizi aggiuntivi (separati da virgola)" style="width:100%;border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:12px;font-family:var(--font);box-sizing:border-box;margin-bottom:10px">
+                <div style="display:flex;justify-content:flex-end">
+                    <button type="button" onclick="removeCamera(${i})" style="background:none;border:1px solid #d82d6b;border-radius:6px;padding:6px 14px;cursor:pointer;color:#d82d6b;font-size:12px;font-weight:700;font-family:var(--font)">RIMUOVI CAMERA/APPARTAMENTO</button>
+                </div>
+            </div>`;
+        }).join('');
     }
-    function addCamera() { _camereTmp.push({nome:'',n_max:'',servizi:''}); renderCameraRows(); }
+    function updateCameraServizi(i) {
+        const checked = [...document.querySelectorAll(`#camera-row-${i} .cam-servizi-chk:checked`)].map(el=>el.value);
+        const custom = (document.getElementById(`cam-custom-svz-${i}`)?.value||'').split(',').map(s=>s.trim()).filter(Boolean);
+        _camereTmp[i].servizi = [...checked,...custom].join(', ');
+    }
+    function addCamera() { _camereTmp.push({nome:'',url:'',descrizione:'',n_camere:'',n_max:'',tipo_letto:'',prezzo_da:'',valuta:'EUR',disponibilita:'',vista:'',servizi:''}); renderCameraRows(); }
     function removeCamera(i) { _camereTmp.splice(i,1); renderCameraRows(); }
 
     function renderOfferteRows() {
@@ -1706,6 +1786,43 @@
     }
     function addSocialCustom() { _socialCustomTmp.push({nome:'',url:''}); renderSocialCustomRows(); }
     function removeSocialCustom(i) { _socialCustomTmp.splice(i,1); renderSocialCustomRows(); }
+
+    function renderGalleryRows() {
+        const el = document.getElementById('schema-gallery-list'); if (!el) return;
+        if (!_galleryTmp.length) { el.innerHTML = '<div style="color:#aaa;font-size:12px;padding:4px 0">Nessuna foto in galleria.</div>'; return; }
+        el.innerHTML = _galleryTmp.map((url,i)=>
+            `<div style="display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;margin-top:8px">
+                <input type="url" value="${escHtml(url)}" oninput="_galleryTmp[${i}]=this.value" placeholder="https://hotel.it/foto.jpg" style="border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:12px;font-family:var(--font)">
+                <button type="button" onclick="removeGalleryRow(${i})" style="background:none;border:1px solid #ead0dc;border-radius:6px;padding:6px 10px;cursor:pointer;color:#b00020;font-size:13px">✕</button>
+            </div>`
+        ).join('');
+    }
+    function addGalleryRow() { _galleryTmp.push(''); renderGalleryRows(); }
+    function removeGalleryRow(i) { _galleryTmp.splice(i,1); renderGalleryRows(); }
+
+    function _renderCustomList(elId, arr, onInput, onRemove, ph) {
+        const el = document.getElementById(elId); if (!el) return;
+        el.innerHTML = arr.map((v,i)=>
+            `<div style="display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;margin-top:8px">
+                <input type="text" value="${escHtml(v)}" oninput="${onInput}(${i},this.value)" placeholder="${escHtml(ph)}" style="border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:12px;font-family:var(--font)">
+                <button type="button" onclick="${onRemove}(${i})" style="background:none;border:1px solid #ead0dc;border-radius:6px;padding:6px 10px;cursor:pointer;color:#b00020;font-size:13px">✕</button>
+            </div>`
+        ).join('');
+    }
+    function renderServiziCustomRows() { _renderCustomList('schema-servizi-custom-list',_serviziCustomTmp,'_setServiziCustom','removeServiziCustom','Servizio aggiuntivo'); }
+    function _setServiziCustom(i,v) { _serviziCustomTmp[i]=v; }
+    function addServiziCustomRow() { _serviziCustomTmp.push(''); renderServiziCustomRows(); }
+    function removeServiziCustom(i) { _serviziCustomTmp.splice(i,1); renderServiziCustomRows(); }
+
+    function renderTargetCustomRows() { _renderCustomList('schema-target-custom-list',_targetCustomTmp,'_setTargetCustom','removeTargetCustom','Target aggiuntivo'); }
+    function _setTargetCustom(i,v) { _targetCustomTmp[i]=v; }
+    function addTargetCustomRow() { _targetCustomTmp.push(''); renderTargetCustomRows(); }
+    function removeTargetCustom(i) { _targetCustomTmp.splice(i,1); renderTargetCustomRows(); }
+
+    function renderKnowsaboutCustomRows() { _renderCustomList('schema-knowsabout-custom-list',_knowsaboutCustomTmp,'_setKnowsaboutCustom','removeKnowsaboutCustom','Tema aggiuntivo'); }
+    function _setKnowsaboutCustom(i,v) { _knowsaboutCustomTmp[i]=v; }
+    function addKnowsaboutCustomRow() { _knowsaboutCustomTmp.push(''); renderKnowsaboutCustomRows(); }
+    function removeKnowsaboutCustom(i) { _knowsaboutCustomTmp.splice(i,1); renderKnowsaboutCustomRows(); }
 
     function buildSchemaJsonLd(p) {
         const obj = {
@@ -1767,6 +1884,13 @@
         const msg = document.getElementById('hotel-profile-msg');
         btn.disabled = true; btn.textContent = 'Salvataggio...';
         const g = id => (document.getElementById('pf-' + id)?.value || '').trim();
+        const checkedVals = cls => [...document.querySelectorAll(`.${cls}:checked`)].map(el=>el.value);
+        const serviziChecked = checkedVals('pf-servizi-chk');
+        const serviziAll = [...serviziChecked, ..._serviziCustomTmp.filter(Boolean)].join(', ');
+        const targetChecked = checkedVals('pf-target-chk');
+        const targetAll = [...targetChecked, ..._targetCustomTmp.filter(Boolean)].join(', ');
+        const knowsaboutChecked = checkedVals('pf-knowsabout-chk');
+        const knowsaboutAll = [...knowsaboutChecked, ..._knowsaboutCustomTmp.filter(Boolean)];
         const profile = {
             nome_hotel: g('nome_hotel'), tipo_struttura: g('tipo_struttura'), stelle: g('stelle'),
             descrizione: g('descrizione'), prezzo_medio: g('prezzo_medio'), orario_reception: g('orario_reception'),
@@ -1774,20 +1898,25 @@
             citta: g('citta'), regione: g('regione'), paese: g('paese'),
             latitudine: g('latitudine'), longitudine: g('longitudine'),
             telefono: g('telefono'), email: g('email'), sito_web: g('sito_web'),
-            checkin_dalle: g('checkin_dalle'), checkin_alle: g('checkin_alle'),
-            checkout_dalle: g('checkout_dalle'), checkout_alle: g('checkout_alle'),
-            foto_principale: g('foto_principale'), gallery_urls: g('gallery_urls'),
-            servizi: g('servizi'), servizi_camera: g('servizi_camera'), servizi_accessibilita: g('servizi_accessibilita'),
-            target_clientela: g('target_clientela'), stagionalita: g('stagionalita'),
-            usp: g('usp'), parole_chiave: g('parole_chiave'), descrizione_ai: g('descrizione_ai'),
+            checkin_dalle: g('checkin_dalle'), checkout_dalle: g('checkout_dalle'),
+            foto_principale: g('foto_principale'), gallery_urls: _galleryTmp.filter(Boolean).join('\n'),
+            servizi: serviziAll, servizi_camera: g('servizi_camera'), servizi_accessibilita: g('servizi_accessibilita'),
+            lingue_parlate: g('lingue_parlate'), zone_turistiche: g('zone_turistiche'),
+            attrazioni_vicine: g('attrazioni_vicine'), keywords_semantiche: g('keywords_semantiche'),
+            target_clientela: targetAll, knowsabout: knowsaboutAll,
+            stagionalita: g('stagionalita'), usp: g('usp'),
+            parole_chiave: g('parole_chiave'), descrizione_ai: g('descrizione_ai'),
             n_camere: g('n_camere'), occupazione_min: g('occupazione_min'), occupazione_max: g('occupazione_max'),
-            camere: _camereTmp.filter(c=>c.nome||c.servizi),
-            url_prenotazione: g('url_prenotazione'), ota_principali: g('ota_principali'),
+            camere: _camereTmp.filter(c=>c.nome),
+            url_prenotazione: g('url_prenotazione'),
             prezzo_min: g('prezzo_min'), prezzo_max: g('prezzo_max'), caparra: g('caparra'),
             politica_cancellazione: g('politica_cancellazione'),
             offerte: _offerteTmp.filter(o=>o.nome),
-            rating_medio: g('rating_medio'), rating_scala: g('rating_scala'),
-            n_recensioni: g('n_recensioni'), piattaforma_recensioni: g('piattaforma_recensioni'),
+            fonte_rating: g('fonte_rating'), rating_medio: g('rating_medio'),
+            n_recensioni: g('n_recensioni'),
+            google_rating: g('google_rating'), google_n_recensioni: g('google_n_recensioni'),
+            tripadvisor_rating: g('tripadvisor_rating'), tripadvisor_n_recensioni: g('tripadvisor_n_recensioni'),
+            booking_rating: g('booking_rating'), booking_n_recensioni: g('booking_n_recensioni'),
             url_recensioni: g('url_recensioni'),
             facebook_url: g('facebook_url'), instagram_url: g('instagram_url'),
             tripadvisor_url: g('tripadvisor_url'), google_business_url: g('google_business_url'),
@@ -2343,7 +2472,8 @@
             const rgKey = 'rg_last_' + site.site_id;
             const rgLast = localStorage.getItem(rgKey);
             const rgDaysAgo = rgLast ? (Date.now() - parseInt(rgLast)) / 86400000 : 999;
-            const rgCanRun = rgDaysAgo >= 7;
+            const rgIsAdmin = _currentUserRole !== 'albergatore';
+            const rgCanRun = rgIsAdmin || rgDaysAgo >= 7;
             const rgNextDate = rgLast ? new Date(parseInt(rgLast) + 7*86400000).toLocaleDateString('it-IT') : null;
 
             // Carica ultimi risultati salvati
