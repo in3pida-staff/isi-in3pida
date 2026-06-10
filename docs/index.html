@@ -766,6 +766,31 @@
                     </div>
                 </div>
                 <div id="scontent-overview">
+                ${(()=>{
+                    const notifs = [];
+                    if (hrs >= 48) notifs.push({lvl:'err', text:'Plugin non connesso da '+Math.round(hrs/24)+' giorni — verifica l\'installazione sul sito'});
+                    else if (hrs >= 25) notifs.push({lvl:'err', text:'Plugin non connesso — nessun segnale ricevuto da '+Math.round(hrs)+'h'});
+                    if (isOld) notifs.push({lvl:'warn', text:'Versione plugin obsoleta (v'+escHtml(site?.plugin_version||'?')+') — disponibile la v'+escHtml(latestVersion?.version||'?')+'. Aggiorna il prima possibile'});
+                    if (geo.has_ai_profile === false) notifs.push({lvl:'err', text:'/ai-profile disabilitato — i motori AI non leggono il tuo sito. Attivalo nella sezione AI Layer'});
+                    if (geoAvg !== null && geoAvg < 40) notifs.push({lvl:'err', text:'GEO Score critico ('+geoAvg+'/100) — il sito non è ottimizzato per i motori AI. Completa il profilo hotel'});
+                    else if (geoAvg !== null && geoAvg < 70) notifs.push({lvl:'warn', text:'GEO Score basso ('+geoAvg+'/100) — ottimizza il profilo hotel per migliorare la visibilità AI'});
+                    const schemaEmpty = !site?.schema_data || !Object.keys(site?.schema_data||{}).filter(k=>site.schema_data[k]).length;
+                    if (schemaEmpty) notifs.push({lvl:'warn', text:'Schema.org non configurato — compila il profilo nella sezione Schema.org'});
+                    if (!notifs.length) return '';
+                    const rows = notifs.map(n => {
+                        const dotC = n.lvl==='err' ? '#b00020' : '#d82d6b';
+                        const bg   = n.lvl==='err' ? '#fce8ef' : '#fbf4f7';
+                        const tc   = n.lvl==='err' ? '#b00020' : '#4b4d68';
+                        return `<div style="display:flex;align-items:flex-start;gap:10px;padding:10px 14px;background:${bg};border-radius:4px"><span style="width:8px;height:8px;border-radius:50%;background:${dotC};flex-shrink:0;margin-top:4px;display:inline-block"></span><span style="font-size:13px;font-weight:400;color:${tc};font-family:var(--font);line-height:1.4">${n.text}</span></div>`;
+                    }).join('');
+                    return `<div class="card" style="margin-bottom:20px;border:1px solid #e4e4ec;box-shadow:none">
+                        <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
+                            <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Notifiche</div></div>
+                            <span style="background:#d82d6b;color:white;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;font-family:var(--font)">${notifs.length}</span>
+                        </div>
+                        <div style="padding:14px 20px;display:flex;flex-direction:column;gap:8px">${rows}</div>
+                    </div>`;
+                })()}
                 <div style="display:flex;flex-direction:column;gap:16px;margin-bottom:20px">
                 <div class="card" style="margin:0;border:1px solid #e4e4ec;box-shadow:none">
                     <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Stato semafori</div></div></div>
