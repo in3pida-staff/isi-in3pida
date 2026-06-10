@@ -17,6 +17,7 @@
         <div class="navbar-logo" onclick="window.location.href='index.html'" style="cursor:pointer"><img src="images/logo.png" alt="in3pida"></div>
         <span class="navbar-badge">iSI</span>
     </div>
+    <div class="navbar-center"></div>
     <div class="navbar-right">
         <div class="navbar-user-pill" id="user-pill" style="cursor:default">
             <div class="navbar-avatar" id="nav-avatar">U</div>
@@ -89,12 +90,6 @@
                 </div>
             </div>
 
-            <!-- Totale dall'inizio -->
-            <div style="display:flex;align-items:center;border-bottom:1px solid #e2e2e2">
-                <div style="width:90px;flex-shrink:0;background:#fafafa;padding:11px 14px;border-right:1px solid #e2e2e2;font-size:10px;font-weight:700;color:#888;letter-spacing:.04em;text-transform:uppercase">TOTALE</div>
-                <div style="flex:1;padding:6px 12px;font-size:14px;font-weight:800;color:#d82d6b" id="grand-total">—</div>
-            </div>
-
             <!-- CARICA button -->
             <div style="padding:14px 16px">
                 <button id="btn-carica" style="width:100%;background:#d82d6b;color:white;border:none;border-radius:6px;padding:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font)">CARICA</button>
@@ -104,6 +99,10 @@
         <!-- COLONNA DESTRA -->
         <div>
             <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
+                <div class="card" style="border:1px solid #e4e4ec;box-shadow:none;padding:16px 18px">
+                    <div style="font-size:11px;font-weight:700;color:#666b84;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Totale dall'inizio</div>
+                    <div id="grand-total" style="font-size:26px;font-weight:800;color:#d82d6b">—</div>
+                </div>
                 <div class="card" style="border:1px solid #e4e4ec;box-shadow:none;padding:16px 18px">
                     <div style="font-size:11px;font-weight:700;color:#666b84;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Costo totale</div>
                     <div id="kpi-cost" style="font-size:26px;font-weight:800;color:#171b33">—</div>
@@ -115,10 +114,6 @@
                 <div class="card" style="border:1px solid #e4e4ec;box-shadow:none;padding:16px 18px">
                     <div style="font-size:11px;font-weight:700;color:#666b84;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Costo medio/chiamata</div>
                     <div id="kpi-avg" style="font-size:26px;font-weight:800;color:#171b33">—</div>
-                </div>
-                <div class="card" style="border:1px solid #e4e4ec;box-shadow:none;padding:16px 18px">
-                    <div style="font-size:11px;font-weight:700;color:#666b84;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Siti attivi</div>
-                    <div id="kpi-sites" style="font-size:26px;font-weight:800;color:#171b33">—</div>
                 </div>
             </div>
 
@@ -154,8 +149,12 @@ async function init() {
     const { data: { user } } = await _SB.auth.getUser();
     if (!user || user.user_metadata?.role === 'albergatore') { window.location.href = 'login.html'; return; }
 
-    document.getElementById('nav-name').textContent = user.user_metadata?.full_name || user.email?.split('@')[0] || 'Admin';
-    document.getElementById('nav-avatar').textContent = (user.user_metadata?.full_name || user.email || 'A')[0].toUpperCase();
+    const _name = user.user_metadata?.full_name || user.email?.split('@')[0] || 'Admin';
+    document.getElementById('nav-name').textContent = _name;
+    const _avEl = document.getElementById('nav-avatar');
+    const _avUrl = user.user_metadata?.avatar_url;
+    if (_avUrl) { _avEl.style.backgroundImage=`url(${_avUrl})`; _avEl.style.backgroundSize='cover'; _avEl.style.backgroundPosition='center'; _avEl.textContent=''; }
+    else { _avEl.textContent = _name[0].toUpperCase(); }
 
     const [{ data: pse }, { data: rg }] = await Promise.all([
         _SB.from('isi_pse_queries').select('created_at,cost_usd,site_id,site_name,query').order('created_at',{ascending:false}).limit(5000),
@@ -168,6 +167,7 @@ async function init() {
     ].sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
 
     document.getElementById('grand-total').textContent = '€' + allRows.reduce((s,r)=>s+(parseFloat(r.cost_usd)||0),0).toFixed(4);
+
 
     const seen = new Set();
     const sel = document.getElementById('filter-site');
@@ -212,7 +212,6 @@ function render() {
     document.getElementById('kpi-cost').textContent  = '€' + total.toFixed(4);
     document.getElementById('kpi-calls').textContent = filtered.length;
     document.getElementById('kpi-avg').textContent   = '€' + avg.toFixed(6);
-    document.getElementById('kpi-sites').textContent = new Set(filtered.map(r=>r.site_id)).size;
     document.getElementById('rows-count').textContent = filtered.length + ' righe';
 
     const tbody = document.getElementById('costs-tbody');
