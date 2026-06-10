@@ -717,12 +717,12 @@
             <div style="display:grid;grid-template-columns:260px 1fr;gap:20px;align-items:start">
 
                 <!-- SIDEBAR SINISTRA PERSISTENTE: Stato contenuti -->
-                <div style="position:sticky;top:80px;background:white;border-radius:8px;overflow:hidden;border:1px solid #e4e4ec;box-shadow:none">
-                    <div style="padding:14px 20px;border-bottom:1px solid #e4e4ec">
+                <div style="position:sticky;top:80px;background:white;border-radius:4px;overflow:hidden;border:1px solid #e2e2e2;box-shadow:none">
+                    <div style="padding:14px 20px;border-bottom:1px solid #e2e2e2">
                         <div style="font-size:18px;font-weight:600;color:#171b33;letter-spacing:-.01em">Stato contenuti</div>
                     </div>
                     <div>
-                        <div style="font-size:10px;font-weight:700;color:#4a4a6a;letter-spacing:.08em;text-transform:uppercase;padding:10px 0 8px 16px;border-bottom:1px solid #e4e4ec;background:#f4f4f8">SEZIONI</div>
+                        <div style="font-size:10px;font-weight:700;color:#4a4a6a;letter-spacing:.08em;text-transform:uppercase;padding:10px 0 8px 16px;border-bottom:1px solid #e2e2e2;background:#f4f4f8">SEZIONI</div>
                         ${[
                             {k:'overview', l:'PANORAMICA',         v:'Semafori e punteggi'},
                             {k:'faq',      l:'FAQ',                v: covPct!==null?(covPct+'% coperto'):'1 pubblicata'},
@@ -734,8 +734,8 @@
                             {k:'pse',      l:'STATISTICHE PSE',    v:(pseData?.length||0)+' query registrate'},
                         ].map(({k,l,v},i)=>{
                             const isAct=i===0;
-                            return '<div class="stato-sezione-row" data-sec="'+k+'"'+(isAct?' data-active="1"':'')+' style="display:flex;align-items:stretch;cursor:pointer;border-bottom:1px solid #e4e4ec;transition:background .15s">'
-                                + '<div class="ssec-label" style="width:130px;flex-shrink:0;background:#fafafa;padding:11px 14px;border-right:1px solid #e4e4ec;font-size:10px;font-weight:600;color:'+(isAct?'#d82d6b':'#888')+';letter-spacing:.03em;text-transform:uppercase;display:flex;align-items:center">'+l+'</div>'
+                            return '<div class="stato-sezione-row" data-sec="'+k+'"'+(isAct?' data-active="1"':'')+' style="display:flex;align-items:stretch;cursor:pointer;border-bottom:1px solid #e2e2e2;transition:background .15s">'
+                                + '<div class="ssec-label" style="width:130px;flex-shrink:0;background:#fafafa;padding:11px 14px;border-right:1px solid #e2e2e2;font-size:10px;font-weight:600;color:'+(isAct?'#d82d6b':'#888')+';letter-spacing:.03em;text-transform:uppercase;display:flex;align-items:center">'+l+'</div>'
                                 + '<div style="flex:1;padding:11px 14px;background:#fff;font-size:12px;color:'+(isAct?'#d82d6b':'#35364f')+';text-align:right;display:flex;align-items:center;justify-content:flex-end;font-weight:'+(isAct?'600':'400')+'">'+v+'</div>'
                                 + '</div>';
                         }).join('')}
