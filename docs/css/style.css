@@ -12,8 +12,8 @@
     --border:     #e4e4ec;
     --shadow:     0 2px 20px rgba(0,0,0,0.07);
     --shadow-lg:  0 8px 40px rgba(0,0,0,0.12);
-    --radius:     8px;
-    --radius-sm:  10px;
+    --radius:     4px;
+    --radius-sm:  6px;
     --font:       'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
     --green:      #d82d6b;
     --green-bg:   #fbf4f7;

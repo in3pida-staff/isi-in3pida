@@ -159,7 +159,7 @@
                 <p>Configura la connessione tra il plugin WordPress e la piattaforma Eletta. Inserisci l'endpoint ISI Monitor e il token di autenticazione per abilitare il monitoraggio in tempo reale.</p>
                 <div style="font-size:11px;font-weight:700;color:var(--grey);letter-spacing:.06em;text-transform:uppercase;margin:16px 0 10px;padding-bottom:6px;border-bottom:2px solid #fce8ef">Statistiche PSE</div>
                 <p>Le statistiche mostrano quante volte il sito è stato citato dagli AI nelle query monitorate. Il tasso di citazione indica la visibilità complessiva. Usa i test API per verificare che il sistema stia raccogliendo dati correttamente.</p>
-                <div style="margin-top:20px;padding:12px 16px;background:#fbf4f7;border-radius:8px;font-size:12px;color:#d82d6b;font-weight:600">
+                <div style="margin-top:20px;padding:12px 16px;background:#fbf4f7;border-radius:4px;font-size:12px;color:#d82d6b;font-weight:600">
                     Per assistenza: <a href="mailto:info@eletta-ai.it" style="color:#d82d6b">info@eletta-ai.it</a>
                 </div>
             </div>
@@ -187,7 +187,7 @@
                     <input type="checkbox" id="fm-ai-admin" style="width:16px;height:16px;cursor:pointer;accent-color:#d82d6b">
                     <label for="fm-ai-admin" style="font-size:13px;font-weight:600;cursor:pointer;color:#171b33">Solo AI <span style="color:var(--grey);font-weight:400">— visibile solo al layer LLM</span></label>
                 </div>
-                <div id="fm-msg-admin" style="font-size:13px;margin-top:8px;display:none;padding:8px 12px;border-radius:8px"></div>
+                <div id="fm-msg-admin" style="font-size:13px;margin-top:8px;display:none;padding:8px 12px;border-radius:4px"></div>
                 <div class="profile-actions" style="margin-top:16px">
                     <button class="btn-save-profile" id="fm-save-admin">Salva FAQ</button>
                 </div>
@@ -350,17 +350,17 @@
                     <div class="card-header"><div class="card-title">Risultati ultima esecuzione</div><div id="bm-run-meta" style="font-size:12px;color:var(--grey)"></div></div>
                     <div style="padding:20px 26px">
                         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px">
-                            <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:18px;text-align:center">
+                            <div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:18px;text-align:center">
                                 <div id="bm-p1" style="font-size:36px;font-weight:800;color:var(--magenta)">—</div>
                                 <div style="font-size:12px;font-weight:600;color:var(--grey);margin-top:4px">Precision@1</div>
                                 <div style="font-size:11px;color:var(--grey);margin-top:2px">chunk corretto al 1° posto</div>
                             </div>
-                            <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:18px;text-align:center">
+                            <div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:18px;text-align:center">
                                 <div id="bm-p3" style="font-size:36px;font-weight:800;color:var(--magenta)">—</div>
                                 <div style="font-size:12px;font-weight:600;color:var(--grey);margin-top:4px">Precision@3</div>
                                 <div style="font-size:11px;color:var(--grey);margin-top:2px">chunk corretto nei top 3</div>
                             </div>
-                            <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:18px;text-align:center">
+                            <div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:18px;text-align:center">
                                 <div id="bm-mrr" style="font-size:36px;font-weight:800;color:#7c3aed">—</div>
                                 <div style="font-size:12px;font-weight:600;color:var(--grey);margin-top:4px">MRR</div>
                                 <div style="font-size:11px;color:var(--grey);margin-top:2px">Mean Reciprocal Rank</div>
@@ -699,7 +699,7 @@
         const geoBc = v => v===null?'#666b84':v>=70?'#d82d6b':v>=40?'var(--magenta)':'#d82d6b';
         const geoTips = {ai_readiness:'Prontezza complessiva del sito per essere letto e citato dai sistemi AI.',answer_extraction:'Capacità del sito di fornire risposte dirette ed estraibili dai motori AI.',quality_safety:'Qualità e sicurezza dei contenuti — testo chiaro, non ambiguo, privo di contenuti problematici.',ai_visibility:'Visibilità stimata del sito sui principali sistemi AI come ChatGPT, Perplexity ecc.',entity_authority:"Autorevolezza delle entità semantiche — quanto il sito è riconosciuto come fonte affidabile.",chunk_avg:'Media della citabilità dei singoli blocchi di contenuto dal Chunk Engine.',citation_avg:'Media del punteggio Citation Engine — probabilità che il sito venga citato come fonte.'};
         const _noColorKeys = new Set(['entity_authority','chunk_avg','citation_avg']);
-        const geoRows = [{k:'ai_readiness',l:'AI Readiness'},{k:'answer_extraction',l:'Answer Extraction'},{k:'quality_safety',l:'Quality Safety'},{k:'ai_visibility',l:'AI Visibility'},{k:'entity_authority',l:'Entity Authority'},{k:'chunk_avg',l:'Chunk Citation'},{k:'citation_avg',l:'Citation Engine'}].map(({k,l})=>{const v=geo[k]??null;const vc=v===null?'#ead0dc':'#d82d6b';const st=v===null?'nessun dato':v>=70?'ottimizzato':v>=40?'da migliorare':'critico';return `<div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:16px 18px"><div style="font-size:11px;font-weight:500;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;display:flex;align-items:center;gap:4px">${l} <span class='tip-q' data-tip='${geoTips[k]}'>?</span></div><div style="font-size:32px;font-weight:800;line-height:1;color:${v!==null?'#171b33':'#ead0dc'}">${v!==null?v:'—'}</div><div style="font-size:13px;font-weight:600;color:${vc};margin-top:6px">${st}</div></div>`;}).join('');
+        const geoRows = [{k:'ai_readiness',l:'AI Readiness'},{k:'answer_extraction',l:'Answer Extraction'},{k:'quality_safety',l:'Quality Safety'},{k:'ai_visibility',l:'AI Visibility'},{k:'entity_authority',l:'Entity Authority'},{k:'chunk_avg',l:'Chunk Citation'},{k:'citation_avg',l:'Citation Engine'}].map(({k,l})=>{const v=geo[k]??null;const vc=v===null?'#ead0dc':'#d82d6b';const st=v===null?'nessun dato':v>=70?'ottimizzato':v>=40?'da migliorare':'critico';return `<div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:16px 18px"><div style="font-size:11px;font-weight:500;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;display:flex;align-items:center;gap:4px">${l} <span class='tip-q' data-tip='${geoTips[k]}'>?</span></div><div style="font-size:32px;font-weight:800;line-height:1;color:${v!==null?'#171b33':'#ead0dc'}">${v!==null?v:'—'}</div><div style="font-size:13px;font-weight:600;color:${vc};margin-top:6px">${st}</div></div>`;}).join('');
 
         _aFaqFilter = 'all'; _aFaqSearch = '';
         _pseChartsInited = false; _mappaInited = false; _coerenzaInited = false; _configInited = false; _aiLayerInited = false;
@@ -747,28 +747,28 @@
 
                 <!-- COLONNA DESTRA: KPI + content pane (cambia in base alla selezione sidebar) -->
                 <div>
-                <div style="background:white;border-radius:8px;border:1px solid #e4e4ec;overflow:hidden;margin-bottom:20px">
+                <div style="background:white;border-radius:4px;border:1px solid #e4e4ec;overflow:hidden;margin-bottom:20px">
                     <div style="padding:14px 20px;border-bottom:1px solid #e4e4ec;background:#fafafa;display:flex;align-items:center;gap:8px">
                         <span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span>
                         <span style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">PANORAMICA GEO SCORE</span>
                     </div>
                     <div style="padding:16px 20px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
-                        <div style="border:1.5px solid #d82d6b;border-radius:8px;padding:16px 18px">
+                        <div style="border:1.5px solid #d82d6b;border-radius:4px;padding:16px 18px">
                             <div style="font-size:11px;font-weight:500;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;display:flex;align-items:center;gap:4px">GEO SCORE <span class='tip-q' data-tip='Punteggio complessivo di ottimizzazione per AI. ≥70 ottimizzato, 40–69 da migliorare, <40 critico.'>?</span></div>
                             <div style="font-size:32px;font-weight:800;line-height:1;color:${geoAvg!==null?'#171b33':'#ead0dc'}">${geoAvg!==null?geoAvg:'—'}</div>
                             <div style="font-size:13px;font-weight:600;color:${geoAvg!==null?'#d82d6b':'#ead0dc'};margin-top:6px">${geoAvg!==null?(geoAvg>=70?'ottimizzato':geoAvg>=40?'da migliorare':'critico'):'nessun dato'}</div>
                         </div>
-                        <div style="border:1px solid #e4e4ec;border-radius:8px;padding:16px 18px">
+                        <div style="border:1px solid #e4e4ec;border-radius:4px;padding:16px 18px">
                             <div style="font-size:11px;font-weight:500;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;display:flex;align-items:center;gap:4px">COMPLETEZZA AI <span class='tip-q' data-tip='Quanto è completo il profilo AI dell hotel: nome, indirizzo, descrizione, contatti, FAQ ecc. ≥80 ottimizzato.'>?</span></div>
                             <div style="font-size:32px;font-weight:800;line-height:1;color:${cs!==null?'#171b33':'#ead0dc'}">${cs!==null?cs:'—'}</div>
                             <div style="font-size:13px;font-weight:600;color:${cs!==null?'#d82d6b':'#ead0dc'};margin-top:6px">${cs!==null?(cs>=70?'ottimizzato':cs>=40?'da migliorare':'critico'):'nessun dato'}</div>
                         </div>
-                        <div style="border:1px solid #e4e4ec;border-radius:8px;padding:16px 18px">
+                        <div style="border:1px solid #e4e4ec;border-radius:4px;padding:16px 18px">
                             <div style="font-size:11px;font-weight:500;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;display:flex;align-items:center;gap:4px">COVERAGE FAQ <span class='tip-q' data-tip='Percentuale di domande degli ospiti a cui il sito risponde tramite FAQ. ≥80% buona copertura.'>?</span></div>
                             <div style="font-size:32px;font-weight:800;line-height:1;color:${covPct!==null?'#171b33':'#ead0dc'}">${covPct!==null?covPct+'%':'—'}</div>
                             <div style="font-size:13px;font-weight:600;color:${covPct!==null?'#d82d6b':'#ead0dc'};margin-top:6px">${covPct!==null?covPct+'% coperto':'nessun dato'}</div>
                         </div>
-                        <div style="border:1px solid #e4e4ec;border-radius:8px;padding:16px 18px">
+                        <div style="border:1px solid #e4e4ec;border-radius:4px;padding:16px 18px">
                             <div style="font-size:11px;font-weight:500;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;display:flex;align-items:center;gap:4px">MAPPA QUERY <span class='tip-q' data-tip='Percentuale di categorie di query conversazionali degli ospiti coperte dal sito. ≥70% buona copertura.'>?</span></div>
                             <div style="font-size:32px;font-weight:800;line-height:1;color:${qMapPct!==null?'#171b33':'#ead0dc'}">${qMapPct!==null?qMapPct+'%':'—'}</div>
                             <div style="font-size:13px;font-weight:600;color:${qMapPct!==null?'#d82d6b':'#ead0dc'};margin-top:6px">${qMapPct!==null?qMapPct+'% coperto':'nessun dato'}</div>
@@ -790,14 +790,14 @@
                 <div class="card" style="margin:0;border:1px solid #e4e4ec;box-shadow:none">
                     <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Informazioni sito</div></div></div>
                     <div style="padding:14px 16px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
-                        <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:14px 16px"><div style="font-size:11px;color:#4a4a6a;font-weight:500;letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px">Sito</div><div style="font-size:16px;font-weight:700;color:#171b33">${escHtml(site?.site_name||'—')}</div></div>
-                        <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:14px 16px"><div style="font-size:11px;color:#4a4a6a;font-weight:500;letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px">URL</div><div style="font-size:12px;font-weight:500"><a href="${escHtml(site?.site_url||'')}" target="_blank" style="color:var(--magenta);text-decoration:none">${escHtml(site?.site_url||'—')}</a></div></div>
-                        <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:14px 16px"><div style="font-size:11px;color:#4a4a6a;font-weight:500;letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px">Versione plugin</div><div style="font-size:16px;font-weight:700;color:#171b33">${escHtml(site?.plugin_version||'—')}</div></div>
-                        <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:14px 16px"><div style="font-size:11px;color:#4a4a6a;font-weight:500;letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px">WordPress</div><div style="font-size:16px;font-weight:700;color:#171b33">${escHtml(site?.wp_version||'—')}</div></div>
-                        <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:14px 16px"><div style="font-size:11px;color:#4a4a6a;font-weight:500;letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px">PHP</div><div style="font-size:16px;font-weight:700;color:#171b33">${escHtml(site?.php_version||'—')}</div></div>
-                        <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:14px 16px"><div style="font-size:11px;color:#4a4a6a;font-weight:500;letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px">Pacchetto</div><div style="font-size:16px;font-weight:700;color:#171b33">${site?.tier==='plus'?'<span style="color:var(--magenta)">Plus</span>':'Standard'}</div></div>
-                        <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:14px 16px"><div style="font-size:11px;color:#4a4a6a;font-weight:500;letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px">Installato il</div><div style="font-size:16px;font-weight:700;color:#171b33">${regIl}</div></div>
-                        <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:14px 16px"><div style="font-size:11px;color:#4a4a6a;font-weight:500;letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px">Hotel ID</div><div style="font-size:10px;color:#888;word-break:break-all;font-weight:500">${escHtml(site?.site_id||'—')}</div></div>
+                        <div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:14px 16px"><div style="font-size:11px;color:#4a4a6a;font-weight:500;letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px">Sito</div><div style="font-size:16px;font-weight:700;color:#171b33">${escHtml(site?.site_name||'—')}</div></div>
+                        <div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:14px 16px"><div style="font-size:11px;color:#4a4a6a;font-weight:500;letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px">URL</div><div style="font-size:12px;font-weight:500"><a href="${escHtml(site?.site_url||'')}" target="_blank" style="color:var(--magenta);text-decoration:none">${escHtml(site?.site_url||'—')}</a></div></div>
+                        <div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:14px 16px"><div style="font-size:11px;color:#4a4a6a;font-weight:500;letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px">Versione plugin</div><div style="font-size:16px;font-weight:700;color:#171b33">${escHtml(site?.plugin_version||'—')}</div></div>
+                        <div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:14px 16px"><div style="font-size:11px;color:#4a4a6a;font-weight:500;letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px">WordPress</div><div style="font-size:16px;font-weight:700;color:#171b33">${escHtml(site?.wp_version||'—')}</div></div>
+                        <div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:14px 16px"><div style="font-size:11px;color:#4a4a6a;font-weight:500;letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px">PHP</div><div style="font-size:16px;font-weight:700;color:#171b33">${escHtml(site?.php_version||'—')}</div></div>
+                        <div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:14px 16px"><div style="font-size:11px;color:#4a4a6a;font-weight:500;letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px">Pacchetto</div><div style="font-size:16px;font-weight:700;color:#171b33">${site?.tier==='plus'?'<span style="color:var(--magenta)">Plus</span>':'Standard'}</div></div>
+                        <div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:14px 16px"><div style="font-size:11px;color:#4a4a6a;font-weight:500;letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px">Installato il</div><div style="font-size:16px;font-weight:700;color:#171b33">${regIl}</div></div>
+                        <div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:14px 16px"><div style="font-size:11px;color:#4a4a6a;font-weight:500;letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px">Hotel ID</div><div style="font-size:10px;color:#888;word-break:break-all;font-weight:500">${escHtml(site?.site_id||'—')}</div></div>
                     </div>
                 </div>
                 </div><!-- /semafori+info sito -->
@@ -807,7 +807,7 @@
                     <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Punteggi AI</div></div>
                 </div>
                 <div style="padding:16px 20px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
-                    <div style="background:white;border:1.5px solid #d82d6b;border-radius:8px;padding:16px 18px">
+                    <div style="background:white;border:1.5px solid #d82d6b;border-radius:4px;padding:16px 18px">
                         <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:4px">MEDIA PUNTEGGI <span class='tip-q' data-tip='Media ponderata di tutti i punteggi AI del sito. Rappresenta la prontezza complessiva per essere citato dai motori AI.'>?</span></div>
                         <div style="font-size:38px;font-weight:800;line-height:1;color:${geoAvg!==null?'#171b33':'#ead0dc'}">${geoAvg!==null?geoAvg:'—'}</div>
                         <div style="font-size:11px;font-weight:600;color:${geoAvg!==null?'#d82d6b':'#ead0dc'};margin-top:6px">${geoAvg!==null?(geoAvg>=70?'ottimizzato':geoAvg>=40?'da migliorare':'critico'):'nessun dato'} / 100</div>
@@ -821,22 +821,22 @@
                 </div>
                 <div style="padding:16px 20px">
                     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:${checklist.length?'20px':'0'}">
-                        <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:16px 18px">
+                        <div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:16px 18px">
                             <div style="font-size:11px;font-weight:500;color:#4a4a6a;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;display:flex;align-items:center;gap:4px">PUNTEGGIO <span class='tip-q' data-tip='Punteggio di completezza del profilo AI. ≥80 ottimizzato, 60-79 da migliorare, <60 incompleto.'>?</span></div>
                             <div style="font-size:32px;font-weight:800;line-height:1;color:#171b33">${cs}/100</div>
                             <div style="font-size:13px;font-weight:600;color:#d82d6b;margin-top:6px">${cs>=80?'ottimizzato':cs>=60?'da migliorare':'incompleto'}</div>
                         </div>
-                        <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:16px 18px">
+                        <div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:16px 18px">
                             <div style="font-size:11px;font-weight:500;color:#4a4a6a;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;display:flex;align-items:center;gap:4px">CAMPI TOTALI <span class='tip-q' data-tip='Numero totale di campi fondamentali del profilo AI considerati per il punteggio di completezza.'>?</span></div>
                             <div style="font-size:32px;font-weight:800;line-height:1;color:#171b33">12</div>
                             <div style="font-size:13px;font-weight:600;color:#d82d6b;margin-top:6px">campi fondamentali</div>
                         </div>
-                        <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:16px 18px">
+                        <div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:16px 18px">
                             <div style="font-size:11px;font-weight:500;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;display:flex;align-items:center;gap:4px">COMPILATI <span class='tip-q' data-tip='Campi fondamentali già compilati e disponibili per i motori AI.'>?</span></div>
                             <div style="font-size:32px;font-weight:800;line-height:1;color:#171b33">${12-checklist.length}</div>
                             <div style="font-size:13px;font-weight:600;color:#d82d6b;margin-top:6px">di 12 totali</div>
                         </div>
-                        <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:16px 18px">
+                        <div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:16px 18px">
                             <div style="font-size:11px;font-weight:500;color:#4a4a6a;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;display:flex;align-items:center;gap:4px">MANCANTI <span class='tip-q' data-tip='Campi fondamentali ancora vuoti — completali nel Profilo Hotel per migliorare la visibilità AI.'>?</span></div>
                             <div style="font-size:32px;font-weight:800;line-height:1;color:#171b33">${checklist.length}</div>
                             <div style="font-size:13px;font-weight:600;color:#d82d6b;margin-top:6px">${checklist.length>0?'da completare':'tutto compilato'}</div>
@@ -851,22 +851,22 @@
                 </div>
                 <div style="padding:16px 20px">
                     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:${(covPct!==null&&(freshAlerts.length||missingQueries.length))?'16px':'0'}">
-                        <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:16px 18px">
+                        <div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:16px 18px">
                             <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:4px">COVERAGE FAQ <span class='tip-q' data-tip='Percentuale di domande degli ospiti coperta dalle FAQ pubblicate. ≥80% buona copertura.'>?</span></div>
                             <div style="font-size:32px;font-weight:800;line-height:1;color:${covPct===null?'#ead0dc':'#171b33'}">${covPct!==null?covPct+'%':'—'}</div>
                             <div style="font-size:11px;font-weight:600;color:${covPct===null?'#ead0dc':'#d82d6b'};margin-top:6px">${covPct===null?'nessun dato':covPct>=80?'buona copertura':'da migliorare'}</div>
                         </div>
-                        <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:16px 18px">
+                        <div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:16px 18px">
                             <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:4px">SENZA RISPOSTA <span class='tip-q' data-tip='Numero di domande degli ospiti senza una risposta FAQ disponibile sul sito.'>?</span></div>
                             <div style="font-size:32px;font-weight:800;line-height:1;color:#171b33">${missingAnswers!==null?missingAnswers:'—'}</div>
                             <div style="font-size:11px;font-weight:600;color:#d82d6b;margin-top:6px">${missingAnswers>0?'domande mancanti':'tutto coperto'}</div>
                         </div>
-                        <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:16px 18px">
+                        <div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:16px 18px">
                             <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:4px">ULTIMA FAQ <span class='tip-q' data-tip='Giorni dall ultima pubblicazione o aggiornamento di FAQ nel plugin. >180 giorni → aggiornare.'>?</span></div>
                             <div style="font-size:32px;font-weight:800;line-height:1;color:${daysFaq===null?'#ead0dc':'#171b33'}">${daysFaq!==null?daysFaq:'—'}</div>
                             <div style="font-size:11px;font-weight:600;color:${daysFaq===null?'#ead0dc':'#d82d6b'};margin-top:6px">${daysFaq!==null?'giorni fa':'nessun dato'}</div>
                         </div>
-                        <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:16px 18px">
+                        <div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:16px 18px">
                             <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:4px">ULTIMO SCHEMA <span class='tip-q' data-tip='Giorni dall ultimo aggiornamento Schema.org (LodgingBusiness/HotelSchema). >180 giorni → aggiornare.'>?</span></div>
                             <div style="font-size:32px;font-weight:800;line-height:1;color:${daysSchema===null?'#ead0dc':'#171b33'}">${daysSchema!==null?daysSchema:'—'}</div>
                             <div style="font-size:11px;font-weight:600;color:${daysSchema===null?'#ead0dc':'#d82d6b'};margin-top:6px">${daysSchema!==null?'giorni fa':'nessun dato'}</div>
@@ -882,22 +882,22 @@
                 </div>
                 <div style="padding:16px 20px">
                     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:${qMapPct!==null?'16px':'0'}">
-                        <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:16px 18px">
+                        <div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:16px 18px">
                             <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:4px">COPERTURA <span class='tip-q' data-tip='Percentuale di categorie di query conversazionali degli ospiti con risposta configurata. ≥70% buona copertura.'>?</span></div>
                             <div style="font-size:32px;font-weight:800;line-height:1;color:${qMapPct===null?'#ead0dc':'#171b33'}">${qMapPct!==null?qMapPct+'%':'—'}</div>
                             <div style="font-size:11px;font-weight:600;color:${qMapPct===null?'#ead0dc':'#d82d6b'};margin-top:6px">${qMapPct===null?'nessun dato':qMapPct>=70?'buona copertura':'da migliorare'}</div>
                         </div>
-                        <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:16px 18px">
+                        <div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:16px 18px">
                             <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:4px">SENZA RISPOSTA <span class='tip-q' data-tip='Categorie di query conversazionali degli ospiti senza risposta configurata nella Mappa Query.'>?</span></div>
                             <div style="font-size:32px;font-weight:800;line-height:1;color:#171b33">${qUncovered!==null?qUncovered:'—'}</div>
                             <div style="font-size:11px;font-weight:600;color:#d82d6b;margin-top:6px">${qUncovered>0?'queries mancanti':'tutto coperto'}</div>
                         </div>
-                        <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:16px 18px">
+                        <div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:16px 18px">
                             <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:4px">QUERY TOTALI <span class='tip-q' data-tip='Numero totale di categorie di query conversazionali rilevate nel sistema Mappa Query.'>?</span></div>
                             <div style="font-size:32px;font-weight:800;line-height:1;color:#171b33">${qTotal!==null?qTotal:'—'}</div>
                             <div style="font-size:11px;font-weight:600;color:#d82d6b;margin-top:6px">${qTotal!==null?'rilevate':'nessun dato'}</div>
                         </div>
-                        <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:16px 18px">
+                        <div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:16px 18px">
                             <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:4px">QUERY COPERTE <span class='tip-q' data-tip='Categorie di query con risposta configurata — direttamente leggibili dai motori AI.'>?</span></div>
                             <div style="font-size:32px;font-weight:800;line-height:1;color:#171b33">${qTotal!==null&&qUncovered!==null?qTotal-qUncovered:'—'}</div>
                             <div style="font-size:11px;font-weight:600;color:#d82d6b;margin-top:6px">${qTotal!==null?'con risposta':'nessun dato'}</div>
@@ -919,7 +919,7 @@
                         const cited=(pseData||[]).filter(r=>r.result?.cited||r.result?.found||r.result?.match_found).length;
                         const pct=tot>0?Math.round(cited/tot*100):null;
                         const cost=(pseData||[]).reduce((a,r)=>a+(parseFloat(r.cost_usd)||0),0);
-                        const bx=(l,v,sub,vc)=>'<div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:16px 18px"><div style="font-size:11px;color:#4a4a6a;font-weight:500;letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px">'+l+'</div><div style="font-size:24px;font-weight:800;color:#171b33;line-height:1">'+v+'</div><div style="font-size:13px;font-weight:600;color:'+vc+';margin-top:5px">'+sub+'</div></div>';
+                        const bx=(l,v,sub,vc)=>'<div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:16px 18px"><div style="font-size:11px;color:#4a4a6a;font-weight:500;letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px">'+l+'</div><div style="font-size:24px;font-weight:800;color:#171b33;line-height:1">'+v+'</div><div style="font-size:13px;font-weight:600;color:'+vc+';margin-top:5px">'+sub+'</div></div>';
                         return '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px">'+
                             bx('QUERY TOTALI',tot,'eseguite','#d82d6b')+
                             bx('CITAZIONI',cited,'trovate','#d82d6b')+
@@ -953,7 +953,7 @@
                     <input type="text" id="faq-search-input" placeholder="Cerca FAQ..." style="margin-left:auto;border:1px solid #e4e4ec;border-radius:6px;padding:6px 12px;font-size:12px;outline:none;width:220px;color:#171b33">
                 </div>
                 <div style="display:grid;grid-template-columns:1fr auto auto auto auto;gap:0;padding:8px 20px;background:#f7f7fb;border-bottom:1px solid #e4e4ec;font-size:10px;font-weight:700;color:#aaa;letter-spacing:.05em;text-transform:uppercase">
-                    <div>Titolo</div><div style="text-align:center;padding:0 16px">Data</div><div style="text-align:center;padding:0 12px">Ordine</div><div style="text-align:center;padding:0 8px">Visibilità</div><div style="text-align:center;padding:0 8px">Azioni</div>
+                    <div>Titolo</div><div style="text-align:center;padding:0 16px">Data</div><div style="text-align:center;padding:0 12px">Ordine</div><div style="text-align:center;padding:0 8px">Azioni</div><div style="text-align:center;padding:0 8px">Visibilità</div>
                 </div>
                 <div id="faq-admin-list" style="padding:0"><div class="loading" style="padding:20px"><div class="spinner"></div></div></div>
             </div>
@@ -1050,7 +1050,7 @@
                 </div>
                 <div id="hotel-profile-view" style="padding:0"></div>
                 <div id="hotel-profile-edit" style="display:none;padding:16px 20px">
-                    <div style="background:#fbf4f7;border:1px solid #e4e4ec;border-radius:8px;padding:12px 16px;font-size:13px;color:#d82d6b;font-weight:600;margin-bottom:20px;line-height:1.5">ℹ️ I dati salvati qui restano attivi finché il plugin non invia un nuovo sync.</div>
+                    <div style="background:#fbf4f7;border:1px solid #e4e4ec;border-radius:4px;padding:12px 16px;font-size:13px;color:#d82d6b;font-weight:600;margin-bottom:20px;line-height:1.5">ℹ️ I dati salvati qui restano attivi finché il plugin non invia un nuovo sync.</div>
                     <div id="hotel-profile-form"></div>
                     <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;align-items:center">
                         <button id="btn-save-hotel-profile" class="btn-update" style="margin-left:0">Salva profilo</button>
@@ -1078,9 +1078,9 @@
                     <div style="display:flex;align-items:center;gap:16px">
                         <div style="font-size:40px;font-weight:800;color:#d82d6b;line-height:1" id="mc-score">—</div>
                         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;flex:1">
-                            <div style="border:1.5px solid #d82d6b;border-radius:8px;padding:12px 14px;text-align:center"><div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">QUERY TOTALI</div><div style="font-size:24px;font-weight:800;color:#171b33;line-height:1" id="mc-total">—</div></div>
-                            <div style="border:1px solid #e4e4ec;border-radius:8px;padding:12px 14px;text-align:center"><div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">COPERTE</div><div style="font-size:24px;font-weight:800;color:#d82d6b;line-height:1" id="mc-covered">—</div></div>
-                            <div style="border:1px solid #e4e4ec;border-radius:8px;padding:12px 14px;text-align:center"><div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">SCOPERTE</div><div style="font-size:24px;font-weight:800;color:#ead0dc;line-height:1" id="mc-missing">—</div></div>
+                            <div style="border:1.5px solid #d82d6b;border-radius:4px;padding:12px 14px;text-align:center"><div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">QUERY TOTALI</div><div style="font-size:24px;font-weight:800;color:#171b33;line-height:1" id="mc-total">—</div></div>
+                            <div style="border:1px solid #e4e4ec;border-radius:4px;padding:12px 14px;text-align:center"><div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">COPERTE</div><div style="font-size:24px;font-weight:800;color:#d82d6b;line-height:1" id="mc-covered">—</div></div>
+                            <div style="border:1px solid #e4e4ec;border-radius:4px;padding:12px 14px;text-align:center"><div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">SCOPERTE</div><div style="font-size:24px;font-weight:800;color:#ead0dc;line-height:1" id="mc-missing">—</div></div>
                         </div>
                     </div>
                 </div>
@@ -1095,14 +1095,14 @@
                     <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Stato Dati Ufficiali</div></div>
                 </div>
                 <div id="coerenza-stato-ufficiali" style="padding:16px 20px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
-                    <div style="border:1px solid #e4e4ec;border-radius:8px;padding:12px 14px"><div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px">Nome hotel</div><div id="cu-nome" style="font-size:13px;font-weight:700;color:#171b33">—</div></div>
-                    <div style="border:1px solid #e4e4ec;border-radius:8px;padding:12px 14px"><div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px">Telefono</div><div id="cu-tel" style="font-size:13px;font-weight:700;color:#171b33">—</div></div>
-                    <div style="border:1px solid #e4e4ec;border-radius:8px;padding:12px 14px"><div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px">Email</div><div id="cu-email" style="font-size:13px;font-weight:700;color:#171b33">—</div></div>
-                    <div style="border:1px solid #e4e4ec;border-radius:8px;padding:12px 14px"><div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px">Indirizzo</div><div id="cu-addr" style="font-size:13px;font-weight:700;color:#171b33">—</div></div>
-                    <div style="border:1px solid #e4e4ec;border-radius:8px;padding:12px 14px"><div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px">Sito web</div><div id="cu-url" style="font-size:13px;font-weight:700;color:#171b33">—</div></div>
-                    <div style="border:1px solid #e4e4ec;border-radius:8px;padding:12px 14px"><div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px">Check-in</div><div id="cu-cin" style="font-size:13px;font-weight:700;color:#171b33">—</div></div>
-                    <div style="border:1px solid #e4e4ec;border-radius:8px;padding:12px 14px"><div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px">Check-out</div><div id="cu-cout" style="font-size:13px;font-weight:700;color:#171b33">—</div></div>
-                    <div style="border:1px solid #e4e4ec;border-radius:8px;padding:12px 14px"><div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px">Stelle</div><div id="cu-stelle" style="font-size:13px;font-weight:700;color:#171b33">—</div></div>
+                    <div style="border:1px solid #e4e4ec;border-radius:4px;padding:12px 14px"><div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px">Nome hotel</div><div id="cu-nome" style="font-size:13px;font-weight:700;color:#171b33">—</div></div>
+                    <div style="border:1px solid #e4e4ec;border-radius:4px;padding:12px 14px"><div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px">Telefono</div><div id="cu-tel" style="font-size:13px;font-weight:700;color:#171b33">—</div></div>
+                    <div style="border:1px solid #e4e4ec;border-radius:4px;padding:12px 14px"><div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px">Email</div><div id="cu-email" style="font-size:13px;font-weight:700;color:#171b33">—</div></div>
+                    <div style="border:1px solid #e4e4ec;border-radius:4px;padding:12px 14px"><div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px">Indirizzo</div><div id="cu-addr" style="font-size:13px;font-weight:700;color:#171b33">—</div></div>
+                    <div style="border:1px solid #e4e4ec;border-radius:4px;padding:12px 14px"><div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px">Sito web</div><div id="cu-url" style="font-size:13px;font-weight:700;color:#171b33">—</div></div>
+                    <div style="border:1px solid #e4e4ec;border-radius:4px;padding:12px 14px"><div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px">Check-in</div><div id="cu-cin" style="font-size:13px;font-weight:700;color:#171b33">—</div></div>
+                    <div style="border:1px solid #e4e4ec;border-radius:4px;padding:12px 14px"><div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px">Check-out</div><div id="cu-cout" style="font-size:13px;font-weight:700;color:#171b33">—</div></div>
+                    <div style="border:1px solid #e4e4ec;border-radius:4px;padding:12px 14px"><div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px">Stelle</div><div id="cu-stelle" style="font-size:13px;font-weight:700;color:#171b33">—</div></div>
                 </div>
             </div>
             <div class="card" style="margin-bottom:20px;border:1px solid #e4e4ec;box-shadow:none">
@@ -1149,7 +1149,7 @@
             <div class="card" style="border:1px solid #e4e4ec;box-shadow:none;margin:0">
                 <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Riepilogo PSE</div></div></div>
                 <div id="pse-stats-grid" style="padding:16px 20px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
-                    ${(()=>{const tot=pseData?.length||0;const totCost=(pseData||[]).reduce((a,r)=>a+(parseFloat(r.cost_usd)||0),0);const cited=(pseData||[]).filter(r=>(r.result?.cited||r.result?.found||r.result?.match_found)).length;const pct=tot>0?Math.round(cited/tot*100):null;const bx=(l,v,s,vc)=>'<div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:16px 18px"><div style="font-size:11px;color:#4a4a6a;font-weight:500;letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px">'+l+'</div><div style="font-size:28px;font-weight:800;color:#171b33;line-height:1">'+v+'</div><div style="font-size:13px;font-weight:600;color:'+vc+';margin-top:5px">'+s+'</div></div>';return bx('QUERY TOTALI',tot,'eseguite','#d82d6b')+bx('CITAZIONI',cited,'trovate','#d82d6b')+bx('TASSO CITAZIONE',pct!==null?pct+'%':'—',pct!==null?(pct>=50?'buona visibilità':'da migliorare'):'nessun dato',pct!==null?'#d82d6b':'#ead0dc')+bx('COSTO TOTALE','€'+totCost.toFixed(4),'speso','#666b84');})()}
+                    ${(()=>{const tot=pseData?.length||0;const totCost=(pseData||[]).reduce((a,r)=>a+(parseFloat(r.cost_usd)||0),0);const cited=(pseData||[]).filter(r=>(r.result?.cited||r.result?.found||r.result?.match_found)).length;const pct=tot>0?Math.round(cited/tot*100):null;const bx=(l,v,s,vc)=>'<div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:16px 18px"><div style="font-size:11px;color:#4a4a6a;font-weight:500;letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px">'+l+'</div><div style="font-size:28px;font-weight:800;color:#171b33;line-height:1">'+v+'</div><div style="font-size:13px;font-weight:600;color:'+vc+';margin-top:5px">'+s+'</div></div>';return bx('QUERY TOTALI',tot,'eseguite','#d82d6b')+bx('CITAZIONI',cited,'trovate','#d82d6b')+bx('TASSO CITAZIONE',pct!==null?pct+'%':'—',pct!==null?(pct>=50?'buona visibilità':'da migliorare'):'nessun dato',pct!==null?'#d82d6b':'#ead0dc')+bx('COSTO TOTALE','€'+totCost.toFixed(4),'speso','#666b84');})()}
                 </div>
             </div>
             </div><!-- /scontent-pse -->
@@ -1268,7 +1268,7 @@
         document.getElementById('hotel-profile-view').innerHTML =
             '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px">' +
             f('Nome', s.name) + f('Tipo struttura', s.type) + f('Stelle', s.official_rating ? s.official_rating + ' ★' : null) + '</div>' +
-            (s.description ? '<div style="margin-bottom:14px;padding:12px 14px;background:#fbf4f7;border-radius:8px"><div style="font-size:10px;color:var(--grey);font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px">DESCRIZIONE</div><div style="font-size:13px;color:#35364f;line-height:1.6">' + escHtml(s.description) + '</div></div>' : '') +
+            (s.description ? '<div style="margin-bottom:14px;padding:12px 14px;background:#fbf4f7;border-radius:4px"><div style="font-size:10px;color:var(--grey);font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px">DESCRIZIONE</div><div style="font-size:13px;color:#35364f;line-height:1.6">' + escHtml(s.description) + '</div></div>' : '') +
             '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:14px">' +
             f('Indirizzo', addr) + f('Telefono', s.telephone) + f('Email', s.email) + '</div>' +
             '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:14px;margin-bottom:14px">' +
@@ -1361,7 +1361,7 @@
         // INFORMAZIONI STRUTTURA
         html += secH('Informazioni struttura');
         html += grd('1fr 1fr 1fr 1fr', fld('Nome struttura',p.nome_hotel), fld('Tipo',p.tipo_struttura), fld('Stelle',p.stelle?p.stelle+' ★':''), fld('Prezzo',p.prezzo_medio));
-        if (p.descrizione) html += `<div style="padding:0 20px 14px"><div style="background:#fbf4f7;border-radius:8px;padding:10px 14px;font-size:13px;color:#35364f;line-height:1.6">${escHtml(p.descrizione)}</div></div>`;
+        if (p.descrizione) html += `<div style="padding:0 20px 14px"><div style="background:#fbf4f7;border-radius:4px;padding:10px 14px;font-size:13px;color:#35364f;line-height:1.6">${escHtml(p.descrizione)}</div></div>`;
 
         // CONTATTI
         if (p.telefono||p.email||p.sito_web) {
@@ -1412,8 +1412,8 @@
             html += `<div style="padding:12px 20px">`;
             html += grd('1fr 1fr', fld('Target clientela',p.target_clientela), fld('Stagionalità',p.stagionalita)).replace('padding:12px 20px','padding:0 0 10px');
             if (p.parole_chiave) html += fld('Parole chiave',p.parole_chiave)+'<div style="margin-top:10px"></div>';
-            if (p.usp) html += `<div style="background:#fbf4f7;border-radius:8px;padding:10px 14px;font-size:13px;color:#35364f;margin-bottom:8px"><div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">USP</div>${escHtml(p.usp)}</div>`;
-            if (p.descrizione_ai) html += `<div style="background:#fbf4f7;border-radius:8px;padding:10px 14px;font-size:13px;color:#d82d6b;font-weight:600">${escHtml(p.descrizione_ai)}</div>`;
+            if (p.usp) html += `<div style="background:#fbf4f7;border-radius:4px;padding:10px 14px;font-size:13px;color:#35364f;margin-bottom:8px"><div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">USP</div>${escHtml(p.usp)}</div>`;
+            if (p.descrizione_ai) html += `<div style="background:#fbf4f7;border-radius:4px;padding:10px 14px;font-size:13px;color:#d82d6b;font-weight:600">${escHtml(p.descrizione_ai)}</div>`;
             html += `</div>`;
         }
 
@@ -1423,7 +1423,7 @@
         html += grd('1fr 1fr 1fr', fld('N° camere totali',p.n_camere), fld('Ospiti min/max',p.occupazione_min&&p.occupazione_max?p.occupazione_min+'–'+p.occupazione_max:''), fld('Reception',p.orario_reception)).replace('padding:12px 20px','padding:0 0 10px');
         const camere = p.camere||[];
         if (camere.length) {
-            html += `<div style="border:1px solid #e4e4ec;border-radius:8px;overflow:hidden">`;
+            html += `<div style="border:1px solid #e4e4ec;border-radius:4px;overflow:hidden">`;
             html += `<div style="display:grid;grid-template-columns:2fr 70px 2fr;background:#f4f4f8;padding:7px 14px;font-size:10px;font-weight:700;color:#666b84;letter-spacing:.05em;text-transform:uppercase;border-bottom:1px solid #e4e4ec"><span>Camera</span><span>Max osp.</span><span>Servizi</span></div>`;
             camere.forEach(c => { html += `<div style="display:grid;grid-template-columns:2fr 70px 2fr;padding:8px 14px;font-size:12px;color:#35364f;border-bottom:1px solid #f4f4f8"><span style="font-weight:600">${escHtml(c.nome||'—')}</span><span>${escHtml(String(c.n_max||'—'))}</span><span>${escHtml(c.servizi||'—')}</span></div>`; });
             html += `</div>`;
@@ -1438,7 +1438,7 @@
             if (p.url_prenotazione||p.ota_principali||p.prezzo_min) html += grd('1fr 1fr 1fr', fld('URL prenotazione',p.url_prenotazione), fld('OTA principali',p.ota_principali), fld('Range prezzi/notte',p.prezzo_min&&p.prezzo_max?p.prezzo_min+'€ – '+p.prezzo_max+'€':'')).replace('padding:12px 20px','padding:0 0 10px');
             if (offerte.length) {
                 html += `<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px">`;
-                offerte.forEach(o => { html += `<div style="border:1px solid #ead0dc;border-radius:8px;padding:10px 14px;background:#fbf4f7"><div style="font-size:12px;font-weight:700;color:#d82d6b">${escHtml(o.nome||'Offerta')}</div>${o.prezzo?'<div style="font-size:11px;color:#666b84;margin-top:2px">€ '+escHtml(o.prezzo)+'</div>':''}${o.url?'<a href="'+escHtml(o.url)+'" target="_blank" style="font-size:11px;color:#d82d6b;display:block;margin-top:4px">Vedi →</a>':''}</div>`; });
+                offerte.forEach(o => { html += `<div style="border:1px solid #ead0dc;border-radius:4px;padding:10px 14px;background:#fbf4f7"><div style="font-size:12px;font-weight:700;color:#d82d6b">${escHtml(o.nome||'Offerta')}</div>${o.prezzo?'<div style="font-size:11px;color:#666b84;margin-top:2px">€ '+escHtml(o.prezzo)+'</div>':''}${o.url?'<a href="'+escHtml(o.url)+'" target="_blank" style="font-size:11px;color:#d82d6b;display:block;margin-top:4px">Vedi →</a>':''}</div>`; });
                 html += `</div>`;
             } else { html += `<div style="font-size:12px;color:#aaa">Nessuna offerta speciale.</div>`; }
             if (p.politica_cancellazione) html += `<div style="margin-top:10px">${fld('Politica cancellazione',p.politica_cancellazione)}</div>`;
@@ -1990,8 +1990,8 @@
                 </div>
                 <div style="padding:0 16px;text-align:center;font-size:11px;color:#666b84;white-space:pre-line;line-height:1.4">${fmt(f.date||f.created_at)}</div>
                 <div style="padding:0 12px;text-align:center;font-size:13px;font-weight:700;color:#171b33">${f.menu_order ?? f.order ?? 0}</div>
-                <div style="padding:0 8px;text-align:center">${pub}${ai}</div>
                 <div style="padding:0 8px;display:flex;align-items:center;gap:4px;justify-content:center">${f.link?`<a href="${escHtml(f.link)}" target="_blank" class="btn-ping" style="font-size:11px;padding:3px 8px;text-decoration:none">Apri pagina</a>`:''}<button class="btn-ping" style="font-size:11px;padding:3px 8px;background:transparent" onclick="openAdminFaqModal(${f.id})">Modifica</button><button class="btn-ping" style="font-size:11px;padding:3px 8px;background:transparent;color:#b00020" onclick="deleteAdminFaq(${f.id})">🗑️</button></div>
+                <div style="padding:0 8px;text-align:center">${pub}${ai}</div>
             </div>`;
         }).join('');
     }
@@ -2267,7 +2267,7 @@
         const statusLabel = isActive ? 'Attivo' : 'Non attivo';
 
         const infoCard = (label, val, note) =>
-            `<div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:14px 16px">
+            `<div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:14px 16px">
                 <div style="font-size:11px;color:#9ca3af;font-weight:500;letter-spacing:.05em;text-transform:uppercase;margin-bottom:5px">${label}</div>
                 <div style="font-size:14px;font-weight:700;color:#171b33">${escHtml(String(val||'—'))}</div>
                 ${note ? '<div style="font-size:11px;color:#666b84;margin-top:4px">'+escHtml(note)+'</div>' : ''}
@@ -2288,10 +2288,10 @@
                     ${infoCard('Versione plugin', site?.plugin_version || '—', 'Richiesta v1.9.2+')}
                     ${infoCard('Ultimo heartbeat', site?.last_heartbeat ? timeAgo(site.last_heartbeat) : '—', '')}
                 </div>
-                ${isActive ? `<div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:white;border:1px solid #e4e4ec;border-radius:8px;margin-bottom:16px">
+                ${isActive ? `<div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:white;border:1px solid #e4e4ec;border-radius:4px;margin-bottom:16px">
                     <span style="color:#d82d6b;font-size:14px">🔗</span>
                     <a href="${escHtml(aiProfileUrl)}" target="_blank" style="color:#d82d6b;font-weight:700;font-size:13px;text-decoration:none">${escHtml(aiProfileUrl)}</a>
-                </div>` : `<div style="padding:12px 16px;background:#fce8ef;border:1px solid #ead0dc;border-radius:8px;margin-bottom:16px;font-size:13px;color:#d82d6b;font-weight:600">
+                </div>` : `<div style="padding:12px 16px;background:#fce8ef;border:1px solid #ead0dc;border-radius:4px;margin-bottom:16px;font-size:13px;color:#d82d6b;font-weight:600">
                     ⚠ AI Layer non attivo. Verifica che il plugin sia aggiornato alla v1.9.2+ e che l\'opzione sia abilitata in Configurazione.
                 </div>`}
             </div>
@@ -2308,7 +2308,7 @@
                     {l:'Entity Authority',k:'entity_authority'},
                 ].map(({l,k})=>{
                     const v = geo[k] ?? null;
-                    return `<div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:14px 16px">
+                    return `<div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:14px 16px">
                         <div style="font-size:11px;font-weight:500;color:#9ca3af;letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px">${l}</div>
                         <div style="font-size:28px;font-weight:800;color:${v!==null?'#171b33':'#ead0dc'}">${v!==null?v:'—'}</div>
                         <div style="font-size:11px;font-weight:600;color:${v===null?'#ead0dc':'#d82d6b'};margin-top:5px">${v===null?'nessun dato':v>=70?'ottimizzato':v>=40?'da migliorare':'critico'}</div>
