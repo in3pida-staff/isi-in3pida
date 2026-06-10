@@ -626,20 +626,11 @@
                 : `<span style="color:#666b84;font-size:12px">—</span>`;
             const isOld = latestVersion && site.plugin_version && semverGt(latestVersion.version, site.plugin_version);
             const verHtml = `<span style="font-weight:600">${escHtml(site.plugin_version||'—')}</span>${isOld?` <span style="background:rgba(216,45,107,0.08);color:var(--magenta);font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;vertical-align:middle">aggiornare</span>`:''}`;
-            const dotProblems = [], dotWarnings = [];
-            if (hrs >= 48)  dotProblems.push('Nessun segnale da ' + Math.floor(hrs/24) + ' giorni');
-            else if (hrs >= 24) dotWarnings.push('Segnale debole: ' + Math.floor(hrs) + ' ore fa');
-            if (isOld)      dotProblems.push('Versione obsoleta: v' + (site.plugin_version||'?') + ' → v' + latestVersion.version);
-            if (geoAvg !== null && geoAvg < 40)  dotProblems.push('GEO Score critico: ' + geoAvg + '/100');
-            else if (geoAvg !== null && geoAvg < 70) dotWarnings.push('GEO Score basso: ' + geoAvg + '/100');
-            if (cs !== null && cs < 40)  dotProblems.push('Completezza profilo critica: ' + cs + '/100');
-            else if (cs !== null && cs < 70) dotWarnings.push('Completezza profilo bassa: ' + cs + '/100');
-            if (covPct !== null && covPct < 50)  dotProblems.push('Missing Answer critico: ' + covPct + '% coperto');
-            else if (covPct !== null && covPct < 80) dotWarnings.push('Missing Answer da migliorare: ' + covPct + '% coperto');
-            const dotClass = dotProblems.length ? 'red' : dotWarnings.length ? 'yellow' : 'green';
-            const dotTitle = [...dotProblems, ...dotWarnings].join('\n') || 'Tutto OK';
+            const isConnected = hrs < 25;
+            const dotColor = isConnected ? '#d82d6b' : '#666b84';
+            const dotTitle = isConnected ? 'Collegamento con il sito attivo' : 'Collegamento con il sito non attivo';
             html += `<tr data-site-id="${escHtml(site.site_id)}" style="cursor:pointer">
-                <td><span class="dot ${dotClass}" title="${escHtml(dotTitle)}" style="cursor:help"></span></td>
+                <td><span class="dot" style="background:${dotColor};box-shadow:0 0 0 4px ${dotColor}26;cursor:help" title="${escHtml(dotTitle)}"></span></td>
                 <td><div class="site-name-cell">${escHtml(site.site_name||'—')}</div><div style="font-size:11px;color:var(--grey);margin-top:2px">${escHtml(site.site_url||'')}</div></td>
                 <td style="font-size:12px;color:${hbColor};font-weight:600">${hbTesto}</td>
                 <td>${verHtml}</td>
