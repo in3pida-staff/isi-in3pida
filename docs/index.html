@@ -3147,32 +3147,37 @@ ${rows}
             const oggi = new Date().toLocaleDateString('it-IT');
             if (typeof html2pdf === 'undefined') { showToast('Libreria PDF non caricata, riprova.'); return; }
 
-            // A4 content width: 210mm - 20mm margins = 190mm ≈ 718px at 96dpi
+            // L'elemento deve essere nel DOM e visibile per html2canvas.
+            // Lo appende sotto il modal overlay (z-index bassissimo): l'utente non lo vede.
             const wrap = document.createElement('div');
-            wrap.style.cssText = 'position:absolute;left:-9999px;top:0;width:718px;box-sizing:border-box;background:white;font-family:Arial,sans-serif;color:#171b33';
+            wrap.id = 'coer-pdf-wrap';
+            wrap.style.cssText = 'width:718px;background:white;font-family:Arial,sans-serif;color:#171b33;padding:0;position:absolute;top:100vh;left:0;z-index:0';
             wrap.innerHTML =
-                '<div style="padding:24px 24px 0">' +
+                '<div style="padding:24px 24px 12px;border-bottom:2px solid #d82d6b;margin-bottom:0">' +
                   '<div style="font-size:17px;font-weight:800;color:#171b33;margin-bottom:3px">Report Confronto Canali</div>' +
-                  '<div style="font-size:11px;color:#666b84;margin-bottom:14px;padding-bottom:12px;border-bottom:2px solid #d82d6b">' +
+                  '<div style="font-size:11px;color:#666b84">' +
                     escHtml(hotelNome) +
                     (hotelAddr && hotelAddr !== '—' ? ' &nbsp;·&nbsp; ' + escHtml(hotelAddr) : '') +
                     ' &nbsp;·&nbsp; Generato il ' + oggi +
                   '</div>' +
                 '</div>' +
-                '<div style="padding:0 24px 16px">' +
+                '<div style="padding:16px 24px">' +
                   document.getElementById('modal-report-body').innerHTML +
                   '<div style="margin-top:12px;padding-top:8px;border-top:1px solid #e4e4ec;font-size:9px;color:#9ca3af;text-align:center">Eletta · isi.in3pida.it · ' + oggi + '</div>' +
                 '</div>';
             document.body.appendChild(wrap);
 
             const filename = 'report-canali-' + hotelNome.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'') + '-' + new Date().toISOString().slice(0,10) + '.pdf';
-            html2pdf().set({
-                margin: [10, 10, 10, 10],
-                filename,
-                html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', windowWidth: 718 },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-                pagebreak: { mode: 'css' },
-            }).from(wrap).save().then(() => document.body.removeChild(wrap));
+            // Attende che il browser abbia renderizzato il wrap prima di catturarlo
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+                html2pdf().set({
+                    margin: [10, 10, 10, 10],
+                    filename,
+                    html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', windowWidth: 718, scrollX: 0, scrollY: -wrap.getBoundingClientRect().top },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                    pagebreak: { mode: 'css' },
+                }).from(wrap).save().then(() => { const el = document.getElementById('coer-pdf-wrap'); if (el) el.remove(); });
+            }));
         };
 
         if (btnReport) btnReport.onclick = () => {
