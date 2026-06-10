@@ -2953,12 +2953,14 @@
                 }
 
                 return `<div style="border:1px solid #e4e4ec;border-radius:8px;padding:14px 16px;margin-bottom:12px">
-                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">
-                        <div style="font-size:13px;font-weight:700;color:#171b33;min-width:110px">${escHtml(ch)}</div>
-                        <input type="url" class="coer-url-inp" data-channel="${escHtml(ch)}" value="${escHtml(d.url||'')}" placeholder="https://..." style="flex:1;min-width:200px;border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:12px;font-family:var(--font);outline:none;color:#171b33;background:#fff">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+                        <div style="font-size:13px;font-weight:700;color:#171b33">${escHtml(ch)}</div>
+                        <button type="button" class="btn-remove-ch info-close" data-channel="${escHtml(ch)}">✕</button>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+                        <input type="url" class="coer-url-inp" data-channel="${escHtml(ch)}" value="${escHtml(d.url||'')}" placeholder="https://..." style="flex:1;min-width:0;border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:12px;font-family:var(--font);outline:none;color:#171b33;background:#fff">
                         <button type="button" class="btn-scan-ch" data-channel="${escHtml(ch)}" style="background:#d82d6b;color:white;border:none;border-radius:6px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);white-space:nowrap;flex-shrink:0">Scansiona</button>
                         <button type="button" class="btn-save-ch" data-channel="${escHtml(ch)}" style="background:transparent;color:#171b33;border:1.5px solid #e4e4ec;border-radius:4px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);white-space:nowrap;flex-shrink:0">Salva</button>
-                        <button type="button" class="btn-remove-ch info-close" data-channel="${escHtml(ch)}">✕</button>
                     </div>
                     <div class="${hasDetail ? 'coer-status-row' : ''}" data-channel="${escHtml(ch)}" style="${hasDetail ? 'cursor:pointer;' : ''}display:inline-flex;align-items:center;gap:5px">
                         ${statusHtml}
