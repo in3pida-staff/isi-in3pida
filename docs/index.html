@@ -3182,31 +3182,77 @@ ${rows}
             w.document.close();
         };
 
+        // Genera HTML per PDF usando <table> (html2canvas non supporta CSS Grid)
+        function _buildPdfChannelRows() {
+            let html = '';
+            _DEFAULT_COERENZA_CHANNELS.forEach(ch => {
+                const d = channels[ch]; if (!d) return;
+                const shortUrl = d.url ? (d.url.length > 65 ? d.url.slice(0,63)+'…' : d.url) : '';
+                html += '<div style="border:1px solid #e4e4ec;border-radius:8px;margin-bottom:14px;overflow:hidden">';
+                // Header canale
+                html += '<div style="background:#f7f7fb;padding:9px 12px;border-bottom:1px solid #e4e4ec">' +
+                    '<span style="font-weight:700;font-size:13px;color:#171b33">' + escHtml(ch) + '</span>' +
+                    (shortUrl ? '<span style="font-size:10px;color:#009bb9;margin-left:10px">' + escHtml(shortUrl) + '</span>' : '') +
+                    '</div>';
+                // Contenuto
+                if (!d.url) {
+                    html += '<div style="padding:10px 12px;font-size:12px;color:#9ca3af">URL non configurato</div>';
+                } else if (d.error) {
+                    html += '<div style="padding:10px 12px;font-size:12px;color:#b00020">⚠ ' + escHtml(d.error) + '</div>';
+                } else if (!d.results || !d.results.length) {
+                    html += '<div style="padding:10px 12px;font-size:12px;color:#666b84">Non ancora scansionato</div>';
+                } else {
+                    html += '<table style="width:100%;border-collapse:collapse">' +
+                        '<thead><tr>' +
+                            '<th style="padding:6px 10px;text-align:left;font-size:9px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid #e4e4ec;background:#fafafa;width:110px">Campo</th>' +
+                            '<th style="padding:6px 10px;text-align:left;font-size:9px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid #e4e4ec;background:#fafafa">I tuoi dati</th>' +
+                            '<th style="padding:6px 10px;text-align:left;font-size:9px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid #e4e4ec;background:#fafafa">Trovato su ' + escHtml(ch) + '</th>' +
+                            '<th style="padding:6px 10px;text-align:center;border-bottom:1px solid #e4e4ec;background:#fafafa;width:26px"></th>' +
+                        '</tr></thead><tbody>';
+                    d.results.forEach(r => {
+                        const fc = r.match ? '#171b33' : (r.found_value ? '#b00020' : '#9ca3af');
+                        const fw = (!r.match && r.found_value) ? '700' : '400';
+                        const icon = r.match ? '<span style="color:#009bb9;font-size:13px">✓</span>' : (r.found_value ? '<span style="color:#b00020;font-size:13px">✗</span>' : '<span style="color:#9ca3af;font-size:13px">○</span>');
+                        html += '<tr style="border-bottom:1px solid #f4f4f8">' +
+                            '<td style="padding:6px 10px;font-size:11px;font-weight:700;color:#666b84">' + escHtml(r.field) + '</td>' +
+                            '<td style="padding:6px 10px;font-size:12px;color:#171b33">' + escHtml(r.our_value || '—') + '</td>' +
+                            '<td style="padding:6px 10px;font-size:12px;color:' + fc + ';font-weight:' + fw + '">' + escHtml(r.found_value || '—') + '</td>' +
+                            '<td style="padding:6px 10px;text-align:center">' + icon + '</td>' +
+                        '</tr>';
+                    });
+                    html += '</tbody></table>';
+                    if (d.last_scan_at) {
+                        const dt = new Date(d.last_scan_at);
+                        html += '<div style="padding:5px 12px 8px;font-size:10px;color:#9ca3af">Ultima scansione: ' + dt.toLocaleDateString('it-IT') + ' alle ' + dt.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'}) + '</div>';
+                    }
+                }
+                html += '</div>';
+            });
+            return html;
+        }
+
         window._exportCoerenzaReport = () => {
             const hotelNome = document.getElementById('cu-nome')?.textContent || site.site_name || 'hotel';
             const hotelAddr = document.getElementById('cu-addr')?.textContent || '';
             const oggi = new Date().toLocaleDateString('it-IT');
             if (typeof html2pdf === 'undefined') { showToast('Libreria PDF non caricata, riprova.'); return; }
 
-            // html2canvas richiede l'elemento VISIBILE nel viewport.
-            // Mostriamo un overlay bianco a schermo intero per il tempo della cattura (~1s).
+            // html2canvas richiede elemento visibile nel viewport — overlay temporaneo
             const overlay = document.createElement('div');
-            overlay.style.cssText = 'position:fixed;inset:0;z-index:99998;background:rgba(23,27,51,.55);display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:20px 0';
+            overlay.style.cssText = 'position:fixed;inset:0;z-index:99998;background:rgba(23,27,51,.6);display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:20px 0';
 
             const wrap = document.createElement('div');
-            wrap.style.cssText = 'width:718px;flex-shrink:0;background:white;font-family:Arial,sans-serif;color:#171b33';
+            wrap.style.cssText = 'width:710px;flex-shrink:0;background:white;font-family:Arial,sans-serif;color:#171b33;padding:0';
             wrap.innerHTML =
-                '<div style="padding:24px 24px 12px;border-bottom:2px solid #d82d6b">' +
+                '<div style="padding:22px 22px 10px;border-bottom:2px solid #d82d6b;margin-bottom:0">' +
                   '<div style="font-size:17px;font-weight:800;color:#171b33;margin-bottom:3px">Report Confronto Canali</div>' +
-                  '<div style="font-size:11px;color:#666b84">' +
-                    escHtml(hotelNome) +
+                  '<div style="font-size:11px;color:#666b84">' + escHtml(hotelNome) +
                     (hotelAddr && hotelAddr !== '—' ? ' &nbsp;·&nbsp; ' + escHtml(hotelAddr) : '') +
-                    ' &nbsp;·&nbsp; Generato il ' + oggi +
-                  '</div>' +
+                    ' &nbsp;·&nbsp; Generato il ' + oggi + '</div>' +
                 '</div>' +
-                '<div style="padding:16px 24px">' +
-                  document.getElementById('modal-report-body').innerHTML +
-                  '<div style="margin-top:12px;padding-top:8px;border-top:1px solid #e4e4ec;font-size:9px;color:#9ca3af;text-align:center">Eletta · isi.in3pida.it · ' + oggi + '</div>' +
+                '<div style="padding:14px 22px">' +
+                  _buildPdfChannelRows() +
+                  '<div style="margin-top:10px;padding-top:8px;border-top:1px solid #e4e4ec;font-size:9px;color:#9ca3af;text-align:center">Eletta · isi.in3pida.it · ' + oggi + '</div>' +
                 '</div>';
 
             overlay.appendChild(wrap);
@@ -3215,11 +3261,11 @@ ${rows}
             const filename = 'report-canali-' + hotelNome.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'') + '-' + new Date().toISOString().slice(0,10) + '.pdf';
             requestAnimationFrame(() => requestAnimationFrame(() => {
                 html2pdf().set({
-                    margin: [10, 10, 10, 10],
+                    margin: [8, 8, 8, 8],
                     filename,
-                    html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', windowWidth: 718 },
+                    html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', windowWidth: 710 },
                     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-                    pagebreak: { mode: 'css' },
+                    pagebreak: { mode: 'css', avoid: ['table','tr','div'] },
                 }).from(wrap).save().then(() => overlay.remove());
             }));
         };
