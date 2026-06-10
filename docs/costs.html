@@ -31,59 +31,71 @@
 
 <div class="main-content" style="max-width:1200px;margin:0 auto;padding:30px 20px">
 
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+    <div style="margin-bottom:20px">
         <button class="btn-back" onclick="window.location.href='index.html'" style="margin-bottom:0">← Torna alle installazioni</button>
     </div>
 
-    <!-- LAYOUT: sidebar sinistra + contenuto destra -->
     <div style="display:grid;grid-template-columns:220px 1fr;gap:20px;align-items:start">
 
-        <!-- SIDEBAR SINISTRA -->
+        <!-- SIDEBAR -->
         <div style="position:sticky;top:80px;background:white;border-radius:4px;overflow:hidden;border:1px solid #e2e2e2;box-shadow:none">
             <div style="padding:14px 20px;border-bottom:1px solid #e2e2e2">
-                <div style="font-size:15px;font-weight:700;color:#171b33;letter-spacing:-.01em">Costi AI</div>
+                <div style="font-size:15px;font-weight:700;color:#171b33">Costi AI</div>
                 <div style="font-size:11px;color:#666b84;margin-top:3px">Riepilogo chiamate</div>
             </div>
 
-            <!-- Periodo -->
-            <div>
-                <div style="font-size:10px;font-weight:700;color:#4a4a6a;letter-spacing:.08em;text-transform:uppercase;padding:10px 0 8px 16px;border-bottom:1px solid #e2e2e2;background:#fafafa">PERIODO</div>
-                <div id="period-btns">
-                    <div class="cost-nav-row active" data-period="all">Dall'inizio</div>
-                    <div class="cost-nav-row" data-period="today">Oggi</div>
-                    <div class="cost-nav-row" data-period="week">Ultima settimana</div>
-                    <div class="cost-nav-row" data-period="month">Ultimo mese</div>
-                    <div class="cost-nav-row" data-period="custom">Personalizzato</div>
-                </div>
-                <div id="custom-range" style="display:none;padding:10px 14px;border-top:1px solid #e2e2e2;background:#fafafa;flex-direction:column;gap:6px">
-                    <input type="date" id="date-from" class="profile-input" style="padding:6px 10px;font-size:12px;width:100%;box-sizing:border-box">
-                    <input type="date" id="date-to" class="profile-input" style="padding:6px 10px;font-size:12px;width:100%;box-sizing:border-box">
-                    <button class="btn-update" id="btn-apply-custom" style="margin-left:0;padding:7px 14px;width:100%">Applica</button>
-                </div>
-            </div>
+            <!-- FILTRI header -->
+            <div style="font-size:10px;font-weight:700;color:#4a4a6a;letter-spacing:.08em;text-transform:uppercase;padding:10px 0 8px 16px;border-bottom:1px solid #e2e2e2;background:#fafafa">FILTRI</div>
 
-            <!-- Tipo -->
-            <div>
-                <div style="font-size:10px;font-weight:700;color:#4a4a6a;letter-spacing:.08em;text-transform:uppercase;padding:10px 0 8px 16px;border-bottom:1px solid #e2e2e2;background:#fafafa;border-top:1px solid #e2e2e2">TIPO</div>
-                <div id="type-btns">
-                    <div class="cost-nav-row active" data-type="">Tutti i tipi</div>
-                    <div class="cost-nav-row" data-type="pse">PSE Query</div>
-                    <div class="cost-nav-row" data-type="reason_gap">Reason Gap</div>
-                </div>
-            </div>
-
-            <!-- Sito -->
-            <div>
-                <div style="font-size:10px;font-weight:700;color:#4a4a6a;letter-spacing:.08em;text-transform:uppercase;padding:10px 0 8px 16px;border-bottom:1px solid #e2e2e2;background:#fafafa;border-top:1px solid #e2e2e2">HOTEL</div>
-                <div style="padding:10px 14px">
-                    <select id="filter-site" class="profile-input" style="padding:6px 10px;font-size:12px;width:100%;box-sizing:border-box">
-                        <option value="">Tutti i siti</option>
+            <!-- PERIODO row -->
+            <div style="display:flex;align-items:center;border-bottom:1px solid #e2e2e2">
+                <div style="width:90px;flex-shrink:0;background:#fafafa;padding:11px 14px;border-right:1px solid #e2e2e2;font-size:10px;font-weight:700;color:#888;letter-spacing:.04em;text-transform:uppercase">PERIODO</div>
+                <div style="flex:1;padding:4px 8px">
+                    <select id="filter-period" style="width:100%;border:none;background:transparent;font-size:12px;color:#35364f;font-family:var(--font);padding:6px 4px;cursor:pointer;outline:none">
+                        <option value="all">Dall'inizio</option>
+                        <option value="today">Oggi</option>
+                        <option value="week">Ultima settimana</option>
+                        <option value="month">Ultimo mese</option>
+                        <option value="custom">Personalizzato</option>
                     </select>
                 </div>
             </div>
 
+            <!-- Date personalizzate (solo se custom) -->
+            <div id="custom-range" style="display:none;flex-direction:column;gap:6px;padding:10px 14px;border-bottom:1px solid #e2e2e2;background:#fafafa">
+                <input type="date" id="date-from" class="profile-input" style="padding:6px 10px;font-size:12px;width:100%;box-sizing:border-box">
+                <input type="date" id="date-to" class="profile-input" style="padding:6px 10px;font-size:12px;width:100%;box-sizing:border-box">
+            </div>
+
+            <!-- TIPO row -->
+            <div style="display:flex;align-items:center;border-bottom:1px solid #e2e2e2">
+                <div style="width:90px;flex-shrink:0;background:#fafafa;padding:11px 14px;border-right:1px solid #e2e2e2;font-size:10px;font-weight:700;color:#888;letter-spacing:.04em;text-transform:uppercase">TIPO</div>
+                <div style="flex:1;padding:4px 8px">
+                    <select id="filter-type" style="width:100%;border:none;background:transparent;font-size:12px;color:#35364f;font-family:var(--font);padding:6px 4px;cursor:pointer;outline:none">
+                        <option value="">— Tutti —</option>
+                        <option value="pse">PSE Query</option>
+                        <option value="reason_gap">Reason Gap</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- HOTEL row -->
+            <div style="display:flex;align-items:center;border-bottom:1px solid #e2e2e2">
+                <div style="width:90px;flex-shrink:0;background:#fafafa;padding:11px 14px;border-right:1px solid #e2e2e2;font-size:10px;font-weight:700;color:#888;letter-spacing:.04em;text-transform:uppercase">HOTEL</div>
+                <div style="flex:1;padding:4px 8px">
+                    <select id="filter-site" style="width:100%;border:none;background:transparent;font-size:12px;color:#35364f;font-family:var(--font);padding:6px 4px;cursor:pointer;outline:none">
+                        <option value="">— Tutti —</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- CARICA button -->
+            <div style="padding:14px 16px;border-bottom:1px solid #e2e2e2">
+                <button id="btn-carica" style="width:100%;background:#d82d6b;color:white;border:none;border-radius:6px;padding:10px;font-size:13px;font-weight:700;letter-spacing:.05em;cursor:pointer;font-family:var(--font)">CARICA</button>
+            </div>
+
             <!-- Totale dall'inizio -->
-            <div style="padding:14px 16px;border-top:1px solid #e2e2e2;background:#fafafa;text-align:center">
+            <div style="padding:14px 16px;background:#fafafa;text-align:center">
                 <div style="font-size:10px;font-weight:700;color:#666b84;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Totale dall'inizio</div>
                 <div id="grand-total" style="font-size:22px;font-weight:800;color:#d82d6b">—</div>
             </div>
@@ -91,7 +103,6 @@
 
         <!-- COLONNA DESTRA -->
         <div>
-            <!-- KPI -->
             <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
                 <div class="card" style="border:1px solid #e4e4ec;box-shadow:none;padding:16px 18px">
                     <div style="font-size:11px;font-weight:700;color:#666b84;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Costo totale</div>
@@ -111,46 +122,24 @@
                 </div>
             </div>
 
-            <!-- TABELLA DETTAGLIO -->
             <div class="card" style="border:1px solid #e4e4ec;box-shadow:none">
                 <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
                     <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Dettaglio chiamate</div></div>
                     <span id="rows-count" style="font-size:12px;color:#666b84"></span>
                 </div>
                 <div style="overflow-x:auto">
-                    <table class="sites-table" id="costs-table">
+                    <table class="sites-table">
                         <thead><tr>
-                            <th>Data</th>
-                            <th>Hotel</th>
-                            <th>Tipo</th>
-                            <th>Query</th>
-                            <th class="th-center">Costo</th>
+                            <th>Data</th><th>Hotel</th><th>Tipo</th><th>Query</th><th class="th-center">Costo</th>
                         </tr></thead>
-                        <tbody id="costs-tbody"><tr><td colspan="5" style="text-align:center;padding:30px;color:#666b84">Caricamento...</td></tr></tbody>
+                        <tbody id="costs-tbody"><tr><td colspan="5" style="text-align:center;padding:30px;color:#666b84">Premi CARICA per visualizzare i dati</td></tr></tbody>
                     </table>
                 </div>
             </div>
-        </div><!-- /colonna destra -->
+        </div>
 
-    </div><!-- /grid -->
+    </div>
 </div>
-
-<style>
-.cost-nav-row {
-    display: flex;
-    align-items: center;
-    padding: 11px 14px;
-    border-bottom: 1px solid #e2e2e2;
-    font-size: 12px;
-    font-weight: 500;
-    color: #4b4d68;
-    cursor: pointer;
-    transition: background .15s;
-    font-family: var(--font);
-}
-.cost-nav-row:hover { background: #fbf4f7; color: #d82d6b; }
-.cost-nav-row.active { background: #fce8ef; color: #d82d6b; font-weight: 700; }
-</style>
 
 <script>
 const SUPABASE_URL = 'https://yyauvoqjdzrbmebeafit.supabase.co';
@@ -158,10 +147,6 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const _SB = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let allRows = [];
-let currentPeriod = 'all';
-let customFrom = null, customTo = null;
-let filterSite = '', filterType = '';
-
 const urlParams = new URLSearchParams(window.location.search);
 const presetSiteId = urlParams.get('site_id') || '';
 
@@ -169,65 +154,50 @@ async function init() {
     const { data: { user } } = await _SB.auth.getUser();
     if (!user || user.user_metadata?.role === 'albergatore') { window.location.href = 'login.html'; return; }
 
-    document.getElementById('nav-name').textContent = user.user_metadata?.nome || user.email?.split('@')[0] || 'Admin';
-    document.getElementById('nav-avatar').textContent = (user.user_metadata?.nome || user.email || 'A')[0].toUpperCase();
+    document.getElementById('nav-name').textContent = user.user_metadata?.full_name || user.email?.split('@')[0] || 'Admin';
+    document.getElementById('nav-avatar').textContent = (user.user_metadata?.full_name || user.email || 'A')[0].toUpperCase();
 
-    const { data: pse } = await _SB.from('isi_pse_queries')
-        .select('created_at,cost_usd,site_id,site_name,query')
-        .order('created_at', {ascending: false})
-        .limit(5000);
-
-    const { data: rg } = await _SB.from('isi_reason_gap_results')
-        .select('created_at,cost_usd,site_id,site_name,query')
-        .order('created_at', {ascending: false})
-        .limit(5000);
+    const [{ data: pse }, { data: rg }] = await Promise.all([
+        _SB.from('isi_pse_queries').select('created_at,cost_usd,site_id,site_name,query').order('created_at',{ascending:false}).limit(5000),
+        _SB.from('isi_reason_gap_results').select('created_at,cost_usd,site_id,site_name,query').order('created_at',{ascending:false}).limit(5000),
+    ]);
 
     allRows = [
         ...(pse||[]).map(r => ({...r, type:'pse', type_label:'PSE Query'})),
         ...(rg||[]).map(r => ({...r, type:'reason_gap', type_label:'Reason Gap'})),
     ].sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
 
-    const grandTotal = allRows.reduce((s,r) => s+(parseFloat(r.cost_usd)||0), 0);
-    document.getElementById('grand-total').textContent = '€' + grandTotal.toFixed(4);
+    document.getElementById('grand-total').textContent = '€' + allRows.reduce((s,r)=>s+(parseFloat(r.cost_usd)||0),0).toFixed(4);
 
     const seen = new Set();
-    const sites = [];
-    allRows.forEach(r => {
-        if (!seen.has(r.site_id)) { seen.add(r.site_id); sites.push({id:r.site_id, name:r.site_name||r.site_id}); }
-    });
     const sel = document.getElementById('filter-site');
-    sites.forEach(s => {
-        const opt = document.createElement('option');
-        opt.value = s.id; opt.textContent = s.name;
-        sel.appendChild(opt);
+    allRows.forEach(r => {
+        if (!seen.has(r.site_id)) {
+            seen.add(r.site_id);
+            const opt = document.createElement('option');
+            opt.value = r.site_id; opt.textContent = r.site_name || r.site_id;
+            sel.appendChild(opt);
+        }
     });
-    if (presetSiteId) { sel.value = presetSiteId; filterSite = presetSiteId; }
-
-    render();
-}
-
-function getDateRange() {
-    const now = new Date();
-    if (currentPeriod === 'today') {
-        const s = new Date(now); s.setHours(0,0,0,0);
-        return [s, now];
-    }
-    if (currentPeriod === 'week') {
-        const s = new Date(now); s.setDate(s.getDate()-7);
-        return [s, now];
-    }
-    if (currentPeriod === 'month') {
-        const s = new Date(now); s.setMonth(s.getMonth()-1);
-        return [s, now];
-    }
-    if (currentPeriod === 'custom' && customFrom && customTo) {
-        return [new Date(customFrom), new Date(customTo + 'T23:59:59')];
-    }
-    return [null, null];
+    if (presetSiteId) sel.value = presetSiteId;
 }
 
 function render() {
-    const [from, to] = getDateRange();
+    const period = document.getElementById('filter-period').value;
+    const filterType = document.getElementById('filter-type').value;
+    const filterSite = document.getElementById('filter-site').value;
+    const now = new Date();
+    let from = null, to = null;
+    if (period === 'today') { from = new Date(now); from.setHours(0,0,0,0); to = now; }
+    else if (period === 'week') { from = new Date(now); from.setDate(from.getDate()-7); to = now; }
+    else if (period === 'month') { from = new Date(now); from.setMonth(from.getMonth()-1); to = now; }
+    else if (period === 'custom') {
+        const df = document.getElementById('date-from').value;
+        const dt = document.getElementById('date-to').value;
+        if (df) from = new Date(df);
+        if (dt) to = new Date(dt + 'T23:59:59');
+    }
+
     const filtered = allRows.filter(r => {
         const d = new Date(r.created_at);
         if (from && d < from) return false;
@@ -237,14 +207,12 @@ function render() {
         return true;
     });
 
-    const total = filtered.reduce((s,r) => s+(parseFloat(r.cost_usd)||0), 0);
+    const total = filtered.reduce((s,r)=>s+(parseFloat(r.cost_usd)||0),0);
     const avg = filtered.length ? total/filtered.length : 0;
-    const sitesCount = new Set(filtered.map(r=>r.site_id)).size;
-
     document.getElementById('kpi-cost').textContent  = '€' + total.toFixed(4);
     document.getElementById('kpi-calls').textContent = filtered.length;
     document.getElementById('kpi-avg').textContent   = '€' + avg.toFixed(6);
-    document.getElementById('kpi-sites').textContent = sitesCount;
+    document.getElementById('kpi-sites').textContent = new Set(filtered.map(r=>r.site_id)).size;
     document.getElementById('rows-count').textContent = filtered.length + ' righe';
 
     const tbody = document.getElementById('costs-tbody');
@@ -252,47 +220,21 @@ function render() {
         tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:30px;color:#666b84">Nessun dato per il periodo selezionato</td></tr>';
         return;
     }
-
-    tbody.innerHTML = filtered.slice(0, 500).map(r => `
+    tbody.innerHTML = filtered.slice(0,500).map(r=>`
         <tr>
             <td style="font-size:12px;color:#666b84;white-space:nowrap">${new Date(r.created_at).toLocaleString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})}</td>
             <td style="font-size:13px;font-weight:600;color:#171b33">${r.site_name||r.site_id||'—'}</td>
             <td><span style="background:${r.type==='pse'?'#fbf4f7':'#f4f4f8'};color:${r.type==='pse'?'#d82d6b':'#4b4d68'};font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px">${r.type_label}</span></td>
             <td style="font-size:12px;color:#4b4d68;max-width:320px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.query||'—'}</td>
             <td class="td-center" style="font-size:12px;font-weight:700;color:#171b33">€${(parseFloat(r.cost_usd)||0).toFixed(6)}</td>
-        </tr>
-    `).join('');
+        </tr>`).join('');
 }
 
-// Periodo
-document.querySelectorAll('#period-btns .cost-nav-row').forEach(btn => {
-    btn.addEventListener('click', () => {
-        document.querySelectorAll('#period-btns .cost-nav-row').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        currentPeriod = btn.dataset.period;
-        const cr = document.getElementById('custom-range');
-        cr.style.display = currentPeriod === 'custom' ? 'flex' : 'none';
-        if (currentPeriod !== 'custom') render();
-    });
+document.getElementById('filter-period').addEventListener('change', e => {
+    document.getElementById('custom-range').style.display = e.target.value === 'custom' ? 'flex' : 'none';
 });
 
-// Tipo
-document.querySelectorAll('#type-btns .cost-nav-row').forEach(btn => {
-    btn.addEventListener('click', () => {
-        document.querySelectorAll('#type-btns .cost-nav-row').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        filterType = btn.dataset.type;
-        render();
-    });
-});
-
-document.getElementById('btn-apply-custom').addEventListener('click', () => {
-    customFrom = document.getElementById('date-from').value;
-    customTo   = document.getElementById('date-to').value;
-    render();
-});
-
-document.getElementById('filter-site').addEventListener('change', e => { filterSite = e.target.value; render(); });
+document.getElementById('btn-carica').addEventListener('click', render);
 
 init();
 </script>
