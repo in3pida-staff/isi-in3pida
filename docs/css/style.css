@@ -169,7 +169,7 @@ textarea.profile-input { resize: vertical; }
 .profile-actions { margin-top: 20px; }
 .btn-save-profile {
     width: 100%; background: var(--magenta); color: white; border: none;
-    border-radius: 10px; padding: 11px; font-family: var(--font);
+    border-radius: 6px; padding: 11px; font-family: var(--font);
     font-size: 13px; font-weight: 700; cursor: pointer; transition: opacity .15s;
 }
 .btn-save-profile:hover { opacity: .88; }
@@ -340,7 +340,7 @@ table.sites-table tbody tr:hover td { background: #fdf0f5; }
 .btn-update {
     background: var(--magenta); border: none; color: white;
     font-family: var(--font); font-size: 12px; font-weight: 700;
-    padding: 7px 16px; border-radius: 8px; cursor: pointer;
+    padding: 7px 16px; border-radius: 6px; cursor: pointer;
     transition: all .15s; white-space: nowrap; margin-left: auto;
 }
 .btn-update:hover    { background: var(--magenta2); }
@@ -408,7 +408,7 @@ table.sites-table tbody tr:hover td { background: #fdf0f5; }
 .form-input:focus { border-color: var(--magenta); background: white; }
 .btn-primary {
     width: 100%; background: var(--magenta); color: white; border: none;
-    padding: 14px 20px; border-radius: 10px; font-family: var(--font);
+    padding: 14px 20px; border-radius: 6px; font-family: var(--font);
     font-size: 14px; font-weight: 700; cursor: pointer;
     transition: background .15s; margin-top: 10px;
 }
