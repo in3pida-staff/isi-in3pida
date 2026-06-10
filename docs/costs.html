@@ -8,6 +8,23 @@
     <link rel="icon" type="image/x-icon" href="images/favicon.ico">
     <link rel="stylesheet" href="css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/it.js"></script>
+    <style>
+        .flatpickr-calendar { font-family: var(--font, 'Inter', sans-serif) !important; border:1px solid #e4e4ec !important; box-shadow:0 4px 16px rgba(23,27,51,.10) !important; border-radius:10px !important; }
+        .flatpickr-day.selected, .flatpickr-day.selected:hover { background:#d82d6b !important; border-color:#d82d6b !important; }
+        .flatpickr-day.inRange { background:#fce8ef !important; border-color:#fce8ef !important; color:#d82d6b !important; }
+        .flatpickr-day:hover { background:#fbf4f7 !important; border-color:#ead0dc !important; }
+        .flatpickr-day.today { border-color:#d82d6b !important; }
+        .flatpickr-day.today:hover { background:#d82d6b !important; color:#fff !important; }
+        .flatpickr-months .flatpickr-month, .flatpickr-weekdays { background:#d82d6b !important; border-radius:8px 8px 0 0 !important; }
+        .flatpickr-current-month, .flatpickr-current-month .cur-month, .flatpickr-current-month input.cur-year { color:#fff !important; }
+        .flatpickr-weekday { color:#fff !important; font-weight:700 !important; }
+        .flatpickr-prev-month svg, .flatpickr-next-month svg { fill:#fff !important; }
+        .flatpickr-prev-month:hover svg, .flatpickr-next-month:hover svg { fill:#fce8ef !important; }
+        .flatpickr-input { cursor:pointer !important; }
+    </style>
 </head>
 <body>
 
@@ -233,14 +250,9 @@ document.getElementById('filter-period').addEventListener('change', e => {
     document.getElementById('custom-range').style.display = e.target.value === 'custom' ? 'flex' : 'none';
 });
 
-['date-from','date-to'].forEach(id => {
-    document.getElementById(id).addEventListener('input', e => {
-        let v = e.target.value.replace(/\D/g,'');
-        if (v.length > 2) v = v.slice(0,2) + '/' + v.slice(2);
-        if (v.length > 5) v = v.slice(0,5) + '/' + v.slice(5,9);
-        e.target.value = v;
-    });
-});
+flatpickr.localize(flatpickr.l10ns.it);
+const _fpFrom = flatpickr('#date-from', { dateFormat:'d/m/Y', allowInput:true, disableMobile:true });
+const _fpTo   = flatpickr('#date-to',   { dateFormat:'d/m/Y', allowInput:true, disableMobile:true });
 
 document.getElementById('btn-carica').addEventListener('click', render);
 
