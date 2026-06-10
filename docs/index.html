@@ -2889,8 +2889,10 @@
                 const d = channels[ch];
                 const hasUrl = !!d.url;
                 const hasResults = d.results && d.results.length > 0;
-                const matchCount = hasResults ? d.results.filter(r => r.match).length : 0;
-                const totalCount = hasResults ? d.results.length : 0;
+                const matchCount  = hasResults ? d.results.filter(r => r.match).length : 0;
+                const totalCount  = hasResults ? d.results.length : 0;
+                const incoerCount = hasResults ? d.results.filter(r => !r.match && r.found_value).length : 0;
+                const notFoundCount = hasResults ? d.results.filter(r => !r.match && !r.found_value).length : 0;
 
                 let statusHtml;
                 if (!hasUrl) {
@@ -2899,10 +2901,12 @@
                     statusHtml = '<span style="font-size:12px;color:#b00020">⚠ ' + escHtml(d.error) + '</span>';
                 } else if (!hasResults) {
                     statusHtml = '<span style="font-size:12px;color:#666b84">Non ancora scansionato</span>';
-                } else if (matchCount === totalCount) {
-                    statusHtml = '<span style="font-size:12px;font-weight:700;color:#009bb9">✓ Tutti i campi allineati ('+totalCount+'/'+totalCount+')</span>';
-                } else {
-                    statusHtml = '<span style="font-size:12px;font-weight:700;color:#b00020">✗ '+matchCount+'/'+totalCount+' campi allineati — '+(totalCount-matchCount)+' incoerenze rilevate</span>';
+                } else if (incoerCount === 0 && hasResults) {
+                    const nf = notFoundCount > 0 ? ' · '+notFoundCount+' non trovati' : '';
+                    statusHtml = '<span style="font-size:12px;font-weight:700;color:#009bb9">✓ '+matchCount+'/'+totalCount+' campi allineati'+nf+'</span>';
+                } else if (hasResults) {
+                    const nf = notFoundCount > 0 ? ' · '+notFoundCount+' non trovati' : '';
+                    statusHtml = '<span style="font-size:12px;font-weight:700;color:#b00020">✗ '+matchCount+'/'+totalCount+' allineati · '+incoerCount+' incoerenze'+nf+'</span>';
                 }
 
                 let resultsHtml = '';
