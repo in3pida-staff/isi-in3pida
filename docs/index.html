@@ -1045,15 +1045,17 @@
                     <button id="btn-toggle-profile-edit" class="btn-ping">✏️ Modifica</button>
                 </div>
                 <div id="hotel-profile-view" style="padding:0"></div>
-                <div id="hotel-profile-edit" style="display:none;padding:16px 20px">
-                    <div style="background:#fbf4f7;border:1px solid #e4e4ec;border-radius:4px;padding:12px 16px;font-size:13px;color:#d82d6b;font-weight:600;margin-bottom:20px;line-height:1.5">ℹ️ I dati salvati qui restano attivi finché il plugin non invia un nuovo sync.</div>
-                    <div id="hotel-profile-form"></div>
-                    <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;align-items:center">
+                <div id="hotel-profile-edit" style="display:none">
+                    <div style="padding:16px 20px 0">
+                        <div style="background:#fbf4f7;border:1px solid #e4e4ec;border-radius:4px;padding:12px 16px;font-size:13px;color:#d82d6b;font-weight:600;line-height:1.5">ℹ️ I dati salvati qui restano attivi finché il plugin non invia un nuovo sync.</div>
+                    </div>
+                    <div id="hotel-profile-form" style="padding:14px 20px;display:flex;flex-direction:column;gap:12px"></div>
+                    <div style="padding:0 20px 20px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
                         <button id="btn-save-hotel-profile" class="btn-update" style="margin-left:0">Salva profilo</button>
                         <button id="btn-cancel-hotel-profile" class="btn-ping">Annulla</button>
                         <button id="btn-revert-plugin-profile" class="btn-ping" style="font-size:11px">↩ Svuota</button>
                     </div>
-                    <div id="hotel-profile-msg" style="margin-top:10px;font-size:13px;display:none"></div>
+                    <div id="hotel-profile-msg" style="margin:0 20px 16px;font-size:13px;display:none"></div>
                 </div>
             </div>
             <div class="card" style="border:1px solid #e4e4ec;box-shadow:none" id="card-json-preview">
@@ -1475,12 +1477,17 @@
             `<div><label class="profile-label">${label}</label><select id="pf-${id}" class="profile-input">${opts.map(o=>`<option value="${escHtml(o)}"${(val||'')==o?' selected':''}>${escHtml(o)}</option>`).join('')}</select></div>`;
         const taF = (id, label, val, ph, rows) =>
             `<div><label class="profile-label">${label}</label><textarea id="pf-${id}" class="profile-input" rows="${rows||3}" style="resize:vertical" placeholder="${escHtml(ph||'')}">${escHtml(val||'')}</textarea></div>`;
-        const sec = t =>
-            `<div style="background:#f4f4f8;padding:9px 0 9px 0;margin:20px -16px 16px;border-top:1px solid #e4e4ec;border-bottom:1px solid #e4e4ec;font-size:10px;font-weight:700;color:#4a4a6a;letter-spacing:.07em;text-transform:uppercase;padding-left:16px">${t}</div>`;
+        const _CH = t =>
+            `<div style="border:1px solid #e4e4ec;border-radius:4px;overflow:hidden">` +
+            `<div style="background:#fafafa;padding:10px 16px;border-bottom:1px solid #ececf2;display:flex;align-items:center;gap:8px">` +
+            `<span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span>` +
+            `<div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">${t}</div>` +
+            `</div><div style="padding:14px 16px">`;
+        const sec = t => `</div></div>` + _CH(t);
         const tipi = ['Hotel','LodgingBusiness','BedAndBreakfast','Hostel','Motel','Resort','VacationRental'];
 
         const html =
-            sec('INFORMAZIONI STRUTTURA') +
+            _CH('INFORMAZIONI STRUTTURA') +
             '<div style="display:grid;grid-template-columns:2fr 1fr auto;gap:12px;margin-bottom:12px">' +
             inp('nome_hotel','Nome struttura', p.nome_hotel,'Es: Hotel Bellevue') +
             selF('tipo_struttura','Tipo', p.tipo_struttura||'Hotel', tipi) +
@@ -1575,7 +1582,8 @@
             '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">' +
             inp('google_maps_url','Google Maps URL', p.google_maps_url,'https://maps.google.com/?cid=...','url') +
             inp('destinazione','Destinazione principale', p.destinazione,'Rimini') + '</div>' +
-            taF('structured_data_note','Note dati strutturati', p.structured_data_note,'Informazioni aggiuntive...', 2);
+            taF('structured_data_note','Note dati strutturati', p.structured_data_note,'Informazioni aggiuntive...', 2) +
+            `</div></div>`;
 
         formEl.innerHTML = html;
         renderCameraRows();
@@ -2208,9 +2216,9 @@
             const entry = qmap[cat] || {};
             const coveredSet = new Set(Array.isArray(entry.covered_queries) ? entry.covered_queries : (entry.covered ? qs : []));
             const covQ = qs.filter(q => coveredSet.has(q) || coveredSet.has(q.toLowerCase())).length;
-            return `<div style="border-top:1px solid #e4e4ec">
-                <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:#f4f4f8">
-                    <div style="display:flex;align-items:center;gap:8px;font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">⬜ ${escHtml(label)}</div>
+            return `<div class="card" style="margin-bottom:12px;border:1px solid #e4e4ec;box-shadow:none">
+                <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
+                    <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">${escHtml(label)}</div></div>
                     <span style="background:white;border:1px solid #e4e4ec;border-radius:20px;font-size:10px;font-weight:700;color:#666b84;padding:3px 10px;white-space:nowrap">${covQ}/${qs.length} COPERTE</span>
                 </div>
                 ${qs.map((q, qi) => {
