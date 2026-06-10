@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <title>Costi AI — Eletta</title>
+    <title>Costi AI — iSI</title>
     <link rel="icon" type="image/x-icon" href="images/favicon.ico">
     <link rel="stylesheet" href="css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
@@ -14,101 +14,142 @@
 <nav class="navbar">
   <div class="navbar-inner">
     <div class="navbar-left">
-      <div class="navbar-logo" onclick="window.location.href='index.html'" style="cursor:pointer"><img src="images/logo.png" alt="in3pida"></div>
+        <div class="navbar-logo" onclick="window.location.href='index.html'" style="cursor:pointer"><img src="images/logo.png" alt="in3pida"></div>
+        <span class="navbar-badge">iSI</span>
     </div>
     <div class="navbar-right">
-      <button class="btn-back" onclick="window.location.href='index.html'" style="margin-bottom:0">← Torna alle installazioni</button>
+        <div class="navbar-user-pill" id="user-pill" style="cursor:default">
+            <div class="navbar-avatar" id="nav-avatar">U</div>
+            <div class="navbar-user-text">
+                <div class="navbar-user-name" id="nav-name">Utente</div>
+                <div class="navbar-user-sub">Admin</div>
+            </div>
+        </div>
     </div>
   </div>
 </nav>
 
-<div class="main-content" style="max-width:1100px;margin:0 auto;padding:30px 20px">
+<div class="main-content" style="max-width:1200px;margin:0 auto;padding:30px 20px">
 
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+        <button class="btn-back" onclick="window.location.href='index.html'" style="margin-bottom:0">← Torna alle installazioni</button>
+    </div>
+
+    <!-- LAYOUT: sidebar sinistra + contenuto destra -->
+    <div style="display:grid;grid-template-columns:220px 1fr;gap:20px;align-items:start">
+
+        <!-- SIDEBAR SINISTRA -->
+        <div style="position:sticky;top:80px;background:white;border-radius:4px;overflow:hidden;border:1px solid #e2e2e2;box-shadow:none">
+            <div style="padding:14px 20px;border-bottom:1px solid #e2e2e2">
+                <div style="font-size:15px;font-weight:700;color:#171b33;letter-spacing:-.01em">Costi AI</div>
+                <div style="font-size:11px;color:#666b84;margin-top:3px">Riepilogo chiamate</div>
+            </div>
+
+            <!-- Periodo -->
+            <div>
+                <div style="font-size:10px;font-weight:700;color:#4a4a6a;letter-spacing:.08em;text-transform:uppercase;padding:10px 0 8px 16px;border-bottom:1px solid #e2e2e2;background:#fafafa">PERIODO</div>
+                <div id="period-btns">
+                    <div class="cost-nav-row active" data-period="all">Dall'inizio</div>
+                    <div class="cost-nav-row" data-period="today">Oggi</div>
+                    <div class="cost-nav-row" data-period="week">Ultima settimana</div>
+                    <div class="cost-nav-row" data-period="month">Ultimo mese</div>
+                    <div class="cost-nav-row" data-period="custom">Personalizzato</div>
+                </div>
+                <div id="custom-range" style="display:none;padding:10px 14px;border-top:1px solid #e2e2e2;background:#fafafa;flex-direction:column;gap:6px">
+                    <input type="date" id="date-from" class="profile-input" style="padding:6px 10px;font-size:12px;width:100%;box-sizing:border-box">
+                    <input type="date" id="date-to" class="profile-input" style="padding:6px 10px;font-size:12px;width:100%;box-sizing:border-box">
+                    <button class="btn-update" id="btn-apply-custom" style="margin-left:0;padding:7px 14px;width:100%">Applica</button>
+                </div>
+            </div>
+
+            <!-- Tipo -->
+            <div>
+                <div style="font-size:10px;font-weight:700;color:#4a4a6a;letter-spacing:.08em;text-transform:uppercase;padding:10px 0 8px 16px;border-bottom:1px solid #e2e2e2;background:#fafafa;border-top:1px solid #e2e2e2">TIPO</div>
+                <div id="type-btns">
+                    <div class="cost-nav-row active" data-type="">Tutti i tipi</div>
+                    <div class="cost-nav-row" data-type="pse">PSE Query</div>
+                    <div class="cost-nav-row" data-type="reason_gap">Reason Gap</div>
+                </div>
+            </div>
+
+            <!-- Sito -->
+            <div>
+                <div style="font-size:10px;font-weight:700;color:#4a4a6a;letter-spacing:.08em;text-transform:uppercase;padding:10px 0 8px 16px;border-bottom:1px solid #e2e2e2;background:#fafafa;border-top:1px solid #e2e2e2">HOTEL</div>
+                <div style="padding:10px 14px">
+                    <select id="filter-site" class="profile-input" style="padding:6px 10px;font-size:12px;width:100%;box-sizing:border-box">
+                        <option value="">Tutti i siti</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Totale dall'inizio -->
+            <div style="padding:14px 16px;border-top:1px solid #e2e2e2;background:#fafafa;text-align:center">
+                <div style="font-size:10px;font-weight:700;color:#666b84;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Totale dall'inizio</div>
+                <div id="grand-total" style="font-size:22px;font-weight:800;color:#d82d6b">—</div>
+            </div>
+        </div>
+
+        <!-- COLONNA DESTRA -->
         <div>
-            <div style="font-size:22px;font-weight:800;color:#171b33;letter-spacing:-.02em">Costi AI</div>
-            <div style="font-size:13px;color:#666b84;margin-top:4px">Riepilogo di tutte le chiamate AI della piattaforma</div>
-        </div>
-        <div id="total-badge" style="text-align:right">
-            <div style="font-size:11px;font-weight:700;color:#666b84;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Totale dall'inizio</div>
-            <div id="grand-total" style="font-size:28px;font-weight:800;color:#d82d6b">—</div>
-        </div>
-    </div>
-
-    <!-- FILTRI -->
-    <div class="card" style="margin-bottom:20px;border:1px solid #e4e4ec;box-shadow:none">
-        <div style="padding:14px 20px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-            <div style="display:flex;gap:6px" id="period-btns">
-                <button class="period-btn active" data-period="all">Dall'inizio</button>
-                <button class="period-btn" data-period="today">Oggi</button>
-                <button class="period-btn" data-period="week">Ultima settimana</button>
-                <button class="period-btn" data-period="month">Ultimo mese</button>
-                <button class="period-btn" data-period="custom">Personalizzato</button>
+            <!-- KPI -->
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
+                <div class="card" style="border:1px solid #e4e4ec;box-shadow:none;padding:16px 18px">
+                    <div style="font-size:11px;font-weight:700;color:#666b84;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Costo totale</div>
+                    <div id="kpi-cost" style="font-size:26px;font-weight:800;color:#171b33">—</div>
+                </div>
+                <div class="card" style="border:1px solid #e4e4ec;box-shadow:none;padding:16px 18px">
+                    <div style="font-size:11px;font-weight:700;color:#666b84;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Chiamate totali</div>
+                    <div id="kpi-calls" style="font-size:26px;font-weight:800;color:#171b33">—</div>
+                </div>
+                <div class="card" style="border:1px solid #e4e4ec;box-shadow:none;padding:16px 18px">
+                    <div style="font-size:11px;font-weight:700;color:#666b84;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Costo medio/chiamata</div>
+                    <div id="kpi-avg" style="font-size:26px;font-weight:800;color:#171b33">—</div>
+                </div>
+                <div class="card" style="border:1px solid #e4e4ec;box-shadow:none;padding:16px 18px">
+                    <div style="font-size:11px;font-weight:700;color:#666b84;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Siti attivi</div>
+                    <div id="kpi-sites" style="font-size:26px;font-weight:800;color:#171b33">—</div>
+                </div>
             </div>
-            <div id="custom-range" style="display:none;display:flex;align-items:center;gap:8px;margin-left:8px">
-                <input type="date" id="date-from" class="profile-input" style="padding:6px 10px;font-size:12px;width:140px">
-                <span style="font-size:12px;color:#666b84">→</span>
-                <input type="date" id="date-to" class="profile-input" style="padding:6px 10px;font-size:12px;width:140px">
-                <button class="btn-update" id="btn-apply-custom" style="margin-left:0;padding:6px 14px">Applica</button>
-            </div>
-            <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
-                <select id="filter-site" class="profile-input" style="padding:6px 10px;font-size:12px;min-width:180px">
-                    <option value="">Tutti i siti</option>
-                </select>
-                <select id="filter-type" class="profile-input" style="padding:6px 10px;font-size:12px">
-                    <option value="">Tutti i tipi</option>
-                    <option value="pse">PSE Query</option>
-                    <option value="reason_gap">Reason Gap</option>
-                </select>
-            </div>
-        </div>
-    </div>
 
-    <!-- KPI -->
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px" id="kpi-grid">
-        <div class="card" style="border:1px solid #e4e4ec;box-shadow:none;padding:16px 18px">
-            <div style="font-size:11px;font-weight:700;color:#666b84;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Costo totale</div>
-            <div id="kpi-cost" style="font-size:28px;font-weight:800;color:#171b33">—</div>
-        </div>
-        <div class="card" style="border:1px solid #e4e4ec;box-shadow:none;padding:16px 18px">
-            <div style="font-size:11px;font-weight:700;color:#666b84;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Chiamate totali</div>
-            <div id="kpi-calls" style="font-size:28px;font-weight:800;color:#171b33">—</div>
-        </div>
-        <div class="card" style="border:1px solid #e4e4ec;box-shadow:none;padding:16px 18px">
-            <div style="font-size:11px;font-weight:700;color:#666b84;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Costo medio/chiamata</div>
-            <div id="kpi-avg" style="font-size:28px;font-weight:800;color:#171b33">—</div>
-        </div>
-        <div class="card" style="border:1px solid #e4e4ec;box-shadow:none;padding:16px 18px">
-            <div style="font-size:11px;font-weight:700;color:#666b84;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Siti attivi</div>
-            <div id="kpi-sites" style="font-size:28px;font-weight:800;color:#171b33">—</div>
-        </div>
-    </div>
+            <!-- TABELLA DETTAGLIO -->
+            <div class="card" style="border:1px solid #e4e4ec;box-shadow:none">
+                <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
+                    <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Dettaglio chiamate</div></div>
+                    <span id="rows-count" style="font-size:12px;color:#666b84"></span>
+                </div>
+                <div style="overflow-x:auto">
+                    <table class="sites-table" id="costs-table">
+                        <thead><tr>
+                            <th>Data</th>
+                            <th>Hotel</th>
+                            <th>Tipo</th>
+                            <th>Query</th>
+                            <th class="th-center">Costo</th>
+                        </tr></thead>
+                        <tbody id="costs-tbody"><tr><td colspan="5" style="text-align:center;padding:30px;color:#666b84">Caricamento...</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </div><!-- /colonna destra -->
 
-    <!-- TABELLA DETTAGLIO -->
-    <div class="card" style="border:1px solid #e4e4ec;box-shadow:none">
-        <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
-            <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Dettaglio chiamate</div></div>
-            <span id="rows-count" style="font-size:12px;color:#666b84"></span>
-        </div>
-        <div style="overflow-x:auto">
-            <table class="sites-table" id="costs-table">
-                <thead><tr>
-                    <th>Data</th>
-                    <th>Hotel</th>
-                    <th>Tipo</th>
-                    <th>Query</th>
-                    <th class="th-center">Costo</th>
-                </tr></thead>
-                <tbody id="costs-tbody"><tr><td colspan="5" style="text-align:center;padding:30px;color:#666b84">Caricamento...</td></tr></tbody>
-            </table>
-        </div>
-    </div>
+    </div><!-- /grid -->
 </div>
 
 <style>
-.period-btn { padding:6px 14px; border:1px solid #e4e4ec; border-radius:4px; background:white; font-size:12px; font-weight:600; color:#4b4d68; cursor:pointer; font-family:var(--font); transition:all .15s; }
-.period-btn.active { background:#fce8ef; border-color:#d82d6b; color:#d82d6b; }
-.period-btn:hover:not(.active) { border-color:#d82d6b; color:#d82d6b; }
+.cost-nav-row {
+    display: flex;
+    align-items: center;
+    padding: 11px 14px;
+    border-bottom: 1px solid #e2e2e2;
+    font-size: 12px;
+    font-weight: 500;
+    color: #4b4d68;
+    cursor: pointer;
+    transition: background .15s;
+    font-family: var(--font);
+}
+.cost-nav-row:hover { background: #fbf4f7; color: #d82d6b; }
+.cost-nav-row.active { background: #fce8ef; color: #d82d6b; font-weight: 700; }
 </style>
 
 <script>
@@ -128,13 +169,14 @@ async function init() {
     const { data: { user } } = await _SB.auth.getUser();
     if (!user || user.user_metadata?.role === 'albergatore') { window.location.href = 'login.html'; return; }
 
-    // Carica tutti i dati PSE
+    document.getElementById('nav-name').textContent = user.user_metadata?.nome || user.email?.split('@')[0] || 'Admin';
+    document.getElementById('nav-avatar').textContent = (user.user_metadata?.nome || user.email || 'A')[0].toUpperCase();
+
     const { data: pse } = await _SB.from('isi_pse_queries')
         .select('created_at,cost_usd,site_id,site_name,query')
         .order('created_at', {ascending: false})
         .limit(5000);
 
-    // Carica reason gap
     const { data: rg } = await _SB.from('isi_reason_gap_results')
         .select('created_at,cost_usd,site_id,site_name,query')
         .order('created_at', {ascending: false})
@@ -145,12 +187,14 @@ async function init() {
         ...(rg||[]).map(r => ({...r, type:'reason_gap', type_label:'Reason Gap'})),
     ].sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
 
-    // Totale dall'inizio (sempre)
     const grandTotal = allRows.reduce((s,r) => s+(parseFloat(r.cost_usd)||0), 0);
     document.getElementById('grand-total').textContent = '€' + grandTotal.toFixed(4);
 
-    // Popola filtro siti
-    const sites = [...new Set(allRows.map(r => JSON.stringify({id:r.site_id,name:r.site_name||r.site_id})))].map(s=>JSON.parse(s));
+    const seen = new Set();
+    const sites = [];
+    allRows.forEach(r => {
+        if (!seen.has(r.site_id)) { seen.add(r.site_id); sites.push({id:r.site_id, name:r.site_name||r.site_id}); }
+    });
     const sel = document.getElementById('filter-site');
     sites.forEach(s => {
         const opt = document.createElement('option');
@@ -220,13 +264,24 @@ function render() {
     `).join('');
 }
 
-// Event listeners
-document.querySelectorAll('.period-btn').forEach(btn => {
+// Periodo
+document.querySelectorAll('#period-btns .cost-nav-row').forEach(btn => {
     btn.addEventListener('click', () => {
-        document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('#period-btns .cost-nav-row').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         currentPeriod = btn.dataset.period;
-        document.getElementById('custom-range').style.display = currentPeriod === 'custom' ? 'flex' : 'none';
+        const cr = document.getElementById('custom-range');
+        cr.style.display = currentPeriod === 'custom' ? 'flex' : 'none';
+        if (currentPeriod !== 'custom') render();
+    });
+});
+
+// Tipo
+document.querySelectorAll('#type-btns .cost-nav-row').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('#type-btns .cost-nav-row').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        filterType = btn.dataset.type;
         render();
     });
 });
@@ -238,7 +293,6 @@ document.getElementById('btn-apply-custom').addEventListener('click', () => {
 });
 
 document.getElementById('filter-site').addEventListener('change', e => { filterSite = e.target.value; render(); });
-document.getElementById('filter-type').addEventListener('change', e => { filterType = e.target.value; render(); });
 
 init();
 </script>
