@@ -2226,7 +2226,7 @@
                             <span style="font-size:14px;color:${isCov?'#d82d6b':'#ead0dc'};font-weight:800;flex-shrink:0">${isCov?'✓':'✗'}</span>
                             <span style="font-size:13px;color:#171b33;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(q)}</span>
                         </div>
-                        ${!isCov ? `<button class="btn-update" style="margin-left:12px;flex-shrink:0;padding:5px 12px;font-size:11px" onclick="generaRispostaQuery(this,'${escHtml(cat)}','${escHtml(q).replace(/'/g,"\\'")}','${escHtml(site.site_id)}')">✦ Genera risposta</button>` : `<span style="font-size:11px;color:#d82d6b;font-weight:700;flex-shrink:0;margin-left:12px">Coperta ✓</span>`}
+                        ${!isCov ? `<div style="display:flex;gap:6px;margin-left:12px;flex-shrink:0"><button class="btn-update" style="padding:5px 12px;font-size:11px" onclick="generaRispostaQuery(this,'${escHtml(cat)}','${escHtml(q).replace(/'/g,"\\'")}','${escHtml(site.site_id)}')">✦ Genera risposta</button><button class="btn-ping" style="padding:5px 10px;font-size:11px" onclick="apriModaleFaqManuale('${escHtml(q).replace(/'/g,"\\'")}')">✎ Scrivi</button></div>` : `<span style="font-size:11px;color:#d82d6b;font-weight:700;flex-shrink:0;margin-left:12px">Coperta ✓</span>`}
                     </div>`;
                 }).join('')}
             </div>`;
@@ -2270,8 +2270,19 @@
         } catch(e) {
             btn.disabled = false;
             btn.textContent = origText;
-            alert('Errore generazione: ' + e.message);
+            apriModaleFaqManuale(query);
         }
+    };
+
+    window.apriModaleFaqManuale = function(query) {
+        document.getElementById('faq-modal-ttl-admin').textContent = 'Aggiungi FAQ';
+        document.getElementById('fm-id-admin').value   = '';
+        document.getElementById('fm-q-admin').value    = query;
+        document.getElementById('fm-a-admin').value    = '';
+        document.getElementById('fm-ai-admin').checked = true;
+        document.getElementById('fm-msg-admin').style.display = 'none';
+        document.getElementById('faq-admin-modal').style.display = 'flex';
+        window._pendingMappaQuery = null;
     };
 
     window.saveMappaAnswer = async function(cat, siteId) {
