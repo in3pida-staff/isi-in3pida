@@ -1180,15 +1180,11 @@
                 <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
                     <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Confronto Canali</div></div>
                     <div style="display:flex;gap:8px;align-items:center">
-                        <button id="btn-aggiungi-canale" class="btn-update" style="margin-left:0">+ Aggiungi canale</button>
-                        <button id="btn-avvia-scansione" class="btn-update" style="margin-left:0">▶ Avvia scansione</button>
-                        <button onclick="window.print()" class="btn-ping" style="font-size:12px;padding:7px 16px">🖨 Stampa</button>
-                        <button id="btn-svuota-log" class="btn-ping" style="font-size:12px;padding:7px 16px">🗑 Svuota log</button>
-                        <button id="btn-save-coerenza" class="btn-update" style="margin-left:0;display:none">Salva</button>
+                        <button id="btn-avvia-scansione" class="btn-update" style="margin-left:0">▶ Scansiona tutti</button>
                     </div>
                 </div>
-                <div style="padding:10px 20px;border-bottom:1px solid #ececf2;font-size:12px;color:#666b84">Confronta le informazioni del tuo hotel su tutti i canali per individuare incoerenze.</div>
-                <div id="coerenza-content" style="padding:0;overflow-x:auto"><div class="loading" style="padding:20px"><div class="spinner"></div></div></div>
+                <div style="padding:10px 20px;border-bottom:1px solid #ececf2;font-size:12px;color:#666b84">Incolla il link della tua scheda su ciascun portale. Clicca "Scansiona" per confrontare automaticamente con i tuoi dati ufficiali e vedere le incoerenze.</div>
+                <div id="coerenza-content" style="padding:16px 20px"><div class="loading" style="padding:20px"><div class="spinner"></div></div></div>
             </div>
             </div><!-- /scontent-coerenza -->
 
@@ -2826,114 +2822,173 @@
     }
 
     // ─── COERENZA CONTENUTI ──────────────────────────────────────────────────────
-    const COERENZA_FIELDS = ['Nome struttura','Descrizione','Telefono','Email','Indirizzo','Check-in','Check-out','Stelle','Servizi','Prezzi','Sito web'];
-    let _coerenzaChannels = ['Sito Web','Google Business','Booking.com','TripAdvisor','Airbnb','Expedia'];
+    const _DEFAULT_COERENZA_CHANNELS = ['Google Business','Booking.com','TripAdvisor','Airbnb','Expedia'];
     let _coerenzaInited = false;
+
     async function initCoerenzaTable(site) {
         if (_coerenzaInited) return; _coerenzaInited = true;
         const hp = site?.hotel_profile || {};
         const sc = site?.schema_data   || {};
-        const p  = hp;
 
-        // populate stato dati ufficiali
+        // Dati di riferimento da schema/profilo
         const setUf = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val || '—'; };
-        setUf('cu-nome',  p.nome_hotel || sc.name || '—');
-        setUf('cu-tel',   p.telefono   || sc.telephone || '—');
-        setUf('cu-email', p.email      || sc.email || '—');
-        const addr = [p.via, p.numero_civico, p.cap, p.citta, p.regione].filter(Boolean).join(', ') ||
+        setUf('cu-nome',   sc.name || hp.nome_hotel || hp.nome || '—');
+        setUf('cu-tel',    hp.telefono || sc.telephone || '—');
+        setUf('cu-email',  hp.email || sc.email || '—');
+        const addr = [hp.via, hp.numero_civico, hp.cap, hp.citta].filter(Boolean).join(', ') ||
                      [sc.street, sc.city, sc.postal_code].filter(Boolean).join(', ') || '—';
         setUf('cu-addr',  addr);
-        setUf('cu-url',   p.sito_web   || sc.url || '—');
-        setUf('cu-cin',   p.checkin_dalle   || sc.checkin_time  || '—');
-        setUf('cu-cout',  p.checkout_alle   || sc.checkout_time || '—');
-        setUf('cu-stelle',p.stelle     || sc.official_rating || '—');
+        setUf('cu-url',   hp.sito_web || sc.url || '—');
+        setUf('cu-cin',   hp.checkin_dalle || sc.checkin_time  || '—');
+        setUf('cu-cout',  hp.checkout_alle || sc.checkout_time || '—');
+        setUf('cu-stelle',String(sc.starRating?.ratingValue || sc.official_rating || hp.stelle || '—'));
 
         const cont = document.getElementById('coerenza-content');
         if (!cont) return;
-        const saved = hp.coerenza_channels || {};
-        const btnSave = document.getElementById('btn-save-coerenza');
-        if (btnSave) btnSave.style.display = 'inline-flex';
 
-        function renderTable() {
-            const thStyle = 'padding:10px 12px;font-size:10px;font-weight:700;color:#aaa;letter-spacing:.05em;text-transform:uppercase;text-align:center;background:#f7f7fb;white-space:nowrap;border-bottom:1px solid #e4e4ec';
-            const tdStyle = 'padding:8px 10px;border-bottom:1px solid #f4f4f8;vertical-align:top';
-            let html = '<table style="width:100%;border-collapse:collapse;min-width:900px"><thead><tr><th style="'+thStyle+';text-align:left;min-width:140px">Campo</th>';
-            _coerenzaChannels.forEach((ch, ci) => { html += '<th style="'+thStyle+'"><div style="display:flex;align-items:center;justify-content:center;gap:6px">' + escHtml(ch) + '<button onclick="window._removeCoerenzaChannel('+ci+')" style="background:transparent;border:none;cursor:pointer;color:#aaa;font-size:11px;padding:0;line-height:1;font-weight:700" title="Rimuovi canale">✕</button></div></th>'; });
-            html += '</tr></thead><tbody>';
-            COERENZA_FIELDS.forEach(field => {
-                html += '<tr><td style="'+tdStyle+';font-size:12px;font-weight:700;color:#4b4d68;white-space:nowrap">'+escHtml(field)+'</td>';
-                _coerenzaChannels.forEach(ch => {
-                    const val = (saved[ch] || {})[field] || '';
-                    html += '<td style="'+tdStyle+'"><textarea data-field="'+escHtml(field)+'" data-channel="'+escHtml(ch)+'" class="coer-inp" style="width:100%;border:1px solid #e4e4ec;border-radius:6px;padding:6px 8px;font-size:12px;resize:vertical;min-height:42px;color:#171b33;outline:none;box-sizing:border-box;font-family:var(--font)" placeholder="—">'+escHtml(val)+'</textarea></td>';
-                });
-                html += '</tr>';
+        // Carica stato canali salvato (nuovo formato: {url, last_scan_at, results})
+        const savedRaw = hp.coerenza_channels || {};
+        const channels = {};
+        _DEFAULT_COERENZA_CHANNELS.forEach(ch => {
+            const s = savedRaw[ch];
+            // Supporta sia il vecchio formato (oggetto campo→valore) che il nuovo
+            if (s && typeof s === 'object' && ('url' in s || 'results' in s)) {
+                channels[ch] = { url: s.url || '', last_scan_at: s.last_scan_at || null, results: s.results || [] };
+            } else {
+                channels[ch] = { url: '', last_scan_at: null, results: [] };
+            }
+        });
+
+        // Dati di riferimento per confronto
+        const refData = {
+            'Nome struttura': sc.name || hp.nome_hotel || hp.nome || '',
+            'Stelle':         String(sc.starRating?.ratingValue || sc.official_rating || hp.stelle || ''),
+            'Indirizzo':      addr !== '—' ? addr : '',
+            'Telefono':       hp.telefono || sc.telephone || '',
+            'Email':          hp.email || sc.email || '',
+            'Check-in':       hp.checkin_dalle || sc.checkin_time || '',
+            'Check-out':      hp.checkout_alle || sc.checkout_time || '',
+            'Sito web':       hp.sito_web || sc.url || '',
+        };
+
+        function renderChannels() {
+            cont.innerHTML = _DEFAULT_COERENZA_CHANNELS.map(ch => {
+                const d = channels[ch];
+                const hasUrl = !!d.url;
+                const hasResults = d.results && d.results.length > 0;
+                const matchCount = hasResults ? d.results.filter(r => r.match).length : 0;
+                const totalCount = hasResults ? d.results.length : 0;
+
+                let statusHtml;
+                if (!hasUrl) {
+                    statusHtml = '<span style="font-size:12px;color:#9ca3af">URL non configurato — inserisci il link alla tua scheda su questo portale</span>';
+                } else if (!hasResults) {
+                    statusHtml = '<span style="font-size:12px;color:#666b84">Non ancora scansionato</span>';
+                } else if (matchCount === totalCount) {
+                    statusHtml = '<span style="font-size:12px;font-weight:700;color:#009bb9">✓ Tutti i campi allineati ('+totalCount+'/'+totalCount+')</span>';
+                } else {
+                    statusHtml = '<span style="font-size:12px;font-weight:700;color:#b00020">✗ '+matchCount+'/'+totalCount+' campi allineati — '+(totalCount-matchCount)+' incoerenze rilevate</span>';
+                }
+
+                let resultsHtml = '';
+                if (hasResults) {
+                    resultsHtml = '<div style="margin-top:12px;border-top:1px solid #f4f4f8;padding-top:10px">' +
+                        '<div style="display:grid;grid-template-columns:130px 1fr 1fr 28px;gap:8px;padding:0 0 6px 0;border-bottom:1px solid #e4e4ec;margin-bottom:4px">' +
+                            '<div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em">Campo</div>' +
+                            '<div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em">I tuoi dati</div>' +
+                            '<div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em">Trovato su '+escHtml(ch)+'</div>' +
+                            '<div></div>' +
+                        '</div>' +
+                        d.results.map(r =>
+                            `<div style="display:grid;grid-template-columns:130px 1fr 1fr 28px;gap:8px;align-items:start;padding:5px 0;border-bottom:1px solid #f4f4f8">
+                                <div style="font-size:11px;font-weight:700;color:#666b84;padding-top:1px">${escHtml(r.field)}</div>
+                                <div style="font-size:12px;color:#4b4d68">${escHtml(r.our_value || '—')}</div>
+                                <div style="font-size:12px;color:${r.match ? '#4b4d68' : (r.found_value ? '#b00020' : '#9ca3af')};font-weight:${r.match ? '400' : (r.found_value ? '700' : '400')}">${escHtml(r.found_value || '—')}</div>
+                                <div style="font-size:15px;text-align:center;padding-top:1px">${r.match ? '<span style="color:#009bb9">✓</span>' : (r.found_value ? '<span style="color:#b00020">✗</span>' : '<span style="color:#9ca3af">○</span>')}</div>
+                            </div>`
+                        ).join('') + '</div>';
+                    if (d.last_scan_at) {
+                        const dt = new Date(d.last_scan_at);
+                        resultsHtml += `<div style="font-size:11px;color:#9ca3af;margin-top:8px">Ultima scansione: ${dt.toLocaleDateString('it-IT')} alle ${dt.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})}</div>`;
+                    }
+                }
+
+                return `<div style="border:1px solid #e4e4ec;border-radius:8px;padding:14px 16px;margin-bottom:12px">
+                    <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+                        <div style="font-size:13px;font-weight:700;color:#171b33;min-width:120px">${escHtml(ch)}</div>
+                        <input type="url" class="coer-url-inp" data-channel="${escHtml(ch)}" value="${escHtml(d.url||'')}" placeholder="https://..." style="flex:1;border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:12px;font-family:var(--font);outline:none;color:#171b33;background:#fff">
+                        <button type="button" class="btn-scan-ch" data-channel="${escHtml(ch)}" style="background:#009bb9;color:white;border:none;border-radius:6px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);white-space:nowrap;flex-shrink:0">Scansiona</button>
+                    </div>
+                    <div>${statusHtml}</div>
+                    ${resultsHtml}
+                </div>`;
+            }).join('');
+
+            cont.querySelectorAll('.coer-url-inp').forEach(inp => {
+                inp.onblur = async () => {
+                    const ch = inp.dataset.channel, url = inp.value.trim();
+                    if (channels[ch].url === url) return;
+                    channels[ch].url = url;
+                    const hp2 = site?.hotel_profile || {};
+                    await _SBq.from('isi_sites').update({ hotel_profile: {...hp2, coerenza_channels: channels} }).eq('site_id', site.site_id);
+                    renderChannels();
+                };
+                inp.onkeydown = (e) => { if (e.key === 'Enter') inp.blur(); };
             });
-            html += '</tbody></table>';
-            cont.innerHTML = html;
+            cont.querySelectorAll('.btn-scan-ch').forEach(btn => {
+                btn.onclick = () => {
+                    const ch = btn.dataset.channel;
+                    const url = (cont.querySelector(`.coer-url-inp[data-channel="${ch}"]`))?.value?.trim() || channels[ch]?.url;
+                    if (!url) { showToast('Inserisci prima il link per ' + ch); return; }
+                    channels[ch].url = url;
+                    scanChannel(ch, url, btn);
+                };
+            });
         }
-        renderTable();
 
-        window._removeCoerenzaChannel = (ci) => {
-            const modal = document.getElementById('modal-del-canale');
-            document.getElementById('modal-del-canale-msg').textContent = 'Rimuovere il canale "' + _coerenzaChannels[ci] + '"?';
-            modal.style.display = 'flex';
-            document.getElementById('btn-ok-del-canale').onclick = () => {
-                _coerenzaChannels.splice(ci, 1);
-                renderTable();
-                if (btnSave) btnSave.style.display = 'inline-flex';
-                modal.style.display = 'none';
-            };
-        };
+        async function scanChannel(ch, url, btn) {
+            const origText = btn ? btn.textContent : '';
+            if (btn) { btn.textContent = '⏳...'; btn.disabled = true; }
+            try {
+                const { data: { session } } = await _SB.auth.getSession();
+                if (!session) throw new Error('Sessione scaduta');
+                const r = await fetch(`${SUPABASE_URL}/functions/v1/channel-scan`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
+                    body: JSON.stringify({ site_id: site.site_id, channel: ch, url }),
+                });
+                const res = await r.json();
+                if (res.results && res.results.length) {
+                    channels[ch].results = res.results;
+                    channels[ch].last_scan_at = new Date().toISOString();
+                    const hp2 = site?.hotel_profile || {};
+                    hp2.coerenza_channels = channels;
+                    site.hotel_profile = hp2;
+                    await _SBq.from('isi_sites').update({ hotel_profile: hp2 }).eq('site_id', site.site_id);
+                    renderChannels();
+                    showToast('Scansione ' + ch + ' completata.');
+                } else {
+                    const msg = res.message || res.error || 'Risposta vuota';
+                    showToast('Scansione ' + ch + ': ' + msg);
+                }
+            } catch(e) {
+                showToast('Errore: ' + e.message);
+            }
+            if (btn) { btn.textContent = origText || 'Scansiona'; btn.disabled = false; }
+        }
 
-        if (btnSave) btnSave.onclick = async () => {
-            btnSave.textContent = 'Salvataggio...'; btnSave.disabled = true;
-            const data = {};
-            cont.querySelectorAll('.coer-inp').forEach(inp => {
-                const ch = inp.dataset.channel, fi = inp.dataset.field;
-                if (!data[ch]) data[ch] = {};
-                if (inp.value.trim()) data[ch][fi] = inp.value.trim();
-            });
-            const hp2 = site?.hotel_profile || {};
-            const { error } = await _SBq.from('isi_sites').update({ hotel_profile: { ...hp2, coerenza_channels: data } }).eq('site_id', site.site_id);
-            btnSave.textContent = error ? '✗ Errore' : '✓ Salvato';
-            setTimeout(() => { btnSave.textContent = 'Salva'; btnSave.disabled = false; }, 2500);
-        };
+        renderChannels();
 
-        const btnAdd = document.getElementById('btn-aggiungi-canale');
-        if (btnAdd) btnAdd.onclick = () => {
-            const inp = document.getElementById('input-nuovo-canale');
-            inp.value = '';
-            const modal = document.getElementById('modal-canale');
-            modal.style.display = 'flex';
-            setTimeout(() => inp.focus(), 50);
-            document.getElementById('btn-ok-canale').onclick = () => {
-                const ch = inp.value.trim();
-                if (!ch || _coerenzaChannels.includes(ch)) return;
-                _coerenzaChannels.push(ch);
-                renderTable();
-                if (btnSave) btnSave.style.display = 'inline-flex';
-                modal.style.display = 'none';
-            };
-            inp.onkeydown = (e) => { if (e.key === 'Enter') document.getElementById('btn-ok-canale').click(); };
-        };
-
-        const btnScan = document.getElementById('btn-avvia-scansione');
-        if (btnScan) btnScan.onclick = async () => {
-            btnScan.textContent = '⏳ Scansione...'; btnScan.disabled = true;
-            await new Promise(r => setTimeout(r, 1800));
-            btnScan.textContent = '✓ Scansione completata';
-            setTimeout(() => { btnScan.textContent = '▶ Avvia scansione'; btnScan.disabled = false; }, 3000);
-            showToast('Scansione completata. Verifica i campi per incoerenze.');
-        };
-
-        const btnClear = document.getElementById('btn-svuota-log');
-        if (btnClear) btnClear.onclick = async () => {
-            if (!confirm('Svuotare tutti i dati del confronto canali? Non potranno essere recuperati.')) return;
-            const hp2 = site?.hotel_profile || {};
-            await _SBq.from('isi_sites').update({ hotel_profile: { ...hp2, coerenza_channels: {} } }).eq('site_id', site.site_id);
-            site.hotel_profile = { ...hp2, coerenza_channels: {} };
-            cont.querySelectorAll('.coer-inp').forEach(inp => { inp.value = ''; });
-            showToast('Log svuotato.');
+        const btnAll = document.getElementById('btn-avvia-scansione');
+        if (btnAll) btnAll.onclick = async () => {
+            const configured = _DEFAULT_COERENZA_CHANNELS.filter(ch => channels[ch]?.url);
+            if (!configured.length) { showToast('Inserisci prima i link ai portali per avviare la scansione.'); return; }
+            btnAll.textContent = '⏳ Scansione...'; btnAll.disabled = true;
+            for (const ch of configured) {
+                await scanChannel(ch, channels[ch].url, null);
+            }
+            btnAll.textContent = '▶ Scansiona tutti'; btnAll.disabled = false;
+            showToast('Scansione completata per tutti i canali configurati.');
         };
     }
 
