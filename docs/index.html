@@ -2269,17 +2269,28 @@
         } catch(e) {
             btn.disabled = false;
             btn.textContent = origText;
-            apriModaleFaqManuale(query, aiAnswer);
+            const errMsg = aiAnswer
+                ? '⚠️ Salvataggio fallito — risposta AI pre-compilata, salvala manualmente.'
+                : '⚠️ Generazione AI non riuscita (' + e.message + '). Scrivi la risposta manualmente.';
+            apriModaleFaqManuale(query, aiAnswer, errMsg);
         }
     };
 
-    window.apriModaleFaqManuale = function(query, prefillAnswer) {
+    window.apriModaleFaqManuale = function(query, prefillAnswer, errorMsg) {
         document.getElementById('faq-modal-ttl-admin').textContent = 'Aggiungi FAQ';
         document.getElementById('fm-id-admin').value   = '';
         document.getElementById('fm-q-admin').value    = query;
         document.getElementById('fm-a-admin').value    = prefillAnswer || '';
         document.getElementById('fm-ai-admin').checked = true;
-        document.getElementById('fm-msg-admin').style.display = 'none';
+        const msgEl = document.getElementById('fm-msg-admin');
+        if (errorMsg) {
+            msgEl.textContent = errorMsg;
+            msgEl.style.background = '#fce8ef';
+            msgEl.style.color = '#b00020';
+            msgEl.style.display = 'block';
+        } else {
+            msgEl.style.display = 'none';
+        }
         document.getElementById('faq-admin-modal').style.display = 'flex';
         window._pendingMappaQuery = null;
     };
