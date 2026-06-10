@@ -941,7 +941,7 @@
                         <div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">FAQ <span id="faq-admin-count" style="font-weight:400;text-transform:none;letter-spacing:0;font-size:11px;color:var(--grey)"></span></div>
                     </div>
                     <div style="display:flex;gap:8px">
-                        <button id="btn-faq-settings-toggle" class="btn-ping" style="font-size:11px;padding:5px 12px">⚙️ Impostazioni</button>
+                        <button id="btn-faq-settings-toggle" class="btn-ping" style="font-size:11px;padding:5px 12px;background:transparent">⚙️ Impostazioni</button>
                         <button id="btn-add-faq-admin" class="btn-update" style="margin-left:0">+ Aggiungi FAQ</button>
                     </div>
                 </div>
@@ -962,7 +962,10 @@
             <div class="card" style="display:none;margin-top:20px;border:1px solid #e4e4ec;box-shadow:none" id="card-faq-settings">
                 <div class="card-header" style="border-bottom:1px solid #ececf2;background:#f4f4f8;padding:12px 20px">
                     <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Impostazioni Plugin FAQ</div></div>
-                    <button id="btn-save-faq-settings" class="btn-update" style="margin-left:0">Salva impostazioni</button>
+                    <div style="display:flex;gap:8px">
+                        <button id="btn-close-faq-settings" class="btn-ping" style="background:transparent">✕ Chiudi</button>
+                        <button id="btn-save-faq-settings" class="btn-update" style="margin-left:0">Salva impostazioni</button>
+                    </div>
                 </div>
                 <div style="padding:20px">
                     <div style="font-size:10px;font-weight:700;color:#4a4a6a;letter-spacing:.08em;text-transform:uppercase;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid #e4e4ec">📄 CONTENUTO PAGINA</div>
@@ -1871,10 +1874,17 @@
             const open = card.style.display === 'none';
             card.style.display = open ? 'block' : 'none';
             toggleBtn.className = open ? 'btn-update' : 'btn-ping';
+            if (!open) toggleBtn.style.background = 'transparent';
             if (open) loadFaqPluginSettings();
         });
         const saveBtn = document.getElementById('btn-save-faq-settings');
         if (saveBtn) saveBtn.addEventListener('click', saveFaqPluginSettings);
+        const closeBtn = document.getElementById('btn-close-faq-settings');
+        if (closeBtn) closeBtn.addEventListener('click', () => {
+            document.getElementById('card-faq-settings').style.display = 'none';
+            const tb = document.getElementById('btn-faq-settings-toggle');
+            if (tb) { tb.className = 'btn-ping'; tb.style.background = 'transparent'; }
+        });
         loadAdminFaqList();
     }
 

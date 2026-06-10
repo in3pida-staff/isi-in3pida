@@ -459,3 +459,15 @@ table.sites-table tbody tr:hover td { background: #fdf0f5; }
     .sw-stats { grid-template-columns: 1fr 1fr; }
     table.sites-table th, table.sites-table td { padding: 11px 14px; }
 }
+
+/* ─── COLOR INPUT ─────────────────────────────────────────────────────────── */
+input[type="color"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 40px; height: 32px;
+    padding: 2px; border: 1.5px solid #e4e4ec;
+    border-radius: 6px; cursor: pointer;
+    background: none;
+}
+input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+input[type="color"]::-webkit-color-swatch { border: none; border-radius: 3px; }
