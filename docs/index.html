@@ -1874,9 +1874,7 @@
             if (!card) return;
             const open = card.style.display === 'none';
             card.style.display = open ? 'block' : 'none';
-            toggleBtn.style.background = open ? '#fce8ef' : '';
-            toggleBtn.style.color = open ? '#d82d6b' : '';
-            toggleBtn.style.borderColor = open ? '#d82d6b' : '';
+            toggleBtn.className = open ? 'btn-update' : 'btn-ping';
             if (open) loadFaqPluginSettings();
         });
         const saveBtn = document.getElementById('btn-save-faq-settings');
