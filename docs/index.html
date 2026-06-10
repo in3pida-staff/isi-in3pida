@@ -10,6 +10,7 @@
     <link rel="icon" type="image/x-icon" href="images/favicon.ico">
     <link rel="stylesheet" href="css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
 
@@ -3061,46 +3062,49 @@
         // Report stampabile/esportabile
         const btnReport = document.getElementById('btn-esporta-report');
         function buildReportRows() {
-            const thS = 'padding:9px 12px;font-size:10px;font-weight:700;color:white;text-align:left;text-transform:uppercase;letter-spacing:.05em;background:#d82d6b';
-            let html = `<table style="width:100%;border-collapse:collapse">
-                <thead><tr>
-                    <th style="${thS};width:120px">Campo</th>
-                    <th style="${thS}">I tuoi dati</th>
-                    <th style="${thS}">Trovato sul portale</th>
-                    <th style="${thS};width:36px;text-align:center">✓/✗</th>
-                </tr></thead><tbody>`;
+            const thS = 'padding:7px 14px;font-size:10px;font-weight:700;color:#666b84;text-align:left;text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid #e4e4ec;background:#fafafa';
+            let html = '';
             _DEFAULT_COERENZA_CHANNELS.forEach(ch => {
                 const d = channels[ch]; if (!d) return;
-                const shortUrl = d.url ? (d.url.length > 60 ? d.url.slice(0,58)+'…' : d.url) : '';
-                html += `<tr><td colspan="4" style="background:#fdf1f6;font-weight:700;font-size:13px;padding:10px 12px;border-bottom:2px solid #ead0dc;color:#d82d6b">${escHtml(ch)}`;
-                if (shortUrl) html += ` <span style="font-weight:400;color:#666b84;font-size:11px">${escHtml(shortUrl)}</span>`;
-                html += `</td></tr>`;
+                const shortUrl = d.url ? (d.url.length > 55 ? d.url.slice(0,53)+'…' : d.url) : '';
+                html += `<div style="border:1px solid #e4e4ec;border-radius:8px;margin-bottom:12px;overflow:hidden">`;
+                html += `<div style="background:#f7f7fb;padding:10px 14px;border-bottom:1px solid #e4e4ec;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">
+                    <span style="font-weight:700;font-size:13px;color:#171b33">${escHtml(ch)}</span>
+                    ${shortUrl ? `<span style="font-size:11px;color:#009bb9">${escHtml(shortUrl)}</span>` : ''}
+                </div>`;
                 if (!d.url) {
-                    html += `<tr><td colspan="4" style="padding:8px 12px;color:#9ca3af;font-size:12px">URL non configurato</td></tr>`;
+                    html += `<div style="padding:10px 14px;font-size:12px;color:#9ca3af">URL non configurato</div>`;
                 } else if (d.error) {
-                    html += `<tr><td colspan="4" style="padding:8px 12px;color:#b00020;font-size:12px">⚠ ${escHtml(d.error)}</td></tr>`;
+                    html += `<div style="padding:10px 14px;font-size:12px;color:#b00020">⚠ ${escHtml(d.error)}</div>`;
                 } else if (!d.results?.length) {
-                    html += `<tr><td colspan="4" style="padding:8px 12px;color:#666b84;font-size:12px">Non ancora scansionato</td></tr>`;
+                    html += `<div style="padding:10px 14px;font-size:12px;color:#666b84">Non ancora scansionato</div>`;
                 } else {
-                    d.results.forEach((r,i) => {
+                    html += `<table style="width:100%;border-collapse:collapse">
+                        <thead><tr>
+                            <th style="${thS};width:120px">Campo</th>
+                            <th style="${thS}">I tuoi dati</th>
+                            <th style="${thS}">Trovato sul portale</th>
+                            <th style="${thS};width:36px;text-align:center">✓/✗</th>
+                        </tr></thead><tbody>`;
+                    d.results.forEach(r => {
                         const icon = r.match ? '✓' : (r.found_value ? '✗' : '○');
                         const iconColor = r.match ? '#009bb9' : (r.found_value ? '#b00020' : '#9ca3af');
-                        const bg = i%2===0 ? 'white' : '#fafafa';
-                        html += `<tr style="background:${bg}">
-                            <td style="padding:7px 12px;font-size:12px;font-weight:600;color:#4b4d68;border-bottom:1px solid #f4f4f8">${escHtml(r.field)}</td>
-                            <td style="padding:7px 12px;font-size:12px;color:#171b33;border-bottom:1px solid #f4f4f8">${escHtml(r.our_value||'—')}</td>
-                            <td style="padding:7px 12px;font-size:12px;border-bottom:1px solid #f4f4f8;color:${r.match?'#171b33':(r.found_value?'#b00020':'#9ca3af')};font-weight:${!r.match&&r.found_value?'700':'400'}">${escHtml(r.found_value||'—')}</td>
-                            <td style="padding:7px 12px;font-size:16px;text-align:center;border-bottom:1px solid #f4f4f8;color:${iconColor}">${icon}</td>
+                        html += `<tr>
+                            <td style="padding:8px 14px;font-size:12px;font-weight:600;color:#4b4d68;border-bottom:1px solid #f4f4f8">${escHtml(r.field)}</td>
+                            <td style="padding:8px 14px;font-size:12px;color:#171b33;border-bottom:1px solid #f4f4f8">${escHtml(r.our_value||'—')}</td>
+                            <td style="padding:8px 14px;font-size:12px;border-bottom:1px solid #f4f4f8;color:${r.match?'#171b33':(r.found_value?'#b00020':'#9ca3af')};font-weight:${!r.match&&r.found_value?'700':'400'}">${escHtml(r.found_value||'—')}</td>
+                            <td style="padding:8px 14px;font-size:15px;text-align:center;border-bottom:1px solid #f4f4f8;color:${iconColor}">${icon}</td>
                         </tr>`;
                     });
                     if (d.last_scan_at) {
                         const dt = new Date(d.last_scan_at);
-                        html += `<tr><td colspan="4" style="padding:4px 12px 10px;font-size:11px;color:#9ca3af;background:#fafafa">Ultima scansione: ${dt.toLocaleDateString('it-IT')} ore ${dt.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})}</td></tr>`;
+                        html += `<tr><td colspan="4" style="padding:6px 14px;font-size:11px;color:#9ca3af;background:#fafafa">Scansione: ${dt.toLocaleDateString('it-IT')} ore ${dt.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})}</td></tr>`;
                     }
+                    html += `</tbody></table>`;
                 }
+                html += `</div>`;
             });
-            html += '</tbody></table>';
-            return html;
+            return html || '<p style="color:#9ca3af;font-size:13px">Nessun canale configurato.</p>';
         }
 
         function buildFullReportHtml() {
@@ -3135,13 +3139,16 @@ ${rows}
 
         window._exportCoerenzaReport = () => {
             const hotelNome = document.getElementById('cu-nome')?.textContent || site.site_name || 'hotel';
-            const html = buildFullReportHtml();
-            const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = 'report-canali-' + hotelNome.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') + '-' + new Date().toISOString().slice(0,10) + '.html';
-            a.click();
-            URL.revokeObjectURL(a.href);
+            const body = document.getElementById('modal-report-body');
+            if (!body || typeof html2pdf === 'undefined') { showToast('Libreria PDF non caricata, riprova.'); return; }
+            const filename = 'report-canali-' + hotelNome.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'') + '-' + new Date().toISOString().slice(0,10) + '.pdf';
+            html2pdf().set({
+                margin: [10, 10, 10, 10],
+                filename,
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                pagebreak: { mode: 'avoid-all' },
+            }).from(body).save();
         };
 
         if (btnReport) btnReport.onclick = () => {
@@ -3888,8 +3895,8 @@ ${rows}
         <div id="modal-report-sub" style="font-size:12px;color:#666b84;margin-top:2px"></div>
       </div>
       <div style="display:flex;gap:8px;align-items:center">
-        <button onclick="window._exportCoerenzaReport()" class="btn-ping" style="font-size:12px;padding:7px 16px">⬇ Esporta HTML</button>
-        <button onclick="window._printCoerenzaReport()" class="btn-update" style="margin:0;font-size:12px;padding:7px 16px">🖨 Stampa / PDF</button>
+        <button onclick="window._exportCoerenzaReport()" class="btn-ping" style="font-size:12px;padding:7px 16px">⬇ Esporta PDF</button>
+        <button onclick="window._printCoerenzaReport()" class="btn-update" style="margin:0;font-size:12px;padding:7px 16px">🖨 Stampa</button>
         <button onclick="document.getElementById('modal-report-coerenza').style.display='none'" class="btn-ping" style="font-size:12px;padding:7px 14px">✕ Chiudi</button>
       </div>
     </div>
