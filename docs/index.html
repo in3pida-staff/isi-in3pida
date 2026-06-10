@@ -265,6 +265,15 @@
                         <div class="sw-stat-label" style="margin-top:2px">Ultima versione</div>
                     </div>
                 </div>
+                <div class="sw-stat-card" style="cursor:pointer" onclick="window.location.href='costs.html'">
+                    <div class="sw-stat-icon" style="background:var(--magenta)">
+                        <svg width="24" height="24" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>
+                    </div>
+                    <div class="sw-stat-text">
+                        <div class="sw-stat-num" id="kpi-total-cost" style="font-size:36px">—</div>
+                        <div class="sw-stat-label">Costi AI totali</div>
+                    </div>
+                </div>
             </div>
             <div class="card">
                 <div class="card-header">
@@ -558,12 +567,15 @@
 
     // ─── PANORAMICA ──────────────────────────────────────────────────────────────
     async function loadPanoramica() {
-        const [sitesRes, latestVerRes, tuttiSiti] = await Promise.all([
+        const [sitesRes, latestVerRes, tuttiSiti, costRes] = await Promise.all([
             _SBq.from('isi_sites').select('site_id', {count:'exact'}),
             _SBq.from('isi_plugin_versions').select('version,released_at').eq('is_current', true).limit(1).single(),
             _SBq.from('isi_sites').select('*').order('last_heartbeat',{ascending:false}),
+            _SBq.from('isi_pse_queries').select('cost_usd'),
         ]);
         document.getElementById('kpi-siti').textContent = sitesRes.count ?? 0;
+        const totalCost = (costRes.data||[]).reduce((s,r)=>s+(parseFloat(r.cost_usd)||0),0);
+        document.getElementById('kpi-total-cost').textContent = '€' + totalCost.toFixed(4);
         if (latestVerRes.data) {
             const v = latestVerRes.data;
             document.getElementById('kpi-latest-version').textContent = v.version;
