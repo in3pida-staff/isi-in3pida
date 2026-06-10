@@ -2263,8 +2263,13 @@
         const sovEl = document.getElementById('sov-card');
         if (sovEl) {
             const pseItems = (pseData || []).filter(p => p.query);
-            if (pseItems.length) {
-                const isCited = p => p.result?.cited || p.result?.found || p.result?.match_found;
+            const isCited = p => p.result?.cited || p.result?.found || p.result?.match_found;
+            let headerExtra = '';
+            let bodyHtml = '';
+
+            if (!pseItems.length) {
+                bodyHtml = `<div style="font-size:13px;color:#666b84;padding:4px 0">Nessuna query PSE monitorata — esegui le query dalla sezione Statistiche PSE per vedere i dati.</div>`;
+            } else {
                 const clusterRows = cats.map(cat => {
                     const label = cat.replace(/_/g,' ').replace(/\b\w/g, c => c.toUpperCase());
                     const qs = new Set(MAPPA_DEFAULTS[cat].map(q => q.toLowerCase()));
@@ -2277,31 +2282,29 @@
 
                 const totCited = pseItems.filter(isCited).length;
                 const totPct = Math.round(totCited / pseItems.length * 100);
+                headerExtra = `<span style="font-size:12px;color:#666b84;font-family:var(--font)">${pseItems.length} monitorate &mdash; <strong style="color:#d82d6b">${totCited}</strong> citate (${totPct}%)</span>`;
 
-                const rowsHtml = clusterRows.map(r =>
-                    `<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f4f4f8">
-                        <div style="font-size:12px;font-weight:600;color:#4b4d68;width:140px;flex-shrink:0">${escHtml(r.label)}</div>
-                        <div style="flex:1;background:#e4e4ec;border-radius:4px;height:6px;overflow:hidden"><div style="height:100%;background:#d82d6b;border-radius:4px;width:${r.pct}%;transition:width .4s"></div></div>
-                        <div style="font-size:12px;color:#666b84;width:90px;text-align:right;flex-shrink:0">${r.cited}/${r.total} citate</div>
-                        <div style="font-size:14px;font-weight:700;color:#d82d6b;width:38px;text-align:right;flex-shrink:0">${r.pct}%</div>
-                    </div>`
-                ).join('');
-
-                const emptyMsg = clusterRows.length ? '' :
-                    `<div style="font-size:13px;color:#666b84;padding:12px 0">Nessuna query PSE corrisponde ai cluster della mappa.</div>`;
-
-                sovEl.innerHTML = `<div class="card" style="border:1px solid #e4e4ec;box-shadow:none">
-                    <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
-                        <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">AI Share of Voice</div></div>
-                        <span style="font-size:12px;color:#666b84;font-family:var(--font)">${pseItems.length} monitorate &mdash; <strong style="color:#d82d6b">${totCited}</strong> citate (${totPct}%)</span>
-                    </div>
-                    <div style="padding:0 20px 4px">
-                        <div style="font-size:12px;color:#666b84;padding:10px 0 4px">Per cluster: quante query PSE monitorate citano il sito nella risposta AI.</div>
-                        ${clusterRows.length ? rowsHtml : emptyMsg}
-                    </div>
-                </div>`;
-                sovEl.style.display = 'block';
+                bodyHtml = clusterRows.length
+                    ? `<div style="font-size:12px;color:#666b84;padding:10px 0 4px">Per cluster: quante query PSE monitorate citano il sito nella risposta AI.</div>` +
+                      clusterRows.map(r =>
+                        `<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f4f4f8">
+                            <div style="font-size:12px;font-weight:600;color:#4b4d68;width:140px;flex-shrink:0">${escHtml(r.label)}</div>
+                            <div style="flex:1;background:#e4e4ec;border-radius:4px;height:6px;overflow:hidden"><div style="height:100%;background:#d82d6b;border-radius:4px;width:${r.pct}%;transition:width .4s"></div></div>
+                            <div style="font-size:12px;color:#666b84;width:90px;text-align:right;flex-shrink:0">${r.cited}/${r.total} citate</div>
+                            <div style="font-size:14px;font-weight:700;color:#d82d6b;width:38px;text-align:right;flex-shrink:0">${r.pct}%</div>
+                        </div>`
+                      ).join('')
+                    : `<div style="font-size:13px;color:#666b84;padding:4px 0">Nessuna query PSE corrisponde ai cluster della mappa.</div>`;
             }
+
+            sovEl.innerHTML = `<div class="card" style="border:1px solid #e4e4ec;box-shadow:none">
+                <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
+                    <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">AI Share of Voice</div></div>
+                    ${headerExtra}
+                </div>
+                <div style="padding:12px 20px">${bodyHtml}</div>
+            </div>`;
+            sovEl.style.display = 'block';
         }
 
         cont.innerHTML = cats.map(cat => {
