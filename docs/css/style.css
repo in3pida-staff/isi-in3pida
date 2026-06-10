@@ -33,7 +33,7 @@
 
 body {
     font-family: var(--font);
-    background: #f0f0f4;
+    background: var(--light);
     color: var(--dark);
     min-height: 100vh;
 }
@@ -222,32 +222,36 @@ textarea.profile-input { resize: vertical; }
 /* ─── HERO ───────────────────────────────────────────────────────────────── */
 .hero {
     background: var(--magenta);
-    color: white;
     border-radius: var(--radius);
-    padding: 28px 32px;
+    padding: 44px 44px;
     margin-bottom: 24px;
     position: relative;
     overflow: hidden;
+    color: white;
 }
 .hero::before {
-    content: ''; position: absolute; top: -40px; right: -40px;
-    width: 220px; height: 220px; border-radius: 50%;
-    background: rgba(255,255,255,0.07); display: block;
+    content: ''; position: absolute;
+    right: -40px; top: -60px;
+    width: 260px; height: 260px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.07);
 }
 .hero::after {
-    content: ''; position: absolute; bottom: -60px; right: 80px;
-    width: 160px; height: 160px; border-radius: 50%;
-    background: rgba(255,255,255,0.04); display: block;
+    content: ''; position: absolute;
+    right: 120px; bottom: -100px;
+    width: 340px; height: 340px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.04);
 }
 .hero-label  {
-    font-size: 12px; font-weight: 700;
-    color: rgba(255,255,255,0.8); margin-bottom: 3px; letter-spacing: .04em;
+    font-size: 13px; font-weight: 700;
+    opacity: .9; margin-bottom: 4px;
 }
 .hero-sublabel {
     font-size: 12px; font-weight: 500;
-    color: rgba(255,255,255,0.6); margin-bottom: 10px; letter-spacing: .02em;
+    opacity: .7; margin-bottom: 14px; letter-spacing: .02em;
 }
-.hero-title  { font-size: 32px; font-weight: 800; line-height: 1.1; color: white; }
+.hero-title  { font-size: 38px; font-weight: 800; line-height: 1.1; }
 
 /* ─── STAT CARDS (KPI) ───────────────────────────────────────────────────── */
 .sw-stats {
