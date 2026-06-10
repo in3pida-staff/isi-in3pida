@@ -952,8 +952,8 @@
                     <button class="faq-f-btn" data-f="solo_ai" style="padding:5px 14px;border-radius:6px;border:1px solid #e4e4ec;background:white;color:#4a4a6a;font-size:11px;font-weight:500;cursor:pointer">SOLO AI</button>
                     <input type="text" id="faq-search-input" placeholder="Cerca FAQ..." style="margin-left:auto;border:1px solid #e4e4ec;border-radius:6px;padding:6px 12px;font-size:12px;outline:none;width:220px;color:#171b33">
                 </div>
-                <div style="display:grid;grid-template-columns:1fr auto auto auto;gap:0;padding:8px 20px;background:#f7f7fb;border-bottom:1px solid #e4e4ec;font-size:10px;font-weight:700;color:#aaa;letter-spacing:.05em;text-transform:uppercase">
-                    <div>Titolo</div><div style="text-align:center;padding:0 16px">Data</div><div style="text-align:center;padding:0 12px">Ordine</div><div style="text-align:center;padding:0 8px">Visibilità</div>
+                <div style="display:grid;grid-template-columns:1fr auto auto auto auto;gap:0;padding:8px 20px;background:#f7f7fb;border-bottom:1px solid #e4e4ec;font-size:10px;font-weight:700;color:#aaa;letter-spacing:.05em;text-transform:uppercase">
+                    <div>Titolo</div><div style="text-align:center;padding:0 16px">Data</div><div style="text-align:center;padding:0 12px">Ordine</div><div style="text-align:center;padding:0 8px">Visibilità</div><div style="text-align:center;padding:0 8px">Azioni</div>
                 </div>
                 <div id="faq-admin-list" style="padding:0"><div class="loading" style="padding:20px"><div class="spinner"></div></div></div>
             </div>
@@ -1983,14 +1983,15 @@
         el.innerHTML = items.map((f, i) => {
             const pub = f.status === 'draft' ? '<span style="background:#fbf4f7;color:#d82d6b;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px">Bozza</span>' : '<span style="background:#fbf4f7;color:#d82d6b;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px">Pubblicato</span>';
             const ai  = f.solo_ai ? '<span style="background:#fce8ef;color:#d82d6b;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:4px">Solo AI</span>' : '';
-            return `<div style="display:grid;grid-template-columns:1fr auto auto auto;gap:0;align-items:center;padding:12px 20px;border-bottom:1px solid #f4f4f8">
+            return `<div style="display:grid;grid-template-columns:1fr auto auto auto auto;gap:0;align-items:center;padding:12px 20px;border-bottom:1px solid #f4f4f8">
                 <div style="min-width:0">
                     <div style="font-size:13px;font-weight:700;color:#171b33;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${i+1}. ${escHtml(f.question)}</div>
                     <div style="font-size:11px;color:#aaa;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml((f.answer||'').substring(0,80))}${(f.answer||'').length>80?'…':''}</div>
                 </div>
                 <div style="padding:0 16px;text-align:center;font-size:11px;color:#666b84;white-space:pre-line;line-height:1.4">${fmt(f.date||f.created_at)}</div>
                 <div style="padding:0 12px;text-align:center;font-size:13px;font-weight:700;color:#171b33">${f.menu_order ?? f.order ?? 0}</div>
-                <div style="padding:0 8px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px">${pub}${ai}<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;justify-content:center">${f.link?`<a href="${escHtml(f.link)}" target="_blank" class="btn-ping" style="font-size:11px;padding:3px 8px;text-decoration:none">Apri pagina</a>`:''}<button class="btn-ping" style="font-size:11px;padding:3px 8px;background:transparent" onclick="openAdminFaqModal(${f.id})">Modifica</button><button class="btn-ping" style="font-size:11px;padding:3px 8px;background:transparent;color:#b00020" onclick="deleteAdminFaq(${f.id})">🗑️</button></div></div>
+                <div style="padding:0 8px;text-align:center">${pub}${ai}</div>
+                <div style="padding:0 8px;display:flex;align-items:center;gap:4px;justify-content:center">${f.link?`<a href="${escHtml(f.link)}" target="_blank" class="btn-ping" style="font-size:11px;padding:3px 8px;text-decoration:none">Apri pagina</a>`:''}<button class="btn-ping" style="font-size:11px;padding:3px 8px;background:transparent" onclick="openAdminFaqModal(${f.id})">Modifica</button><button class="btn-ping" style="font-size:11px;padding:3px 8px;background:transparent;color:#b00020" onclick="deleteAdminFaq(${f.id})">🗑️</button></div>
             </div>`;
         }).join('');
     }
