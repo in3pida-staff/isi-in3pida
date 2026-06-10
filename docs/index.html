@@ -960,7 +960,7 @@
 
             <!-- Impostazioni Plugin FAQ -->
             <div class="card" style="display:none;margin-top:20px;border:1px solid #e4e4ec;box-shadow:none" id="card-faq-settings">
-                <div class="card-header" style="border-bottom:1px solid #ececf2;background:#f4f4f8">
+                <div class="card-header" style="border-bottom:1px solid #ececf2;background:#f4f4f8;padding:12px 20px">
                     <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Impostazioni Plugin FAQ</div></div>
                     <button id="btn-save-faq-settings" class="btn-update" style="margin-left:0">Salva impostazioni</button>
                 </div>
@@ -1068,22 +1068,18 @@
 
             <!-- ═══ PANE: MAPPA QUERY ═══ -->
             <div id="scontent-mappa" style="display:none">
-            <div class="card" style="margin-bottom:16px;border:1px solid #e4e4ec;box-shadow:none">
-                <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
-                    <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Copertura Query Conversazionali</div></div>
-                </div>
-                <div id="mappa-copertura-summary" style="padding:16px 20px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
-                    <div style="border:1.5px solid #d82d6b;border-radius:8px;padding:14px 16px;text-align:center"><div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">TOTALE</div><div style="font-size:28px;font-weight:800;color:#171b33;line-height:1" id="mc-total">—</div></div>
-                    <div style="border:1px solid #e4e4ec;border-radius:8px;padding:14px 16px;text-align:center"><div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">COPERTE</div><div style="font-size:28px;font-weight:800;color:#d82d6b;line-height:1" id="mc-covered">—</div></div>
-                    <div style="border:1px solid #e4e4ec;border-radius:8px;padding:14px 16px;text-align:center"><div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">MANCANTI</div><div style="font-size:28px;font-weight:800;color:#ead0dc;line-height:1" id="mc-missing">—</div></div>
-                    <div style="border:1px solid #e4e4ec;border-radius:8px;padding:14px 16px;text-align:center"><div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">COPERTURA</div><div style="font-size:28px;font-weight:800;color:#171b33;line-height:1" id="mc-pct">—</div></div>
-                </div>
-                <div id="mappa-copertura-grid" style="padding:0 20px 16px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px"></div>
-            </div>
             <div class="card" style="margin-bottom:20px;border:1px solid #e4e4ec;box-shadow:none">
-                <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
-                    <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Mappa Query — Risposte per categoria</div></div>
-                    <button id="btn-add-query-cat" class="btn-update" style="margin-left:0">+ Categoria</button>
+                <div style="padding:20px 20px 12px">
+                    <div style="font-size:12px;color:#666b84;margin-bottom:14px">Confronta le domande tipiche per tipologia di ospite con le FAQ pubblicate. Scopri quali mancano e creale con un click.</div>
+                    <div style="background:#e4e4ec;border-radius:4px;height:6px;margin-bottom:16px;overflow:hidden"><div id="mc-bar" style="height:100%;background:#d82d6b;border-radius:4px;width:0%;transition:width .4s"></div></div>
+                    <div style="display:flex;align-items:center;gap:16px">
+                        <div style="font-size:40px;font-weight:800;color:#d82d6b;line-height:1" id="mc-score">—</div>
+                        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;flex:1">
+                            <div style="border:1.5px solid #d82d6b;border-radius:8px;padding:12px 14px;text-align:center"><div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">QUERY TOTALI</div><div style="font-size:24px;font-weight:800;color:#171b33;line-height:1" id="mc-total">—</div></div>
+                            <div style="border:1px solid #e4e4ec;border-radius:8px;padding:12px 14px;text-align:center"><div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">COPERTE</div><div style="font-size:24px;font-weight:800;color:#d82d6b;line-height:1" id="mc-covered">—</div></div>
+                            <div style="border:1px solid #e4e4ec;border-radius:8px;padding:12px 14px;text-align:center"><div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">SCOPERTE</div><div style="font-size:24px;font-weight:800;color:#ead0dc;line-height:1" id="mc-missing">—</div></div>
+                        </div>
+                    </div>
                 </div>
                 <div id="mappa-query-mgmt" style="padding:0"><div class="loading" style="padding:20px"><div class="spinner"></div></div></div>
             </div>
@@ -2144,22 +2140,22 @@
     // ─── MAPPA QUERY MANAGEMENT ──────────────────────────────────────────────────
     let _mappaInited = false;
     const MAPPA_DEFAULTS = {
-        'famiglie_con_bambini':   { queries:['Avete servizi per bambini?','C\'è un\'area giochi?','Lettini e seggioloni disponibili?','Attività per bambini?'], answer:'', covered:false },
-        'coppie_romantici':       { queries:['Pacchetti romantici?','Vista panoramica?','Cene romantiche?','Suite per la luna di miele?'], answer:'', covered:false },
-        'business_lavoro':        { queries:['Sala meeting disponibile?','WiFi veloce?','Fattura elettronica?','Area lavoro?'], answer:'', covered:false },
-        'animali_domestici':      { queries:['Accettate animali?','Costo extra per animali?','Dove possono fare i bisogni i cani?'], answer:'', covered:false },
-        'accessibilita_disabili': { queries:['Camere per disabili?','Parcheggio disabili?','Attrezzato per sedie a rotelle?'], answer:'', covered:false },
-        'terza_eta_anziani':      { queries:['Adatto per anziani?','Ci sono ascensori?','Pavimenti antiscivolo?'], answer:'', covered:false },
-        'sport_avventura':        { queries:['Biciclette a noleggio?','Palestra?','Piscina?','Escursioni organizzate?'], answer:'', covered:false },
-        'benessere_spa':          { queries:['Avete SPA?','Trattamenti benessere?','Sauna disponibile?'], answer:'', covered:false },
-        'matrimoni_eventi':       { queries:['Organizzate matrimoni?','Sala eventi?','Pacchetti cerimonie?'], answer:'', covered:false },
-        'parcheggio':             { queries:['Avete parcheggio?','Parcheggio incluso?','C\'è un garage?'], answer:'', covered:false },
-        'colazione':              { queries:['Colazione inclusa?','Orario colazione?','Buffet o menu?'], answer:'', covered:false },
-        'ristorante':             { queries:['Avete ristorante?','Servite la cena?','Cucina aperta a pranzo?'], answer:'', covered:false },
-        'spiaggia_mare':          { queries:['Siete vicini alla spiaggia?','Ombrelloni e lettini?','Accesso diretto al mare?'], answer:'', covered:false },
-        'trasporti_arrivo':       { queries:['Come si arriva?','Servizio navetta?','Vicini alla stazione?','Dall\'aeroporto?'], answer:'', covered:false },
-        'check_in_out':           { queries:['Orario check-in?','Late check-out?','Early check-in possibile?'], answer:'', covered:false },
-        'prenotazione_prezzi':    { queries:['Quali sono le tariffe?','Come prenotare?','Cancellazione gratuita?','Sconti last minute?'], answer:'', covered:false },
+        'famiglie_con_bambini':   ['hotel con piscina per bambini','hotel con camere comunicanti','hotel con lettino per neonato','hotel adatto famiglie con bambini piccoli','hotel con animazione bambini','attività per bambini in hotel','hotel con seggioloni e lettini disponibili','hotel family con spiaggia'],
+        'coppie_romantici':       ['hotel romantico sul mare','suite luna di miele','camera con vista panoramica','pacchetti romantici hotel','cena romantica in camera','hotel con vasca idromassaggio','hotel per anniversario','camera con terrazza privata'],
+        'business_lavoro':        ['hotel con sala meeting','hotel business con wifi veloce','hotel con parcheggio auto aziendale','hotel fattura elettronica','hotel con area coworking','hotel vicino fiera o centro congressi','struttura per eventi aziendali','hotel con servizio sveglia'],
+        'animali_domestici':      ['hotel che accetta cani','hotel pet friendly','hotel con giardino per cani','costo extra animali domestici','hotel con cani di grossa taglia','spiaggia che accetta cani vicino hotel','camera con animali hotel','hotel accetta gatti'],
+        'accessibilita_disabili': ['hotel accessibile disabili','camera disabili hotel','hotel con ascensore per disabili','parcheggio disabili hotel','hotel per sedie a rotelle','struttura accessibile sedia rotelle','bagno attrezzato disabili hotel','hotel senza barriere architettoniche'],
+        'terza_eta_anziani':      ['hotel adatto anziani','hotel con ascensore','struttura per over 65','hotel con menù dietetico anziani','hotel vicino farmacia','hotel con servizio medico','struttura con pavimenti antiscivolo','hotel tranquillo per anziani'],
+        'sport_avventura':        ['hotel con biciclette a noleggio','hotel con palestra','hotel con piscina olimpionica','hotel per escursioni','hotel vicino piste ciclabili','hotel con noleggio attrezzatura sportiva','hotel per triathlon','struttura sport acquatici'],
+        'benessere_spa':          ['hotel con spa','hotel con centro benessere','hotel con sauna e bagno turco','massaggi in hotel','hotel con percorso benessere','hotel con trattamenti estetici','hotel con piscina riscaldata','week end benessere hotel'],
+        'matrimoni_eventi':       ['hotel per matrimoni','sala ricevimenti hotel','hotel per feste private','pacchetti cerimonie hotel','hotel con giardino per matrimoni','banchetti nuziali hotel','allestimento ricevimento hotel','hotel per comunioni e cresime'],
+        'parcheggio':             ['hotel con parcheggio gratuito','hotel con garage coperto','hotel con parcheggio custodito','parcheggio camper hotel','hotel con posto auto riservato','hotel con parcheggio bus','hotel con colonnina ricarica auto elettrica','parcheggio bici hotel'],
+        'colazione':              ['hotel con colazione inclusa','orari colazione hotel','buffet colazione hotel','colazione in camera hotel','hotel con colazione gluten free','colazione continental hotel','colazione salata hotel','colazione fino a tardi hotel'],
+        'ristorante':             ['hotel con ristorante','hotel con cena inclusa','ristorante tipico in hotel','hotel con cucina vegetariana','hotel con menù bambini','hotel con pizzeria','hotel con bar aperto tardi','hotel mezza pensione'],
+        'spiaggia_mare':          ['hotel vicino alla spiaggia','hotel con accesso diretto al mare','hotel con ombrellone e lettino incluso','hotel sul lungomare','spiaggia privata hotel','hotel con spiaggia attrezzata','hotel primo fila mare','hotel con bar spiaggia'],
+        'trasporti_arrivo':       ['come arrivare all hotel','hotel con navetta aeroporto','hotel vicino stazione ferroviaria','hotel con servizio transfer','hotel con noleggio auto','hotel raggiungibile in treno','shuttle hotel aeroporto','hotel vicino autostrada'],
+        'check_in_out':           ['orario check in hotel','late check out hotel','early check in hotel','deposito bagagli hotel','check in notturno hotel','chiave card camera hotel','riconsegna chiavi checkout','servizio portineria 24h hotel'],
+        'prenotazione_prezzi':    ['tariffe hotel per notte','cancellazione gratuita hotel','offerte last minute hotel','prezzo minimo garantito hotel','caparra prenotazione hotel','sconto prenotazione diretta hotel','hotel bambini gratis','pacchetti tutto incluso hotel'],
     };
 
     async function initMappaQueryMgmt(site) {
@@ -2168,70 +2164,69 @@
         if (!cont) return;
         const faqData = site?.faq_data || {};
         const qmap = faqData.query_map || faqData.mappa_query || {};
-        const merged = {};
-        Object.keys(MAPPA_DEFAULTS).forEach(k => { merged[k] = { ...MAPPA_DEFAULTS[k] }; });
-        Object.keys(qmap).forEach(k => { merged[k] = { ...(merged[k]||{}), ...qmap[k] }; });
-        const cats = Object.keys(merged);
 
-        // coverage summary
-        const totalCats = cats.length;
-        const coveredCats = cats.filter(cat => { const e=qmap[cat]||{}; return e.covered ?? !!(e.answer||e.risposta); }).length;
-        const missingCats = totalCats - coveredCats;
-        const pct = totalCats > 0 ? Math.round(coveredCats/totalCats*100) : 0;
+        // Calcola copertura per singola query
+        const cats = Object.keys(MAPPA_DEFAULTS);
+        let totalQ = 0, coveredQ = 0;
+        cats.forEach(cat => {
+            const qs = MAPPA_DEFAULTS[cat];
+            const entry = qmap[cat] || {};
+            const coveredSet = new Set(Array.isArray(entry.covered_queries) ? entry.covered_queries : (entry.covered ? qs : []));
+            totalQ += qs.length;
+            coveredQ += qs.filter(q => coveredSet.has(q) || coveredSet.has(q.toLowerCase())).length;
+        });
+        const pct = totalQ > 0 ? Math.round(coveredQ / totalQ * 100) : 0;
+
         const totalEl   = document.getElementById('mc-total');
         const coveredEl = document.getElementById('mc-covered');
         const missingEl = document.getElementById('mc-missing');
-        const pctEl     = document.getElementById('mc-pct');
-        if (totalEl)   totalEl.textContent   = totalCats;
-        if (coveredEl) coveredEl.textContent  = coveredCats;
-        if (missingEl) missingEl.textContent  = missingCats;
-        if (pctEl)     pctEl.textContent      = pct + '%';
-
-        // mini cards grid
-        const gridEl = document.getElementById('mappa-copertura-grid');
-        if (gridEl) {
-            gridEl.innerHTML = cats.map(cat => {
-                const e = qmap[cat] || {};
-                const isCov = e.covered ?? !!(e.answer||e.risposta);
-                const label = cat.replace(/_/g,' ');
-                return `<div onclick="document.querySelector('.qmap-answer[data-cat=\\'${escHtml(cat)}\\']')?.scrollIntoView({behavior:'smooth',block:'center'})"
-                    style="cursor:pointer;border:1px solid ${isCov?'#d82d6b':'#e4e4ec'};border-radius:8px;padding:10px 12px;background:${isCov?'#fbf4f7':'white'};transition:all .15s">
-                    <div style="font-size:10px;font-weight:700;color:${isCov?'#d82d6b':'#aaa'};text-transform:capitalize;margin-bottom:3px">${escHtml(label)}</div>
-                    <div style="font-size:10px;color:${isCov?'#d82d6b':'#ead0dc'};font-weight:700">${isCov?'✓ coperta':'✗ mancante'}</div>
-                </div>`;
-            }).join('');
-        }
+        const scoreEl   = document.getElementById('mc-score');
+        const barEl     = document.getElementById('mc-bar');
+        if (totalEl)   totalEl.textContent   = totalQ;
+        if (coveredEl) coveredEl.textContent  = coveredQ;
+        if (missingEl) missingEl.textContent  = totalQ - coveredQ;
+        if (scoreEl)   scoreEl.textContent    = pct + '/100';
+        if (barEl)     barEl.style.width      = pct + '%';
 
         cont.innerHTML = cats.map(cat => {
+            const label = cat.replace(/_/g,' ').replace(/\b\w/g, c => c.toUpperCase());
+            const qs = MAPPA_DEFAULTS[cat];
             const entry = qmap[cat] || {};
-            const defEntry = MAPPA_DEFAULTS[cat] || {};
-            const queries = Array.isArray(entry.queries) ? entry.queries : (defEntry.queries||[]);
-            const answer = entry.answer || entry.risposta || '';
-            const covered = entry.covered ?? !!answer;
-            const badge = covered
-                ? '<span style="background:#fbf4f7;color:#d82d6b;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;flex-shrink:0">Coperta</span>'
-                : '<span style="background:#fce8ef;color:#b00020;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;flex-shrink:0">Mancante</span>';
-            return `<div style="padding:16px 20px;border-bottom:1px solid #f4f4f8">
-                <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-                    <div style="font-size:13px;font-weight:700;color:#171b33;text-transform:capitalize">${escHtml(cat.replace(/_/g,' '))}</div>
-                    ${badge}
+            const coveredSet = new Set(Array.isArray(entry.covered_queries) ? entry.covered_queries : (entry.covered ? qs : []));
+            const covQ = qs.filter(q => coveredSet.has(q) || coveredSet.has(q.toLowerCase())).length;
+            return `<div style="border-top:1px solid #e4e4ec">
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:#f4f4f8">
+                    <div style="display:flex;align-items:center;gap:8px;font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">⬜ ${escHtml(label)}</div>
+                    <span style="background:white;border:1px solid #e4e4ec;border-radius:20px;font-size:10px;font-weight:700;color:#666b84;padding:3px 10px;white-space:nowrap">${covQ}/${qs.length} COPERTE</span>
                 </div>
-                ${queries.length ? '<div style="margin-bottom:8px">'+queries.slice(0,3).map(q=>`<div style="font-size:12px;color:#666b84;padding:2px 0">• ${escHtml(q)}</div>`).join('')+(queries.length>3?`<div style="font-size:11px;color:#aaa">+${queries.length-3} altre...</div>`:'')+`</div>` : ''}
-                <div style="display:flex;gap:8px;align-items:flex-start">
-                    <textarea data-cat="${escHtml(cat)}" class="qmap-answer" style="flex:1;border:1px solid #e4e4ec;border-radius:6px;padding:8px 10px;font-size:12px;resize:vertical;min-height:60px;color:#171b33;outline:none;font-family:var(--font)" placeholder="Scrivi la risposta per questa categoria...">${escHtml(answer)}</textarea>
-                    <button class="btn-update" style="margin-left:0;padding:8px 14px;font-size:12px" onclick="saveMappaAnswer('${escHtml(cat)}','${escHtml(site.site_id)}')">Salva</button>
-                </div>
+                ${qs.map((q, qi) => {
+                    const isCov = coveredSet.has(q) || coveredSet.has(q.toLowerCase());
+                    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 20px;border-top:1px solid #f4f4f8">
+                        <div style="display:flex;align-items:center;gap:10px;min-width:0">
+                            <span style="font-size:14px;color:${isCov?'#d82d6b':'#ead0dc'};font-weight:800;flex-shrink:0">${isCov?'✓':'✗'}</span>
+                            <span style="font-size:13px;color:#171b33;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(q)}</span>
+                        </div>
+                        ${!isCov ? `<button class="btn-update" style="margin-left:12px;flex-shrink:0;padding:5px 12px;font-size:11px" onclick="generaRispostaQuery('${escHtml(cat)}','${escHtml(q).replace(/'/g,"\\'")}','${escHtml(site.site_id)}')">✦ Genera risposta</button>` : `<span style="font-size:11px;color:#d82d6b;font-weight:700;flex-shrink:0;margin-left:12px">Coperta ✓</span>`}
+                    </div>`;
+                }).join('')}
             </div>`;
         }).join('');
-        const btnAdd = document.getElementById('btn-add-query-cat');
-        if (btnAdd) btnAdd.addEventListener('click', () => {
-            const cat = prompt('Nome categoria (es: gruppi, escursioni, wedding):');
-            if (!cat) return;
-            const newMap = { ...qmap, [cat.toLowerCase()]: { queries:[], answer:'', covered:false } };
-            _mappaInited = false;
-            _SBq.from('isi_sites').update({ faq_data: { ...faqData, query_map: newMap } }).eq('site_id', site.site_id).then(() => { site.faq_data = { ...faqData, query_map: newMap }; initMappaQueryMgmt(site); });
-        });
     }
+
+    window.generaRispostaQuery = function(cat, query, siteId) {
+        // Apre il modal FAQ pre-compilato con la query come domanda
+        const f = null;
+        document.getElementById('faq-modal-ttl-admin').textContent = 'Aggiungi FAQ — Genera risposta';
+        document.getElementById('fm-id-admin').value   = '';
+        document.getElementById('fm-q-admin').value    = query;
+        document.getElementById('fm-a-admin').value    = '';
+        document.getElementById('fm-ai-admin').checked = false;
+        document.getElementById('fm-msg-admin').style.display = 'none';
+        document.getElementById('faq-admin-modal').style.display = 'flex';
+        // Dopo salvataggio, marca la query come coperta
+        window._pendingMappaQuery = { cat, query, siteId };
+    };
+
     window.saveMappaAnswer = async function(cat, siteId) {
         const el = document.querySelector('.qmap-answer[data-cat="'+cat+'"]');
         if (!el) return;
@@ -2240,9 +2235,7 @@
         const fd = s?.faq_data || {};
         const qm = fd.query_map || fd.mappa_query || {};
         qm[cat] = { ...(qm[cat]||{}), answer, covered: !!answer };
-        const { error } = await _SBq.from('isi_sites').update({ faq_data: { ...fd, query_map: qm } }).eq('site_id', siteId);
-        el.style.borderColor = error ? '#d82d6b' : '#d82d6b';
-        setTimeout(() => { el.style.borderColor = '#e4e4ec'; }, 2000);
+        await _SBq.from('isi_sites').update({ faq_data: { ...fd, query_map: qm } }).eq('site_id', siteId);
     };
 
     // ─── AI LAYER ────────────────────────────────────────────────────────────────
