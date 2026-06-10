@@ -3147,25 +3147,31 @@ ${rows}
             const oggi = new Date().toLocaleDateString('it-IT');
             if (typeof html2pdf === 'undefined') { showToast('Libreria PDF non caricata, riprova.'); return; }
 
-            // Wrapper temporaneo con titolo + contenuto (non visibile a schermo)
+            // A4 content width: 210mm - 20mm margins = 190mm ≈ 718px at 96dpi
             const wrap = document.createElement('div');
-            wrap.style.cssText = 'position:absolute;left:-9999px;top:0;width:800px;font-family:Arial,sans-serif;color:#171b33;background:white;padding:32px';
+            wrap.style.cssText = 'position:absolute;left:-9999px;top:0;width:718px;box-sizing:border-box;background:white;font-family:Arial,sans-serif;color:#171b33';
             wrap.innerHTML =
-                '<h2 style="margin:0 0 4px;font-size:20px;color:#171b33">Report Confronto Canali</h2>' +
-                '<p style="margin:0 0 24px;font-size:12px;color:#666b84">' + escHtml(hotelNome) +
-                    (hotelAddr && hotelAddr !== '—' ? ' · ' + escHtml(hotelAddr) : '') +
-                    ' &nbsp;·&nbsp; Generato il ' + oggi + '</p>' +
-                document.getElementById('modal-report-body').innerHTML +
-                '<p style="margin-top:24px;font-size:10px;color:#9ca3af;border-top:1px solid #e4e4ec;padding-top:10px">Generato da Eletta — isi.in3pida.it · ' + oggi + '</p>';
+                '<div style="padding:24px 24px 0">' +
+                  '<div style="font-size:17px;font-weight:800;color:#171b33;margin-bottom:3px">Report Confronto Canali</div>' +
+                  '<div style="font-size:11px;color:#666b84;margin-bottom:14px;padding-bottom:12px;border-bottom:2px solid #d82d6b">' +
+                    escHtml(hotelNome) +
+                    (hotelAddr && hotelAddr !== '—' ? ' &nbsp;·&nbsp; ' + escHtml(hotelAddr) : '') +
+                    ' &nbsp;·&nbsp; Generato il ' + oggi +
+                  '</div>' +
+                '</div>' +
+                '<div style="padding:0 24px 16px">' +
+                  document.getElementById('modal-report-body').innerHTML +
+                  '<div style="margin-top:12px;padding-top:8px;border-top:1px solid #e4e4ec;font-size:9px;color:#9ca3af;text-align:center">Eletta · isi.in3pida.it · ' + oggi + '</div>' +
+                '</div>';
             document.body.appendChild(wrap);
 
             const filename = 'report-canali-' + hotelNome.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'') + '-' + new Date().toISOString().slice(0,10) + '.pdf';
             html2pdf().set({
-                margin: [12, 12, 12, 12],
+                margin: [10, 10, 10, 10],
                 filename,
-                html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+                html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', windowWidth: 718 },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-                pagebreak: { mode: ['avoid-all', 'css'] },
+                pagebreak: { mode: 'css' },
             }).from(wrap).save().then(() => document.body.removeChild(wrap));
         };
 
