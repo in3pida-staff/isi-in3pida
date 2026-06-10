@@ -711,15 +711,15 @@
         el.innerHTML = `
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
                 <button class="btn-back" id="btn-back-detail">← Torna alle installazioni</button>
+                <button onclick="document.getElementById('guida-overlay').style.display='flex'" style="background:none;border:1px solid #d82d6b;border-radius:6px;padding:6px 14px;font-size:12px;font-weight:700;color:#d82d6b;cursor:pointer;font-family:var(--font)">📖 Guida</button>
             </div>
             <!-- LAYOUT: sidebar sinistra persistente + contenuto destra -->
             <div style="display:grid;grid-template-columns:260px 1fr;gap:20px;align-items:start">
 
                 <!-- SIDEBAR SINISTRA PERSISTENTE: Stato contenuti -->
                 <div style="position:sticky;top:80px;background:white;border-radius:8px;overflow:hidden;border:1px solid #e4e4ec;box-shadow:none">
-                    <div style="padding:14px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e4e4ec">
+                    <div style="padding:14px 20px;border-bottom:1px solid #e4e4ec">
                         <div style="font-size:18px;font-weight:600;color:#171b33;letter-spacing:-.01em">Stato contenuti</div>
-                        <button onclick="document.getElementById('guida-overlay').style.display='flex'" style="background:white;color:#d82d6b;border:1px solid #d82d6b;border-radius:6px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);white-space:nowrap">📖 Guida</button>
                     </div>
                     <div>
                         <div style="font-size:10px;font-weight:700;color:#4a4a6a;letter-spacing:.08em;text-transform:uppercase;padding:10px 0 8px 16px;border-bottom:1px solid #e4e4ec;background:#f4f4f8">SEZIONI</div>
@@ -953,6 +953,60 @@
                     <div>Titolo</div><div style="text-align:center;padding:0 16px">Data</div><div style="text-align:center;padding:0 12px">Ordine</div><div style="text-align:center;padding:0 8px">Visibilità</div>
                 </div>
                 <div id="faq-admin-list" style="padding:0"><div class="loading" style="padding:20px"><div class="spinner"></div></div></div>
+            </div>
+
+            <!-- Impostazioni Plugin FAQ -->
+            <div class="card" style="margin-top:20px;border:1px solid #e4e4ec;box-shadow:none" id="card-faq-settings">
+                <div class="card-header" style="border-bottom:1px solid #ececf2;background:#f4f4f8">
+                    <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Impostazioni Plugin FAQ</div></div>
+                    <button id="btn-save-faq-settings" class="btn-update" style="margin-left:0">Salva impostazioni</button>
+                </div>
+                <div style="padding:20px">
+                    <div style="font-size:10px;font-weight:700;color:#4a4a6a;letter-spacing:.08em;text-transform:uppercase;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid #e4e4ec">📄 CONTENUTO PAGINA</div>
+                    <div style="margin-bottom:12px">
+                        <label style="display:block;font-size:12px;font-weight:600;color:#4b4d68;margin-bottom:4px">Titolo pagina FAQ</label>
+                        <input id="faq-setting-title" type="text" placeholder="Domande frequenti" style="width:100%;border:1px solid #e4e4ec;border-radius:6px;padding:8px 12px;font-size:13px;font-family:var(--font);color:#171b33;outline:none">
+                    </div>
+                    <div style="margin-bottom:20px">
+                        <label style="display:block;font-size:12px;font-weight:600;color:#4b4d68;margin-bottom:4px">Testo sotto il titolo</label>
+                        <textarea id="faq-setting-subtitle" rows="2" placeholder="Trova rapidamente le risposte alle domande più comuni." style="width:100%;border:1px solid #e4e4ec;border-radius:6px;padding:8px 12px;font-size:13px;font-family:var(--font);color:#171b33;outline:none;resize:vertical"></textarea>
+                    </div>
+                    <div style="font-size:10px;font-weight:700;color:#4a4a6a;letter-spacing:.08em;text-transform:uppercase;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid #e4e4ec">🎨 STILE GRAFICO</div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                        <div>
+                            <label style="display:block;font-size:12px;font-weight:600;color:#4b4d68;margin-bottom:4px">Colore principale</label>
+                            <div style="display:flex;align-items:center;gap:8px">
+                                <input id="faq-setting-color1" type="color" value="#171b33" style="width:40px;height:32px;border:1px solid #e4e4ec;border-radius:4px;padding:2px;cursor:pointer">
+                                <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:#666b84;cursor:pointer"><input id="faq-setting-color1-inherit" type="checkbox" style="margin:0"> Eredita dal sito</label>
+                            </div>
+                        </div>
+                        <div>
+                            <label style="display:block;font-size:12px;font-weight:600;color:#4b4d68;margin-bottom:4px">Colore dettagli/interazioni</label>
+                            <div style="display:flex;align-items:center;gap:8px">
+                                <input id="faq-setting-color2" type="color" value="#d82d6b" style="width:40px;height:32px;border:1px solid #e4e4ec;border-radius:4px;padding:2px;cursor:pointer">
+                                <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:#666b84;cursor:pointer"><input id="faq-setting-color2-inherit" type="checkbox" style="margin:0"> Eredita dal sito</label>
+                            </div>
+                        </div>
+                        <div>
+                            <label style="display:block;font-size:12px;font-weight:600;color:#4b4d68;margin-bottom:4px">Colore testo</label>
+                            <div style="display:flex;align-items:center;gap:8px">
+                                <input id="faq-setting-color3" type="color" value="#171b33" style="width:40px;height:32px;border:1px solid #e4e4ec;border-radius:4px;padding:2px;cursor:pointer">
+                                <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:#666b84;cursor:pointer"><input id="faq-setting-color3-inherit" type="checkbox" style="margin:0"> Eredita dal sito</label>
+                            </div>
+                        </div>
+                        <div>
+                            <label style="display:block;font-size:12px;font-weight:600;color:#4b4d68;margin-bottom:4px">Sfondo sezione</label>
+                            <div style="display:flex;align-items:center;gap:8px">
+                                <input id="faq-setting-color4" type="color" value="#ffffff" style="width:40px;height:32px;border:1px solid #e4e4ec;border-radius:4px;padding:2px;cursor:pointer">
+                                <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:#666b84;cursor:pointer"><input id="faq-setting-color4-inherit" type="checkbox" style="margin:0"> Eredita dal sito</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="faq-settings-msg" style="display:none;margin-top:12px;padding:8px 12px;border-radius:6px;font-size:12px;font-weight:600"></div>
+                    <div style="margin-top:16px;padding:10px 14px;background:#f4f4f8;border-radius:6px;font-size:11px;color:#666b84">
+                        Shortcode: <code style="background:white;border:1px solid #e4e4ec;padding:2px 6px;border-radius:4px;font-size:11px">[in3pida_faq]</code> oppure <code style="background:white;border:1px solid #e4e4ec;padding:2px 6px;border-radius:4px;font-size:11px">[site_faq]</code>
+                    </div>
+                </div>
             </div>
             </div><!-- /scontent-faq -->
 
@@ -1790,6 +1844,57 @@
         const addBtn = document.getElementById('btn-add-faq-admin');
         if (addBtn) addBtn.addEventListener('click', () => openAdminFaqModal(null));
         loadAdminFaqList();
+        loadFaqPluginSettings();
+        const saveBtn = document.getElementById('btn-save-faq-settings');
+        if (saveBtn) saveBtn.addEventListener('click', saveFaqPluginSettings);
+    }
+
+    async function loadFaqPluginSettings() {
+        try {
+            const ctrl = new AbortController(); setTimeout(() => ctrl.abort(), 6000);
+            const r = await fetch(_aFaqBase + '/wp-json/in3pida/v1/faq-settings', { signal: ctrl.signal });
+            if (!r.ok) return;
+            const s = await r.json().catch(() => ({}));
+            if (s.page_title !== undefined) document.getElementById('faq-setting-title').value = s.page_title || '';
+            if (s.page_subtitle !== undefined) document.getElementById('faq-setting-subtitle').value = s.page_subtitle || '';
+            if (s.color_primary !== undefined) { document.getElementById('faq-setting-color1').value = s.color_primary || '#171b33'; document.getElementById('faq-setting-color1-inherit').checked = !!s.color_primary_inherit; }
+            if (s.color_accent !== undefined)  { document.getElementById('faq-setting-color2').value = s.color_accent  || '#d82d6b'; document.getElementById('faq-setting-color2-inherit').checked = !!s.color_accent_inherit; }
+            if (s.color_text !== undefined)    { document.getElementById('faq-setting-color3').value = s.color_text    || '#171b33'; document.getElementById('faq-setting-color3-inherit').checked = !!s.color_text_inherit; }
+            if (s.color_bg !== undefined)      { document.getElementById('faq-setting-color4').value = s.color_bg      || '#ffffff'; document.getElementById('faq-setting-color4-inherit').checked = !!s.color_bg_inherit; }
+        } catch (_) {}
+    }
+
+    async function saveFaqPluginSettings() {
+        const btn = document.getElementById('btn-save-faq-settings');
+        const msg = document.getElementById('faq-settings-msg');
+        btn.disabled = true; btn.textContent = 'Salvataggio...';
+        const payload = {
+            site_id: _aFaqSecret,
+            page_title:    document.getElementById('faq-setting-title').value.trim(),
+            page_subtitle: document.getElementById('faq-setting-subtitle').value.trim(),
+            color_primary:         document.getElementById('faq-setting-color1').value,
+            color_primary_inherit: document.getElementById('faq-setting-color1-inherit').checked,
+            color_accent:          document.getElementById('faq-setting-color2').value,
+            color_accent_inherit:  document.getElementById('faq-setting-color2-inherit').checked,
+            color_text:            document.getElementById('faq-setting-color3').value,
+            color_text_inherit:    document.getElementById('faq-setting-color3-inherit').checked,
+            color_bg:              document.getElementById('faq-setting-color4').value,
+            color_bg_inherit:      document.getElementById('faq-setting-color4-inherit').checked,
+        };
+        try {
+            const ctrl = new AbortController(); setTimeout(() => ctrl.abort(), 8000);
+            const r = await fetch(_aFaqBase + '/wp-json/in3pida/v1/faq-settings', {
+                method: 'POST', signal: ctrl.signal,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            msg.style.display='block'; msg.style.background='#f0fdf4'; msg.style.color='#166534'; msg.textContent='Impostazioni salvate!';
+        } catch (e) {
+            msg.style.display='block'; msg.style.background='#fce8ef'; msg.style.color='#b00020'; msg.textContent='Errore: '+e.message+' — aggiorna il plugin per abilitare questa funzione.';
+        }
+        setTimeout(()=>msg.style.display='none', 5000);
+        btn.disabled = false; btn.textContent = 'Salva impostazioni';
     }
 
     async function loadAdminFaqList() {
@@ -1837,7 +1942,7 @@
                 </div>
                 <div style="padding:0 16px;text-align:center;font-size:11px;color:#666b84;white-space:pre-line;line-height:1.4">${fmt(f.date||f.created_at)}</div>
                 <div style="padding:0 12px;text-align:center;font-size:13px;font-weight:700;color:#171b33">${f.menu_order ?? f.order ?? 0}</div>
-                <div style="padding:0 8px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px">${pub}${ai}<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;justify-content:center">${f.link?`<a href="${escHtml(f.link)}" target="_blank" class="btn-ping" style="font-size:11px;padding:3px 8px;text-decoration:none">Apri pagina</a>`:''}<button class="btn-ping" style="font-size:11px;padding:3px 8px" onclick="openAdminFaqModal(${f.id})">Impostazioni</button><button class="btn-ping" style="font-size:11px;padding:3px 8px;color:#b00020" onclick="deleteAdminFaq(${f.id})">🗑️</button></div></div>
+                <div style="padding:0 8px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px">${pub}${ai}<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;justify-content:center">${f.link?`<a href="${escHtml(f.link)}" target="_blank" class="btn-ping" style="font-size:11px;padding:3px 8px;text-decoration:none">Apri pagina</a>`:''}<button class="btn-ping" style="font-size:11px;padding:3px 8px" onclick="openAdminFaqModal(${f.id})">Modifica</button><button class="btn-ping" style="font-size:11px;padding:3px 8px;color:#b00020" onclick="deleteAdminFaq(${f.id})">🗑️</button></div></div>
             </div>`;
         }).join('');
     }
@@ -2157,7 +2262,7 @@
                     {l:'Entity Authority',k:'entity_authority'},
                 ].map(({l,k})=>{
                     const v = geo[k] ?? null;
-                    return `<div style="background:${v!==null&&v<40?'linear-gradient(135deg,#ffffff 0%,#fce8ef 100%)':'white'};border:1px solid ${v!==null&&v<40?'#ead0dc':'#e4e4ec'};border-radius:8px;padding:14px 16px">
+                    return `<div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:14px 16px">
                         <div style="font-size:11px;font-weight:500;color:#9ca3af;letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px">${l}</div>
                         <div style="font-size:28px;font-weight:800;color:${v!==null?'#171b33':'#ead0dc'}">${v!==null?v:'—'}</div>
                         <div style="font-size:11px;font-weight:600;color:${v===null?'#ead0dc':'#d82d6b'};margin-top:5px">${v===null?'nessun dato':v>=70?'ottimizzato':v>=40?'da migliorare':'critico'}</div>
