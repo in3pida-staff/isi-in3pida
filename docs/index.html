@@ -2353,10 +2353,10 @@
             if (hasResults) {
                 const byQuery = {};
                 rgResults.forEach(r => { if (!byQuery[r.query]) byQuery[r.query] = r; });
-                rgBody = Object.values(byQuery).map((r: any) =>
+                rgBody = Object.values(byQuery).map(r =>
                     `<div style="padding:10px 0;border-bottom:1px solid #f4f4f8">
                         <div style="font-size:12px;font-weight:600;color:#171b33;margin-bottom:4px">${escHtml(r.query)}</div>
-                        <div style="display:flex;flex-direction:column;gap:3px">${(r.gaps||[]).map((g: string) =>
+                        <div style="display:flex;flex-direction:column;gap:3px">${(r.gaps||[]).map(g =>
                             `<div style="font-size:12px;color:#4b4d68;display:flex;align-items:flex-start;gap:6px"><span style="color:#d82d6b;flex-shrink:0">→</span>${escHtml(g)}</div>`
                         ).join('')}</div>
                     </div>`
