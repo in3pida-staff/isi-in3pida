@@ -1180,7 +1180,10 @@
                 <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
                     <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Confronto Canali</div></div>
                     <div style="display:flex;gap:8px;align-items:center">
+                        <button id="btn-aggiungi-canale" class="btn-update" style="margin-left:0">+ Aggiungi canale</button>
                         <button id="btn-avvia-scansione" class="btn-update" style="margin-left:0">▶ Scansiona tutti</button>
+                        <button onclick="window.print()" class="btn-ping" style="font-size:12px;padding:7px 16px">🖨 Stampa</button>
+                        <button id="btn-svuota-log" class="btn-ping" style="font-size:12px;padding:7px 16px">🗑 Svuota log</button>
                     </div>
                 </div>
                 <div style="padding:10px 20px;border-bottom:1px solid #ececf2;font-size:12px;color:#666b84">Incolla il link della tua scheda su ciascun portale. Clicca "Scansiona" per confrontare automaticamente con i tuoi dati ufficiali e vedere le incoerenze.</div>
@@ -2917,7 +2920,7 @@
                     <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
                         <div style="font-size:13px;font-weight:700;color:#171b33;min-width:120px">${escHtml(ch)}</div>
                         <input type="url" class="coer-url-inp" data-channel="${escHtml(ch)}" value="${escHtml(d.url||'')}" placeholder="https://..." style="flex:1;border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:12px;font-family:var(--font);outline:none;color:#171b33;background:#fff">
-                        <button type="button" class="btn-scan-ch" data-channel="${escHtml(ch)}" style="background:#009bb9;color:white;border:none;border-radius:6px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);white-space:nowrap;flex-shrink:0">Scansiona</button>
+                        <button type="button" class="btn-scan-ch" data-channel="${escHtml(ch)}" style="background:#d82d6b;color:white;border:none;border-radius:6px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);white-space:nowrap;flex-shrink:0">Scansiona</button>
                     </div>
                     <div>${statusHtml}</div>
                     ${resultsHtml}
@@ -2978,6 +2981,31 @@
         }
 
         renderChannels();
+
+        // Aggiungi canale custom
+        const btnAddCh = document.getElementById('btn-aggiungi-canale');
+        if (btnAddCh) btnAddCh.onclick = () => {
+            const nome = prompt('Nome del canale (es: Hotels.com):');
+            if (!nome || !nome.trim()) return;
+            const ch = nome.trim();
+            if (_DEFAULT_COERENZA_CHANNELS.includes(ch)) { showToast('Canale già presente.'); return; }
+            _DEFAULT_COERENZA_CHANNELS.push(ch);
+            channels[ch] = { url: '', last_scan_at: null, results: [] };
+            renderChannels();
+        };
+
+        // Svuota log
+        const btnClear = document.getElementById('btn-svuota-log');
+        if (btnClear) btnClear.onclick = async () => {
+            if (!confirm('Svuotare tutti i risultati di scansione? I link ai portali verranno mantenuti.')) return;
+            _DEFAULT_COERENZA_CHANNELS.forEach(ch => { channels[ch].results = []; channels[ch].last_scan_at = null; });
+            const hp2 = site?.hotel_profile || {};
+            hp2.coerenza_channels = channels;
+            site.hotel_profile = hp2;
+            await _SBq.from('isi_sites').update({ hotel_profile: hp2 }).eq('site_id', site.site_id);
+            renderChannels();
+            showToast('Log svuotato.');
+        };
 
         const btnAll = document.getElementById('btn-avvia-scansione');
         if (btnAll) btnAll.onclick = async () => {
