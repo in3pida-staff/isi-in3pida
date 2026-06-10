@@ -52,41 +52,48 @@ Deno.serve(async (req) => {
       'Sito web':       hp.sito_web || sc.url || '',
     }
 
-    // Fetch della pagina OTA
+    // Fetch della pagina
     let pageText = ''
+    let fetchErrMsg = ''
     try {
       const pageRes = await fetch(url, {
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
           'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
           'Accept-Language': 'it-IT,it;q=0.9,en;q=0.8',
+          'Cache-Control': 'no-cache',
         },
-        signal: AbortSignal.timeout(12000),
+        redirect: 'follow',
+        signal: AbortSignal.timeout(15000),
       })
-      if (!pageRes.ok) throw new Error(`HTTP ${pageRes.status}`)
       const html = await pageRes.text()
       pageText = stripHtml(html)
+      if (!pageRes.ok) fetchErrMsg = `HTTP ${pageRes.status}`
     } catch (e) {
+      fetchErrMsg = (e as Error).message
+    }
+
+    if (fetchErrMsg && (!pageText || pageText.length < 100)) {
       return new Response(JSON.stringify({
         error: 'fetch_failed',
-        message: `Impossibile accedere a ${channel}: la pagina ha bloccato la scansione automatica (protezione anti-bot). Verifica i dati manualmente.`,
+        message: `Impossibile accedere alla pagina: ${fetchErrMsg}. Verifica che il link sia corretto.`,
       }), { headers: cors })
     }
 
-    if (!pageText || pageText.length < 200) {
+    if (!pageText || pageText.length < 100) {
       return new Response(JSON.stringify({
-        error: 'blocked',
-        message: `${channel} ha bloccato la scansione automatica (protezione anti-bot). Verifica i dati manualmente aprendo il link.`,
+        error: 'empty_page',
+        message: 'La pagina non contiene testo leggibile.',
       }), { headers: cors })
     }
 
-    // Rileva pagine captcha/errore comuni
+    // Rileva captcha
     const lower = pageText.toLowerCase()
-    const isBlocked = lower.includes('captcha') || lower.includes('robot') || lower.includes('verify you are human') || lower.includes('access denied') || lower.includes('403 forbidden')
+    const isBlocked = (lower.includes('captcha') || lower.includes('verify you are human') || lower.includes('access denied')) && pageText.length < 3000
     if (isBlocked) {
       return new Response(JSON.stringify({
         error: 'blocked',
-        message: `${channel} ha richiesto una verifica anti-bot. Scansione automatica non disponibile per questo portale.`,
+        message: 'La pagina ha richiesto una verifica anti-bot. Scansione non disponibile per questo portale.',
       }), { headers: cors })
     }
 

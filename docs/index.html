@@ -1180,7 +1180,7 @@
                 <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
                     <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Confronto Canali</div></div>
                     <div style="display:flex;gap:8px;align-items:center">
-                        <button id="btn-aggiungi-canale" class="btn-update" style="margin-left:0">+ Aggiungi canale</button>
+                        <button id="btn-aggiungi-canale" class="btn-update" style="margin-left:0" onclick="(function(){var inp=document.getElementById('input-nuovo-canale');inp.value='';document.getElementById('modal-canale').style.display='flex';setTimeout(function(){inp.focus()},50);})()">+ Aggiungi canale</button>
                         <button id="btn-avvia-scansione" class="btn-update" style="margin-left:0">▶ Scansiona tutti</button>
                         <button onclick="window.print()" class="btn-ping" style="font-size:12px;padding:7px 16px">🖨 Stampa</button>
                         <button id="btn-svuota-log" class="btn-ping" style="font-size:12px;padding:7px 16px">🗑 Svuota log</button>
@@ -2918,11 +2918,13 @@
                     }
                 }
 
+                const isDefault = ['Google Business','Booking.com','TripAdvisor','Airbnb','Expedia'].includes(ch);
                 return `<div style="border:1px solid #e4e4ec;border-radius:8px;padding:14px 16px;margin-bottom:12px">
-                    <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
-                        <div style="font-size:13px;font-weight:700;color:#171b33;min-width:120px">${escHtml(ch)}</div>
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+                        <div style="font-size:13px;font-weight:700;color:#171b33;min-width:110px">${escHtml(ch)}</div>
                         <input type="url" class="coer-url-inp" data-channel="${escHtml(ch)}" value="${escHtml(d.url||'')}" placeholder="https://..." style="flex:1;border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:12px;font-family:var(--font);outline:none;color:#171b33;background:#fff">
-                        <button type="button" class="btn-scan-ch" data-channel="${escHtml(ch)}" style="background:#d82d6b;color:white;border:none;border-radius:6px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);white-space:nowrap;flex-shrink:0">Scansiona</button>
+                        <button type="button" class="btn-scan-ch" data-channel="${escHtml(ch)}" style="background:#d82d6b;color:white;border:none;border-radius:6px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);white-space:nowrap;flex-shrink:0">Scansiona</button>
+                        ${!isDefault ? `<button type="button" class="btn-remove-ch" data-channel="${escHtml(ch)}" style="background:none;border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:12px;color:#b00020;cursor:pointer;font-family:var(--font);white-space:nowrap;flex-shrink:0">✕ Rimuovi</button>` : ''}
                     </div>
                     <div>${statusHtml}</div>
                     ${resultsHtml}
@@ -2947,6 +2949,19 @@
                     if (!url) { showToast('Inserisci prima il link per ' + ch); return; }
                     channels[ch].url = url;
                     scanChannel(ch, url, btn);
+                };
+            });
+            cont.querySelectorAll('.btn-remove-ch').forEach(btn => {
+                btn.onclick = async () => {
+                    const ch = btn.dataset.channel;
+                    const idx = _DEFAULT_COERENZA_CHANNELS.indexOf(ch);
+                    if (idx > -1) _DEFAULT_COERENZA_CHANNELS.splice(idx, 1);
+                    delete channels[ch];
+                    const hp2 = site?.hotel_profile || {};
+                    hp2.coerenza_channels = channels;
+                    site.hotel_profile = hp2;
+                    await _SBq.from('isi_sites').update({ hotel_profile: hp2 }).eq('site_id', site.site_id);
+                    renderChannels();
                 };
             });
         }
@@ -3735,7 +3750,7 @@
     <input id="input-nuovo-canale" type="text" class="profile-input" placeholder="Nome canale..." style="margin-bottom:16px;font-size:13px">
     <div style="display:flex;gap:8px;justify-content:flex-end">
       <button onclick="document.getElementById('modal-canale').style.display='none'" class="btn-ping">Annulla</button>
-      <button id="btn-ok-canale" class="btn-update" style="margin-left:0">Aggiungi</button>
+      <button id="btn-ok-canale" class="btn-update" style="margin-left:0" onclick="window._doAggiungiCanale&&window._doAggiungiCanale()">Aggiungi</button>
     </div>
   </div>
 </div>
