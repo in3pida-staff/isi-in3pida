@@ -1180,9 +1180,9 @@
                 <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
                     <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Confronto Canali</div></div>
                     <div style="display:flex;gap:8px;align-items:center">
-                        <button id="btn-aggiungi-canale" class="btn-update" style="margin-left:0" onclick="(function(){var inp=document.getElementById('input-nuovo-canale');inp.value='';document.getElementById('modal-canale').style.display='flex';setTimeout(function(){inp.focus()},50);})()">+ Aggiungi canale</button>
+                        <button id="btn-aggiungi-canale" class="btn-update" style="margin-left:0" onclick="var inp=document.getElementById('input-nuovo-canale');inp.value='';document.getElementById('modal-canale').style.display='flex';setTimeout(function(){inp.focus()},50)">+ Aggiungi canale</button>
                         <button id="btn-avvia-scansione" class="btn-update" style="margin-left:0">▶ Scansiona tutti</button>
-                        <button onclick="window.print()" class="btn-ping" style="font-size:12px;padding:7px 16px">🖨 Stampa</button>
+                        <button id="btn-esporta-report" class="btn-ping" style="font-size:12px;padding:7px 16px">🖨 Esporta report</button>
                         <button id="btn-svuota-log" class="btn-ping" style="font-size:12px;padding:7px 16px">🗑 Svuota log</button>
                     </div>
                 </div>
@@ -2920,11 +2920,12 @@
 
                 const isDefault = ['Google Business','Booking.com','TripAdvisor','Airbnb','Expedia'].includes(ch);
                 return `<div style="border:1px solid #e4e4ec;border-radius:8px;padding:14px 16px;margin-bottom:12px">
-                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">
                         <div style="font-size:13px;font-weight:700;color:#171b33;min-width:110px">${escHtml(ch)}</div>
-                        <input type="url" class="coer-url-inp" data-channel="${escHtml(ch)}" value="${escHtml(d.url||'')}" placeholder="https://..." style="flex:1;border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:12px;font-family:var(--font);outline:none;color:#171b33;background:#fff">
+                        <input type="url" class="coer-url-inp" data-channel="${escHtml(ch)}" value="${escHtml(d.url||'')}" placeholder="https://..." style="flex:1;min-width:200px;border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:12px;font-family:var(--font);outline:none;color:#171b33;background:#fff">
+                        <button type="button" class="btn-save-ch" data-channel="${escHtml(ch)}" style="background:#171b33;color:white;border:none;border-radius:6px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);white-space:nowrap;flex-shrink:0">Salva</button>
                         <button type="button" class="btn-scan-ch" data-channel="${escHtml(ch)}" style="background:#d82d6b;color:white;border:none;border-radius:6px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);white-space:nowrap;flex-shrink:0">Scansiona</button>
-                        ${!isDefault ? `<button type="button" class="btn-remove-ch" data-channel="${escHtml(ch)}" style="background:none;border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:12px;color:#b00020;cursor:pointer;font-family:var(--font);white-space:nowrap;flex-shrink:0">✕ Rimuovi</button>` : ''}
+                        ${!isDefault ? `<button type="button" class="btn-remove-ch" data-channel="${escHtml(ch)}" style="background:none;border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:12px;color:#b00020;cursor:pointer;font-family:var(--font);white-space:nowrap;flex-shrink:0">✕ Elimina</button>` : ''}
                     </div>
                     <div>${statusHtml}</div>
                     ${resultsHtml}
@@ -2941,6 +2942,19 @@
                     renderChannels();
                 };
                 inp.onkeydown = (e) => { if (e.key === 'Enter') inp.blur(); };
+            });
+            cont.querySelectorAll('.btn-save-ch').forEach(btn => {
+                btn.onclick = async () => {
+                    const ch = btn.dataset.channel;
+                    const url = cont.querySelector(`.coer-url-inp[data-channel="${ch}"]`)?.value?.trim() || '';
+                    channels[ch].url = url;
+                    const hp2 = site?.hotel_profile || {};
+                    hp2.coerenza_channels = channels;
+                    site.hotel_profile = hp2;
+                    await _SBq.from('isi_sites').update({ hotel_profile: hp2 }).eq('site_id', site.site_id);
+                    btn.textContent = '✓ Salvato';
+                    setTimeout(() => { btn.textContent = 'Salva'; }, 2000);
+                };
             });
             cont.querySelectorAll('.btn-scan-ch').forEach(btn => {
                 btn.onclick = () => {
@@ -3007,24 +3021,16 @@
 
         renderChannels();
 
-        // Aggiungi canale custom
-        const btnAddCh = document.getElementById('btn-aggiungi-canale');
-        if (btnAddCh) btnAddCh.onclick = () => {
+        // Aggiungi canale: handler globale chiamato da inline onclick sul bottone HTML
+        window._doAggiungiCanale = () => {
             const inp = document.getElementById('input-nuovo-canale');
-            inp.value = '';
-            const modal = document.getElementById('modal-canale');
-            modal.style.display = 'flex';
-            setTimeout(() => inp.focus(), 50);
-            document.getElementById('btn-ok-canale').onclick = () => {
-                const ch = inp.value.trim();
-                if (!ch) return;
-                if (_DEFAULT_COERENZA_CHANNELS.includes(ch)) { showToast('Canale già presente.'); modal.style.display = 'none'; return; }
-                _DEFAULT_COERENZA_CHANNELS.push(ch);
-                channels[ch] = { url: '', last_scan_at: null, results: [] };
-                renderChannels();
-                modal.style.display = 'none';
-            };
-            inp.onkeydown = (e) => { if (e.key === 'Enter') document.getElementById('btn-ok-canale').click(); };
+            const ch = (inp?.value || '').trim();
+            if (!ch) return;
+            if (_DEFAULT_COERENZA_CHANNELS.includes(ch)) { showToast('Canale già presente.'); document.getElementById('modal-canale').style.display = 'none'; return; }
+            _DEFAULT_COERENZA_CHANNELS.push(ch);
+            channels[ch] = { url: '', last_scan_at: null, results: [] };
+            renderChannels();
+            document.getElementById('modal-canale').style.display = 'none';
         };
 
         // Svuota log
@@ -3038,6 +3044,75 @@
             await _SBq.from('isi_sites').update({ hotel_profile: hp2 }).eq('site_id', site.site_id);
             renderChannels();
             showToast('Log svuotato.');
+        };
+
+        // Report stampabile/esportabile
+        const btnReport = document.getElementById('btn-esporta-report');
+        if (btnReport) btnReport.onclick = () => {
+            const hotelNome = document.getElementById('cu-nome')?.textContent || site.site_name || '';
+            const hotelAddr = document.getElementById('cu-addr')?.textContent || '';
+            const oggi = new Date().toLocaleDateString('it-IT');
+
+            let rows = '';
+            _DEFAULT_COERENZA_CHANNELS.forEach(ch => {
+                const d = channels[ch];
+                if (!d) return;
+                rows += `<tr><td colspan="4" style="background:#f7f7fb;font-weight:700;font-size:13px;padding:10px 12px;border-bottom:2px solid #e4e4ec;color:#171b33">${ch}${d.url ? ' — <a href="'+d.url+'" style="font-weight:400;color:#009bb9;font-size:12px">'+d.url+'</a>' : ''}</td></tr>`;
+                if (!d.url) {
+                    rows += `<tr><td colspan="4" style="padding:8px 12px;color:#9ca3af;font-size:12px">URL non configurato</td></tr>`;
+                } else if (d.error) {
+                    rows += `<tr><td colspan="4" style="padding:8px 12px;color:#b00020;font-size:12px">⚠ ${escHtml(d.error)}</td></tr>`;
+                } else if (!d.results || !d.results.length) {
+                    rows += `<tr><td colspan="4" style="padding:8px 12px;color:#666b84;font-size:12px">Non ancora scansionato</td></tr>`;
+                } else {
+                    d.results.forEach(r => {
+                        const icon = r.match ? '✓' : (r.found_value ? '✗' : '○');
+                        const color = r.match ? '#009bb9' : (r.found_value ? '#b00020' : '#9ca3af');
+                        rows += `<tr>
+                            <td style="padding:7px 12px;font-size:12px;font-weight:600;color:#4b4d68;white-space:nowrap">${escHtml(r.field)}</td>
+                            <td style="padding:7px 12px;font-size:12px;color:#171b33">${escHtml(r.our_value||'—')}</td>
+                            <td style="padding:7px 12px;font-size:12px;color:${r.match?'#171b33':(r.found_value?'#b00020':'#9ca3af')};font-weight:${r.found_value&&!r.match?'700':'400'}">${escHtml(r.found_value||'—')}</td>
+                            <td style="padding:7px 12px;font-size:16px;text-align:center;color:${color}">${icon}</td>
+                        </tr>`;
+                    });
+                    if (d.last_scan_at) {
+                        const dt = new Date(d.last_scan_at);
+                        rows += `<tr><td colspan="4" style="padding:4px 12px 10px;font-size:11px;color:#9ca3af">Scansione: ${dt.toLocaleDateString('it-IT')} ${dt.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})}</td></tr>`;
+                    }
+                }
+            });
+
+            const html = `<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8">
+<title>Report Confronto Canali — ${escHtml(hotelNome)}</title>
+<style>
+  body{font-family:Arial,sans-serif;color:#171b33;margin:0;padding:24px}
+  h1{font-size:20px;margin:0 0 4px}
+  .sub{font-size:13px;color:#666b84;margin-bottom:20px}
+  table{width:100%;border-collapse:collapse;margin-top:8px}
+  th{background:#171b33;color:white;padding:9px 12px;font-size:11px;text-align:left;text-transform:uppercase;letter-spacing:.05em}
+  tr:nth-child(even):not(:has(td[colspan])){background:#fafafa}
+  td,th{border-bottom:1px solid #e4e4ec}
+  .footer{margin-top:24px;font-size:11px;color:#9ca3af;border-top:1px solid #e4e4ec;padding-top:12px}
+  @media print{body{padding:0}button{display:none}}
+</style></head><body>
+<h1>Report Confronto Canali</h1>
+<div class="sub">${escHtml(hotelNome)}${hotelAddr&&hotelAddr!=='—'?' — '+escHtml(hotelAddr):''} &nbsp;·&nbsp; Generato il ${oggi}</div>
+<table>
+  <thead><tr>
+    <th style="width:110px">Campo</th>
+    <th>I tuoi dati (ufficiali)</th>
+    <th>Trovato sul portale</th>
+    <th style="width:40px;text-align:center">✓/✗</th>
+  </tr></thead>
+  <tbody>${rows}</tbody>
+</table>
+<div class="footer">Generato da Eletta — isi.in3pida.it &nbsp;·&nbsp; ${oggi}</div>
+<br><button onclick="window.print()" style="background:#d82d6b;color:white;border:none;padding:10px 24px;font-size:14px;font-weight:700;border-radius:6px;cursor:pointer">🖨 Stampa / Salva PDF</button>
+</body></html>`;
+
+            const w = window.open('', '_blank');
+            w.document.write(html);
+            w.document.close();
         };
 
         const btnAll = document.getElementById('btn-avvia-scansione');
@@ -3750,7 +3825,7 @@
     <input id="input-nuovo-canale" type="text" class="profile-input" placeholder="Nome canale..." style="margin-bottom:16px;font-size:13px">
     <div style="display:flex;gap:8px;justify-content:flex-end">
       <button onclick="document.getElementById('modal-canale').style.display='none'" class="btn-ping">Annulla</button>
-      <button id="btn-ok-canale" class="btn-update" style="margin-left:0" onclick="window._doAggiungiCanale&&window._doAggiungiCanale()">Aggiungi</button>
+      <button id="btn-ok-canale" class="btn-update" style="margin-left:0" onclick="window._doAggiungiCanale?window._doAggiungiCanale():void 0">Aggiungi</button>
     </div>
   </div>
 </div>
