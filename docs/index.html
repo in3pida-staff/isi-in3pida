@@ -951,83 +951,107 @@
             </div>
 
             <!-- Impostazioni Plugin FAQ -->
-            <div class="card" style="display:none;margin-top:20px;border:1px solid #e4e4ec;box-shadow:none" id="card-faq-settings">
-                <div class="card-header" style="border-bottom:1px solid #ececf2;background:#f4f4f8;padding:12px 20px">
-                    <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Impostazioni Plugin FAQ</div></div>
-                    <div style="display:flex;gap:8px">
-                        <button id="btn-close-faq-settings" class="btn-ping">✕ Chiudi</button>
-                        <button id="btn-save-faq-settings" class="btn-update" style="margin-left:0">Salva impostazioni</button>
+            <div id="card-faq-settings" style="display:none;margin-top:14px;flex-direction:column;gap:12px">
+                <!-- header card -->
+                <div class="card" style="border:1px solid #e4e4ec;box-shadow:none">
+                    <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
+                        <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Impostazioni Plugin FAQ</div></div>
+                        <div style="display:flex;gap:8px">
+                            <button id="btn-close-faq-settings" class="btn-ping">✕ Chiudi</button>
+                            <button id="btn-save-faq-settings" class="btn-update" style="margin-left:0">Salva impostazioni</button>
+                        </div>
                     </div>
                 </div>
-                <div style="padding:20px">
-                    <div style="font-size:10px;font-weight:700;color:#4a4a6a;letter-spacing:.08em;text-transform:uppercase;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid #e4e4ec">📄 CONTENUTO PAGINA</div>
-                    <div style="margin-bottom:12px">
-                        <label style="display:block;font-size:12px;font-weight:600;color:#4b4d68;margin-bottom:4px">Titolo pagina FAQ</label>
-                        <input id="faq-setting-title" type="text" placeholder="Domande frequenti" style="width:100%;border:1px solid #e4e4ec;border-radius:6px;padding:8px 12px;font-size:13px;font-family:var(--font);color:#171b33;outline:none">
+                <!-- CONTENUTO PAGINA -->
+                <div class="card" style="border:1px solid #e4e4ec;box-shadow:none">
+                    <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
+                        <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Contenuto pagina</div></div>
                     </div>
-                    <div style="margin-bottom:20px">
-                        <label style="display:block;font-size:12px;font-weight:600;color:#4b4d68;margin-bottom:4px">Testo sotto il titolo</label>
-                        <textarea id="faq-setting-subtitle" rows="2" placeholder="Trova rapidamente le risposte alle domande più comuni." style="width:100%;border:1px solid #e4e4ec;border-radius:6px;padding:8px 12px;font-size:13px;font-family:var(--font);color:#171b33;outline:none;resize:vertical"></textarea>
-                    </div>
-                    <div style="font-size:10px;font-weight:700;color:#4a4a6a;letter-spacing:.08em;text-transform:uppercase;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid #e4e4ec">🎨 STILE GRAFICO</div>
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                    <div style="padding:14px 20px;display:flex;flex-direction:column;gap:12px">
                         <div>
-                            <label style="display:block;font-size:12px;font-weight:600;color:#4b4d68;margin-bottom:4px">Colore principale</label>
+                            <label class="profile-label">Titolo pagina FAQ</label>
+                            <input id="faq-setting-title" type="text" placeholder="Domande frequenti" class="profile-input">
+                        </div>
+                        <div>
+                            <label class="profile-label">Testo sotto il titolo</label>
+                            <textarea id="faq-setting-subtitle" rows="2" placeholder="Trova rapidamente le risposte alle domande più comuni." class="profile-input" style="resize:vertical"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <!-- STILE GRAFICO -->
+                <div class="card" style="border:1px solid #e4e4ec;box-shadow:none">
+                    <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
+                        <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Stile grafico</div></div>
+                    </div>
+                    <div style="padding:14px 20px;display:grid;grid-template-columns:1fr 1fr;gap:14px">
+                        <div>
+                            <label class="profile-label">Colore principale</label>
                             <div style="display:flex;align-items:center;gap:8px">
                                 <input id="faq-setting-color1" type="color" value="#171b33" style="width:40px;height:32px;border:1px solid #e4e4ec;border-radius:4px;padding:2px;cursor:pointer">
                                 <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:#666b84;cursor:pointer"><input id="faq-setting-color1-inherit" type="checkbox" style="margin:0"> Eredita dal sito</label>
                             </div>
                         </div>
                         <div>
-                            <label style="display:block;font-size:12px;font-weight:600;color:#4b4d68;margin-bottom:4px">Colore dettagli/interazioni</label>
+                            <label class="profile-label">Colore dettagli/interazioni</label>
                             <div style="display:flex;align-items:center;gap:8px">
                                 <input id="faq-setting-color2" type="color" value="#d82d6b" style="width:40px;height:32px;border:1px solid #e4e4ec;border-radius:4px;padding:2px;cursor:pointer">
                                 <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:#666b84;cursor:pointer"><input id="faq-setting-color2-inherit" type="checkbox" style="margin:0"> Eredita dal sito</label>
                             </div>
                         </div>
                         <div>
-                            <label style="display:block;font-size:12px;font-weight:600;color:#4b4d68;margin-bottom:4px">Colore testo</label>
+                            <label class="profile-label">Colore testo</label>
                             <div style="display:flex;align-items:center;gap:8px">
                                 <input id="faq-setting-color3" type="color" value="#171b33" style="width:40px;height:32px;border:1px solid #e4e4ec;border-radius:4px;padding:2px;cursor:pointer">
                                 <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:#666b84;cursor:pointer"><input id="faq-setting-color3-inherit" type="checkbox" style="margin:0"> Eredita dal sito</label>
                             </div>
                         </div>
                         <div>
-                            <label style="display:block;font-size:12px;font-weight:600;color:#4b4d68;margin-bottom:4px">Sfondo sezione</label>
+                            <label class="profile-label">Sfondo sezione</label>
                             <div style="display:flex;align-items:center;gap:8px">
                                 <input id="faq-setting-color4" type="color" value="#ffffff" style="width:40px;height:32px;border:1px solid #e4e4ec;border-radius:4px;padding:2px;cursor:pointer">
                                 <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:#666b84;cursor:pointer"><input id="faq-setting-color4-inherit" type="checkbox" style="margin:0"> Eredita dal sito</label>
                             </div>
                         </div>
                     </div>
-                    <div style="font-size:10px;font-weight:700;color:#4a4a6a;letter-spacing:.08em;text-transform:uppercase;margin-top:20px;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid #e4e4ec">⬆️ ORDINAMENTO FAQ</div>
-                    <div style="font-size:12px;color:#666b84;margin-bottom:12px">Per l'ordine manuale usa il drag &amp; drop nella lista FAQ. Il salvataggio avviene via AJAX quando sposti le domande.</div>
-                    <div style="margin-bottom:12px">
-                        <label style="display:block;font-size:12px;font-weight:600;color:#4b4d68;margin-bottom:6px">Ordina FAQ per</label>
+                </div>
+                <!-- ORDINAMENTO FAQ -->
+                <div class="card" style="border:1px solid #e4e4ec;box-shadow:none">
+                    <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
+                        <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Ordinamento FAQ</div></div>
+                    </div>
+                    <div style="padding:14px 20px">
+                        <div style="font-size:12px;color:#666b84;margin-bottom:12px">Per l'ordine manuale usa il drag &amp; drop nella lista FAQ. Il salvataggio avviene via AJAX quando sposti le domande.</div>
                         <div style="display:flex;gap:8px">
-                            <label style="display:flex;align-items:center;gap:6px;padding:8px 16px;border:1px solid #e4e4ec;border-radius:6px;cursor:pointer;font-size:13px;color:#171b33;font-weight:500">
+                            <label style="display:flex;align-items:center;gap:6px;padding:8px 16px;border:1px solid #e4e4ec;border-radius:4px;cursor:pointer;font-size:13px;color:#171b33;font-weight:500;font-family:var(--font)">
                                 <input id="faq-order-manual" type="radio" name="faq-order" value="manual" checked style="margin:0;accent-color:#d82d6b"> Ordine manuale
                             </label>
-                            <label style="display:flex;align-items:center;gap:6px;padding:8px 16px;border:1px solid #e4e4ec;border-radius:6px;cursor:pointer;font-size:13px;color:#171b33;font-weight:500">
+                            <label style="display:flex;align-items:center;gap:6px;padding:8px 16px;border:1px solid #e4e4ec;border-radius:4px;cursor:pointer;font-size:13px;color:#171b33;font-weight:500;font-family:var(--font)">
                                 <input id="faq-order-asc" type="radio" name="faq-order" value="asc" style="margin:0;accent-color:#d82d6b"> Crescente
                             </label>
                         </div>
                     </div>
-                    <div style="font-size:10px;font-weight:700;color:#4a4a6a;letter-spacing:.08em;text-transform:uppercase;margin-top:20px;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid #e4e4ec">⚙️ COMPORTAMENTO</div>
-                    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:4px">
-                        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:#171b33;font-weight:500;font-family:var(--font)">
-                            <input id="faq-setting-open-first" type="checkbox" style="margin:0;width:16px;height:16px;accent-color:#d82d6b"> Apri la prima FAQ
-                        </label>
-                        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:#171b33;font-weight:500;font-family:var(--font)">
-                            <input id="faq-setting-schema-seo" type="checkbox" checked style="margin:0;width:16px;height:16px;accent-color:#d82d6b"> Aggiungi dati strutturati FAQPage per SEO nella pagina FAQ
-                        </label>
+                </div>
+                <!-- COMPORTAMENTO -->
+                <div class="card" style="border:1px solid #e4e4ec;box-shadow:none">
+                    <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
+                        <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Comportamento</div></div>
                     </div>
-                    <div id="faq-settings-msg" style="display:none;margin-top:12px;padding:8px 12px;border-radius:6px;font-size:12px;font-weight:600;font-family:var(--font)"></div>
-                    <div style="margin-top:16px;padding:10px 14px;background:#f4f4f8;border-radius:4px;font-size:12px;color:#666b84;font-family:var(--font);display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-                        <span style="font-weight:600;color:#4b4d68">Shortcode:</span>
-                        <code style="background:white;border:1px solid #e4e4ec;padding:2px 8px;border-radius:4px;font-size:12px;font-family:var(--font);color:#171b33;font-weight:700">[in3pida_faq]</code>
-                        <span>oppure</span>
-                        <code style="background:white;border:1px solid #e4e4ec;padding:2px 8px;border-radius:4px;font-size:12px;font-family:var(--font);color:#171b33;font-weight:700">[site_faq]</code>
+                    <div style="padding:14px 20px">
+                        <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px">
+                            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:#171b33;font-weight:500;font-family:var(--font)">
+                                <input id="faq-setting-open-first" type="checkbox" style="margin:0;width:16px;height:16px;accent-color:#d82d6b"> Apri la prima FAQ
+                            </label>
+                            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:#171b33;font-weight:500;font-family:var(--font)">
+                                <input id="faq-setting-schema-seo" type="checkbox" checked style="margin:0;width:16px;height:16px;accent-color:#d82d6b"> Aggiungi dati strutturati FAQPage per SEO nella pagina FAQ
+                            </label>
+                        </div>
+                        <div id="faq-settings-msg" style="display:none;margin-bottom:12px;padding:8px 12px;border-radius:4px;font-size:12px;font-weight:600;font-family:var(--font)"></div>
+                        <div style="padding:10px 14px;background:#f4f4f8;border-radius:4px;font-size:12px;color:#666b84;font-family:var(--font);display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+                            <span style="font-weight:600;color:#4b4d68">Shortcode:</span>
+                            <code style="background:white;border:1px solid #e4e4ec;padding:2px 8px;border-radius:4px;font-size:12px;font-family:var(--font);color:#171b33;font-weight:700">[in3pida_faq]</code>
+                            <span>oppure</span>
+                            <code style="background:white;border:1px solid #e4e4ec;padding:2px 8px;border-radius:4px;font-size:12px;font-family:var(--font);color:#171b33;font-weight:700">[site_faq]</code>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1874,7 +1898,7 @@
         const toggleBtn = document.getElementById('btn-faq-settings-toggle');
         const faqListArea = document.getElementById('faq-list-area');
         const _openFaqSettings = () => {
-            document.getElementById('card-faq-settings').style.display = 'block';
+            document.getElementById('card-faq-settings').style.display = 'flex';
             toggleBtn.className = 'btn-ping';
             toggleBtn.style.cssText = 'font-size:11px;padding:5px 12px;border-color:#d82d6b';
             if (faqListArea) faqListArea.style.display = 'none';
