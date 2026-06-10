@@ -1833,7 +1833,7 @@
         const el = document.getElementById('schema-gallery-list'); if (!el) return;
         if (!_galleryTmp.length) { el.innerHTML = ''; return; }
         el.innerHTML = _galleryTmp.map((url,i)=>
-            `<div style="display:grid;grid-template-columns:40px 1fr auto;gap:8px;align-items:center;margin-bottom:6px;padding:6px 10px;background:#fbf4f7;border-radius:6px;border:1px solid #ead0dc">
+            `<div style="display:grid;grid-template-columns:40px 1fr auto;gap:8px;align-items:center;margin-bottom:6px;padding:6px 0;border-bottom:1px solid #f4f4f8">
                 <img src="${escHtml(url)}" onerror="this.style.display='none'" style="width:36px;height:36px;object-fit:cover;border-radius:4px;display:block">
                 <a href="${escHtml(url)}" target="_blank" style="font-size:12px;color:#009bb9;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--font)">${escHtml(url)}</a>
                 <button type="button" onclick="removeGalleryRow(${i})" style="background:none;border:1px solid #ead0dc;border-radius:6px;padding:5px 9px;cursor:pointer;color:#b00020;font-size:12px;font-family:var(--font)">✕</button>
