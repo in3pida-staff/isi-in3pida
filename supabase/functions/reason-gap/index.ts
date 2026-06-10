@@ -17,7 +17,16 @@ Deno.serve(async (req) => {
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY)
 
-    // Rate limit: 1 volta a settimana per hotel
+    // Verifica ruolo utente dal JWT — admin bypass rate limit
+    const authHeader = req.headers.get('Authorization') || ''
+    const jwt = authHeader.replace('Bearer ', '')
+    let isAdmin = false
+    if (jwt) {
+      const { data: { user } } = await supabase.auth.getUser(jwt)
+      isAdmin = user?.user_metadata?.role !== 'albergatore'
+    }
+
+    // Rate limit: 1 volta a settimana, solo per albergatori
     const { data: site } = await supabase
       .from('isi_sites')
       .select('hotel_profile, schema_data, site_name, last_reason_gap_at')
@@ -26,11 +35,13 @@ Deno.serve(async (req) => {
 
     if (!site) return new Response(JSON.stringify({ error: 'Site not found' }), { status: 404, headers: cors })
 
-    const lastRun = site.last_reason_gap_at ? new Date(site.last_reason_gap_at) : null
-    const now = new Date()
-    const daysSince = lastRun ? (now.getTime() - lastRun.getTime()) / 86400000 : 999
-    if (daysSince < 7)
-      return new Response(JSON.stringify({ error: 'rate_limit', next_allowed_at: new Date(lastRun!.getTime() + 7 * 86400000).toISOString() }), { status: 429, headers: cors })
+    if (!isAdmin) {
+      const lastRun = site.last_reason_gap_at ? new Date(site.last_reason_gap_at) : null
+      const now = new Date()
+      const daysSince = lastRun ? (now.getTime() - lastRun.getTime()) / 86400000 : 999
+      if (daysSince < 7)
+        return new Response(JSON.stringify({ error: 'rate_limit', next_allowed_at: new Date(lastRun!.getTime() + 7 * 86400000).toISOString() }), { status: 429, headers: cors })
+    }
 
     // Costruisci profilo hotel
     const hp = site.hotel_profile || {}

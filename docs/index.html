@@ -1610,7 +1610,10 @@
             (()=>{ const s=(p.servizi||'').split(',').map(x=>x.trim().toLowerCase()); return ['Wi-Fi gratuito','Colazione','Aria condizionata','Parcheggio','Ristorante','Camere familiari','Ascensore','Self check-in','Piscina','Bar','Camere non fumatori','Reception','Reception 24 ore','Late check-in','Accessibilità per ospiti con disabilità','Ricarica auto elettriche'].map(item=>`<label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:400;color:#4b4d68;font-family:var(--font)"><input type="checkbox" class="pf-servizi-chk" value="${escHtml(item)}" ${s.includes(item.toLowerCase())?'checked':''} style="width:16px;height:16px;accent-color:#d82d6b;cursor:pointer;flex-shrink:0">${escHtml(item)}</label>`).join(''); })() +
             '</div>' +
             '<div id="schema-servizi-custom-list"></div>' +
-            '<button type="button" onclick="addServiziCustomRow()" style="margin-top:8px;background:none;border:1px solid #d82d6b;border-radius:6px;padding:7px 14px;font-size:12px;font-weight:700;color:#d82d6b;cursor:pointer;font-family:var(--font)">+ Aggiungi servizi</button>' +
+            '<div style="display:flex;gap:8px;margin-top:10px;align-items:center">' +
+            '<input type="text" id="new-servizio-input" placeholder="Es: Jacuzzi, Sauna, Idromassaggio..." style="flex:1;border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:12px;font-family:var(--font);outline:none;color:#171b33" onkeydown="if(event.key===\'Enter\'){event.preventDefault();addServiziFromInput()}">' +
+            '<button type="button" onclick="addServiziFromInput()" style="background:#d82d6b;color:white;border:none;border-radius:6px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);white-space:nowrap">Aggiungi</button>' +
+            '</div>' +
             '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px">' +
             taF('servizi_camera','Servizi in camera', p.servizi_camera,'TV, Aria condizionata, Minibar') +
             taF('servizi_accessibilita','Accessibilità', p.servizi_accessibilita,'Ascensore, Camere per disabili') + '</div>' +
@@ -1628,13 +1631,19 @@
             (()=>{ const s=(p.target_clientela||'').split(',').map(x=>x.trim().toLowerCase()); return ['Famiglie','Coppie','Business traveler','Turisti internazionali','Gruppi','Cicloturisti','Digital nomad'].map(item=>`<label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:400;color:#4b4d68;font-family:var(--font)"><input type="checkbox" class="pf-target-chk" value="${escHtml(item)}" ${s.includes(item.toLowerCase())?'checked':''} style="width:16px;height:16px;accent-color:#d82d6b;cursor:pointer;flex-shrink:0">${escHtml(item)}</label>`).join(''); })() +
             '</div>' +
             '<div id="schema-target-custom-list"></div>' +
-            '<button type="button" onclick="addTargetCustomRow()" style="margin-top:8px;margin-bottom:16px;background:none;border:1px solid #d82d6b;border-radius:6px;padding:7px 14px;font-size:12px;font-weight:700;color:#d82d6b;cursor:pointer;font-family:var(--font)">+ Aggiungi target</button>' +
+            '<div style="display:flex;gap:8px;margin-top:10px;margin-bottom:16px;align-items:center">' +
+            '<input type="text" id="new-target-input" placeholder="Es: Anziani, Sportivi, Pellegrinaggi..." style="flex:1;border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:12px;font-family:var(--font);outline:none;color:#171b33" onkeydown="if(event.key===\'Enter\'){event.preventDefault();addTargetFromInput()}">' +
+            '<button type="button" onclick="addTargetFromInput()" style="background:#d82d6b;color:white;border:none;border-radius:6px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);white-space:nowrap">Aggiungi</button>' +
+            '</div>' +
             '<div style="font-size:10px;font-weight:700;color:#4a4a6a;margin-bottom:10px;text-transform:uppercase;letter-spacing:.05em">Temi di pertinenza</div>' +
             '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px">' +
             (()=>{ const ka=Array.isArray(p.knowsabout)?p.knowsabout:(p.knowsabout||'').split(',').map(s=>s.trim()).filter(Boolean); const s=ka.map(x=>x.toLowerCase()); return ['Vacanze in famiglia','Weekend romantici','Viaggi business','Turismo locale','Soggiorni con parcheggio','Hotel con colazione','Soggiorni vicino ad attrazioni'].map(item=>`<label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:400;color:#4b4d68;font-family:var(--font)"><input type="checkbox" class="pf-knowsabout-chk" value="${escHtml(item)}" ${s.includes(item.toLowerCase())?'checked':''} style="width:16px;height:16px;accent-color:#d82d6b;cursor:pointer;flex-shrink:0">${escHtml(item)}</label>`).join(''); })() +
             '</div>' +
             '<div id="schema-knowsabout-custom-list"></div>' +
-            '<button type="button" onclick="addKnowsaboutCustomRow()" style="margin-top:8px;margin-bottom:16px;background:none;border:1px solid #d82d6b;border-radius:6px;padding:7px 14px;font-size:12px;font-weight:700;color:#d82d6b;cursor:pointer;font-family:var(--font)">+ Aggiungi tema</button>' +
+            '<div style="display:flex;gap:8px;margin-top:10px;margin-bottom:16px;align-items:center">' +
+            '<input type="text" id="new-knowsabout-input" placeholder="Es: Turismo gastronomico, Wellness..." style="flex:1;border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:12px;font-family:var(--font);outline:none;color:#171b33" onkeydown="if(event.key===\'Enter\'){event.preventDefault();addKnowsaboutFromInput()}">' +
+            '<button type="button" onclick="addKnowsaboutFromInput()" style="background:#d82d6b;color:white;border:none;border-radius:6px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);white-space:nowrap">Aggiungi</button>' +
+            '</div>' +
             '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px">' +
             inp('stagionalita','Stagionalità', p.stagionalita,'Estate, Tutto l\'anno') +
             inp('parole_chiave','Keywords SEO (virgola)', p.parole_chiave,'hotel rimini, albergo fronte mare') + '</div>' +
@@ -1690,7 +1699,11 @@
             inp('google_business_url','Google Business', p.google_business_url,'https://g.page/hotel','url') + '</div>' +
             '<div style="font-size:10px;font-weight:700;color:#4a4a6a;margin:4px 0 4px;text-transform:uppercase;letter-spacing:.05em">Link social personalizzati</div>' +
             '<div id="schema-social-custom-list"></div>' +
-            '<button type="button" onclick="addSocialCustom()" style="margin-top:8px;background:none;border:1px solid #d82d6b;border-radius:6px;padding:7px 14px;font-size:12px;font-weight:700;color:#d82d6b;cursor:pointer;font-family:var(--font)">+ Aggiungi link custom</button>' +
+            '<div style="display:grid;grid-template-columns:1fr 2fr auto;gap:8px;margin-top:8px;align-items:center">' +
+            '<input type="text" id="new-social-nome" placeholder="Nome (es. YouTube)" style="border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:12px;font-family:var(--font);outline:none;color:#171b33">' +
+            '<input type="url" id="new-social-url" placeholder="URL" style="border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:12px;font-family:var(--font);outline:none;color:#171b33">' +
+            '<button type="button" onclick="confirmSocialCustom()" style="background:#d82d6b;color:white;border:none;border-radius:6px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font)">OK</button>' +
+            '</div>' +
 
             sec('DATI STRUTTURATI AGGIUNTIVI') +
             '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">' +
@@ -1760,16 +1773,34 @@
         const el = document.getElementById('schema-offerte-list');
         if (!el) return;
         if (!_offerteTmp.length) { el.innerHTML = '<div style="color:#aaa;font-size:12px;padding:4px 0">Nessuna offerta speciale.</div>'; return; }
+        const inpS = 'border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:12px;font-family:var(--font);width:100%;box-sizing:border-box;outline:none;color:#171b33';
+        const lbS = 'font-size:11px;font-weight:700;color:#666b84;display:block;margin-bottom:4px;font-family:var(--font)';
+        const tipiOff = ['Early Booking','Last Minute','Weekend','Lungo Soggiorno','Pacchetto','Offerta Speciale','Promozione'];
         el.innerHTML = _offerteTmp.map((o,i)=>
-            `<div style="display:grid;grid-template-columns:2fr 90px 2fr auto;gap:8px;align-items:center;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid #f4f4f8">
-                <input type="text" value="${escHtml(o.nome||'')}" oninput="_offerteTmp[${i}].nome=this.value" placeholder="Nome offerta (es. Early Booking)" style="border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:12px;font-family:var(--font)">
-                <input type="text" value="${escHtml(o.prezzo||'')}" oninput="_offerteTmp[${i}].prezzo=this.value" placeholder="€ prezzo" style="border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:12px;font-family:var(--font)">
-                <input type="url" value="${escHtml(o.url||'')}" oninput="_offerteTmp[${i}].url=this.value" placeholder="URL offerta" style="border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:12px;font-family:var(--font)">
-                <button type="button" onclick="removeOfferta(${i})" style="background:none;border:1px solid #ead0dc;border-radius:6px;padding:6px 10px;cursor:pointer;color:#b00020;font-size:13px;font-family:var(--font)">✕</button>
+            `<div style="border:1px solid #e4e4ec;border-radius:8px;padding:14px 16px;margin-bottom:12px;background:#fafafa">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+                    <div style="font-size:12px;font-weight:700;color:#4b4d68;font-family:var(--font)">Offerta ${i+1}</div>
+                    <button type="button" onclick="removeOfferta(${i})" style="background:none;border:1px solid #ead0dc;border-radius:6px;padding:4px 10px;cursor:pointer;color:#b00020;font-size:12px;font-family:var(--font)">Rimuovi</button>
+                </div>
+                <div style="display:grid;grid-template-columns:2fr 1fr;gap:10px;margin-bottom:10px">
+                    <div><label style="${lbS}">Nome offerta *</label><input type="text" value="${escHtml(o.nome||'')}" oninput="_offerteTmp[${i}].nome=this.value" placeholder="Es: Early Booking 20%" style="${inpS}"></div>
+                    <div><label style="${lbS}">Tipo</label><select oninput="_offerteTmp[${i}].tipo=this.value" style="${inpS}">${tipiOff.map(t=>`<option value="${escHtml(t)}"${(o.tipo||'')==t?' selected':''}>${escHtml(t)}</option>`).join('')}</select></div>
+                </div>
+                <div style="margin-bottom:10px"><label style="${lbS}">Descrizione breve</label><textarea rows="2" oninput="_offerteTmp[${i}].descrizione=this.value" placeholder="Prenota con almeno 30 giorni di anticipo e risparmia il 20%..." style="${inpS};resize:vertical">${escHtml(o.descrizione||'')}</textarea></div>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px">
+                    <div><label style="${lbS}">Sconto (%)</label><input type="text" value="${escHtml(o.sconto||'')}" oninput="_offerteTmp[${i}].sconto=this.value" placeholder="20" style="${inpS}"></div>
+                    <div><label style="${lbS}">Prezzo da (€)</label><input type="text" value="${escHtml(o.prezzo_da||o.prezzo||'')}" oninput="_offerteTmp[${i}].prezzo_da=this.value" placeholder="89" style="${inpS}"></div>
+                    <div><label style="${lbS}">URL offerta</label><input type="url" value="${escHtml(o.url||'')}" oninput="_offerteTmp[${i}].url=this.value" placeholder="https://hotel.it/offerta" style="${inpS}"></div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+                    <div><label style="${lbS}">Valida dal</label><input type="text" value="${escHtml(o.data_inizio||o.validFrom||'')}" oninput="_offerteTmp[${i}].data_inizio=this.value" placeholder="gg/mm/aaaa" style="${inpS}"></div>
+                    <div><label style="${lbS}">Valida fino al</label><input type="text" value="${escHtml(o.data_fine||o.validThrough||'')}" oninput="_offerteTmp[${i}].data_fine=this.value" placeholder="gg/mm/aaaa" style="${inpS}"></div>
+                </div>
+                <div><label style="${lbS}">Condizioni</label><input type="text" value="${escHtml(o.condizioni||'')}" oninput="_offerteTmp[${i}].condizioni=this.value" placeholder="Es: Non cumulabile, Min 2 notti, solo prenotazione diretta..." style="${inpS}"></div>
             </div>`
         ).join('');
     }
-    function addOfferta() { _offerteTmp.push({nome:'',prezzo:'',url:''}); renderOfferteRows(); }
+    function addOfferta() { _offerteTmp.push({nome:'',tipo:'Early Booking',descrizione:'',sconto:'',prezzo_da:'',url:'',data_inizio:'',data_fine:'',condizioni:''}); renderOfferteRows(); }
     function removeOfferta(i) { _offerteTmp.splice(i,1); renderOfferteRows(); }
 
     function renderSocialCustomRows() {
@@ -1777,14 +1808,22 @@
         if (!el) return;
         if (!_socialCustomTmp.length) { el.innerHTML = ''; return; }
         el.innerHTML = _socialCustomTmp.map((s,i)=>
-            `<div style="display:grid;grid-template-columns:1fr 2fr auto;gap:8px;align-items:center;margin-top:8px">
-                <input type="text" value="${escHtml(s.nome||'')}" oninput="_socialCustomTmp[${i}].nome=this.value" placeholder="Nome (es. YouTube)" style="border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:12px;font-family:var(--font)">
-                <input type="url" value="${escHtml(s.url||'')}" oninput="_socialCustomTmp[${i}].url=this.value" placeholder="URL" style="border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:12px;font-family:var(--font)">
-                <button type="button" onclick="removeSocialCustom(${i})" style="background:none;border:1px solid #ead0dc;border-radius:6px;padding:6px 10px;cursor:pointer;color:#b00020;font-size:13px;font-family:var(--font)">✕</button>
+            `<div style="display:grid;grid-template-columns:140px 1fr auto;gap:8px;align-items:center;margin-bottom:6px;padding:7px 10px;background:#fbf4f7;border-radius:6px;border:1px solid #ead0dc">
+                <span style="font-size:12px;font-weight:600;color:#4b4d68;font-family:var(--font);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(s.nome||'—')}</span>
+                <a href="${escHtml(s.url||'#')}" target="_blank" style="font-size:12px;color:#009bb9;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--font)">${escHtml(s.url||'')}</a>
+                <button type="button" onclick="removeSocialCustom(${i})" style="background:none;border:1px solid #ead0dc;border-radius:6px;padding:5px 9px;cursor:pointer;color:#b00020;font-size:12px;font-family:var(--font)">✕</button>
             </div>`
         ).join('');
     }
-    function addSocialCustom() { _socialCustomTmp.push({nome:'',url:''}); renderSocialCustomRows(); }
+    function confirmSocialCustom() {
+        const n=(document.getElementById('new-social-nome')?.value||'').trim();
+        const u=(document.getElementById('new-social-url')?.value||'').trim();
+        if(!n&&!u)return;
+        _socialCustomTmp.push({nome:n,url:u});
+        renderSocialCustomRows();
+        const ni=document.getElementById('new-social-nome'); if(ni)ni.value='';
+        const ui=document.getElementById('new-social-url'); if(ui)ui.value='';
+    }
     function removeSocialCustom(i) { _socialCustomTmp.splice(i,1); renderSocialCustomRows(); }
 
     function renderGalleryRows() {
@@ -1809,19 +1848,30 @@
             </div>`
         ).join('');
     }
-    function renderServiziCustomRows() { _renderCustomList('schema-servizi-custom-list',_serviziCustomTmp,'_setServiziCustom','removeServiziCustom','Servizio aggiuntivo'); }
-    function _setServiziCustom(i,v) { _serviziCustomTmp[i]=v; }
-    function addServiziCustomRow() { _serviziCustomTmp.push(''); renderServiziCustomRows(); }
+    function _renderCheckboxCustomList(elId, arr, removeFn, chkClass) {
+        const el = document.getElementById(elId); if (!el) return;
+        if (!arr.length) { el.innerHTML = ''; return; }
+        el.innerHTML = '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:4px">' +
+            arr.map((v,i) =>
+                `<div style="display:flex;align-items:center;gap:4px">
+                    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:400;color:#4b4d68;font-family:var(--font);flex:1;min-width:0">
+                        <input type="checkbox" class="${chkClass}" value="${escHtml(v)}" checked style="width:16px;height:16px;accent-color:#d82d6b;cursor:pointer;flex-shrink:0">
+                        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(v)}</span>
+                    </label>
+                    <button type="button" onclick="${removeFn}(${i})" style="background:none;border:none;color:#b00020;cursor:pointer;font-size:11px;padding:0 3px;flex-shrink:0;line-height:1">✕</button>
+                </div>`
+            ).join('') + '</div>';
+    }
+    function renderServiziCustomRows() { _renderCheckboxCustomList('schema-servizi-custom-list',_serviziCustomTmp,'removeServiziCustom','pf-servizi-chk'); }
+    function addServiziFromInput() { const inp=document.getElementById('new-servizio-input'); const v=(inp?.value||'').trim(); if(!v)return; _serviziCustomTmp.push(v); renderServiziCustomRows(); if(inp)inp.value=''; }
     function removeServiziCustom(i) { _serviziCustomTmp.splice(i,1); renderServiziCustomRows(); }
 
-    function renderTargetCustomRows() { _renderCustomList('schema-target-custom-list',_targetCustomTmp,'_setTargetCustom','removeTargetCustom','Target aggiuntivo'); }
-    function _setTargetCustom(i,v) { _targetCustomTmp[i]=v; }
-    function addTargetCustomRow() { _targetCustomTmp.push(''); renderTargetCustomRows(); }
+    function renderTargetCustomRows() { _renderCheckboxCustomList('schema-target-custom-list',_targetCustomTmp,'removeTargetCustom','pf-target-chk'); }
+    function addTargetFromInput() { const inp=document.getElementById('new-target-input'); const v=(inp?.value||'').trim(); if(!v)return; _targetCustomTmp.push(v); renderTargetCustomRows(); if(inp)inp.value=''; }
     function removeTargetCustom(i) { _targetCustomTmp.splice(i,1); renderTargetCustomRows(); }
 
-    function renderKnowsaboutCustomRows() { _renderCustomList('schema-knowsabout-custom-list',_knowsaboutCustomTmp,'_setKnowsaboutCustom','removeKnowsaboutCustom','Tema aggiuntivo'); }
-    function _setKnowsaboutCustom(i,v) { _knowsaboutCustomTmp[i]=v; }
-    function addKnowsaboutCustomRow() { _knowsaboutCustomTmp.push(''); renderKnowsaboutCustomRows(); }
+    function renderKnowsaboutCustomRows() { _renderCheckboxCustomList('schema-knowsabout-custom-list',_knowsaboutCustomTmp,'removeKnowsaboutCustom','pf-knowsabout-chk'); }
+    function addKnowsaboutFromInput() { const inp=document.getElementById('new-knowsabout-input'); const v=(inp?.value||'').trim(); if(!v)return; _knowsaboutCustomTmp.push(v); renderKnowsaboutCustomRows(); if(inp)inp.value=''; }
     function removeKnowsaboutCustom(i) { _knowsaboutCustomTmp.splice(i,1); renderKnowsaboutCustomRows(); }
 
     function buildSchemaJsonLd(p) {
