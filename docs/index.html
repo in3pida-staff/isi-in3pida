@@ -3143,16 +3143,30 @@ ${rows}
 
         window._exportCoerenzaReport = () => {
             const hotelNome = document.getElementById('cu-nome')?.textContent || site.site_name || 'hotel';
-            const body = document.getElementById('modal-report-body');
-            if (!body || typeof html2pdf === 'undefined') { showToast('Libreria PDF non caricata, riprova.'); return; }
+            const hotelAddr = document.getElementById('cu-addr')?.textContent || '';
+            const oggi = new Date().toLocaleDateString('it-IT');
+            if (typeof html2pdf === 'undefined') { showToast('Libreria PDF non caricata, riprova.'); return; }
+
+            // Wrapper temporaneo con titolo + contenuto (non visibile a schermo)
+            const wrap = document.createElement('div');
+            wrap.style.cssText = 'position:absolute;left:-9999px;top:0;width:800px;font-family:Arial,sans-serif;color:#171b33;background:white;padding:32px';
+            wrap.innerHTML =
+                '<h2 style="margin:0 0 4px;font-size:20px;color:#171b33">Report Confronto Canali</h2>' +
+                '<p style="margin:0 0 24px;font-size:12px;color:#666b84">' + escHtml(hotelNome) +
+                    (hotelAddr && hotelAddr !== '—' ? ' · ' + escHtml(hotelAddr) : '') +
+                    ' &nbsp;·&nbsp; Generato il ' + oggi + '</p>' +
+                document.getElementById('modal-report-body').innerHTML +
+                '<p style="margin-top:24px;font-size:10px;color:#9ca3af;border-top:1px solid #e4e4ec;padding-top:10px">Generato da Eletta — isi.in3pida.it · ' + oggi + '</p>';
+            document.body.appendChild(wrap);
+
             const filename = 'report-canali-' + hotelNome.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'') + '-' + new Date().toISOString().slice(0,10) + '.pdf';
             html2pdf().set({
-                margin: [10, 10, 10, 10],
+                margin: [12, 12, 12, 12],
                 filename,
-                html2canvas: { scale: 2, useCORS: true },
+                html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-                pagebreak: { mode: 'avoid-all' },
-            }).from(body).save();
+                pagebreak: { mode: ['avoid-all', 'css'] },
+            }).from(wrap).save().then(() => document.body.removeChild(wrap));
         };
 
         if (btnReport) btnReport.onclick = () => {
