@@ -1999,7 +1999,7 @@
                 </div>
                 <div style="padding:0 16px;text-align:center;font-size:11px;color:#666b84;white-space:pre-line;line-height:1.4">${fmt(f.date||f.created_at)}</div>
                 <div style="padding:0 12px;text-align:center;font-size:13px;font-weight:700;color:#171b33">${f.menu_order ?? f.order ?? 0}</div>
-                <div style="padding:0 8px;display:flex;align-items:center;gap:4px;justify-content:center">${f.link?`<a href="${escHtml(f.link)}" target="_blank" class="btn-ping" style="font-size:11px;padding:3px 8px;text-decoration:none">Apri pagina</a>`:''}<button class="btn-ping" style="font-size:11px;padding:3px 8px;line-height:1.4" onclick="openAdminFaqModal(${f.id})">Modifica</button><button class="btn-ping" style="font-size:11px;padding:3px 8px;line-height:1.4;border-color:#ead0dc" onclick="deleteAdminFaq(${f.id})">🗑️</button></div>
+                <div style="padding:0 8px;display:flex;align-items:center;gap:4px;justify-content:center">${f.link?`<a href="${escHtml(f.link)}" target="_blank" class="btn-ping" style="font-size:11px;padding:3px 8px;text-decoration:none">Apri pagina</a>`:''}<button class="btn-ping" style="font-size:11px;padding:3px 8px;line-height:1.4" onclick="openAdminFaqModal(${f.id})">Modifica</button><button class="btn-ping" style="font-size:11px;padding:3px 8px;line-height:1.4" onclick="deleteAdminFaq(${f.id})">🗑️</button></div>
                 <div style="padding:0 8px;text-align:center">${pub}${ai}</div>
             </div>`;
         }).join('');
