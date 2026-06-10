@@ -735,8 +735,8 @@
                         ].map(({k,l,v},i)=>{
                             const isAct=i===0;
                             return '<div class="stato-sezione-row" data-sec="'+k+'"'+(isAct?' data-active="1"':'')+' style="display:flex;align-items:stretch;cursor:pointer;border-bottom:1px solid #e4e4ec;transition:background .15s">'
-                                + '<div class="ssec-label" style="width:130px;flex-shrink:0;background:#f4f4f8;padding:11px 14px;border-right:1px solid #e4e4ec;font-size:10px;font-weight:700;color:'+(isAct?'#d82d6b':'#666b84')+';letter-spacing:.07em;text-transform:uppercase;display:flex;align-items:center">'+l+'</div>'
-                                + '<div style="flex:1;padding:11px 14px;background:white;font-size:12px;color:'+(isAct?'#d82d6b':'#35364f')+';text-align:right;display:flex;align-items:center;justify-content:flex-end;font-weight:'+(isAct?'600':'400')+'">'+v+'</div>'
+                                + '<div class="ssec-label" style="width:130px;flex-shrink:0;background:#fafafa;padding:11px 14px;border-right:1px solid #e4e4ec;font-size:10px;font-weight:600;color:'+(isAct?'#d82d6b':'#888')+';letter-spacing:.03em;text-transform:uppercase;display:flex;align-items:center">'+l+'</div>'
+                                + '<div style="flex:1;padding:11px 14px;background:#fff;font-size:12px;color:'+(isAct?'#d82d6b':'#35364f')+';text-align:right;display:flex;align-items:center;justify-content:flex-end;font-weight:'+(isAct?'600':'400')+'">'+v+'</div>'
                                 + '</div>';
                         }).join('')}
                         <div style="padding:14px 16px">
@@ -1990,7 +1990,7 @@
                 </div>
                 <div style="padding:0 16px;text-align:center;font-size:11px;color:#666b84;white-space:pre-line;line-height:1.4">${fmt(f.date||f.created_at)}</div>
                 <div style="padding:0 12px;text-align:center;font-size:13px;font-weight:700;color:#171b33">${f.menu_order ?? f.order ?? 0}</div>
-                <div style="padding:0 8px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px">${pub}${ai}<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;justify-content:center">${f.link?`<a href="${escHtml(f.link)}" target="_blank" class="btn-ping" style="font-size:11px;padding:3px 8px;text-decoration:none">Apri pagina</a>`:''}<button class="btn-ping" style="font-size:11px;padding:3px 8px" onclick="openAdminFaqModal(${f.id})">Modifica</button><button class="btn-ping" style="font-size:11px;padding:3px 8px;color:#b00020" onclick="deleteAdminFaq(${f.id})">🗑️</button></div></div>
+                <div style="padding:0 8px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px">${pub}${ai}<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;justify-content:center">${f.link?`<a href="${escHtml(f.link)}" target="_blank" class="btn-ping" style="font-size:11px;padding:3px 8px;text-decoration:none">Apri pagina</a>`:''}<button class="btn-ping" style="font-size:11px;padding:3px 8px;background:transparent" onclick="openAdminFaqModal(${f.id})">Modifica</button><button class="btn-ping" style="font-size:11px;padding:3px 8px;background:transparent;color:#b00020" onclick="deleteAdminFaq(${f.id})">🗑️</button></div></div>
             </div>`;
         }).join('');
     }
