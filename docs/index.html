@@ -626,7 +626,7 @@
             const isOld = latestVersion && site.plugin_version && semverGt(latestVersion.version, site.plugin_version);
             const verHtml = `<span style="font-weight:600">${escHtml(site.plugin_version||'—')}</span>${isOld?` <span style="background:rgba(216,45,107,0.08);color:var(--magenta);font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;vertical-align:middle">aggiornare</span>`:''}`;
             const isConnected = hrs < 25;
-            const dotColor = isConnected ? '#d82d6b' : '#666b84';
+            const dotColor = isConnected ? '#009bb9' : '#666b84';
             const dotTitle = isConnected ? 'Collegamento con il sito attivo' : 'Collegamento con il sito non attivo';
             html += `<tr data-site-id="${escHtml(site.site_id)}" style="cursor:pointer">
                 <td><span class="dot" style="background:${dotColor};box-shadow:0 0 0 4px ${dotColor}26;cursor:help" title="${escHtml(dotTitle)}"></span></td>
