@@ -2248,11 +2248,10 @@
         ta.disabled = true;
 
         try {
-            const sess = _SB.auth.session?.() || (await _SB.auth.getSession())?.data?.session;
-            const token = sess?.access_token || '';
+            const { data: { session: _faqSess } } = await _SB.auth.getSession();
             const res = await fetch(`${SUPABASE_URL}/functions/v1/faq-generate`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + _faqSess.access_token },
                 body: JSON.stringify({ site_id: siteId, query })
             });
             const json = await res.json();
