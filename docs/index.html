@@ -941,7 +941,7 @@
                         <div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">FAQ <span id="faq-admin-count" style="font-weight:400;text-transform:none;letter-spacing:0;font-size:11px;color:var(--grey)"></span></div>
                     </div>
                     <div style="display:flex;gap:8px">
-                        <button id="btn-faq-settings-toggle" class="btn-ping" style="font-size:11px;padding:5px 12px;background:transparent">⚙️ Impostazioni</button>
+                        <button id="btn-faq-settings-toggle" class="btn-ping" style="font-size:11px;padding:5px 12px">⚙️ Impostazioni</button>
                         <button id="btn-add-faq-admin" class="btn-update" style="margin-left:0">+ Aggiungi FAQ</button>
                     </div>
                 </div>
@@ -965,7 +965,7 @@
                 <div class="card-header" style="border-bottom:1px solid #ececf2;background:#f4f4f8;padding:12px 20px">
                     <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Impostazioni Plugin FAQ</div></div>
                     <div style="display:flex;gap:8px">
-                        <button id="btn-close-faq-settings" class="btn-ping" style="background:transparent">✕ Chiudi</button>
+                        <button id="btn-close-faq-settings" class="btn-ping">✕ Chiudi</button>
                         <button id="btn-save-faq-settings" class="btn-update" style="margin-left:0">Salva impostazioni</button>
                     </div>
                 </div>
@@ -1875,14 +1875,14 @@
         const _openFaqSettings = () => {
             document.getElementById('card-faq-settings').style.display = 'block';
             toggleBtn.className = 'btn-ping';
-            toggleBtn.style.cssText = 'font-size:11px;padding:5px 12px;background:transparent;border:1.5px solid #d82d6b;color:#d82d6b';
+            toggleBtn.style.cssText = 'font-size:11px;padding:5px 12px;border-color:#d82d6b;color:#d82d6b';
             if (faqListArea) faqListArea.style.display = 'none';
             loadFaqPluginSettings();
         };
         const _closeFaqSettings = () => {
             document.getElementById('card-faq-settings').style.display = 'none';
             toggleBtn.className = 'btn-ping';
-            toggleBtn.style.cssText = 'font-size:11px;padding:5px 12px;background:transparent';
+            toggleBtn.style.cssText = 'font-size:11px;padding:5px 12px';
             if (faqListArea) faqListArea.style.display = '';
         };
         if (toggleBtn) toggleBtn.addEventListener('click', () => {
@@ -1999,7 +1999,7 @@
                 </div>
                 <div style="padding:0 16px;text-align:center;font-size:11px;color:#666b84;white-space:pre-line;line-height:1.4">${fmt(f.date||f.created_at)}</div>
                 <div style="padding:0 12px;text-align:center;font-size:13px;font-weight:700;color:#171b33">${f.menu_order ?? f.order ?? 0}</div>
-                <div style="padding:0 8px;display:flex;align-items:center;gap:4px;justify-content:center">${f.link?`<a href="${escHtml(f.link)}" target="_blank" class="btn-ping" style="font-size:11px;padding:3px 8px;text-decoration:none">Apri pagina</a>`:''}<button class="btn-ping" style="font-size:11px;padding:3px 8px;background:transparent" onclick="openAdminFaqModal(${f.id})">Modifica</button><button class="btn-ping" style="font-size:11px;padding:3px 8px;background:transparent;color:#b00020" onclick="deleteAdminFaq(${f.id})">🗑️</button></div>
+                <div style="padding:0 8px;display:flex;align-items:center;gap:4px;justify-content:center">${f.link?`<a href="${escHtml(f.link)}" target="_blank" class="btn-ping" style="font-size:11px;padding:3px 8px;text-decoration:none">Apri pagina</a>`:''}<button class="btn-ping" style="font-size:11px;padding:3px 8px" onclick="openAdminFaqModal(${f.id})">Modifica</button><button class="btn-ping" style="font-size:11px;padding:3px 8px;border-color:#ead0dc;color:#b00020" onclick="deleteAdminFaq(${f.id})">🗑️</button></div>
                 <div style="padding:0 8px;text-align:center">${pub}${ai}</div>
             </div>`;
         }).join('');
@@ -2234,75 +2234,35 @@
     }
 
     window.generaRispostaQuery = async function(cat, query, siteId) {
-        const site = window._detailSiteData;
-        const hp   = site?.hotel_profile || {};
-        const sc   = site?.schema_data   || {};
-        const cfg  = hp.isi_config || {};
-        const geminiKey = cfg.gemini_api_key;
-
-        // Apri modal con domanda pre-compilata e stato caricamento
+        // Apri modal con domanda pre-compilata
         document.getElementById('faq-modal-ttl-admin').textContent = 'Aggiungi FAQ — Genera risposta';
         document.getElementById('fm-id-admin').value   = '';
         document.getElementById('fm-q-admin').value    = query;
-        document.getElementById('fm-a-admin').value    = '';
         document.getElementById('fm-ai-admin').checked = false;
         document.getElementById('fm-msg-admin').style.display = 'none';
         document.getElementById('faq-admin-modal').style.display = 'flex';
         window._pendingMappaQuery = { cat, query, siteId };
-
-        if (!geminiKey) {
-            const msg = document.getElementById('fm-msg-admin');
-            msg.style.display = 'block'; msg.style.background = '#fce8ef'; msg.style.color = '#b00020';
-            msg.textContent = 'Chiave API Gemini non configurata — vai in Configurazione → Gemini API key.';
-            return;
-        }
-
-        // Costruisci contesto hotel
-        const nomeHotel  = sc.name || hp.nome_hotel || hp.nome || site?.site_name || '';
-        const descHotel  = sc.description || hp.descrizione || '';
-        const indirizzo  = sc.address?.streetAddress || hp.indirizzo || '';
-        const servizi    = (sc.amenityFeature || []).map(a=>a.name||a).join(', ') || hp.servizi || '';
-        const telefono   = sc.telephone || hp.telefono || '';
-        const email      = sc.email || hp.email || '';
-        const checkIn    = sc.checkinTime || hp.check_in || '';
-        const checkOut   = sc.checkoutTime || hp.check_out || '';
-        const stelle     = sc.starRating?.ratingValue || hp.stelle || '';
-
-        const contesto = [
-            nomeHotel   ? `Hotel: ${nomeHotel}` : '',
-            stelle      ? `Stelle: ${stelle}` : '',
-            indirizzo   ? `Indirizzo: ${indirizzo}` : '',
-            telefono    ? `Telefono: ${telefono}` : '',
-            email       ? `Email: ${email}` : '',
-            checkIn     ? `Check-in: ${checkIn}` : '',
-            checkOut    ? `Check-out: ${checkOut}` : '',
-            descHotel   ? `Descrizione: ${descHotel}` : '',
-            servizi     ? `Servizi: ${servizi}` : '',
-        ].filter(Boolean).join('\n');
-
-        if (!contesto.trim()) {
-            const msg = document.getElementById('fm-msg-admin');
-            msg.style.display = 'block'; msg.style.background = '#fce8ef'; msg.style.color = '#b00020';
-            msg.textContent = 'Dati insufficienti in Schema.org — compila la scheda struttura e riprova, oppure scrivi la risposta manualmente.';
-            return;
-        }
 
         const ta = document.getElementById('fm-a-admin');
         ta.value = '⏳ Generazione in corso...';
         ta.disabled = true;
 
         try {
-            const prompt = `Sei l'assistente virtuale di un hotel. Rispondi in italiano in modo diretto, preciso e professionale (2-4 frasi max) alla seguente domanda del cliente, usando solo le informazioni dell'hotel fornite. Non inventare nulla che non sia nelle informazioni.\n\nINFORMAZIONI HOTEL:\n${contesto}\n\nDOMANDA: ${query}\n\nRISPOSTA:`;
-
-            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`, {
+            const sess = _SB.auth.session?.() || (await _SB.auth.getSession())?.data?.session;
+            const token = sess?.access_token || '';
+            const res = await fetch(`${SUPABASE_URL}/functions/v1/faq-generate`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ site_id: siteId, query })
             });
             const json = await res.json();
-            const text = json?.candidates?.[0]?.content?.parts?.[0]?.text;
-            if (text) {
-                ta.value = text.trim();
+            if (json.answer) {
+                ta.value = json.answer;
+            } else if (json.error === 'no_data') {
+                ta.value = '';
+                const msg = document.getElementById('fm-msg-admin');
+                msg.style.display = 'block'; msg.style.background = '#fce8ef'; msg.style.color = '#b00020';
+                msg.textContent = 'Dati insufficienti in Schema.org — compila la scheda struttura e riprova, oppure scrivi la risposta manualmente.';
             } else {
                 ta.value = '';
                 const msg = document.getElementById('fm-msg-admin');
