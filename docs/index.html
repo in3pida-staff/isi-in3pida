@@ -1448,9 +1448,9 @@
         }
 
         // CHECK-IN / CHECK-OUT
-        if (p.checkin_dalle||p.checkout_alle) {
+        if (p.checkin_dalle||p.checkout_dalle) {
             html += secH('Check-in / Check-out');
-            html += grd('1fr 1fr 1fr 1fr', fld('Check-in dalle',p.checkin_dalle), fld('Check-in alle',p.checkin_alle), fld('Check-out dalle',p.checkout_dalle), fld('Check-out alle',p.checkout_alle));
+            html += grd('1fr 1fr', fld('Check-in dalle',p.checkin_dalle), fld('Check-out dalle',p.checkout_dalle));
         }
 
         // IMMAGINI
@@ -1584,11 +1584,9 @@
             inp('paese','Paese', p.paese||'IT','IT') + inp('latitudine','Latitudine', p.latitudine,'44.0600') + inp('longitudine','Longitudine', p.longitudine,'12.5657') + '</div>' +
 
             sec('CHECK-IN / CHECK-OUT') +
-            '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px">' +
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">' +
             inp('checkin_dalle','Check-in dalle', p.checkin_dalle,'14:00') +
-            inp('checkin_alle','Check-in alle', p.checkin_alle,'22:00') +
-            inp('checkout_dalle','Check-out dalle', p.checkout_dalle,'08:00') +
-            inp('checkout_alle','Check-out alle', p.checkout_alle,'11:00') + '</div>' +
+            inp('checkout_dalle','Check-out dalle', p.checkout_dalle,'08:00') + '</div>' +
 
             sec('IMMAGINI') +
             '<div style="margin-bottom:12px">' + inp('foto_principale','URL foto principale', p.foto_principale,'https://hotel.it/foto.jpg','url') + '</div>' +
@@ -1730,7 +1728,7 @@
             'image': p.foto_principale||undefined,
             'starRating': p.stelle ? {'@type':'Rating','ratingValue':parseInt(p.stelle)} : undefined,
             'checkinTime': p.checkin_dalle||undefined,
-            'checkoutTime': p.checkout_alle||undefined,
+            'checkoutTime': p.checkout_dalle||undefined,
             'priceRange': p.prezzo_medio||undefined,
             'numberOfRooms': p.n_camere?parseInt(p.n_camere):undefined,
             'aggregateRating': p.rating_medio ? {'@type':'AggregateRating','ratingValue':parseFloat(p.rating_medio),'bestRating':parseFloat(p.rating_scala||10),'reviewCount':parseInt(p.n_recensioni||0)} : undefined,
