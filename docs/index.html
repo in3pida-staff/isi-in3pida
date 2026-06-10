@@ -1703,9 +1703,9 @@
             '<div style="font-size:10px;font-weight:700;color:#4a4a6a;margin:4px 0 4px;text-transform:uppercase;letter-spacing:.05em">Link social personalizzati</div>' +
             '<div id="schema-social-custom-list"></div>' +
             '<div style="display:grid;grid-template-columns:1fr 2fr auto;gap:8px;margin-top:8px;align-items:center">' +
-            '<input type="text" id="new-social-nome" placeholder="Nome (es. YouTube)" style="border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:12px;font-family:var(--font);outline:none;color:#171b33">' +
-            '<input type="url" id="new-social-url" placeholder="URL" style="border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:12px;font-family:var(--font);outline:none;color:#171b33">' +
-            '<button type="button" onclick="confirmSocialCustom()" style="background:#d82d6b;color:white;border:none;border-radius:6px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font)">OK</button>' +
+            '<input type="text" id="new-social-nome" placeholder="Nome (es. YouTube)" style="border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:12px;font-family:var(--font);outline:none;color:#171b33" onkeydown="if(event.key===\'Enter\'){event.preventDefault();confirmSocialCustom()}">' +
+            '<input type="url" id="new-social-url" placeholder="URL" style="border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:12px;font-family:var(--font);outline:none;color:#171b33" onkeydown="if(event.key===\'Enter\'){event.preventDefault();confirmSocialCustom()}">' +
+            '<button type="button" onclick="confirmSocialCustom()" style="background:#d82d6b;color:white;border:none;border-radius:6px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);white-space:nowrap">Aggiungi</button>' +
             '</div>' +
 
             sec('DATI STRUTTURATI AGGIUNTIVI') +
