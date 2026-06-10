@@ -33,7 +33,7 @@
 
 body {
     font-family: var(--font);
-    background: var(--light);
+    background: #f0f0f4;
     color: var(--dark);
     min-height: 100vh;
 }

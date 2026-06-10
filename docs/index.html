@@ -735,8 +735,8 @@
                         ].map(({k,l,v},i)=>{
                             const isAct=i===0;
                             return '<div class="stato-sezione-row" data-sec="'+k+'"'+(isAct?' data-active="1"':'')+' style="display:flex;align-items:stretch;cursor:pointer;border-bottom:1px solid #e4e4ec;transition:background .15s">'
-                                + '<div class="ssec-label" style="width:130px;flex-shrink:0;background:'+(isAct?'#fce8ef':'#f4f4f8')+';padding:11px 14px;border-right:1px solid #e4e4ec;font-size:10px;font-weight:700;color:'+(isAct?'#d82d6b':'#666b84')+';letter-spacing:.07em;text-transform:uppercase;display:flex;align-items:center">'+l+'</div>'
-                                + '<div style="flex:1;padding:11px 14px;background:'+(isAct?'#fbf4f7':'white')+';font-size:12px;color:'+(isAct?'#d82d6b':'#35364f')+';text-align:right;display:flex;align-items:center;justify-content:flex-end;font-weight:'+(isAct?'600':'400')+'">'+v+'</div>'
+                                + '<div class="ssec-label" style="width:130px;flex-shrink:0;background:#f4f4f8;padding:11px 14px;border-right:1px solid #e4e4ec;font-size:10px;font-weight:700;color:'+(isAct?'#d82d6b':'#666b84')+';letter-spacing:.07em;text-transform:uppercase;display:flex;align-items:center">'+l+'</div>'
+                                + '<div style="flex:1;padding:11px 14px;background:white;font-size:12px;color:'+(isAct?'#d82d6b':'#35364f')+';text-align:right;display:flex;align-items:center;justify-content:flex-end;font-weight:'+(isAct?'600':'400')+'">'+v+'</div>'
                                 + '</div>';
                         }).join('')}
                         <div style="padding:14px 16px">
@@ -1192,7 +1192,7 @@
                 if (val) val.style.color = '#4a4a6a';
             });
             row.dataset.active = '1';
-            row.style.background = '#fce8ef';
+            row.style.background = 'white';
             const lbl = row.querySelector('.ssec-label');
             if (lbl) lbl.style.color = '#d82d6b';
             const val = row.querySelectorAll('span')[1];
