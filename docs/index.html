@@ -2906,20 +2906,19 @@
                     statusHtml = '<span style="font-size:12px;color:#666b84">Non ancora scansionato</span>';
                 } else if (incoerCount === 0 && hasResults) {
                     const nf = notFoundCount > 0 ? ' · '+notFoundCount+' non trovati' : '';
-                    statusHtml = '<span style="font-size:12px;font-weight:700;color:#009bb9">✓ '+matchCount+'/'+totalCount+' campi allineati'+nf+'</span>';
+                    statusHtml = '<span style="font-size:12px;color:#009bb9">✓ '+matchCount+'/'+totalCount+' campi allineati'+nf+'</span>';
                 } else if (hasResults) {
                     const nf = notFoundCount > 0 ? ' · '+notFoundCount+' non trovati' : '';
-                    statusHtml = '<span style="font-size:12px;font-weight:700;color:#b00020">✗ '+matchCount+'/'+totalCount+' allineati · '+incoerCount+' incoerenze'+nf+'</span>';
+                    statusHtml = '<span style="font-size:12px;color:#b00020">✗ '+matchCount+'/'+totalCount+' allineati · '+incoerCount+' incoerenze'+nf+'</span>';
                 }
 
-                // Freccia accordion: ruota 0° = aperto (giù), -90° = chiuso (destra)
+                // Freccia grigia, piccola, inline dopo il testo
                 const arrowSvg = hasDetail
                     ? `<button type="button" class="btn-toggle-ch" data-channel="${escHtml(ch)}"
-                        title="${isExpanded ? 'Chiudi dettaglio' : 'Apri dettaglio'}"
-                        style="background:none;border:none;cursor:pointer;padding:2px 4px;flex-shrink:0;display:flex;align-items:center;line-height:1">
-                        <svg viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg"
-                            style="width:14px;height:14px;transition:transform .18s ease;transform:rotate(${isExpanded ? '0' : '-90'}deg)">
-                            <path d="M1 1.5L6 6.5L11 1.5" stroke="#d82d6b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                        style="background:none;border:none;cursor:pointer;padding:1px 3px;flex-shrink:0;display:inline-flex;align-items:center;line-height:1;vertical-align:middle">
+                        <svg viewBox="0 0 10 7" fill="none" xmlns="http://www.w3.org/2000/svg"
+                            style="width:11px;height:11px;transition:transform .18s ease;transform:rotate(${isExpanded ? '0' : '-90'}deg)">
+                            <path d="M1 1L5 5.5L9 1" stroke="#9ca3af" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                       </button>` : '';
 
@@ -2961,8 +2960,8 @@
                         <button type="button" class="btn-save-ch" data-channel="${escHtml(ch)}" style="background:transparent;color:#171b33;border:1.5px solid #e4e4ec;border-radius:4px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);white-space:nowrap;flex-shrink:0">Salva</button>
                         <button type="button" class="btn-remove-ch info-close" data-channel="${escHtml(ch)}">✕</button>
                     </div>
-                    <div style="display:flex;align-items:center;gap:8px;${hasDetail ? 'cursor:pointer' : ''}" class="${hasDetail ? 'coer-status-row' : ''}" data-channel="${escHtml(ch)}">
-                        <div style="flex:1">${statusHtml}</div>
+                    <div class="${hasDetail ? 'coer-status-row' : ''}" data-channel="${escHtml(ch)}" style="${hasDetail ? 'cursor:pointer;' : ''}display:inline-flex;align-items:center;gap:5px">
+                        ${statusHtml}
                         ${arrowSvg}
                     </div>
                     ${detailHtml}
