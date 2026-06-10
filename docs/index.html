@@ -2953,14 +2953,12 @@
                 }
 
                 return `<div style="border:1px solid #e4e4ec;border-radius:8px;padding:14px 16px;margin-bottom:12px">
-                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-                        <div style="font-size:13px;font-weight:700;color:#171b33">${escHtml(ch)}</div>
-                        <button type="button" class="btn-remove-ch info-close" data-channel="${escHtml(ch)}">✕</button>
-                    </div>
                     <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+                        <div style="font-size:13px;font-weight:700;color:#171b33;flex-shrink:0">${escHtml(ch)}</div>
                         <input type="url" class="coer-url-inp" data-channel="${escHtml(ch)}" value="${escHtml(d.url||'')}" placeholder="https://..." style="flex:1;min-width:0;border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:12px;font-family:var(--font);outline:none;color:#171b33;background:#fff">
                         <button type="button" class="btn-scan-ch" data-channel="${escHtml(ch)}" style="background:#d82d6b;color:white;border:none;border-radius:6px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);white-space:nowrap;flex-shrink:0">Scansiona</button>
                         <button type="button" class="btn-save-ch" data-channel="${escHtml(ch)}" style="background:transparent;color:#171b33;border:1.5px solid #e4e4ec;border-radius:4px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);white-space:nowrap;flex-shrink:0">Salva</button>
+                        <button type="button" class="btn-remove-ch info-close" data-channel="${escHtml(ch)}">✕</button>
                     </div>
                     <div class="${hasDetail ? 'coer-status-row' : ''}" data-channel="${escHtml(ch)}" style="${hasDetail ? 'cursor:pointer;' : ''}display:inline-flex;align-items:center;gap:5px">
                         ${statusHtml}
@@ -4032,10 +4030,10 @@ ${rows}
 <!-- ═══ MODAL RIMUOVI CANALE ═══ -->
 <div id="modal-del-canale" style="display:none;position:fixed;inset:0;background:rgba(24,24,52,.45);z-index:9999;align-items:center;justify-content:center;padding:20px">
   <div style="background:white;border-radius:4px;box-shadow:0 8px 40px rgba(0,0,0,.18);width:100%;max-width:360px;padding:24px 28px">
-    <div id="modal-del-canale-msg" style="font-size:14px;color:#171b33;margin-bottom:20px;font-weight:600"></div>
+    <div id="modal-del-canale-msg" style="font-size:14px;color:#171b33;margin-bottom:20px"></div>
     <div style="display:flex;gap:8px;justify-content:flex-end">
       <button onclick="document.getElementById('modal-del-canale').style.display='none'" class="btn-ping">Annulla</button>
-      <button id="btn-ok-del-canale" class="btn-update" style="margin-left:0;background:#b00020">Rimuovi</button>
+      <button id="btn-ok-del-canale" class="btn-update" style="margin-left:0">Rimuovi</button>
     </div>
   </div>
 </div>
