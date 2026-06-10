@@ -945,6 +945,7 @@
                         <button id="btn-add-faq-admin" class="btn-update" style="margin-left:0">+ Aggiungi FAQ</button>
                     </div>
                 </div>
+                <div id="faq-list-area">
                 <div style="padding:10px 20px;border-bottom:1px solid #ececf2;display:flex;gap:6px;align-items:center;flex-wrap:wrap">
                     <button class="faq-f-btn faq-f-active" data-f="all" style="padding:5px 14px;border-radius:6px;border:1px solid #d82d6b;background:#fce8ef;color:#d82d6b;font-size:11px;font-weight:500;cursor:pointer">TUTTI</button>
                     <button class="faq-f-btn" data-f="publish" style="padding:5px 14px;border-radius:6px;border:1px solid #e4e4ec;background:white;color:#4a4a6a;font-size:11px;font-weight:500;cursor:pointer">PUBBLICATO</button>
@@ -952,10 +953,11 @@
                     <button class="faq-f-btn" data-f="solo_ai" style="padding:5px 14px;border-radius:6px;border:1px solid #e4e4ec;background:white;color:#4a4a6a;font-size:11px;font-weight:500;cursor:pointer">SOLO AI</button>
                     <input type="text" id="faq-search-input" placeholder="Cerca FAQ..." style="margin-left:auto;border:1px solid #e4e4ec;border-radius:6px;padding:6px 12px;font-size:12px;outline:none;width:220px;color:#171b33">
                 </div>
-                <div style="display:grid;grid-template-columns:1fr auto auto auto auto;gap:0;padding:8px 20px;background:#f7f7fb;border-bottom:1px solid #e4e4ec;font-size:10px;font-weight:700;color:#aaa;letter-spacing:.05em;text-transform:uppercase">
-                    <div>Titolo</div><div style="text-align:center;padding:0 16px">Data</div><div style="text-align:center;padding:0 12px">Ordine</div><div style="text-align:center;padding:0 8px">Azioni</div><div style="text-align:center;padding:0 8px">Visibilità</div>
+                <div style="display:grid;grid-template-columns:1fr 80px 65px 140px 105px;gap:0;padding:8px 20px;background:#f7f7fb;border-bottom:1px solid #e4e4ec;font-size:10px;font-weight:700;color:#aaa;letter-spacing:.05em;text-transform:uppercase">
+                    <div>Titolo</div><div style="text-align:center">Data</div><div style="text-align:center">Ordine</div><div style="text-align:center">Azioni</div><div style="text-align:center">Visibilità</div>
                 </div>
                 <div id="faq-admin-list" style="padding:0"><div class="loading" style="padding:20px"><div class="spinner"></div></div></div>
+                </div>
             </div>
 
             <!-- Impostazioni Plugin FAQ -->
@@ -1868,23 +1870,29 @@
         const addBtn = document.getElementById('btn-add-faq-admin');
         if (addBtn) addBtn.addEventListener('click', () => openAdminFaqModal(null));
         const toggleBtn = document.getElementById('btn-faq-settings-toggle');
+        const faqListArea = document.getElementById('faq-list-area');
+        const _openFaqSettings = () => {
+            document.getElementById('card-faq-settings').style.display = 'block';
+            toggleBtn.className = 'btn-ping';
+            toggleBtn.style.cssText = 'font-size:11px;padding:5px 12px;background:transparent;border:1.5px solid #d82d6b;color:#d82d6b';
+            if (faqListArea) faqListArea.style.display = 'none';
+            loadFaqPluginSettings();
+        };
+        const _closeFaqSettings = () => {
+            document.getElementById('card-faq-settings').style.display = 'none';
+            toggleBtn.className = 'btn-ping';
+            toggleBtn.style.cssText = 'font-size:11px;padding:5px 12px;background:transparent';
+            if (faqListArea) faqListArea.style.display = '';
+        };
         if (toggleBtn) toggleBtn.addEventListener('click', () => {
             const card = document.getElementById('card-faq-settings');
             if (!card) return;
-            const open = card.style.display === 'none';
-            card.style.display = open ? 'block' : 'none';
-            toggleBtn.className = open ? 'btn-update' : 'btn-ping';
-            if (!open) toggleBtn.style.background = 'transparent';
-            if (open) loadFaqPluginSettings();
+            card.style.display === 'none' ? _openFaqSettings() : _closeFaqSettings();
         });
         const saveBtn = document.getElementById('btn-save-faq-settings');
         if (saveBtn) saveBtn.addEventListener('click', saveFaqPluginSettings);
         const closeBtn = document.getElementById('btn-close-faq-settings');
-        if (closeBtn) closeBtn.addEventListener('click', () => {
-            document.getElementById('card-faq-settings').style.display = 'none';
-            const tb = document.getElementById('btn-faq-settings-toggle');
-            if (tb) { tb.className = 'btn-ping'; tb.style.background = 'transparent'; }
-        });
+        if (closeBtn) closeBtn.addEventListener('click', _closeFaqSettings);
         loadAdminFaqList();
     }
 
@@ -1983,7 +1991,7 @@
         el.innerHTML = items.map((f, i) => {
             const pub = f.status === 'draft' ? '<span style="background:#fbf4f7;color:#d82d6b;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px">Bozza</span>' : '<span style="background:#fbf4f7;color:#d82d6b;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px">Pubblicato</span>';
             const ai  = f.solo_ai ? '<span style="background:#fce8ef;color:#d82d6b;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:4px">Solo AI</span>' : '';
-            return `<div style="display:grid;grid-template-columns:1fr auto auto auto auto;gap:0;align-items:center;padding:12px 20px;border-bottom:1px solid #f4f4f8">
+            return `<div style="display:grid;grid-template-columns:1fr 80px 65px 140px 105px;gap:0;align-items:center;padding:12px 20px;border-bottom:1px solid #f4f4f8">
                 <div style="min-width:0">
                     <div style="font-size:13px;font-weight:700;color:#171b33;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${i+1}. ${escHtml(f.question)}</div>
                     <div style="font-size:11px;color:#aaa;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml((f.answer||'').substring(0,80))}${(f.answer||'').length>80?'…':''}</div>
