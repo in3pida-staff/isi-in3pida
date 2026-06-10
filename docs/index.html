@@ -2974,10 +2974,15 @@
                     renderChannels();
                     showToast('Scansione ' + ch + ' completata.');
                 } else {
-                    const msg = res.message || (res.error === 'blocked' ? ch + ' ha bloccato la scansione automatica. Verifica i dati manualmente aprendo il link.' : 'Impossibile leggere la pagina.');
+                    const msg = res.message || 'Impossibile leggere la pagina. Prova con un URL diretto alla scheda hotel.';
                     channels[ch].error = msg;
+                    channels[ch].last_scan_at = new Date().toISOString();
+                    const hp2 = site?.hotel_profile || {};
+                    hp2.coerenza_channels = channels;
+                    site.hotel_profile = hp2;
+                    await _SBq.from('isi_sites').update({ hotel_profile: hp2 }).eq('site_id', site.site_id);
                     renderChannels();
-                    showToast(msg);
+                    showToast('⚠ ' + ch + ': ' + msg);
                 }
             } catch(e) {
                 showToast('Errore: ' + e.message);
@@ -2990,13 +2995,21 @@
         // Aggiungi canale custom
         const btnAddCh = document.getElementById('btn-aggiungi-canale');
         if (btnAddCh) btnAddCh.onclick = () => {
-            const nome = prompt('Nome del canale (es: Hotels.com):');
-            if (!nome || !nome.trim()) return;
-            const ch = nome.trim();
-            if (_DEFAULT_COERENZA_CHANNELS.includes(ch)) { showToast('Canale già presente.'); return; }
-            _DEFAULT_COERENZA_CHANNELS.push(ch);
-            channels[ch] = { url: '', last_scan_at: null, results: [] };
-            renderChannels();
+            const inp = document.getElementById('input-nuovo-canale');
+            inp.value = '';
+            const modal = document.getElementById('modal-canale');
+            modal.style.display = 'flex';
+            setTimeout(() => inp.focus(), 50);
+            document.getElementById('btn-ok-canale').onclick = () => {
+                const ch = inp.value.trim();
+                if (!ch) return;
+                if (_DEFAULT_COERENZA_CHANNELS.includes(ch)) { showToast('Canale già presente.'); modal.style.display = 'none'; return; }
+                _DEFAULT_COERENZA_CHANNELS.push(ch);
+                channels[ch] = { url: '', last_scan_at: null, results: [] };
+                renderChannels();
+                modal.style.display = 'none';
+            };
+            inp.onkeydown = (e) => { if (e.key === 'Enter') document.getElementById('btn-ok-canale').click(); };
         };
 
         // Svuota log
