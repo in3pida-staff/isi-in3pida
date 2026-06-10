@@ -139,29 +139,28 @@
     <div id="guida-overlay" class="info-overlay" style="display:none" onclick="if(event.target===this)this.style.display='none'">
         <div class="info-card" style="max-width:680px;width:100%;max-height:88vh;overflow-y:auto">
             <div class="info-card-header">
-                <span>📖 Guida Eletta — Posiziona il tuo sito nelle ricerche AI</span>
+                <span>📖 Guida Eletta</span>
                 <button class="info-close" onclick="document.getElementById('guida-overlay').style.display='none'">✕</button>
             </div>
             <div class="info-card-body" style="font-size:13px;color:#35364f;line-height:1.7">
                 <div style="font-size:11px;font-weight:700;color:var(--grey);letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid #fce8ef">Panoramica</div>
-                <p>Eletta è il sistema che ottimizza il sito del tuo hotel per comparire nelle risposte di ChatGPT, Google Gemini, Perplexity e altri AI. Il <strong>GEO Score</strong> misura quanto il sito è pronto per le ricerche AI (0–100). Un punteggio ≥70 significa ottimizzato.</p>
-                <div style="font-size:11px;font-weight:700;color:var(--grey);letter-spacing:.06em;text-transform:uppercase;margin:16px 0 10px;padding-bottom:6px;border-bottom:2px solid #fce8ef">FAQ — Domande e Risposte</div>
-                <p>Le FAQ rispondono alle domande più frequenti degli ospiti e vengono lette dagli AI per citare il tuo sito. Aggiungi risposte complete per ogni argomento rilevante (prezzi, servizi, posizione, ecc.). Usa <strong>Solo AI</strong> per FAQ dedicate ai crawler senza mostrarle sul sito.</p>
+                <p>Eletta è la piattaforma per la visibilità nelle intelligenze artificiali, che aumenta la presenza del sito del tuo hotel nelle risposte di ChatGPT, Google Gemini, Claude, Perplexity e delle principali intelligenze artificiali.</p>
+                <p>Il <strong>GEO Score</strong> è l'indicatore principale di Eletta. Va da 0 a 100 e indica quanto il tuo hotel è pronto per essere trovato dalle intelligenze artificiali. Un punteggio pari o superiore a 70 indica che il sito è ottimizzato per competere nelle nuove modalità di ricerca.</p>
+                <div style="font-size:11px;font-weight:700;color:var(--grey);letter-spacing:.06em;text-transform:uppercase;margin:16px 0 10px;padding-bottom:6px;border-bottom:2px solid #fce8ef">Cosa fa</div>
+                <p>Eletta analizza il sito della tua struttura e verifica se e quanto sia leggibile, comprensibile e autorevole per le intelligenze artificiali, individuando gli elementi che ne limitano la visibilità.</p>
+                <p>Analizza e ottimizza i contenuti, i dati strutturati, la copertura delle ricerche (query) e la coerenza delle informazioni online. Sulla base dei risultati, individua tutte le aree da migliorare per aumentare la visibilità del tuo hotel nelle risposte generate dall'intelligenza artificiale.</p>
                 <div style="font-size:11px;font-weight:700;color:var(--grey);letter-spacing:.06em;text-transform:uppercase;margin:16px 0 10px;padding-bottom:6px;border-bottom:2px solid #fce8ef">Schema.org — Dati strutturati</div>
-                <p>I dati strutturati Schema.org aiutano gli AI a capire e descrivere correttamente il tuo hotel. Compila tutte le sezioni: informazioni struttura, contatti, indirizzo, camere, servizi e amenities. Più dati strutturati ci sono, più il sito viene citato con precisione.</p>
+                <p>I dati strutturati aiutano le AI a comprendere e descrivere correttamente il tuo hotel. Completa le informazioni sulla struttura, le camere, i servizi, i contatti e la posizione. Più il profilo è completo, più aumentano le probabilità che le AI utilizzino dati corretti nelle loro risposte.</p>
                 <div style="font-size:11px;font-weight:700;color:var(--grey);letter-spacing:.06em;text-transform:uppercase;margin:16px 0 10px;padding-bottom:6px;border-bottom:2px solid #fce8ef">Mappa Query</div>
-                <p>La mappa query mostra le 16 categorie di domande conversazionali degli ospiti. Per ogni categoria scrivi una risposta ottimizzata. Le categorie coperte aumentano la probabilità che il tuo sito venga citato in risposta a quelle domande specifiche.</p>
+                <p>La Mappa Query identifica e aggiorna continuamente le domande che gli utenti rivolgono alle AI quando cercano un hotel. Sulla base delle informazioni inserite nei dati strutturati Schema.org, Eletta genera automaticamente le risposte più rilevanti per ogni categoria di ricerca. In questo modo il tuo hotel amplia progressivamente la copertura delle query e aumenta le probabilità di essere citato nelle risposte di ChatGPT, Gemini, Perplexity e delle principali intelligenze artificiali.</p>
                 <div style="font-size:11px;font-weight:700;color:var(--grey);letter-spacing:.06em;text-transform:uppercase;margin:16px 0 10px;padding-bottom:6px;border-bottom:2px solid #fce8ef">Coerenza Contenuti</div>
-                <p>La coerenza verifica che le informazioni del tuo hotel siano identiche su tutti i canali (sito, TripAdvisor, Booking, Google, ecc.). Dati incoerenti riducono la fiducia degli AI e possono causare citazioni errate.</p>
+                <p>Le intelligenze artificiali confrontano le informazioni presenti su più fonti prima di formulare una risposta. Eletta verifica che dati, servizi e descrizioni siano coerenti tra sito web, OTA, Google e altri canali. Una maggiore coerenza aumenta l'affidabilità percepita del tuo hotel.</p>
                 <div style="font-size:11px;font-weight:700;color:var(--grey);letter-spacing:.06em;text-transform:uppercase;margin:16px 0 10px;padding-bottom:6px;border-bottom:2px solid #fce8ef">AI Layer</div>
-                <p>L'AI Layer espone un endpoint <code style="background:#f4f4f8;padding:2px 6px;border-radius:4px">/ai-profile</code> leggibile dai crawler AI. Contiene tutte le informazioni dell'hotel in formato machine-readable. Assicurati che sia attivo — è il cuore del posizionamento AI.</p>
+                <p>L'AI Layer raccoglie e organizza le informazioni del tuo hotel in un formato facilmente interpretabile dalle AI. È il punto di accesso che consente ai modelli di comprendere rapidamente contenuti, servizi e caratteristiche della struttura. Mantenerlo attivo è fondamentale per una corretta visibilità nelle intelligenze artificiali.</p>
                 <div style="font-size:11px;font-weight:700;color:var(--grey);letter-spacing:.06em;text-transform:uppercase;margin:16px 0 10px;padding-bottom:6px;border-bottom:2px solid #fce8ef">Configurazione</div>
-                <p>Configura la connessione tra il plugin WordPress e la piattaforma Eletta. Inserisci l'endpoint ISI Monitor e il token di autenticazione per abilitare il monitoraggio in tempo reale.</p>
+                <p>La configurazione collega il sito del tuo hotel alla piattaforma Eletta. Una volta completata, permette di attivare il monitoraggio, aggiornare i dati e raccogliere informazioni utili per migliorare la presenza nelle AI.</p>
                 <div style="font-size:11px;font-weight:700;color:var(--grey);letter-spacing:.06em;text-transform:uppercase;margin:16px 0 10px;padding-bottom:6px;border-bottom:2px solid #fce8ef">Statistiche PSE</div>
-                <p>Le statistiche mostrano quante volte il sito è stato citato dagli AI nelle query monitorate. Il tasso di citazione indica la visibilità complessiva. Usa i test API per verificare che il sistema stia raccogliendo dati correttamente.</p>
-                <div style="margin-top:20px;padding:12px 16px;background:#fbf4f7;border-radius:4px;font-size:12px;color:#d82d6b;font-weight:600">
-                    Per assistenza: <a href="mailto:info@eletta-ai.it" style="color:#d82d6b">info@eletta-ai.it</a>
-                </div>
+                <p>Le statistiche (PSE: prompt search engine) mostrano come evolve la visibilità del tuo hotel nelle intelligenze artificiali nel tempo. Puoi monitorare citazioni, copertura delle query e andamento delle ottimizzazioni, verificando l'efficacia delle attività svolte sulla piattaforma.</p>
             </div>
         </div>
     </div>
