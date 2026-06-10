@@ -661,7 +661,7 @@
                 <td class="td-center">${geoHtml}</td>
                 <td class="td-center">${covHtml}</td>
                 <td class="td-center">${csHtml}</td>
-                <td style="white-space:nowrap"><div style="display:inline-flex;gap:5px;align-items:center">${isOld||!latestVersion?`<button class="btn-update" style="font-size:11px;padding:4px 10px" onclick="event.stopPropagation();aggiornaSito('${escHtml(site.site_id)}')">Aggiorna</button>`:`<button class="btn-update" style="font-size:11px;padding:4px 10px;background:#f4f4f8;color:#666b84;border:1px solid #e4e4ec;cursor:default;box-shadow:none" disabled>✓ OK</button>`}<button class="btn-ping" style="font-size:11px;padding:4px 10px" onclick="event.stopPropagation();forceSync('${escHtml(site.site_id)}','${escHtml(site.site_url||'')}',this)">⚡ Sync</button><button class="btn-ping" style="font-size:11px;padding:4px 10px" onclick="event.stopPropagation();toggleSitoAttivo('${escHtml(site.site_id)}','${escHtml(site.site_url||'')}',this)">Disattiva</button></div></td>
+                <td style="white-space:nowrap"><div style="display:inline-flex;gap:5px;align-items:center"><button class="btn-update" style="font-size:11px;padding:4px 10px${isOld?'':';background:#f4f4f8;color:#666b84;border:1px solid #e4e4ec'}" onclick="event.stopPropagation();aggiornaSito('${escHtml(site.site_id)}')">Aggiorna</button><button class="btn-ping" style="font-size:11px;padding:4px 10px" onclick="event.stopPropagation();forceSync('${escHtml(site.site_id)}','${escHtml(site.site_url||'')}',this)">⚡ Sync</button><button class="btn-ping" style="font-size:11px;padding:4px 10px" onclick="event.stopPropagation();toggleSitoAttivo('${escHtml(site.site_id)}','${escHtml(site.site_url||'')}',this)">Disattiva</button></div></td>
             </tr>`;
         });
         html += '</tbody></table>';
@@ -2917,7 +2917,7 @@
                     ? `<button type="button" class="btn-toggle-ch" data-channel="${escHtml(ch)}"
                         style="background:none;border:none;cursor:pointer;padding:1px 3px;flex-shrink:0;display:inline-flex;align-items:center;line-height:1;vertical-align:middle">
                         <svg viewBox="0 0 10 7" fill="none" xmlns="http://www.w3.org/2000/svg"
-                            style="width:11px;height:11px;transition:transform .18s ease;transform:rotate(${isExpanded ? '0' : '-90'}deg)">
+                            style="width:9px;height:9px;transition:transform .18s ease;transform:rotate(${isExpanded ? '0' : '-90'}deg)">
                             <path d="M1 1L5 5.5L9 1" stroke="#9ca3af" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                       </button>` : '';
@@ -3189,13 +3189,9 @@ ${rows}
             const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
             const pageW = doc.internal.pageSize.getWidth();
             const ml = 14, mr = 14, cw = pageW - ml - mr;
-            let y = 18;
+            let y = 16;
 
             // ── Intestazione ─────────────────────────────────────────
-            doc.setDrawColor(216, 45, 107);
-            doc.setLineWidth(0.6);
-            doc.line(ml, y, pageW - mr, y);
-            y += 5;
             doc.setFont('helvetica', 'bold');
             doc.setFontSize(15);
             doc.setTextColor(23, 27, 51);
@@ -3204,7 +3200,7 @@ ${rows}
             doc.setFont('helvetica', 'normal');
             doc.setFontSize(9);
             doc.setTextColor(102, 107, 132);
-            const subLine = hotelNome + (hotelAddr && hotelAddr !== '—' ? '  ·  ' + hotelAddr : '') + '   ·   Generato il ' + oggi;
+            const subLine = hotelNome + (hotelAddr && hotelAddr !== '—' ? '  -  ' + hotelAddr : '') + '   Generato il ' + oggi;
             doc.text(subLine, ml, y);
             y += 10;
 
@@ -3243,16 +3239,14 @@ ${rows}
                     doc.text('Non ancora scansionato', ml + 3, y); y += 7;
                 } else {
                     const cols = [
-                        { header: 'Campo',        dataKey: 'field' },
-                        { header: 'I tuoi dati',  dataKey: 'ours'  },
+                        { header: 'Campo',            dataKey: 'field' },
+                        { header: 'I tuoi dati',      dataKey: 'ours'  },
                         { header: 'Trovato su ' + ch, dataKey: 'found' },
-                        { header: '',             dataKey: 'icon'  },
                     ];
                     const rows = d.results.map(r => ({
                         field: r.field || '',
-                        ours:  r.our_value || '—',
-                        found: r.found_value || '—',
-                        icon:  r.match ? '✓' : (r.found_value ? '✗' : '○'),
+                        ours:  r.our_value || '-',
+                        found: r.found_value || '-',
                     }));
                     doc.autoTable({
                         startY: y,
@@ -3263,17 +3257,15 @@ ${rows}
                         styles: { font: 'helvetica', fontSize: 9, cellPadding: { top:3, bottom:3, left:3, right:3 }, textColor: [23,27,51], lineColor: [244,244,248], lineWidth: 0.3 },
                         headStyles: { fillColor: [250,250,250], textColor: [156,163,175], fontSize: 7.5, fontStyle: 'bold' },
                         columnStyles: {
-                            field: { cellWidth: 32, fontStyle: 'bold', textColor: [102,107,132] },
-                            icon:  { cellWidth: 8,  halign: 'center' },
+                            field: { cellWidth: 35, fontStyle: 'bold', textColor: [102,107,132] },
                         },
                         didParseCell(data) {
-                            if (data.column.dataKey === 'icon' && data.section === 'body') {
-                                const r = d.results[data.row.index];
-                                if (r) data.cell.styles.textColor = r.match ? [0,155,185] : (r.found_value ? [176,0,32] : [156,163,175]);
-                            }
                             if (data.column.dataKey === 'found' && data.section === 'body') {
                                 const r = d.results[data.row.index];
-                                if (r && !r.match && r.found_value) { data.cell.styles.textColor = [176,0,32]; data.cell.styles.fontStyle = 'bold'; }
+                                if (!r) return;
+                                if (r.match) { data.cell.styles.textColor = [0,155,185]; }
+                                else if (r.found_value) { data.cell.styles.textColor = [176,0,32]; data.cell.styles.fontStyle = 'bold'; }
+                                else { data.cell.styles.textColor = [156,163,175]; }
                             }
                         },
                     });
