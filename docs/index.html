@@ -711,7 +711,7 @@
         el.innerHTML = `
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
                 <button class="btn-back" id="btn-back-detail">← Torna alle installazioni</button>
-                <button onclick="document.getElementById('guida-overlay').style.display='flex'" style="background:none;border:1px solid #d82d6b;border-radius:6px;padding:6px 14px;font-size:12px;font-weight:700;color:#d82d6b;cursor:pointer;font-family:var(--font)">📖 Guida</button>
+                <button onclick="document.getElementById('guida-overlay').style.display='flex'" class="btn-ping" style="border-color:#d82d6b;color:#d82d6b">📖 Guida</button>
             </div>
             <!-- LAYOUT: sidebar sinistra persistente + contenuto destra -->
             <div style="display:grid;grid-template-columns:260px 1fr;gap:20px;align-items:start">
@@ -2226,55 +2226,51 @@
                             <span style="font-size:14px;color:${isCov?'#d82d6b':'#ead0dc'};font-weight:800;flex-shrink:0">${isCov?'✓':'✗'}</span>
                             <span style="font-size:13px;color:#171b33;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(q)}</span>
                         </div>
-                        ${!isCov ? `<button class="btn-update" style="margin-left:12px;flex-shrink:0;padding:5px 12px;font-size:11px" onclick="generaRispostaQuery('${escHtml(cat)}','${escHtml(q).replace(/'/g,"\\'")}','${escHtml(site.site_id)}')">✦ Genera risposta</button>` : `<span style="font-size:11px;color:#d82d6b;font-weight:700;flex-shrink:0;margin-left:12px">Coperta ✓</span>`}
+                        ${!isCov ? `<button class="btn-update" style="margin-left:12px;flex-shrink:0;padding:5px 12px;font-size:11px" onclick="generaRispostaQuery(this,'${escHtml(cat)}','${escHtml(q).replace(/'/g,"\\'")}','${escHtml(site.site_id)}')">✦ Genera risposta</button>` : `<span style="font-size:11px;color:#d82d6b;font-weight:700;flex-shrink:0;margin-left:12px">Coperta ✓</span>`}
                     </div>`;
                 }).join('')}
             </div>`;
         }).join('');
     }
 
-    window.generaRispostaQuery = async function(cat, query, siteId) {
-        // Apri modal con domanda pre-compilata
-        document.getElementById('faq-modal-ttl-admin').textContent = 'Aggiungi FAQ — Genera risposta';
-        document.getElementById('fm-id-admin').value   = '';
-        document.getElementById('fm-q-admin').value    = query;
-        document.getElementById('fm-ai-admin').checked = false;
-        document.getElementById('fm-msg-admin').style.display = 'none';
-        document.getElementById('faq-admin-modal').style.display = 'flex';
-        window._pendingMappaQuery = { cat, query, siteId };
-
-        const ta = document.getElementById('fm-a-admin');
-        ta.value = '⏳ Generazione in corso...';
-        ta.disabled = true;
-
+    window.generaRispostaQuery = async function(btn, cat, query, siteId) {
+        const origText = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = '⏳ Generazione...';
         try {
+            // 1. Genera risposta via AI
             const { data: { session: _faqSess } } = await _SB.auth.getSession();
-            const res = await fetch(`${SUPABASE_URL}/functions/v1/faq-generate`, {
+            const res = await fetch(`${SUPABASE_URL}/functions/v1/pse-query`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + _faqSess.access_token },
-                body: JSON.stringify({ site_id: siteId, query })
+                body: JSON.stringify({ site_id: siteId, query, action: 'faq_generate' })
             });
             const json = await res.json();
-            if (json.answer) {
-                ta.value = json.answer;
-            } else if (json.error === 'no_data') {
-                ta.value = '';
-                const msg = document.getElementById('fm-msg-admin');
-                msg.style.display = 'block'; msg.style.background = '#fce8ef'; msg.style.color = '#b00020';
-                msg.textContent = 'Dati insufficienti in Schema.org — compila la scheda struttura e riprova, oppure scrivi la risposta manualmente.';
-            } else {
-                ta.value = '';
-                const msg = document.getElementById('fm-msg-admin');
-                msg.style.display = 'block'; msg.style.background = '#fce8ef'; msg.style.color = '#b00020';
-                msg.textContent = 'Risposta AI non ricevuta — scrivi la risposta manualmente.';
+            if (!json.answer) throw new Error(json.error || 'no answer');
+
+            // 2. Salva FAQ automaticamente via plugin WP
+            btn.textContent = '💾 Salvataggio...';
+            const ctrl = new AbortController(); setTimeout(() => ctrl.abort(), 12000);
+            const r = await fetch(_aFaqBase + '/wp-json/in3pida/v1/faq', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ secret: _aFaqSecret, action: 'add', faq: { question: query, answer: json.answer, solo_ai: true, order: 0 } }),
+                signal: ctrl.signal,
+            });
+            const d = await r.json().catch(() => ({}));
+            if (!r.ok || !d.ok) throw new Error(d.message || 'Salvataggio fallito');
+
+            // 3. Aggiorna UI — mostra "Coperta ✓"
+            const row = btn.closest('div[style*="display:flex"]');
+            if (row) {
+                const icon = row.querySelector('span[style*="font-weight:800"]');
+                if (icon) { icon.textContent = '✓'; icon.style.color = '#d82d6b'; }
+                btn.outerHTML = '<span style="font-size:11px;color:#d82d6b;font-weight:700;flex-shrink:0;margin-left:12px">Coperta ✓</span>';
             }
+            loadAdminFaqList();
         } catch(e) {
-            ta.value = '';
-            const msg = document.getElementById('fm-msg-admin');
-            msg.style.display = 'block'; msg.style.background = '#fce8ef'; msg.style.color = '#b00020';
-            msg.textContent = 'Errore durante la generazione AI — riprova o scrivi manualmente.';
-        } finally {
-            ta.disabled = false;
+            btn.disabled = false;
+            btn.textContent = origText;
+            alert('Errore generazione: ' + e.message);
         }
     };
 

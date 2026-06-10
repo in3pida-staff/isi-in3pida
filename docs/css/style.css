@@ -293,7 +293,7 @@ textarea.profile-input { resize: vertical; }
     margin-bottom: 20px;
 }
 .card-header {
-    padding: 18px 26px 15px;
+    padding: 14px 20px;
     border-bottom: 1px solid #ececf2;
     background: #fafafa;
     display: flex; align-items: center; justify-content: space-between;
@@ -329,8 +329,8 @@ table.sites-table tbody tr:hover td { background: #fdf0f5; }
 .btn-ping {
     background: transparent; border: 1.5px solid var(--border);
     color: var(--dark); font-family: var(--font);
-    font-size: 11px; font-weight: 700;
-    padding: 5px 12px; border-radius: 4px; cursor: pointer;
+    font-size: 12px; font-weight: 700;
+    padding: 7px 14px; border-radius: 4px; cursor: pointer;
     transition: all .15s; white-space: nowrap;
 }
 .btn-ping:hover    { background: var(--magenta); border-color: var(--magenta); color: white; }
