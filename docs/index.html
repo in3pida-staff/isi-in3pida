@@ -3458,7 +3458,8 @@ ${rows}
             const newCfg = { ...cfg };
             if (gKey && !gKey.startsWith('•')) newCfg.gemini_api_key = gKey;
             if (iKey && !iKey.startsWith('•')) newCfg.isi_token = iKey;
-            const hp2 = site?.hotel_profile || {};
+            const { data: freshK } = await _SBq.from('isi_sites').select('hotel_profile').eq('site_id', site.site_id).single();
+            const hp2 = freshK?.hotel_profile || site?.hotel_profile || {};
             const { error } = await _SBq.from('isi_sites').update({ hotel_profile: { ...hp2, isi_config: newCfg } }).eq('site_id', site.site_id);
             if (msg) { msg.style.color = '#d82d6b'; msg.textContent = error ? '✗ Errore salvataggio' : '✓ Chiavi salvate'; setTimeout(()=>{ msg.textContent=''; }, 3000); }
             site.hotel_profile = { ...hp2, isi_config: newCfg };
