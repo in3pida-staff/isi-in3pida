@@ -3394,15 +3394,11 @@ ${rows}
                 '<div style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Script da incollare nel sito</div>' +
                 '<div style="display:flex;gap:8px;align-items:stretch;margin-bottom:12px">' +
                 '<code style="flex:1;background:#f4f4f8;border-radius:6px;padding:10px 12px;font-size:11px;color:#4b4d68;word-break:break-all;display:block;border:1px solid #e4e4ec;font-family:monospace">' + escHtml(_scriptTag) + '</code>' +
-                `<button class="btn-ping" id="btn-copy-script" style="flex-shrink:0;font-size:11px;padding:8px 14px">Copia</button>` +
+                `<button class="btn-update" id="btn-copy-script" style="flex-shrink:0;font-size:11px;padding:8px 14px;margin-left:0">Copia</button>` +
                 '</div>' +
                 `<a href="${_faqUrl}" target="_blank" style="font-size:13px;color:#d82d6b;font-weight:600;text-decoration:none">Pagina FAQ pubblica →</a>` +
                 '</div>'
-            ) : (
-                '<div style="padding:10px 20px 16px;border-top:1px solid #f4f4f8">' +
-                `<a href="${(site.site_url||'').replace(/\/$/,'')}/faq" target="_blank" style="font-size:13px;color:#d82d6b;font-weight:600;text-decoration:none">Pagina FAQ pubblica →</a>` +
-                '</div>'
-            )) +
+            ) : '') +
             '</div>';
 
         cont.innerHTML =
