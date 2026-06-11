@@ -3376,7 +3376,7 @@ ${rows}
         const toggl = (id,label,checked) => '<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #f4f4f8"><span style="font-size:13px;font-weight:600;color:#4b4d68">'+label+'</span><label style="display:inline-flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="cfg-'+id+'" '+(checked?'checked':'')+' style="width:16px;height:16px;accent-color:#d82d6b"><span style="font-size:12px;color:#aaa">'+(checked?'Attivo':'Disattivo')+'</span></label></div>';
         const inp = (id,label,val,ph,type) => '<div style="padding:10px 0;border-bottom:1px solid #f4f4f8"><label style="font-size:11px;font-weight:700;color:#aaa;letter-spacing:.05em;text-transform:uppercase;display:block;margin-bottom:6px">'+label+'</label><input type="'+(type||'text')+'" id="cfg-'+id+'" value="'+escHtml(val||'')+'" placeholder="'+escHtml(ph||'')+'" style="width:100%;border:1px solid #e4e4ec;border-radius:6px;padding:8px 12px;font-size:13px;color:#171b33;outline:none;box-sizing:border-box"></div>';
 
-        const _isScriptMode = (site.plugin_version || '').startsWith('js-') || (hp.site_mode === 'script');
+        const _isScriptMode = site.plugin_version ? (site.plugin_version).startsWith('js-') : hp.site_mode === 'script';
         const _lastHB = site.last_heartbeat;
         const _hrsAgo = _lastHB ? (Date.now() - new Date(_lastHB).getTime()) / 3600000 : 9999;
         const _isOnline = _hrsAgo < 25;
@@ -3430,15 +3430,19 @@ ${rows}
             setTimeout(() => { this.textContent = 'Copia'; }, 2000);
         });
         document.getElementById('btn-save-cfg-toggle')?.addEventListener('click', async () => {
+            const btn = document.getElementById('btn-save-cfg-toggle');
             const newCfg = { ...cfg,
+                llm_layer: document.getElementById('cfg-llm_layer')?.checked,
                 chunk_engine: document.getElementById('cfg-chunk_engine')?.checked,
                 citation_engine: document.getElementById('cfg-citation_engine')?.checked,
                 entity_graph: document.getElementById('cfg-entity_graph')?.checked,
                 faq_enabled: document.getElementById('cfg-faq_enabled')?.checked,
             };
-            const hp2 = site?.hotel_profile || {};
-            await _SBq.from('isi_sites').update({ hotel_profile: { ...hp2, isi_config: newCfg } }).eq('site_id', site.site_id);
+            const { data: fresh } = await _SBq.from('isi_sites').select('hotel_profile').eq('site_id', site.site_id).single();
+            const hp2 = fresh?.hotel_profile || site?.hotel_profile || {};
+            const { error } = await _SBq.from('isi_sites').update({ hotel_profile: { ...hp2, isi_config: newCfg } }).eq('site_id', site.site_id);
             site.hotel_profile = { ...hp2, isi_config: newCfg };
+            if (btn) { btn.textContent = error ? '✗ Errore' : '✓ Salvato'; setTimeout(() => { btn.textContent = 'Salva abilitazioni'; }, 2000); }
         });
         document.getElementById('btn-save-cfg-keys')?.addEventListener('click', async () => {
             const gKey = document.getElementById('cfg-gemini_key')?.value.trim();
