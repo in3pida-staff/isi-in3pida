@@ -686,7 +686,7 @@ async function initHotelConfig(site) {
     const connCard=cardH+chH(connDot,'Stato Connessione')+
         '<div style="padding:0 20px">'+
         row('Stato','<span style="color:'+connDot+';font-weight:700">'+connLabel+'</span>')+
-        row('Modalità',isScriptMode?'Script JS':'Plugin WordPress')+
+        row('Modalità',isScriptMode?'<span style="color:#d82d6b;font-weight:700">Script JS</span>':'Plugin WordPress')+
         row('Ultimo segnale',hb?timeAgo(hb):'—')+
         (!isScriptMode?row('Versione plugin',esc(site.plugin_version||'—')):'')+
         (!isScriptMode?row('WordPress',esc(site.wp_version||'—')):'')+
@@ -696,7 +696,7 @@ async function initHotelConfig(site) {
             '<div style="font-size:11px;font-weight:700;color:#aaa;letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px">Script da incollare nel sito</div>'+
             '<div style="display:flex;gap:8px;align-items:center">'+
             '<code id="hcfg-script-tag" style="flex:1;background:#f4f4f8;padding:10px 12px;border-radius:6px;font-size:12px;color:#171b33;word-break:break-all">'+esc(scriptTag)+'</code>'+
-            '<button id="hcfg-copy-script" class="btn-ping" style="flex-shrink:0;white-space:nowrap">Copia</button>'+
+            '<button id="hcfg-copy-script" class="btn-update" style="flex-shrink:0;white-space:nowrap;margin-left:0">Copia</button>'+
             '</div></div>'
         :'')+
         '</div>';
