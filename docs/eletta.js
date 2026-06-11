@@ -23,7 +23,7 @@
 
   async function fetchSite(siteId) {
     const res = await fetch(
-      `${SUPABASE_URL}/rest/v1/isi_sites?site_id=eq.${encodeURIComponent(siteId)}&select=site_id,site_name,site_url,hotel_profile,faq_data,plugin_version`,
+      `${SUPABASE_URL}/rest/v1/isi_sites?site_id=eq.${encodeURIComponent(siteId)}&select=site_id,site_name,site_url,hotel_profile,schema_data,faq_data,plugin_version`,
       { headers: { apikey: SUPABASE_ANON, Authorization: `Bearer ${SUPABASE_ANON}` } }
     );
     if (!res.ok) return null;
@@ -52,20 +52,31 @@
   }
 
   function injectSchema(site) {
-    const hp = site.hotel_profile || {};
-    const name = site.site_name || hp.name || document.title;
-    const url = site.site_url || location.origin;
+    const sd = site.schema_data || {};
+    const name = sd.name || site.site_name || document.title;
+    const url = sd.url || site.site_url || location.origin;
     const schema = {
       '@context': 'https://schema.org',
-      '@type': 'Hotel',
+      '@type': sd.type || 'Hotel',
       name,
       url,
     };
-    if (hp.description) schema.description = hp.description;
-    if (hp.telephone) schema.telephone = hp.telephone;
-    if (hp.address) schema.address = hp.address;
-    if (hp.star_rating) schema.starRating = { '@type': 'Rating', ratingValue: hp.star_rating };
-    if (hp.latitude && hp.longitude) schema.geo = { '@type': 'GeoCoordinates', latitude: hp.latitude, longitude: hp.longitude };
+    if (sd.description) schema.description = sd.description;
+    if (sd.telephone) schema.telephone = sd.telephone;
+    if (sd.email) schema.email = sd.email;
+    if (sd.street || sd.city) schema.address = {
+      '@type': 'PostalAddress',
+      streetAddress: sd.street || '',
+      addressLocality: sd.city || '',
+      addressRegion: sd.region || '',
+      postalCode: sd.postal_code || '',
+      addressCountry: sd.country || 'IT',
+    };
+    if (sd.official_rating) schema.starRating = { '@type': 'Rating', ratingValue: sd.official_rating };
+    if (sd.latitude && sd.longitude) schema.geo = { '@type': 'GeoCoordinates', latitude: sd.latitude, longitude: sd.longitude };
+    if (sd.checkin_time) schema.checkinTime = sd.checkin_time;
+    if (sd.checkout_time) schema.checkoutTime = sd.checkout_time;
+    if (sd.pets_allowed !== undefined && sd.pets_allowed !== '') schema.petsAllowed = sd.pets_allowed;
     const el = document.createElement('script');
     el.type = 'application/ld+json';
     el.textContent = JSON.stringify(schema);
@@ -74,7 +85,7 @@
 
   function renderFaqWidget(site) {
     const faqData = site.faq_data || {};
-    const items = (faqData.items || []).filter(i => i.status === 'published' || i.status === 'attiva' || !i.status);
+    const items = (faqData.items || []).filter(i => i.status === 'publish' || i.status === 'published' || (!i.status && i.solo_ai !== true));
     if (!items.length) return;
 
     const hp = site.hotel_profile || {};
