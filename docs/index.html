@@ -3414,7 +3414,7 @@ ${rows}
             toggl('citation_engine','Citation Engine', cfg.citation_engine!==false) +
             toggl('entity_graph','Entity Graph', cfg.entity_graph!==false) +
             toggl('faq_enabled','FAQ Pubbliche', cfg.faq_enabled!==false) +
-            '</div><div style="padding:14px 20px;display:flex;gap:10px"><button id="btn-save-cfg-toggle" class="btn-update" style="margin-left:0">Salva abilitazioni</button></div></div>' +
+            '</div><div style="padding:14px 20px;display:flex;align-items:center;gap:10px"><button id="btn-save-cfg-toggle" class="btn-update" style="margin-left:0">Salva abilitazioni</button><span id="cfg-toggle-msg" style="font-size:13px;color:#d82d6b"></span></div></div>' +
 
             cardH + chH('#d82d6b','Chiavi API') +
             '<div style="padding:0 20px">' +
@@ -3442,11 +3442,14 @@ ${rows}
                 entity_graph: document.getElementById('cfg-entity_graph')?.checked,
                 faq_enabled: document.getElementById('cfg-faq_enabled')?.checked,
             };
+            const neverConnected = !site.last_heartbeat;
             const { data: fresh } = await _SBq.from('isi_sites').select('hotel_profile').eq('site_id', site.site_id).single();
             const hp2 = fresh?.hotel_profile || site?.hotel_profile || {};
             const { error } = await _SBq.from('isi_sites').update({ hotel_profile: { ...hp2, isi_config: newCfg } }).eq('site_id', site.site_id);
             site.hotel_profile = { ...hp2, isi_config: newCfg };
-            if (btn) { btn.textContent = error ? '✗ Errore' : '✓ Salvato'; setTimeout(() => { btn.textContent = 'Salva abilitazioni'; }, 2000); }
+            const tmsg = document.getElementById('cfg-toggle-msg');
+            if (btn) { btn.textContent = error ? '✗ Errore' : '✓ Salvato'; setTimeout(() => { btn.textContent = 'Salva abilitazioni'; if (tmsg) tmsg.textContent = ''; }, 3000); }
+            if (!error && neverConnected && tmsg) tmsg.textContent = '⚠ Sito non ancora connesso — le impostazioni saranno attive dopo il primo segnale';
         });
         document.getElementById('btn-save-cfg-keys')?.addEventListener('click', async () => {
             const gKey = document.getElementById('cfg-gemini_key')?.value.trim();
