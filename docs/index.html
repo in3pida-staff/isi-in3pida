@@ -424,6 +424,7 @@
     let latestVersion = null;
     let allSiti = [];
     let _currentUserRole = '';
+    let _sidebarClickHandler = null;
 
     // ─── AUTH ────────────────────────────────────────────────────────────────────
     async function init() {
@@ -1266,7 +1267,8 @@
 
         // ── sidebar navigation (event delegation — più robusto di querySelectorAll)
         const allSecs = ['overview','faq','schema','mappa','coerenza','ai_layer','config','pse'];
-        el.addEventListener('click', e => {
+        if (_sidebarClickHandler) el.removeEventListener('click', _sidebarClickHandler);
+        _sidebarClickHandler = e => {
             const row = e.target.closest('.stato-sezione-row[data-sec]');
             if (!row) return;
             const sec = row.getAttribute('data-sec');
@@ -1292,7 +1294,8 @@
             if (sec === 'coerenza') initCoerenzaTable(site);
             if (sec === 'ai_layer') initAiLayerPanel(site);
             if (sec === 'config') initConfigPanel(site);
-        });
+        };
+        el.addEventListener('click', _sidebarClickHandler);
 
         // ── FAQ filter buttons
         el.querySelectorAll('.faq-f-btn').forEach(b => {
