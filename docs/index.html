@@ -3783,13 +3783,41 @@ ${rows}
                 });
             } catch(_) {}
         }
-        return { site_id: site.site_id, site_name: site.site_name, ok: updateOk, skipped: updateSkipped, actualVersion: resolvedVer, message: updateMsg };
+        return { site_id: site.site_id, site_name: site.site_name, site_url: site.site_url || '', ok: updateOk, skipped: updateSkipped, actualVersion: resolvedVer, message: updateMsg };
     }
 
     function showUpdateErrorModal(failedSites, downloadUrl, version) {
         const existing = document.getElementById('isi-update-error-modal');
         if (existing) existing.remove();
-        const rows = failedSites.map(s => `<tr><td style="padding:8px 10px;font-weight:700;color:#171b33">${escHtml(s.site_name||s.site_id)}</td><td style="padding:8px 10px;color:#d82d6b;font-size:13px">${escHtml(s.message||'errore sconosciuto')}</td></tr>`).join('');
+
+        const oldEndpoint = failedSites.filter(s => s.message && s.message.includes('Endpoint mancante'));
+        const otherErrors = failedSites.filter(s => !s.message || !s.message.includes('Endpoint mancante'));
+
+        let body = '';
+
+        if (oldEndpoint.length) {
+            const links = oldEndpoint.map(s => {
+                const base = (s.site_url || '').replace(/\/$/, '');
+                const url = base ? base + '/wp-admin/plugins.php' : '';
+                return `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f4f4f8">
+                    <span style="font-size:13px;font-weight:700;color:#171b33">${escHtml(s.site_name||s.site_id)}</span>
+                    ${url ? `<a href="${escHtml(url)}" target="_blank" class="btn-update" style="font-size:12px;padding:6px 14px;text-decoration:none">Apri WP Admin →</a>` : `<span style="font-size:12px;color:#aaa">URL sito mancante</span>`}
+                </div>`;
+            }).join('');
+            body += `<div style="margin-bottom:16px">
+                <div style="font-size:13px;color:#4b4d68;line-height:1.6;margin-bottom:12px">
+                    Questi siti usano una versione del plugin senza aggiornamento remoto.<br>
+                    Clicca <strong>Apri WP Admin</strong> — WordPress mostrerà l'aggiornamento disponibile, un click e il sito si aggiorna. Da quel momento tutti i futuri aggiornamenti funzioneranno da qui.
+                </div>
+                <div style="border:1px solid #e4e4ec;border-radius:6px;padding:0 16px">${links}</div>
+            </div>`;
+        }
+
+        if (otherErrors.length) {
+            const rows = otherErrors.map(s => `<tr><td style="padding:8px 10px;font-weight:700;color:#171b33">${escHtml(s.site_name||s.site_id)}</td><td style="padding:8px 10px;color:#d82d6b;font-size:13px">${escHtml(s.message||'errore sconosciuto')}</td></tr>`).join('');
+            body += `<table style="width:100%;border-collapse:collapse;border:1px solid #ead0dc;border-radius:6px;overflow:hidden;margin-bottom:16px"><thead><tr style="background:#fbf4f7"><th style="padding:8px 10px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#171b33">Sito</th><th style="padding:8px 10px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#171b33">Motivo</th></tr></thead><tbody>${rows}</tbody></table>`;
+        }
+
         const m = document.createElement('div');
         m.id = 'isi-update-error-modal';
         m.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:99999;display:flex;align-items:center;justify-content:center';
@@ -3799,18 +3827,8 @@ ${rows}
                 <span style="background:#fce8ef;color:#d82d6b;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">⚠</span>
                 <h3 style="margin:0;font-size:16px;color:#171b33">Aggiornamento non riuscito</h3>
             </div>
-            <table style="width:100%;border-collapse:collapse;border:1px solid #ead0dc;border-radius:6px;overflow:hidden;margin-bottom:16px"><thead><tr style="background:#fbf4f7"><th style="padding:8px 10px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#171b33">Sito</th><th style="padding:8px 10px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#171b33">Motivo</th></tr></thead><tbody>${rows}</tbody></table>
-            <div style="background:#f8f4ff;border:1px solid #ddd5f0;border-radius:6px;padding:14px 16px;margin-bottom:18px;font-size:13px;color:#35364f;line-height:1.6">
-                <strong style="display:block;margin-bottom:6px">Come risolvere</strong>
-                Se il sito ha il plugin precedente alla v1.7.0, l'aggiornamento remoto non è disponibile.<br>
-                Installa manualmente il ZIP <strong>una sola volta</strong> da:<br>
-                <span style="color:#d82d6b;font-weight:700">WordPress Admin → Plugin → Aggiungi nuovo → Carica plugin</span><br>
-                Dopo quella installazione, tutti i futuri aggiornamenti funzioneranno automaticamente da qui.
-            </div>
-            <div style="display:flex;gap:10px;flex-wrap:wrap">
-                <a href="${escHtml(downloadUrl)}" download style="background:#d82d6b;color:#fff;text-decoration:none;border-radius:6px;padding:10px 18px;font-weight:800;font-size:13px;display:inline-flex;align-items:center;gap:6px">⬇ Scarica v${escHtml(version)}.zip</a>
-                <button onclick="this.closest('#isi-update-error-modal').remove()" style="background:#fff;border:1px solid #ead0dc;border-radius:6px;padding:10px 18px;font-weight:700;font-size:13px;cursor:pointer;color:#171b33">Chiudi</button>
-            </div>
+            ${body}
+            <button onclick="this.closest('#isi-update-error-modal').remove()" style="background:#fff;border:1px solid #ead0dc;border-radius:6px;padding:10px 18px;font-weight:700;font-size:13px;cursor:pointer;color:#171b33">Chiudi</button>
         </div>`;
         document.body.appendChild(m);
         m.addEventListener('click', e => { if (e.target === m) m.remove(); });
