@@ -3661,7 +3661,7 @@ ${rows}
                 '<input id="new-site-script-input" readonly value="" style="flex:1;background:#f4f4f8;border:1px solid #e4e4ec;border-radius:6px;padding:10px 12px;font-size:11px;color:#171b33;font-family:monospace;outline:none;cursor:text">' +
                 '<button id="new-site-copy-btn" class="btn-ping" style="flex-shrink:0;white-space:nowrap">Copia</button>' +
                 '</div>' +
-                `<a href="${faqUrl}" target="_blank" style="font-size:13px;color:#009bb9;font-weight:600;text-decoration:none">Pagina FAQ pubblica →</a>`;
+                '';
             document.getElementById('new-site-script-input').value = scriptTag;
             document.getElementById('new-site-copy-btn').addEventListener('click', function() {
                 navigator.clipboard.writeText(scriptTag).then(() => {
