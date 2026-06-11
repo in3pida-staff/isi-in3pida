@@ -659,8 +659,8 @@
             const dotTitle = isConnected ? 'Collegamento con il sito attivo' : 'Collegamento con il sito non attivo';
             const siteCost = costsMap?.[site.site_id] || 0;
             const aggiornaBtnHtml = isScriptJs
-                ? `<span style="font-size:11px;padding:4px 10px;color:#666b84;font-weight:600;background:#f4f4f8;border-radius:6px;border:1px solid #e4e4ec">Auto</span>`
-                : `<button class="btn-update" style="font-size:11px;padding:4px 10px" onclick="event.stopPropagation();aggiornaSito('${escHtml(site.site_id)}')">Aggiorna</button>`;
+                ? `<button class="btn-ping" style="font-size:11px;padding:4px 10px;cursor:default;opacity:1" disabled onclick="event.stopPropagation()">Auto</button>`
+                : `<button class="btn-update" style="font-size:11px;padding:4px 10px;margin-left:0" onclick="event.stopPropagation();aggiornaSito('${escHtml(site.site_id)}')">Aggiorna</button>`;
             html += `<tr data-site-id="${escHtml(site.site_id)}" style="cursor:pointer">
                 <td><span class="dot" style="background:${dotColor};box-shadow:0 0 0 4px ${dotColor}26;cursor:help" title="${escHtml(dotTitle)}"></span></td>
                 <td><div class="site-name-cell">${escHtml(site.site_name||'—')}</div><div style="font-size:11px;color:var(--grey);margin-top:2px">${escHtml(site.site_url||'')}</div></td>
