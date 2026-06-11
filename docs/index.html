@@ -636,7 +636,7 @@
         data.forEach(site => {
             const hrs = site.last_heartbeat ? (now - new Date(site.last_heartbeat))/3600000 : 9999;
             const hbTesto  = site.last_heartbeat ? timeAgo(site.last_heartbeat) : 'Mai';
-            const hbColor  = hrs<25?'#d82d6b':hrs<48?'#d82d6b':'#b00020';
+            const hbColor  = '#d82d6b';
             const geo = site.geo_scores || {};
             const rawFallback = [geo.chunk_avg, geo.citation_avg].filter(s=>s!=null);
             const geoAvg = geo.completeness_score != null ? geo.completeness_score : (geo.ai_readiness != null ? geo.ai_readiness : (rawFallback.length ? Math.round(rawFallback.reduce((a,b)=>a+b,0)/rawFallback.length) : null));
@@ -645,11 +645,11 @@
             const geoHtml = geoAvg!==null ? `<span style="background:${geoAvgBg};color:${geoAvgTc};font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap">${geoAvg}/100</span>` : `<span style="color:#666b84;font-size:12px">—</span>`;
             const covPct = geo.coverage_pct ?? null;
             const covHtml = covPct !== null
-                ? `<span style="background:${covPct>=80?'#fbf4f7':covPct>=50?'#fbf4f7':'#fce8ef'};color:${covPct>=80?'#d82d6b':covPct>=50?'#d82d6b':'#b00020'};font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap">${covPct}%</span>`
+                ? `<span style="background:#fbf4f7;color:#d82d6b;font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap">${covPct}%</span>`
                 : `<span style="color:#666b84;font-size:12px">—</span>`;
             const cs = geo.completeness_score ?? null;
             const csHtml = cs !== null
-                ? `<span style="background:${cs>=70?'#fbf4f7':cs>=40?'#fbf4f7':'#fce8ef'};color:${cs>=70?'#d82d6b':cs>=40?'#d82d6b':'#b00020'};font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap">${cs}/100</span>`
+                ? `<span style="background:#fbf4f7;color:#d82d6b;font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap">${cs}/100</span>`
                 : `<span style="color:#666b84;font-size:12px">—</span>`;
             const isScriptJs = (site.plugin_version||'').startsWith('js-') || site.hotel_profile?.site_mode === 'script';
             const isOld = !isScriptJs && latestVersion && site.plugin_version && semverGt(latestVersion.version, site.plugin_version);
@@ -659,8 +659,10 @@
             const dotTitle = isConnected ? 'Collegamento con il sito attivo' : 'Collegamento con il sito non attivo';
             const siteCost = costsMap?.[site.site_id] || 0;
             const aggiornaBtnHtml = isScriptJs
-                ? `<button class="btn-ping" style="font-size:11px;padding:4px 10px;cursor:default;opacity:1" disabled onclick="event.stopPropagation()">Auto</button>`
-                : `<button class="btn-update" style="font-size:11px;padding:4px 10px;margin-left:0" onclick="event.stopPropagation();aggiornaSito('${escHtml(site.site_id)}')">Aggiorna</button>`;
+                ? `<span style="display:inline-block;font-size:11px;font-weight:700;padding:4px 10px;border:1.5px solid #e4e4ec;border-radius:4px;color:#666b84;white-space:nowrap">Auto</span>`
+                : isOld
+                    ? `<button class="btn-update" style="font-size:11px;padding:4px 10px;margin-left:0;border:1.5px solid transparent" onclick="event.stopPropagation();aggiornaSito('${escHtml(site.site_id)}')">Aggiorna</button>`
+                    : `<button class="btn-ping" style="font-size:11px;padding:4px 10px" onclick="event.stopPropagation();aggiornaSito('${escHtml(site.site_id)}')">Aggiorna</button>`;
             html += `<tr data-site-id="${escHtml(site.site_id)}" style="cursor:pointer">
                 <td><span class="dot" style="background:${dotColor};box-shadow:0 0 0 4px ${dotColor}26;cursor:help" title="${escHtml(dotTitle)}"></span></td>
                 <td><div class="site-name-cell">${escHtml(site.site_name||'—')}</div><div style="font-size:11px;color:var(--grey);margin-top:2px">${escHtml(site.site_url||'')}</div></td>
@@ -674,6 +676,15 @@
         });
         html += '</tbody></table>';
         el.innerHTML = `<div style="overflow-x:auto">${html}</div>`;
+
+        const hasUpdates = data.some(s => {
+            const sIsJs = (s.plugin_version||'').startsWith('js-') || s.hotel_profile?.site_mode === 'script';
+            return !sIsJs && latestVersion && s.plugin_version && semverGt(latestVersion.version, s.plugin_version);
+        });
+        ['btn-refresh-panoramica','btn-refresh-siti'].forEach(id => {
+            const b = document.getElementById(id);
+            if (b) b.style.display = hasUpdates ? '' : 'none';
+        });
 
         el.querySelectorAll('tr[data-site-id]').forEach(row => {
             row.addEventListener('click', e => {
@@ -3376,7 +3387,7 @@ ${rows}
         const _faqUrl = `https://in3pida-staff.github.io/isi-in3pida/faq.html?id=${site.site_id}`;
         const connSection = cardH + chH(_connDot,'Connessione') +
             '<div style="padding:0 20px">' +
-            row('Stato', `<span style="color:${_connDot}">${_connLabel}</span>`) +
+            row('Stato', `<span style="color:${_connDot};font-weight:400">${_connLabel}</span>`) +
             '</div>' +
             (_isScriptMode ? (
                 '<div style="padding:10px 20px 16px;border-top:1px solid #f4f4f8">' +
@@ -3385,9 +3396,13 @@ ${rows}
                 '<code style="flex:1;background:#f4f4f8;border-radius:6px;padding:10px 12px;font-size:11px;color:#4b4d68;word-break:break-all;display:block;border:1px solid #e4e4ec;font-family:monospace">' + escHtml(_scriptTag) + '</code>' +
                 `<button class="btn-ping" id="btn-copy-script" style="flex-shrink:0;font-size:11px;padding:8px 14px">Copia</button>` +
                 '</div>' +
-                `<a href="${_faqUrl}" target="_blank" style="font-size:13px;color:#009bb9;font-weight:600;text-decoration:none">Pagina FAQ pubblica →</a>` +
+                `<a href="${_faqUrl}" target="_blank" style="font-size:13px;color:#d82d6b;font-weight:600;text-decoration:none">Pagina FAQ pubblica →</a>` +
                 '</div>'
-            ) : '') +
+            ) : (
+                '<div style="padding:10px 20px 16px;border-top:1px solid #f4f4f8">' +
+                `<a href="${(site.site_url||'').replace(/\/$/,'')}/faq" target="_blank" style="font-size:13px;color:#d82d6b;font-weight:600;text-decoration:none">Pagina FAQ pubblica →</a>` +
+                '</div>'
+            )) +
             '</div>';
 
         cont.innerHTML =
