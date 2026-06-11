@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate">
+<title>FAQ</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #fbf4f7; color: #171b33; min-height: 100vh; }
+  .page { max-width: 720px; margin: 0 auto; padding: 40px 20px 60px; }
+  .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 40px; }
+  .brand-dot { width: 10px; height: 10px; border-radius: 50%; background: #d82d6b; }
+  .brand-name { font-size: 12px; font-weight: 700; color: #d82d6b; letter-spacing: .08em; text-transform: uppercase; }
+  .hotel-name { font-size: 26px; font-weight: 800; color: #171b33; margin-bottom: 6px; }
+  .page-title { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+  .page-subtitle { font-size: 14px; color: #666b84; margin-bottom: 32px; }
+  .faq-item { border: 1px solid #e4e4ec; border-radius: 10px; margin-bottom: 10px; overflow: hidden; background: #fff; }
+  .faq-q { width: 100%; text-align: left; background: none; border: none; padding: 16px 20px; cursor: pointer; font-size: 15px; font-weight: 600; color: #171b33; display: flex; align-items: center; justify-content: space-between; gap: 14px; line-height: 1.4; }
+  .faq-q:hover { background: #fbf4f7; }
+  .faq-arrow { flex-shrink: 0; font-size: 12px; transition: transform .2s; }
+  .faq-a { max-height: 0; overflow: hidden; transition: max-height .3s ease, padding .3s ease; font-size: 14px; line-height: 1.7; color: #4b4d68; padding: 0 20px; }
+  .faq-a.open { max-height: 1000px; padding: 0 20px 16px; }
+  .loading { text-align: center; padding: 60px 20px; color: #aaa; font-size: 14px; }
+  .spinner { width: 28px; height: 28px; border: 3px solid #ead0dc; border-top-color: #d82d6b; border-radius: 50%; animation: spin .7s linear infinite; margin: 0 auto 14px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .empty { text-align: center; padding: 60px 20px; color: #aaa; font-size: 14px; }
+  .footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid #e4e4ec; font-size: 11px; color: #ccc; text-align: center; }
+  .footer a { color: #d82d6b; text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="brand"><span class="brand-dot"></span><span class="brand-name">in3pida</span></div>
+  <div id="main-content">
+    <div class="loading"><div class="spinner"></div>Caricamento…</div>
+  </div>
+  <div class="footer">Pagina gestita da <a href="https://in3pida.it" target="_blank">in3pida</a></div>
+</div>
+
+<script>
+(function () {
+  const SUPABASE_URL = 'https://yyauvoqjdzrbmebeafit.supabase.co';
+  const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5YXV2b3FqZHpyYm1lYmVhZml0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3OTM2MDAsImV4cCI6MjA5NTM2OTYwMH0.M6kD56PEO_UcJ68Vjquo03vuORjv62MflIzGLzYKN9w';
+
+  function esc(str) {
+    return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function getSiteId() {
+    return new URLSearchParams(location.search).get('id');
+  }
+
+  async function loadFaq(siteId) {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/isi_sites?site_id=eq.${encodeURIComponent(siteId)}&select=site_name,hotel_profile,faq_data`,
+      { headers: { apikey: SUPABASE_ANON, Authorization: `Bearer ${SUPABASE_ANON}` } }
+    );
+    if (!res.ok) throw new Error('fetch error');
+    const rows = await res.json();
+    return rows?.[0] || null;
+  }
+
+  function render(site) {
+    const hp = site.hotel_profile || {};
+    const settings = hp.faq_settings || {};
+    const faqData = site.faq_data || {};
+    const items = (faqData.items || []).filter(i => i.status === 'published' || i.status === 'attiva' || !i.status);
+
+    const colorPrimary = settings.color_primary || '#d82d6b';
+    const colorAccent = settings.color_accent || '#009bb9';
+    const colorText = settings.color_text || '#171b33';
+    const colorBg = settings.color_bg || '#ffffff';
+    const pageTitle = settings.page_title || 'Domande frequenti';
+    const pageSubtitle = settings.page_subtitle || '';
+    const openFirst = settings.open_first !== false;
+
+    document.title = `${pageTitle} — ${site.site_name || ''}`;
+    document.body.style.background = colorBg === '#ffffff' ? '#fbf4f7' : colorBg;
+
+    if (settings.color_primary) {
+      document.querySelector('.brand-dot').style.background = colorPrimary;
+      document.querySelector('.brand-name').style.color = colorPrimary;
+    }
+
+    const sorted = [...items].sort((a, b) => (a.menu_order ?? a.order ?? 0) - (b.menu_order ?? b.order ?? 0));
+
+    if (settings.schema_seo !== false && sorted.length) {
+      const schema = {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: sorted.map(i => ({
+          '@type': 'Question',
+          name: i.question,
+          acceptedAnswer: { '@type': 'Answer', text: i.answer },
+        })),
+      };
+      const el = document.createElement('script');
+      el.type = 'application/ld+json';
+      el.textContent = JSON.stringify(schema);
+      document.head.appendChild(el);
+    }
+
+    const cont = document.getElementById('main-content');
+    if (!sorted.length) {
+      cont.innerHTML = `
+        <div class="hotel-name">${esc(site.site_name || '')}</div>
+        <div class="page-title" style="color:${colorPrimary}">${esc(pageTitle)}</div>
+        <div class="empty">Nessuna domanda pubblicata</div>`;
+      return;
+    }
+
+    cont.innerHTML = `
+      <div class="hotel-name" style="color:${colorText}">${esc(site.site_name || '')}</div>
+      <div class="page-title" style="color:${colorPrimary}">${esc(pageTitle)}</div>
+      ${pageSubtitle ? `<div class="page-subtitle">${esc(pageSubtitle)}</div>` : ''}
+      <div id="faq-list">
+        ${sorted.map((item, idx) => `
+          <div class="faq-item">
+            <button class="faq-q" data-idx="${idx}" style="color:${colorText}">
+              <span>${esc(item.question)}</span>
+              <span class="faq-arrow" style="color:${colorPrimary}">${openFirst && idx === 0 ? '▲' : '▼'}</span>
+            </button>
+            <div class="faq-a${openFirst && idx === 0 ? ' open' : ''}" style="color:${colorText}">${esc(item.answer)}</div>
+          </div>`).join('')}
+      </div>`;
+
+    cont.querySelectorAll('.faq-q').forEach(btn => {
+      btn.addEventListener('click', function () {
+        const faqItem = this.closest('.faq-item');
+        const answer = faqItem.querySelector('.faq-a');
+        const arrow = faqItem.querySelector('.faq-arrow');
+        const isOpen = answer.classList.contains('open');
+        if (isOpen) {
+          answer.classList.remove('open');
+          arrow.textContent = '▼';
+        } else {
+          answer.classList.add('open');
+          arrow.textContent = '▲';
+        }
+      });
+    });
+  }
+
+  async function init() {
+    const siteId = getSiteId();
+    const cont = document.getElementById('main-content');
+    if (!siteId) {
+      cont.innerHTML = '<div class="empty">ID sito non specificato</div>';
+      return;
+    }
+    try {
+      const site = await loadFaq(siteId);
+      if (!site) { cont.innerHTML = '<div class="empty">Sito non trovato</div>'; return; }
+      render(site);
+    } catch (_) {
+      cont.innerHTML = '<div class="empty">Errore caricamento dati</div>';
+    }
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
