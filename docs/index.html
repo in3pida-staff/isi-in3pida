@@ -159,13 +159,13 @@
                 <p>Le intelligenze artificiali confrontano le informazioni presenti su più fonti prima di formulare una risposta. Eletta verifica che dati, servizi e descrizioni siano coerenti tra sito web, OTA, Google e altri canali. Una maggiore coerenza aumenta l'affidabilità percepita del tuo hotel.</p>
                 <div style="font-size:11px;font-weight:700;color:var(--grey);letter-spacing:.06em;text-transform:uppercase;margin:16px 0 10px;padding-bottom:6px;border-bottom:2px solid #fce8ef">AI Layer</div>
                 <p>L'AI Layer raccoglie e organizza le informazioni del tuo hotel in un formato facilmente interpretabile dalle AI. È il punto di accesso che consente ai modelli di comprendere rapidamente contenuti, servizi e caratteristiche della struttura. Mantenerlo attivo è fondamentale per una corretta visibilità nelle intelligenze artificiali.</p>
-                <div style="font-size:11px;font-weight:700;color:var(--grey);letter-spacing:.06em;text-transform:uppercase;margin:16px 0 10px;padding-bottom:6px;border-bottom:2px solid #fce8ef">Installazione — Script JS</div>
-                <p>Se il sito non è WordPress, puoi usare lo <strong>Script JS</strong> al posto del plugin. Dalla Panoramica clicca <strong>+ Aggiungi sito</strong>, inserisci il nome dell'hotel e l'URL, poi clicca <strong>Crea sito</strong>. Trovi lo script nella scheda hotel → tab <strong>CONFIGURAZIONE</strong>.</p>
-                <p>Incolla lo script nel <code style="background:#f4f4f8;padding:1px 6px;border-radius:4px;font-size:12px">&lt;head&gt;</code> di ogni pagina del sito, prima del tag <code style="background:#f4f4f8;padding:1px 6px;border-radius:4px;font-size:12px">&lt;/head&gt;</code>. Una volta inserito, lo script si connette automaticamente a Eletta e invia il primo segnale entro pochi secondi. La card <strong>Stato Connessione</strong> diventerà verde.</p>
                 <div style="font-size:11px;font-weight:700;color:var(--grey);letter-spacing:.06em;text-transform:uppercase;margin:16px 0 10px;padding-bottom:6px;border-bottom:2px solid #fce8ef">Configurazione</div>
                 <p>La configurazione collega il sito del tuo hotel alla piattaforma Eletta. Una volta completata, permette di attivare il monitoraggio, aggiornare i dati e raccogliere informazioni utili per migliorare la presenza nelle AI.</p>
                 <div style="font-size:11px;font-weight:700;color:var(--grey);letter-spacing:.06em;text-transform:uppercase;margin:16px 0 10px;padding-bottom:6px;border-bottom:2px solid #fce8ef">Statistiche PSE</div>
                 <p>Le statistiche (PSE: prompt search engine) mostrano come evolve la visibilità del tuo hotel nelle intelligenze artificiali nel tempo. Puoi monitorare citazioni, copertura delle query e andamento delle ottimizzazioni, verificando l'efficacia delle attività svolte sulla piattaforma.</p>
+                <div style="font-size:11px;font-weight:700;color:var(--grey);letter-spacing:.06em;text-transform:uppercase;margin:16px 0 10px;padding-bottom:6px;border-bottom:2px solid #fce8ef">Installazione — Script JS</div>
+                <p>Se il sito non è WordPress, puoi usare lo <strong>Script JS</strong> al posto del plugin. Dalla Panoramica clicca <strong>+ Aggiungi sito</strong>, inserisci il nome dell'hotel e l'URL, poi clicca <strong>Crea sito</strong>. Trovi lo script nella scheda hotel → tab <strong>CONFIGURAZIONE</strong>.</p>
+                <p>Incolla lo script nel <code style="background:#f4f4f8;padding:1px 6px;border-radius:4px;font-size:12px">&lt;head&gt;</code> di ogni pagina del sito, prima del tag <code style="background:#f4f4f8;padding:1px 6px;border-radius:4px;font-size:12px">&lt;/head&gt;</code>. Una volta inserito, lo script si connette automaticamente a Eletta e invia il primo segnale entro pochi secondi. La card <strong>Stato Connessione</strong> diventerà verde.</p>
             </div>
         </div>
     </div>
@@ -651,12 +651,16 @@
             const csHtml = cs !== null
                 ? `<span style="background:${cs>=70?'#fbf4f7':cs>=40?'#fbf4f7':'#fce8ef'};color:${cs>=70?'#d82d6b':cs>=40?'#d82d6b':'#b00020'};font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap">${cs}/100</span>`
                 : `<span style="color:#666b84;font-size:12px">—</span>`;
-            const isOld = latestVersion && site.plugin_version && semverGt(latestVersion.version, site.plugin_version);
+            const isScriptJs = (site.plugin_version||'').startsWith('js-') || site.hotel_profile?.site_mode === 'script';
+            const isOld = !isScriptJs && latestVersion && site.plugin_version && semverGt(latestVersion.version, site.plugin_version);
             const verHtml = `<span style="font-weight:600">${escHtml(site.plugin_version||'—')}</span>${isOld?` <span style="background:rgba(216,45,107,0.08);color:var(--magenta);font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;vertical-align:middle">aggiornare</span>`:''}`;
             const isConnected = hrs < 25;
             const dotColor = isConnected ? '#009bb9' : '#666b84';
             const dotTitle = isConnected ? 'Collegamento con il sito attivo' : 'Collegamento con il sito non attivo';
             const siteCost = costsMap?.[site.site_id] || 0;
+            const aggiornaBtnHtml = isScriptJs
+                ? `<span style="font-size:11px;padding:4px 10px;color:#009bb9;font-weight:600;background:#e8f6fb;border-radius:6px;border:1px solid #b8e8f5">Auto</span>`
+                : `<button class="btn-update" style="font-size:11px;padding:4px 10px${isOld?'':';background:#f4f4f8;color:#666b84;border:1px solid #e4e4ec'}" onclick="event.stopPropagation();aggiornaSito('${escHtml(site.site_id)}')">Aggiorna</button>`;
             html += `<tr data-site-id="${escHtml(site.site_id)}" style="cursor:pointer">
                 <td><span class="dot" style="background:${dotColor};box-shadow:0 0 0 4px ${dotColor}26;cursor:help" title="${escHtml(dotTitle)}"></span></td>
                 <td><div class="site-name-cell">${escHtml(site.site_name||'—')}</div><div style="font-size:11px;color:var(--grey);margin-top:2px">${escHtml(site.site_url||'')}</div></td>
@@ -665,7 +669,7 @@
                 <td class="td-center">${geoHtml}</td>
                 <td class="td-center">${covHtml}</td>
                 <td class="td-center">${csHtml}</td>
-                <td style="white-space:nowrap"><div style="display:inline-flex;gap:5px;align-items:center"><button class="btn-update" style="font-size:11px;padding:4px 10px${isOld?'':';background:#f4f4f8;color:#666b84;border:1px solid #e4e4ec'}" onclick="event.stopPropagation();aggiornaSito('${escHtml(site.site_id)}')">Aggiorna</button><button class="btn-ping" style="font-size:11px;padding:4px 10px" onclick="event.stopPropagation();toggleSitoAttivo('${escHtml(site.site_id)}','${escHtml(site.site_url||'')}',this)">Disattiva</button></div></td>
+                <td style="white-space:nowrap"><div style="display:inline-flex;gap:5px;align-items:center">${aggiornaBtnHtml}<button class="btn-ping" style="font-size:11px;padding:4px 10px" onclick="event.stopPropagation();toggleSitoAttivo('${escHtml(site.site_id)}','${escHtml(site.site_url||'')}',this)">Disattiva</button></div></td>
             </tr>`;
         });
         html += '</tbody></table>';
@@ -706,7 +710,8 @@
         const daysFaq = geo.days_since_faq ?? null;
         const daysSchema = geo.days_since_schema ?? null;
         const geoOk = geoAvg!==null?(geoAvg>=70?'ok':geoAvg>=40?'warn':'err'):'grey';
-        const isOld = latestVersion && site?.plugin_version && semverGt(latestVersion.version, site.plugin_version);
+        const isScriptMode = (site?.plugin_version||'').startsWith('js-') || site?.hotel_profile?.site_mode === 'script';
+        const isOld = !isScriptMode && latestVersion && site?.plugin_version && semverGt(latestVersion.version, site.plugin_version);
         const statoGen = (hrs<25&&!isOld&&(geoAvg===null||geoAvg>=40))?'ok':(hrs>48?'err':'warn');
         const sf = (s,l,d) => {
             const c = s==='ok'?'var(--magenta)':s==='warn'?'var(--magenta)':s==='err'?'var(--red)':'var(--grey-dot)';
@@ -828,7 +833,7 @@
                         ${sf(hrs<25?'ok':hrs<48?'warn':'err','Plugin attivo sul sito',site?.last_heartbeat?'Ultimo segnale: '+timeAgo(site.last_heartbeat):'Nessun segnale ricevuto')}
                         ${sf(geoOk,'GEO Score',geoAvg!==null?geoAvg+'/100':'Nessun dato disponibile')}
                         ${sf(isOld?'warn':'ok','Versione plugin',isOld?'v'+escHtml(site?.plugin_version)+' — disponibile v'+escHtml(latestVersion?.version):"All'ultima versione")}
-                        ${geo.has_ai_profile===true?sf('ok','/ai-profile','Endpoint attivo — leggibile dai crawler AI'):geo.has_ai_profile===false?sf('err','/ai-profile','LLM layer disabilitato — attivalo in AI Layer'):semverGt('1.9.1',site?.plugin_version||'0')?sf('warn','/ai-profile','Aggiorna il plugin alla v1.9.2 per vedere lo stato'):sf('warn','/ai-profile','In attesa del prossimo heartbeat (ogni ora)')}
+                        ${isScriptMode?sf('grey','/ai-profile','Non disponibile in modalità Script JS'):geo.has_ai_profile===true?sf('ok','/ai-profile','Endpoint attivo — leggibile dai crawler AI'):geo.has_ai_profile===false?sf('err','/ai-profile','LLM layer disabilitato — attivalo in AI Layer'):sf('warn','/ai-profile','In attesa del prossimo heartbeat (ogni ora)')}
                     </div>
                 </div>
                 <div class="card" style="margin:0;border:1px solid #e4e4ec;box-shadow:none">
@@ -1306,11 +1311,13 @@
 
     // ─── PROFILO HOTEL / SCHEMA.ORG ──────────────────────────────────────────────
     let _schemaProfile = {};
+    let _currentHotelProfile = {};
     let _camereTmp = [], _offerteTmp = [], _socialCustomTmp = [];
     let _galleryTmp = [], _serviziCustomTmp = [], _targetCustomTmp = [], _knowsaboutCustomTmp = [];
 
     function initHotelProfile(site) {
         const p = site.hotel_profile || {};
+        _currentHotelProfile = JSON.parse(JSON.stringify(site.hotel_profile || {}));
         _schemaProfile = JSON.parse(JSON.stringify(p));
         setupProfileBadge(p);
         renderHotelProfileView(p);
@@ -2018,13 +2025,14 @@
             id_pagine_selezionate: g('id_pagine_selezionate'),
             _updated_at: new Date().toISOString(), _source: 'admin',
         };
-        const { error } = await _SBq.from('isi_sites').update({ hotel_profile: profile }).eq('site_id', siteId);
+        const { error } = await _SBq.from('isi_sites').update({ hotel_profile: { ..._currentHotelProfile, ...profile } }).eq('site_id', siteId);
         btn.disabled = false; btn.textContent = 'Salva profilo';
         if (error) {
             msg.style.display = 'block'; msg.style.color = '#b00020';
             msg.textContent = 'Errore: ' + error.message;
         } else {
             _schemaProfile = profile;
+            _currentHotelProfile = { ..._currentHotelProfile, ...profile };
             msg.style.display = 'block'; msg.style.color = '#d82d6b';
             msg.textContent = '✓ Profilo salvato.';
             renderHotelProfileView(profile);
@@ -2034,8 +2042,14 @@
 
     async function revertToPluginProfile(site) {
         if (!confirm('Svuotare i dati manuali del profilo hotel?')) return;
-        const { error } = await _SBq.from('isi_sites').update({ hotel_profile: {} }).eq('site_id', site.site_id);
+        const hp = site?.hotel_profile || {};
+        const preserved = {};
+        if (hp.site_mode)          preserved.site_mode = hp.site_mode;
+        if (hp.coerenza_channels)  preserved.coerenza_channels = hp.coerenza_channels;
+        if (hp.isi_config)         preserved.isi_config = hp.isi_config;
+        const { error } = await _SBq.from('isi_sites').update({ hotel_profile: preserved }).eq('site_id', site.site_id);
         if (!error) {
+            _currentHotelProfile = preserved;
             _schemaProfile = {}; _camereTmp = []; _offerteTmp = []; _socialCustomTmp = [];
             renderHotelProfileView({});
             setupHotelProfileForm({});
@@ -2751,10 +2765,11 @@
         const base = (site?.site_url || '').replace(/\/$/, '');
         const aiProfileUrl = base + '/ai-profile';
         const isActive = geo.has_ai_profile === true;
+        const isScriptJs = (site?.plugin_version||'').startsWith('js-') || hp.site_mode === 'script';
         const statusColor = '#d82d6b';
         const statusBg = 'white';
         const statusBorder = '#e4e4ec';
-        const statusLabel = isActive ? 'Attivo' : 'Non attivo';
+        const statusLabel = isScriptJs ? 'Script JS' : isActive ? 'Attivo' : 'Non attivo';
 
         const infoCard = (label, val, note) =>
             `<div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:14px 16px">
@@ -2775,10 +2790,12 @@
                 </div>
                 <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px">
                     ${infoCard('Endpoint', '/ai-profile', isActive ? 'Leggibile dai crawler AI' : 'Non ancora attivo')}
-                    ${infoCard('Versione plugin', site?.plugin_version || '—', 'Richiesta v1.9.2+')}
+                    ${infoCard('Versione plugin', site?.plugin_version || '—', isScriptJs ? 'Script JS (auto-aggiornamento CDN)' : 'Richiesta v1.9.2+')}
                     ${infoCard('Ultimo heartbeat', site?.last_heartbeat ? timeAgo(site.last_heartbeat) : '—', '')}
                 </div>
-                ${isActive ? `<div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:white;border:1px solid #e4e4ec;border-radius:4px;margin-bottom:16px">
+                ${isScriptJs ? `<div style="padding:12px 16px;background:#e8f6fb;border:1px solid #b8e8f5;border-radius:4px;margin-bottom:16px;font-size:13px;color:#009bb9;font-weight:600">
+                    ℹ Il sito usa Script JS — l\'AI Layer (endpoint /ai-profile) non è disponibile in questa modalità.
+                </div>` : isActive ? `<div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:white;border:1px solid #e4e4ec;border-radius:4px;margin-bottom:16px">
                     <span style="color:#d82d6b;font-size:14px">🔗</span>
                     <a href="${escHtml(aiProfileUrl)}" target="_blank" style="color:#d82d6b;font-weight:700;font-size:13px;text-decoration:none">${escHtml(aiProfileUrl)}</a>
                 </div>` : `<div style="padding:12px 16px;background:#fce8ef;border:1px solid #ead0dc;border-radius:4px;margin-bottom:16px;font-size:13px;color:#d82d6b;font-weight:600">
@@ -2811,7 +2828,7 @@
                 <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Checklist AI Layer</div></div>
             </div>
             <div style="padding:16px 20px">
-                ${[
+                ${isScriptJs ? `<div style="font-size:13px;color:#009bb9;padding:8px 0">AI Layer non disponibile in modalità Script JS. eletta.js si aggiorna automaticamente dal CDN.</div>` : [
                     {label:'Plugin versione ≥ 1.9.2', ok: !semverGt('1.9.2', site?.plugin_version||'0')},
                     {label:'Heartbeat attivo (< 25h)', ok: site?.last_heartbeat && ((new Date()-new Date(site.last_heartbeat))/3600000)<25},
                     {label:'Endpoint /ai-profile attivo', ok: geo.has_ai_profile === true},
@@ -3725,6 +3742,7 @@ ${rows}
     }
     function semverGt(a,b) {
         if (!a||!b) return false;
+        if (String(a).startsWith('js-')||String(b).startsWith('js-')) return false;
         const pa=a.split('.').map(Number), pb=b.split('.').map(Number);
         for (let i=0;i<3;i++) { if ((pa[i]||0)>(pb[i]||0)) return true; if ((pa[i]||0)<(pb[i]||0)) return false; }
         return false;

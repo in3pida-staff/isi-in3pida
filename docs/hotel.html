@@ -457,22 +457,51 @@ function renderContent(site, pseData, now) {
 }
 
 // ─── FAQ ──────────────────────────────────────────────────────────────────────
+const _isScriptSite = () => (_site?.hotel_profile?.site_mode === 'script');
+
 async function initHotelFaq() {
     const listEl = document.getElementById('faq-hotel-list');
     if (!listEl || _faqItems.length) { renderHotelFaqList(listEl); return; }
     listEl.innerHTML = '<div class="loading" style="padding:20px"><div class="spinner"></div></div>';
     try {
-        const ctrl = new AbortController(); setTimeout(() => ctrl.abort(), 9000);
-        const r = await fetch(_pluginBase + '/wp-json/in3pida/v1/faq', { signal:ctrl.signal });
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        const data = await r.json();
-        _faqItems = data.items || [];
+        if (_isScriptSite()) {
+            _faqItems = (_site?.faq_data?.items || []);
+        } else {
+            const ctrl = new AbortController(); setTimeout(() => ctrl.abort(), 9000);
+            const r = await fetch(_pluginBase + '/wp-json/in3pida/v1/faq', { signal:ctrl.signal });
+            if (!r.ok) {
+                const cached = _site?.faq_data?.items;
+                if (cached && cached.length) { _faqItems = cached; }
+                else throw new Error('HTTP ' + r.status);
+            } else {
+                const data = await r.json();
+                _faqItems = data.items || [];
+            }
+        }
         const badge = document.getElementById('faq-hotel-count');
         if (badge) badge.textContent = _faqItems.length ? '('+_faqItems.length+')' : '';
         renderHotelFaqList(listEl);
     } catch(e) {
         if (listEl) listEl.innerHTML = '<div style="color:#b00020;font-size:13px;padding:16px 20px">FAQ non caricate: '+esc(e.message)+'</div>';
     }
+}
+
+async function _scriptSaveFaq(action, faq) {
+    const items = [...(_site?.faq_data?.items || [])];
+    if (action === 'delete') {
+        const idx = items.findIndex(x => x.id == faq.id);
+        if (idx !== -1) items.splice(idx, 1);
+    } else if (action === 'add') {
+        items.push({ id: Date.now(), question: faq.question, answer: faq.answer, solo_ai: faq.solo_ai||false, status: 'publish', order: items.length });
+    } else if (action === 'update') {
+        const idx = items.findIndex(x => x.id == faq.id);
+        if (idx !== -1) items[idx] = { ...items[idx], question: faq.question, answer: faq.answer, solo_ai: faq.solo_ai||false };
+    }
+    const newFaqData = { ...(_site?.faq_data || {}), items, total: items.length, _synced_at: new Date().toISOString(), _source: 'isi' };
+    const { error } = await _SBq.from('isi_sites').update({ faq_data: newFaqData }).eq('site_id', _site.site_id);
+    if (error) throw new Error(error.message);
+    _site.faq_data = newFaqData;
+    _faqItems = items;
 }
 
 function renderHotelFaqList(el) {
@@ -522,11 +551,17 @@ document.getElementById('fhm-save').addEventListener('click', async () => {
     try {
         const action=id?'update':'add', faq={question:q,answer:a,solo_ai:sa,order:0};
         if(id) faq.id=parseInt(id);
-        const ctrl=new AbortController(); setTimeout(()=>ctrl.abort(),12000);
-        const r=await fetch(_pluginBase+'/wp-json/in3pida/v1/faq',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({secret:_pluginSecret,action,faq}),signal:ctrl.signal});
-        const d=await r.json().catch(()=>({}));
-        if(r.ok&&d.ok){ document.getElementById('faq-hotel-modal').style.display='none'; _faqItems=[]; await initHotelFaq(); }
-        else throw new Error(d.message||'Errore '+r.status);
+        if (_isScriptSite()) {
+            await _scriptSaveFaq(action, faq);
+            document.getElementById('faq-hotel-modal').style.display='none';
+            renderHotelFaqList(document.getElementById('faq-hotel-list'));
+        } else {
+            const ctrl=new AbortController(); setTimeout(()=>ctrl.abort(),12000);
+            const r=await fetch(_pluginBase+'/wp-json/in3pida/v1/faq',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({secret:_pluginSecret,action,faq}),signal:ctrl.signal});
+            const d=await r.json().catch(()=>({}));
+            if(r.ok&&d.ok){ document.getElementById('faq-hotel-modal').style.display='none'; _faqItems=[]; await initHotelFaq(); }
+            else throw new Error(d.message||'Errore '+r.status);
+        }
     } catch(e){ msg.style.display='block'; msg.style.background='#fce8ef'; msg.style.color='#b00020'; msg.textContent='Errore: '+e.message; }
     finally { btn.disabled=false; btn.textContent='Salva FAQ'; }
 });
@@ -535,10 +570,15 @@ window.deleteHotelFaq = async function(id) {
     const f=_faqItems.find(x=>x.id===id);
     if(!f||!confirm('Eliminare la FAQ "'+((f.question||'').substring(0,60))+'"?')) return;
     try {
-        const ctrl=new AbortController(); setTimeout(()=>ctrl.abort(),10000);
-        const r=await fetch(_pluginBase+'/wp-json/in3pida/v1/faq',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({secret:_pluginSecret,action:'delete',faq:{id}}),signal:ctrl.signal});
-        const d=await r.json().catch(()=>({}));
-        if(r.ok&&d.ok){ _faqItems=[]; await initHotelFaq(); } else alert('Errore durante eliminazione');
+        if (_isScriptSite()) {
+            await _scriptSaveFaq('delete', {id});
+            renderHotelFaqList(document.getElementById('faq-hotel-list'));
+        } else {
+            const ctrl=new AbortController(); setTimeout(()=>ctrl.abort(),10000);
+            const r=await fetch(_pluginBase+'/wp-json/in3pida/v1/faq',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({secret:_pluginSecret,action:'delete',faq:{id}}),signal:ctrl.signal});
+            const d=await r.json().catch(()=>({}));
+            if(r.ok&&d.ok){ _faqItems=[]; await initHotelFaq(); } else alert('Errore durante eliminazione');
+        }
     } catch(e){ alert('Errore: '+e.message); }
 };
 
@@ -692,13 +732,20 @@ async function initHotelConfig(site) {
         (!isScriptMode?row('WordPress',esc(site.wp_version||'—')):'')+
         '</div>'+
         (isScriptMode?
-            '<div style="padding:14px 20px 16px">'+
+            '<div style="padding:14px 20px 0">'+
             '<div style="font-size:11px;font-weight:700;color:#aaa;letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px">Script da incollare nel sito</div>'+
             '<div style="display:flex;gap:8px;align-items:center">'+
             '<code id="hcfg-script-tag" style="flex:1;background:#f4f4f8;padding:10px 12px;border-radius:6px;font-size:12px;color:#171b33;word-break:break-all">'+esc(scriptTag)+'</code>'+
             '<button id="hcfg-copy-script" class="btn-update" style="flex-shrink:0;white-space:nowrap;margin-left:0">Copia</button>'+
-            '</div></div>'
-        :'')+
+            '</div></div>'+
+            '<div style="padding:10px 20px 16px">'+
+            '<a href="'+esc((site.site_url||'').replace(/\/$/,''))+'/faq" target="_blank" style="color:#d82d6b;font-weight:700;font-size:13px;text-decoration:none">Pagina FAQ pubblica →</a>'+
+            '</div>'
+        :
+            '<div style="padding:10px 20px 16px">'+
+            '<a href="'+esc((site.site_url||'').replace(/\/$/,''))+'/faq" target="_blank" style="color:#d82d6b;font-weight:700;font-size:13px;text-decoration:none">Pagina FAQ pubblica →</a>'+
+            '</div>'
+        )+
         '</div>';
 
     cont.innerHTML=
