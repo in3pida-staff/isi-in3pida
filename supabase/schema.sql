@@ -102,6 +102,10 @@ ALTER TABLE isi_benchmark_runs ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "plugin_versions_public_read" ON isi_plugin_versions
   FOR SELECT USING (true);
 
+-- isi_plugin_versions: gestione completa per utenti autenticati (admin dashboard ISI)
+CREATE POLICY "plugin_versions_authenticated_all" ON isi_plugin_versions
+  FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
 -- isi_sites: accesso completo per utenti autenticati (dashboard ISI)
 CREATE POLICY "sites_authenticated_all" ON isi_sites
   FOR ALL TO authenticated USING (true) WITH CHECK (true);
