@@ -662,7 +662,7 @@
                 ? `<span style="display:inline-block;font-size:11px;font-weight:700;padding:4px 10px;border:1.5px solid #e4e4ec;border-radius:4px;color:#666b84;white-space:nowrap">Auto</span>`
                 : isOld
                     ? `<button class="btn-update" style="font-size:11px;padding:4px 10px;margin-left:0;border:1.5px solid transparent" onclick="event.stopPropagation();aggiornaSito('${escHtml(site.site_id)}')">Aggiorna</button>`
-                    : `<button class="btn-ping" style="font-size:11px;padding:4px 10px" onclick="event.stopPropagation();aggiornaSito('${escHtml(site.site_id)}')">Aggiorna</button>`;
+                    : `<button class="btn-ping" style="font-size:11px;padding:4px 10px;cursor:default" disabled onclick="event.stopPropagation()">Aggiornato</button>`;
             html += `<tr data-site-id="${escHtml(site.site_id)}" style="cursor:pointer">
                 <td><span class="dot" style="background:${dotColor};box-shadow:0 0 0 4px ${dotColor}26;cursor:help" title="${escHtml(dotTitle)}"></span></td>
                 <td><div class="site-name-cell">${escHtml(site.site_name||'—')}</div><div style="font-size:11px;color:var(--grey);margin-top:2px">${escHtml(site.site_url||'')}</div></td>
@@ -3914,11 +3914,16 @@ ${rows}
             });
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
             btn.textContent = newActive ? 'Disattiva' : 'Attiva';
-            btn.style.background = newActive ? '' : '#e4e4ec'; btn.style.color = newActive ? '' : '#666b84';
+            btn.style.background = newActive ? '' : '#f4f4f8';
+            btn.style.color = newActive ? '' : '#666b84';
+            btn.style.borderColor = newActive ? '' : '#e4e4ec';
             showToast(`Sito ${newActive ? 'attivato' : 'disattivato'} con successo`);
         } catch(e) {
             showToast('Errore: ' + e.message);
             btn.textContent = 'Disattiva';
+            btn.style.background = '';
+            btn.style.color = '';
+            btn.style.borderColor = '';
         }
         btn.disabled = false;
     }
