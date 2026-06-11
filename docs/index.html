@@ -655,12 +655,12 @@
             const isOld = !isScriptJs && latestVersion && site.plugin_version && semverGt(latestVersion.version, site.plugin_version);
             const verHtml = `<span style="font-weight:600">${escHtml(site.plugin_version||'—')}</span>${isOld?` <span style="background:rgba(216,45,107,0.08);color:var(--magenta);font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;vertical-align:middle">aggiornare</span>`:''}`;
             const isConnected = hrs < 25;
-            const dotColor = isConnected ? '#009bb9' : '#666b84';
+            const dotColor = isConnected ? '#d82d6b' : '#666b84';
             const dotTitle = isConnected ? 'Collegamento con il sito attivo' : 'Collegamento con il sito non attivo';
             const siteCost = costsMap?.[site.site_id] || 0;
             const aggiornaBtnHtml = isScriptJs
-                ? `<span style="font-size:11px;padding:4px 10px;color:#009bb9;font-weight:600;background:#e8f6fb;border-radius:6px;border:1px solid #b8e8f5">Auto</span>`
-                : `<button class="btn-update" style="font-size:11px;padding:4px 10px${isOld?'':';background:#f4f4f8;color:#666b84;border:1px solid #e4e4ec'}" onclick="event.stopPropagation();aggiornaSito('${escHtml(site.site_id)}')">Aggiorna</button>`;
+                ? `<span style="font-size:11px;padding:4px 10px;color:#666b84;font-weight:600;background:#f4f4f8;border-radius:6px;border:1px solid #e4e4ec">Auto</span>`
+                : `<button class="btn-update" style="font-size:11px;padding:4px 10px" onclick="event.stopPropagation();aggiornaSito('${escHtml(site.site_id)}')">Aggiorna</button>`;
             html += `<tr data-site-id="${escHtml(site.site_id)}" style="cursor:pointer">
                 <td><span class="dot" style="background:${dotColor};box-shadow:0 0 0 4px ${dotColor}26;cursor:help" title="${escHtml(dotTitle)}"></span></td>
                 <td><div class="site-name-cell">${escHtml(site.site_name||'—')}</div><div style="font-size:11px;color:var(--grey);margin-top:2px">${escHtml(site.site_url||'')}</div></td>
@@ -3369,7 +3369,7 @@ ${rows}
         const _lastHB = site.last_heartbeat;
         const _hrsAgo = _lastHB ? (Date.now() - new Date(_lastHB).getTime()) / 3600000 : 9999;
         const _isOnline = _hrsAgo < 25;
-        const _connDot = _isOnline ? '#009bb9' : '#aaa';
+        const _connDot = _isOnline ? '#d82d6b' : '#aaa';
         const _connLabel = _isOnline ? (_hrsAgo < 1 ? 'Connesso · meno di 1h fa' : `Connesso · ${Math.round(_hrsAgo)}h fa`) : (_hrsAgo < 9999 ? `Offline da ${Math.round(_hrsAgo)}h` : 'Nessun segnale');
         const _scriptSrc = `https://in3pida-staff.github.io/isi-in3pida/eletta.js?id=${site.site_id}`;
         const _scriptTag = `<script src="${_scriptSrc}" async><\/script>`;
@@ -3377,9 +3377,6 @@ ${rows}
         const connSection = cardH + chH(_connDot,'Connessione') +
             '<div style="padding:0 20px">' +
             row('Stato', `<span style="color:${_connDot}">${_connLabel}</span>`) +
-            row('Tipo', _isScriptMode
-                ? `<span style="color:#009bb9;font-weight:700">Script JS</span>`
-                : `<span style="color:#d82d6b;font-weight:700">Plugin WordPress</span>`) +
             '</div>' +
             (_isScriptMode ? (
                 '<div style="padding:10px 20px 16px;border-top:1px solid #f4f4f8">' +

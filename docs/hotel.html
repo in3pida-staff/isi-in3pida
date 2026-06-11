@@ -717,7 +717,7 @@ async function initHotelConfig(site) {
 
     const hb=site.last_heartbeat, hbHrs=hb?(Date.now()-new Date(hb).getTime())/3600000:Infinity;
     const isScriptMode=(site.hotel_profile?.site_mode==='script');
-    const connDot=hbHrs<25?'#22c55e':hbHrs<48?'#f59e0b':'#d82d6b';
+    const connDot=hbHrs<25?'#d82d6b':hbHrs<48?'#666b84':'#d82d6b';
     const connLabel=hbHrs<25?'Connesso':hbHrs<48?'Segnale debole':'Non connesso';
     const connSub=hb?'Ultimo segnale: '+timeAgo(hb):'Nessun segnale ricevuto';
     const scriptSrc='https://isi.in3pida.it/eletta.js?id='+encodeURIComponent(site.site_id);
