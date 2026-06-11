@@ -2025,7 +2025,9 @@
             id_pagine_selezionate: g('id_pagine_selezionate'),
             _updated_at: new Date().toISOString(), _source: 'admin',
         };
-        const { error } = await _SBq.from('isi_sites').update({ hotel_profile: { ..._currentHotelProfile, ...profile } }).eq('site_id', siteId);
+        const { data: freshSite } = await _SBq.from('isi_sites').select('hotel_profile').eq('site_id', siteId).single();
+        const freshHp = freshSite?.hotel_profile || _currentHotelProfile;
+        const { error } = await _SBq.from('isi_sites').update({ hotel_profile: { ...freshHp, ...profile } }).eq('site_id', siteId);
         btn.disabled = false; btn.textContent = 'Salva profilo';
         if (error) {
             msg.style.display = 'block'; msg.style.color = '#b00020';
