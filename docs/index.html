@@ -2808,7 +2808,7 @@
                 </div>
                 <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px">
                     ${infoCard('Endpoint', '/ai-profile', isActive ? 'Leggibile dai crawler AI' : 'Non ancora attivo')}
-                    ${infoCard('Versione plugin', site?.plugin_version || '—', isScriptJs ? 'Script JS (auto-aggiornamento CDN)' : 'Richiesta v1.9.2+')}
+                    ${(()=>{const vOk=!semverGt('1.9.2',site?.plugin_version||'0');return infoCard('Versione plugin',site?.plugin_version||'—',isScriptJs?'Script JS (CDN)':vOk?'Versione OK':'Richiesta v1.9.2+');})()}
                     ${infoCard('Ultimo heartbeat', site?.last_heartbeat ? timeAgo(site.last_heartbeat) : '—', '')}
                 </div>
                 ${isScriptJs ? `<div style="padding:12px 16px;background:#e8f6fb;border:1px solid #b8e8f5;border-radius:4px;margin-bottom:16px;font-size:13px;color:#009bb9;font-weight:600">
@@ -2817,7 +2817,7 @@
                     <span style="color:#d82d6b;font-size:14px">🔗</span>
                     <a href="${escHtml(aiProfileUrl)}" target="_blank" style="color:#d82d6b;font-weight:700;font-size:13px;text-decoration:none">${escHtml(aiProfileUrl)}</a>
                 </div>` : `<div style="padding:12px 16px;background:#fce8ef;border:1px solid #ead0dc;border-radius:4px;margin-bottom:16px;font-size:13px;color:#d82d6b;font-weight:600">
-                    ⚠ AI Layer non attivo. Verifica che il plugin sia aggiornato alla v1.9.2+ e che l\'opzione sia abilitata in Configurazione.
+                    ⚠ AI Layer non attivo. Vai in Configurazione, abilita LLM Ready Layer e clicca SINCRONIZZA — il plugin applicherà le impostazioni automaticamente.
                 </div>`}
             </div>
         </div>
