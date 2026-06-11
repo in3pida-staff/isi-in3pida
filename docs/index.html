@@ -638,7 +638,7 @@
             const hbTesto  = site.last_heartbeat ? timeAgo(site.last_heartbeat) : 'Mai';
             const hbColor  = '#d82d6b';
             const geo = site.geo_scores || {};
-            const rawFallback = [geo.chunk_avg, geo.citation_avg].filter(s=>s!=null);
+            const rawFallback = [geo.chunk_avg, geo.citation_avg].filter(s=>s!=null && s>0);
             const geoAvg = geo.completeness_score != null ? geo.completeness_score : (geo.ai_readiness != null ? geo.ai_readiness : (rawFallback.length ? Math.round(rawFallback.reduce((a,b)=>a+b,0)/rawFallback.length) : null));
             const geoAvgBg = geoAvg===null?'#fbf4f7':geoAvg>=70?'#fbf4f7':geoAvg>=40?'#fbf4f7':'#fce8ef';
             const geoAvgTc = geoAvg===null?'#666b84':geoAvg>=70?'#d82d6b':geoAvg>=40?'#d82d6b':'#b00020';
@@ -659,10 +659,10 @@
             const dotTitle = isConnected ? 'Collegamento con il sito attivo' : 'Collegamento con il sito non attivo';
             const siteCost = costsMap?.[site.site_id] || 0;
             const aggiornaBtnHtml = isScriptJs
-                ? `<span style="display:inline-block;font-size:11px;font-weight:700;padding:4px 10px;border:1.5px solid #e4e4ec;border-radius:4px;color:#666b84;white-space:nowrap">Auto</span>`
+                ? `<span style="display:inline-block;font-size:11px;font-weight:700;padding:4px 10px;border:1.5px solid #e4e4ec;border-radius:4px;color:#666b84;white-space:nowrap;min-width:90px;text-align:center">Auto</span>`
                 : isOld
-                    ? `<button class="btn-update" style="font-size:11px;padding:4px 10px;margin-left:0;border:1.5px solid transparent" onclick="event.stopPropagation();aggiornaSito('${escHtml(site.site_id)}')">Aggiorna</button>`
-                    : `<button class="btn-ping" style="font-size:11px;padding:4px 10px;cursor:default" disabled onclick="event.stopPropagation()">Aggiornato</button>`;
+                    ? `<button class="btn-update" style="font-size:11px;padding:4px 10px;margin-left:0;border:1.5px solid transparent;min-width:90px;text-align:center" onclick="event.stopPropagation();aggiornaSito('${escHtml(site.site_id)}')">Aggiorna</button>`
+                    : `<button class="btn-ping" style="font-size:11px;padding:4px 10px;cursor:default;min-width:90px;text-align:center" disabled onclick="event.stopPropagation()">Aggiornato</button>`;
             html += `<tr data-site-id="${escHtml(site.site_id)}" style="cursor:pointer">
                 <td><span class="dot" style="background:${dotColor};box-shadow:0 0 0 4px ${dotColor}26;cursor:help" title="${escHtml(dotTitle)}"></span></td>
                 <td><div class="site-name-cell">${escHtml(site.site_name||'—')}</div><div style="font-size:11px;color:var(--grey);margin-top:2px">${escHtml(site.site_url||'')}</div></td>
@@ -707,7 +707,7 @@
         ]);
         const hrs = site?.last_heartbeat ? (now - new Date(site.last_heartbeat))/3600000 : 9999;
         const geo = site?.geo_scores || {};
-        const rawFallbackD = [geo.chunk_avg, geo.citation_avg].filter(s=>s!=null);
+        const rawFallbackD = [geo.chunk_avg, geo.citation_avg].filter(s=>s!=null && s>0);
         const geoAvg = geo.completeness_score != null ? geo.completeness_score : (geo.ai_readiness != null ? geo.ai_readiness : (rawFallbackD.length ? Math.round(rawFallbackD.reduce((a,b)=>a+b,0)/rawFallbackD.length) : null));
         const cs = geo.completeness_score ?? null;
         const checklist = geo.checklist || [];
@@ -734,7 +734,8 @@
         const geoBc = v => v===null?'#666b84':v>=70?'#d82d6b':v>=40?'var(--magenta)':'#d82d6b';
         const geoTips = {ai_readiness:'Prontezza complessiva del sito per essere letto e citato dai sistemi AI.',answer_extraction:'Capacità del sito di fornire risposte dirette ed estraibili dai motori AI.',quality_safety:'Qualità e sicurezza dei contenuti — testo chiaro, non ambiguo, privo di contenuti problematici.',ai_visibility:'Visibilità stimata del sito sui principali sistemi AI come ChatGPT, Perplexity ecc.',entity_authority:"Autorevolezza delle entità semantiche — quanto il sito è riconosciuto come fonte affidabile.",chunk_avg:'Media della citabilità dei singoli blocchi di contenuto dal Chunk Engine.',citation_avg:'Media del punteggio Citation Engine — probabilità che il sito venga citato come fonte.'};
         const _noColorKeys = new Set(['entity_authority','chunk_avg','citation_avg']);
-        const geoRows = [{k:'ai_readiness',l:'AI Readiness'},{k:'answer_extraction',l:'Answer Extraction'},{k:'quality_safety',l:'Quality Safety'},{k:'ai_visibility',l:'AI Visibility'},{k:'entity_authority',l:'Entity Authority'},{k:'chunk_avg',l:'Chunk Citation'},{k:'citation_avg',l:'Citation Engine'}].map(({k,l})=>{const v=geo[k]??null;const vc=v===null?'#ead0dc':'#d82d6b';const st=v===null?'nessun dato':v>=70?'ottimizzato':v>=40?'da migliorare':'critico';return `<div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:16px 18px"><div style="font-size:11px;font-weight:500;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;display:flex;align-items:center;gap:4px">${l} <span class='tip-q' data-tip='${geoTips[k]}'>?</span></div><div style="font-size:32px;font-weight:800;line-height:1;color:${v!==null?'#171b33':'#ead0dc'}">${v!==null?v:'—'}</div><div style="font-size:13px;font-weight:600;color:${vc};margin-top:6px">${st}</div></div>`;}).join('');
+        const _geoZeroKeys = new Set(['chunk_avg','citation_avg','entity_nodes']);
+        const geoRows = [{k:'ai_readiness',l:'AI Readiness'},{k:'answer_extraction',l:'Answer Extraction'},{k:'quality_safety',l:'Quality Safety'},{k:'ai_visibility',l:'AI Visibility'},{k:'entity_authority',l:'Entity Authority'},{k:'chunk_avg',l:'Chunk Citation'},{k:'citation_avg',l:'Citation Engine'}].map(({k,l})=>{const rv=geo[k]??null;const v=(_geoZeroKeys.has(k)&&rv===0)?null:rv;const vc=v===null?'#ead0dc':'#d82d6b';const st=v===null?'nessun dato':v>=70?'ottimizzato':v>=40?'da migliorare':'critico';return `<div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:16px 18px"><div style="font-size:11px;font-weight:500;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;display:flex;align-items:center;gap:4px">${l} <span class='tip-q' data-tip='${geoTips[k]}'>?</span></div><div style="font-size:32px;font-weight:800;line-height:1;color:${v!==null?'#171b33':'#ead0dc'}">${v!==null?v:'—'}</div><div style="font-size:13px;font-weight:600;color:${vc};margin-top:6px">${st}</div></div>`;}).join('');
 
         _aFaqFilter = 'all'; _aFaqSearch = '';
         _pseChartsInited = false; _mappaInited = false; _coerenzaInited = false; _configInited = false; _aiLayerInited = false;
@@ -786,6 +787,7 @@
                     <div style="padding:14px 20px;border-bottom:1px solid #e4e4ec;background:#fafafa;display:flex;align-items:center;gap:8px">
                         <span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span>
                         <span style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">PANORAMICA GEO SCORE</span>
+                        <button id="btn-reset-geo" onclick="resetGeoScores('${escHtml(site.site_id)}')" style="margin-left:auto;font-size:11px;padding:3px 10px;background:none;border:1px solid #e4e4ec;border-radius:4px;color:#666b84;cursor:pointer">Reset punteggi</button>
                     </div>
                     <div style="padding:16px 20px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
                         <div style="border:1.5px solid #d82d6b;border-radius:4px;padding:16px 18px">
@@ -3889,6 +3891,14 @@ ${rows}
     function aggiornaSito(siteId) {
         const btn = document.querySelector(`tr[data-site-id="${CSS.escape(siteId)}"] button.btn-update`);
         callTriggerUpdate([siteId], [btn]);
+    }
+
+    async function resetGeoScores(siteId) {
+        const btn = document.getElementById('btn-reset-geo');
+        if (btn) { btn.textContent = '...'; btn.disabled = true; }
+        const { error } = await _SBq.from('isi_sites').update({ geo_scores: {} }).eq('site_id', siteId);
+        if (btn) { btn.textContent = error ? '✗ Errore' : '✓ Reset ok'; setTimeout(() => { btn.textContent = 'Reset punteggi'; btn.disabled = false; }, 2000); }
+        if (!error) showToast('Punteggi GEO azzerati — si aggiorneranno al prossimo heartbeat');
     }
 
     async function toggleSitoAttivo(siteId, siteUrl, btn) {
