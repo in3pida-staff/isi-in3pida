@@ -418,8 +418,8 @@
     const _SB  = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     const _SBq = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
 
-    const ALL_VIEWS = ['panoramica','siti','aggiornamenti','benchmark','utenti','sito-detail'];
-    const NAV_TABS  = ['panoramica','aggiornamenti','benchmark','utenti'];
+    const ALL_VIEWS = ['panoramica','siti','aggiornamenti','utenti','sito-detail'];
+    const NAV_TABS  = ['panoramica','aggiornamenti','utenti'];
     let currentTab = 'panoramica';
     let latestVersion = null;
     let allSiti = [];
