@@ -2,8 +2,26 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? ''
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+const GROQ_API_KEY = Deno.env.get('GROQ_API_KEY') ?? ''
 
 const cors = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'authorization, content-type' }
+
+async function groq(systemPrompt: string, userPrompt: string, maxTokens = 400): Promise<string> {
+  const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${GROQ_API_KEY}` },
+    body: JSON.stringify({
+      model: 'llama-3.1-8b-instant',
+      max_tokens: maxTokens,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
+      ]
+    })
+  })
+  const d = await res.json()
+  return d.choices?.[0]?.message?.content?.trim() ?? ''
+}
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
@@ -35,38 +53,25 @@ Deno.serve(async (req) => {
       ].filter(Boolean).join('\n')
 
       if (!lines.trim()) return new Response(JSON.stringify({ error: 'no_data' }), { status: 422, headers: cors })
+      if (!GROQ_API_KEY) return new Response(JSON.stringify({ error: 'GROQ_API_KEY non configurata' }), { status: 422, headers: cors })
 
-      const geminiKey = Deno.env.get('GEMINI_API_KEY') || (site.hotel_profile as any)?.isi_config?.gemini_api_key || ''
-      if (!geminiKey) return new Response(JSON.stringify({ error: 'Chiave API Gemini non configurata. Vai in Impostazioni → Chiavi API.' }), { status: 422, headers: cors })
-
-      const ar = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: `Sei l'assistente virtuale di un hotel italiano. Rispondi in italiano in modo diretto e professionale (2-4 frasi). Usa SOLO le informazioni fornite. Non inventare nulla.\n\nInformazioni hotel:\n${lines}\n\nDomanda del cliente: ${query}\n\nRisposta:` }] }],
-            generationConfig: { maxOutputTokens: 400 }
-          })
-        }
+      const answer = await groq(
+        "Sei l'assistente virtuale di un hotel italiano. Rispondi in italiano in modo diretto e professionale (2-4 frasi). Usa SOLO le informazioni fornite. Non inventare nulla.",
+        `Informazioni hotel:\n${lines}\n\nDomanda del cliente: ${query}\n\nRisposta:`
       )
-      const ad = await ar.json()
-      const answer = ad.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ?? ''
-      if (!answer) return new Response(JSON.stringify({ error: 'empty_response', detail: ad.error?.message || '' }), { status: 500, headers: cors })
+      if (!answer) return new Response(JSON.stringify({ error: 'empty_response' }), { status: 500, headers: cors })
       return new Response(JSON.stringify({ answer }), { headers: { ...cors, 'Content-Type': 'application/json' } })
     }
 
-    // ─── PSE QUERY (original) ────────────────────────────────────────────────
+    // ─── PSE QUERY ────────────────────────────────────────────────────────────
     if (!site_id || !query) return new Response(JSON.stringify({ error: 'Missing params' }), { status: 400, headers: cors })
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY)
     const { data: site } = await supabase.from('isi_sites').select('pse_enabled, site_name, hotel_profile').eq('site_id', site_id).single()
     if (!site?.pse_enabled) return new Response(JSON.stringify({ error: 'PSE not enabled' }), { status: 403, headers: cors })
+    if (!GROQ_API_KEY) return new Response(JSON.stringify({ error: 'GROQ_API_KEY non configurata' }), { status: 422, headers: cors })
 
-    const geminiKeyPse = Deno.env.get('GEMINI_API_KEY') || (site.hotel_profile as any)?.isi_config?.gemini_api_key || ''
-    if (!geminiKeyPse) return new Response(JSON.stringify({ error: 'Chiave API Gemini non configurata' }), { status: 422, headers: cors })
-
-    const prompt = `Sei un consulente GEO (Generative Engine Optimization) specializzato in strutture ricettive italiane.
+    const systemPrompt = `Sei un consulente GEO (Generative Engine Optimization) specializzato in strutture ricettive italiane.
 Ricevi il profilo di un hotel e una query utente. Analizza se e come questo hotel verrebbe citato in una risposta AI.
 Rispondi SOLO con JSON valido, nessun testo extra:
 {
@@ -77,41 +82,19 @@ Rispondi SOLO con JSON valido, nessun testo extra:
   "weaknesses": ["<debolezza 1>","<debolezza 2>"],
   "suggestions": ["<suggerimento 1>","<suggerimento 2>","<suggerimento 3>"],
   "sample_answer": "<come un AI risponderebbe citando questo hotel, max 2 righe>"
-}
+}`
 
-Profilo hotel:
-${JSON.stringify(body.hotel_context, null, 2)}
-
-Query utente: "${query}"`
-
-    const geminiRes2 = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKeyPse}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { responseMimeType: 'application/json', maxOutputTokens: 800 }
-        })
-      }
-    )
-
-    const geminiData2 = await geminiRes2.json()
-    const rawText = geminiData2.candidates?.[0]?.content?.parts?.[0]?.text ?? '{}'
+    const rawText = await groq(systemPrompt, `Profilo hotel:\n${JSON.stringify(body.hotel_context, null, 2)}\n\nQuery utente: "${query}"`, 800)
     let result: any = {}
     try { result = JSON.parse(rawText) } catch { result = { error: 'Parse error', raw: rawText } }
 
-    const tokensIn = geminiData2.usageMetadata?.promptTokenCount ?? 0
-    const tokensOut = geminiData2.usageMetadata?.candidatesTokenCount ?? 0
-    const costUsd = tokensIn * 0.000000075 + tokensOut * 0.0000003
-
     await supabase.from('isi_pse_queries').insert({
       site_id, site_name: site.site_name, query,
-      tokens_in: tokensIn, tokens_out: tokensOut, cost_usd: costUsd,
-      model: 'gemini-2.0-flash', result
+      tokens_in: 0, tokens_out: 0, cost_usd: 0,
+      model: 'llama-3.1-8b-instant', result
     })
 
-    return new Response(JSON.stringify({ ok: true, result, cost_usd: costUsd }), {
+    return new Response(JSON.stringify({ ok: true, result, cost_usd: 0 }), {
       headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
     })
   } catch (e) {

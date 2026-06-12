@@ -2,6 +2,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const SUPABASE_URL     = Deno.env.get('SUPABASE_URL') ?? ''
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+const GROQ_API_KEY     = Deno.env.get('GROQ_API_KEY') ?? ''
 
 const cors = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'authorization, content-type' }
 
@@ -34,8 +35,7 @@ Deno.serve(async (req) => {
 
     if (!site) return new Response(JSON.stringify({ error: 'Site not found' }), { status: 404, headers: cors })
 
-    const geminiKey = Deno.env.get('GEMINI_API_KEY') || (site.hotel_profile as any)?.isi_config?.gemini_api_key || ''
-    if (!geminiKey) return new Response(JSON.stringify({ error: 'Chiave API Gemini non configurata. Vai in Impostazioni → Chiavi API.' }), { status: 422, headers: cors })
+    if (!GROQ_API_KEY) return new Response(JSON.stringify({ error: 'GROQ_API_KEY non configurata' }), { status: 422, headers: cors })
 
     const now = new Date()
 
@@ -78,28 +78,26 @@ Per ciascuna ricerca, indica in modo semplice (max 2 righe) cosa manca nel profi
   ...
 ]`
 
-    const geminiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { responseMimeType: 'application/json', maxOutputTokens: 1500 }
-        })
-      }
-    )
+    const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${GROQ_API_KEY}` },
+      body: JSON.stringify({
+        model: 'llama-3.1-8b-instant',
+        max_tokens: 1500,
+        messages: [
+          { role: 'system', content: 'Sei un esperto GEO per hotel italiani. Rispondi SOLO con JSON valido, nessun testo extra.' },
+          { role: 'user', content: prompt }
+        ]
+      })
+    })
 
-    const geminiData = await geminiRes.json()
-    const rawText = geminiData.candidates?.[0]?.content?.parts?.[0]?.text ?? '[]'
+    const groqData = await groqRes.json()
+    const rawText = groqData.choices?.[0]?.message?.content?.trim() ?? '[]'
 
     let results: any[] = []
     try { results = JSON.parse(rawText) } catch { results = [] }
 
-    // Stima costo (Gemini Flash: $0.075/1M input, $0.30/1M output)
-    const tokensIn  = geminiData.usageMetadata?.promptTokenCount     ?? 0
-    const tokensOut = geminiData.usageMetadata?.candidatesTokenCount  ?? 0
-    const costUsd   = tokensIn * 0.000000075 + tokensOut * 0.0000003
+    const costUsd = 0
 
     // Salva risultati
     if (results.length) {
@@ -110,7 +108,7 @@ Per ciascuna ricerca, indica in modo semplice (max 2 righe) cosa manca nel profi
           query: r.query,
           cat: r.cat,
           gaps: r.gaps,
-          model: 'gemini-2.0-flash',
+          model: 'llama-3.1-8b-instant',
           cost_usd: costUsd / results.length,
           created_at: now.toISOString()
         }))

@@ -2741,15 +2741,24 @@
             aiAnswer = json.answer;
 
             btn.textContent = '💾 Salvataggio...';
-            if (!_aFaqBase) throw new Error('Plugin non configurato');
-            const ctrl = new AbortController(); setTimeout(() => ctrl.abort(), 12000);
-            const r = await fetch(_aFaqBase + '/wp-json/in3pida/v1/faq', {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ secret: _aFaqSecret, action: 'add', faq: { question: query, answer: aiAnswer, solo_ai: true, order: 0 } }),
-                signal: ctrl.signal,
-            });
-            const d = await r.json().catch(() => ({}));
-            if (!r.ok || !d.ok) throw new Error(d.message || 'Salvataggio fallito');
+
+            // Salva in Supabase faq_data direttamente
+            const { data: siteRow } = await _SBq.from('isi_sites').select('faq_data').eq('site_id', siteId).single();
+            const fd = siteRow?.faq_data || {};
+            const items = Array.isArray(fd.items) ? fd.items : [];
+            const newFaq = { id: Date.now(), question: query, answer: aiAnswer, solo_ai: true, status: 'publish', menu_order: 0, created_at: new Date().toISOString() };
+            items.push(newFaq);
+            await _SBq.from('isi_sites').update({ faq_data: { ...fd, items } }).eq('site_id', siteId);
+
+            // Salva anche nel plugin WordPress se disponibile
+            if (_aFaqBase) {
+                const ctrl = new AbortController(); setTimeout(() => ctrl.abort(), 12000);
+                await fetch(_aFaqBase + '/wp-json/in3pida/v1/faq', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ secret: _aFaqSecret, action: 'add', faq: { question: query, answer: aiAnswer, solo_ai: true, order: 0 } }),
+                    signal: ctrl.signal,
+                }).catch(() => {});
+            }
 
             const row = btn.closest('div[style*="display:flex"]');
             if (row) {
