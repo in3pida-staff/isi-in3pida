@@ -2784,8 +2784,12 @@
             const { data: siteRow } = await _SBq.from('isi_sites').select('faq_data').eq('site_id', siteId).single();
             const fd = siteRow?.faq_data || {};
             const items = Array.isArray(fd.items) ? fd.items : [];
-            const newFaq = { id: Date.now(), question: query, answer: aiAnswer, solo_ai: true, status: 'publish', menu_order: 0, created_at: new Date().toISOString() };
-            items.push(newFaq);
+            const existingIdx = items.findIndex(f => f.question?.trim().toLowerCase() === query.trim().toLowerCase());
+            if (existingIdx >= 0) {
+                items[existingIdx] = { ...items[existingIdx], answer: aiAnswer, solo_ai: true, status: 'publish', updated_at: new Date().toISOString() };
+            } else {
+                items.push({ id: Date.now(), question: query, answer: aiAnswer, solo_ai: true, status: 'publish', menu_order: 0, created_at: new Date().toISOString() });
+            }
             // Aggiorna query_map per mantenere "Coperta ✓" dopo reload
             const qmap = fd.query_map || {};
             const catEntry = qmap[cat] || {};
