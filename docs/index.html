@@ -2084,7 +2084,7 @@
     }
 
     async function revertToPluginProfile(site) {
-        if (!confirm('Svuotare i dati manuali del profilo hotel?')) return;
+        if (!await isiConfirm('Svuotare i dati manuali del profilo hotel?', 'Svuota')) return;
         const hp = site?.hotel_profile || {};
         const preserved = {};
         if (hp.site_mode)          preserved.site_mode = hp.site_mode;
@@ -2408,7 +2408,7 @@
 
     async function deleteAdminFaq(id) {
         const f = _aFaqItems.find(x => x.id === id);
-        if (!f || !confirm('Eliminare la FAQ "' + (f.question||'').substring(0,60) + '"?')) return;
+        if (!f || !await isiConfirm('Eliminare la FAQ "' + escHtml((f.question||'').substring(0,60)) + '"?')) return;
         try {
             const ctrl = new AbortController(); setTimeout(() => ctrl.abort(), 10000);
             const r = await fetch(_aFaqBase + '/wp-json/in3pida/v1/faq', {
@@ -3215,7 +3215,7 @@
         // Svuota log
         const btnClear = document.getElementById('btn-svuota-log');
         if (btnClear) btnClear.onclick = async () => {
-            if (!confirm('Svuotare tutti i risultati di scansione? I link ai portali verranno mantenuti.')) return;
+            if (!await isiConfirm('Svuotare tutti i risultati di scansione? I link ai portali verranno mantenuti.', 'Svuota')) return;
             _DEFAULT_COERENZA_CHANNELS.forEach(ch => { channels[ch].results = []; channels[ch].last_scan_at = null; });
             const hp2 = site?.hotel_profile || {};
             hp2.coerenza_channels = channels;
@@ -3718,7 +3718,7 @@ ${rows}
     });
 
     async function eliminaUtente(userId, nome) {
-        if (!confirm(`Eliminare l'utente "${nome}"? Questa azione non può essere annullata.`)) return;
+        if (!await isiConfirm(`Eliminare l'utente "${nome}"? Questa azione non può essere annullata.`)) return;
         try {
             const { data:{ session } } = await _SB.auth.getSession();
             await fetch(`${SUPABASE_URL}/functions/v1/isi-admin-users`, {
@@ -3855,6 +3855,25 @@ ${rows}
     }
     function escHtml(str) {
         return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function isiConfirm(msg, confirmLabel) {
+        return new Promise(resolve => {
+            const ov = document.createElement('div');
+            ov.style.cssText = 'position:fixed;inset:0;background:rgba(23,27,51,.45);z-index:9999;display:flex;align-items:center;justify-content:center';
+            ov.innerHTML = `<div style="background:white;border-radius:10px;padding:28px 28px 20px;max-width:400px;width:90%;box-shadow:0 8px 32px rgba(23,27,51,.18)">
+                <div style="font-size:15px;color:#171b33;margin-bottom:20px;font-weight:400;line-height:1.5">${msg}</div>
+                <div style="display:flex;gap:8px;justify-content:flex-end">
+                    <button id="isi-confirm-no" class="btn-ping" style="padding:7px 18px;font-size:13px">Annulla</button>
+                    <button id="isi-confirm-yes" class="btn-update" style="padding:7px 18px;font-size:13px;background:#d82d6b;border-color:#d82d6b">${confirmLabel||'Elimina'}</button>
+                </div>
+            </div>`;
+            document.body.appendChild(ov);
+            const close = (val) => { document.body.removeChild(ov); resolve(val); };
+            ov.querySelector('#isi-confirm-yes').addEventListener('click', () => close(true));
+            ov.querySelector('#isi-confirm-no').addEventListener('click', () => close(false));
+            ov.addEventListener('click', e => { if (e.target === ov) close(false); });
+        });
     }
 
     function showToast(msg) {
