@@ -2852,6 +2852,7 @@
                 ` : isActive ? `<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:#e9f7fb;border:1px solid #b3e0ea;border-radius:4px;margin-bottom:12px">
                     <span style="font-size:14px;flex-shrink:0">✓</span>
                     <span style="font-size:13px;color:#009bb9;flex:1">AI Layer attivo — endpoint leggibile dai crawler AI &nbsp;<a href="${escHtml(aiProfileUrl)}" target="_blank" style="color:#009bb9;font-size:12px;text-decoration:underline">Visualizza profilo</a></span>
+                    <button id="btn-toggle-ai-layer" class="btn-ping btn-ai-toggle" style="margin-left:0;padding:6px 14px;font-size:12px;flex-shrink:0">Disattiva</button>
                 </div>` : `<div style="padding:12px 16px;background:#fce8ef;border:1px solid #ead0dc;border-radius:4px;margin-bottom:16px;font-size:13px;color:#d82d6b;font-weight:600">
                     ⚠ AI Layer non attivo. Vai in Configurazione, abilita LLM Ready Layer e clicca SINCRONIZZA — il plugin applicherà le impostazioni automaticamente.
                 </div>`}
