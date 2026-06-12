@@ -2845,7 +2845,7 @@
                         ${aiLayerDisabled ? 'AI Layer disattivato — eletta.js non pubblica il profilo' : 'AI Layer attivo — eletta.js pubblica il profilo hotel ai crawler AI'}
                         ${!aiLayerDisabled ? ' &nbsp;<a href="'+escHtml(scriptAiUrl)+'" target="_blank" style="color:#009bb9;font-size:12px;text-decoration:underline">Visualizza profilo</a>' : ''}
                     </span>
-                    <button id="btn-toggle-ai-layer" class="${aiLayerDisabled?'btn-update':'btn-ping'}" style="margin-left:0;padding:6px 14px;font-size:12px;flex-shrink:0;${aiLayerDisabled?'':'background:white;border:1px solid #b3e0ea;color:#009bb9'}">
+                    <button id="btn-toggle-ai-layer" class="${aiLayerDisabled?'btn-update':'btn-ping'}" style="margin-left:0;padding:6px 14px;font-size:12px;flex-shrink:0;${aiLayerDisabled?'':'background:white;border:1px solid #b3e0ea;color:#009bb9'}" ${!aiLayerDisabled?'onmouseover="this.style.background=\'#e9f7fb\'" onmouseout="this.style.background=\'white\'"':''} >
                         ${aiLayerDisabled ? 'Attiva' : 'Disattiva'}
                     </button>
                 </div>
