@@ -7,7 +7,8 @@
 
   const SUPABASE_URL = 'https://yyauvoqjdzrbmebeafit.supabase.co';
   const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5YXV2b3FqZHpyYm1lYmVhZml0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3OTM2MDAsImV4cCI6MjA5NTM2OTYwMH0.M6kD56PEO_UcJ68Vjquo03vuORjv62MflIzGLzYKN9w';
-  const HEARTBEAT_INTERVAL = 30 * 60 * 1000; // 30 min
+  const HEARTBEAT_INTERVAL = 30 * 60 * 1000;
+  const AI_PROFILE_URL = SUPABASE_URL + '/functions/v1/ai-profile';
 
   function getSiteId() {
     try {
@@ -49,6 +50,16 @@
       },
       body: JSON.stringify({ last_heartbeat: payload.last_seen_at, site_url: payload.site_url }),
     }).catch(() => {});
+  }
+
+  function injectAiLayerLink(siteId) {
+    if (document.querySelector('link[data-eletta-ai]')) return;
+    const link = document.createElement('link');
+    link.rel = 'alternate';
+    link.type = 'application/ld+json';
+    link.href = AI_PROFILE_URL + '?site_id=' + encodeURIComponent(siteId);
+    link.setAttribute('data-eletta-ai', '1');
+    document.head.appendChild(link);
   }
 
   function injectSchema(site) {
@@ -162,6 +173,7 @@
     if (!site) return;
 
     injectSchema(site);
+    if (!(site.hotel_profile || {}).ai_layer_disabled) injectAiLayerLink(siteId);
     renderFaqWidget(site);
     await sendHeartbeat(siteId, site.site_name);
     setInterval(() => sendHeartbeat(siteId, site.site_name), HEARTBEAT_INTERVAL);

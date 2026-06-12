@@ -2809,10 +2809,12 @@
         const aiProfileUrl = base + '/ai-profile';
         const isActive = geo.has_ai_profile === true;
         const isScriptJs = (site?.plugin_version||'').startsWith('js-') || hp.site_mode === 'script';
+        const aiLayerDisabled = hp.ai_layer_disabled === true;
+        const scriptAiUrl = SUPABASE_URL + '/functions/v1/ai-profile?site_id=' + encodeURIComponent(site.site_id);
         const statusColor = '#d82d6b';
         const statusBg = 'white';
         const statusBorder = '#e4e4ec';
-        const statusLabel = isScriptJs ? 'Script JS' : isActive ? 'Attivo' : 'Non attivo';
+        const statusLabel = isScriptJs ? (aiLayerDisabled ? 'Script JS — AI Layer off' : 'Script JS') : isActive ? 'Attivo' : 'Non attivo';
 
         const infoCard = (label, val, note) =>
             `<div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:14px 16px">
@@ -2832,13 +2834,24 @@
                     <span style="font-size:16px;font-weight:800;color:${statusColor}">${statusLabel}</span>
                 </div>
                 <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px">
-                    ${infoCard('Endpoint', '/ai-profile', isActive ? 'Leggibile dai crawler AI' : 'Non ancora attivo')}
+                    ${infoCard('Endpoint', '/ai-profile', isScriptJs ? (aiLayerDisabled ? 'Disattivato' : 'Endpoint Supabase attivo') : isActive ? 'Leggibile dai crawler AI' : 'Non ancora attivo')}
                     ${(()=>{const vOk=!semverGt('1.9.2',site?.plugin_version||'0');return infoCard('Versione plugin',site?.plugin_version||'—',isScriptJs?'Script JS (CDN)':vOk?'Versione OK':'Richiesta v1.9.2+');})()}
                     ${infoCard('Ultimo heartbeat', site?.last_heartbeat ? timeAgo(site.last_heartbeat) : '—', '')}
                 </div>
-                ${isScriptJs ? `<div style="padding:12px 16px;background:#e8f6fb;border:1px solid #b8e8f5;border-radius:4px;margin-bottom:16px;font-size:13px;color:#009bb9;font-weight:600">
-                    ℹ Il sito usa Script JS — l\'AI Layer (endpoint /ai-profile) non è disponibile in questa modalità.
-                </div>` : isActive ? `<div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:white;border:1px solid #e4e4ec;border-radius:4px;margin-bottom:16px">
+                ${isScriptJs ? `
+                <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:${aiLayerDisabled?'#fce8ef':'#e9f7fb'};border:1px solid ${aiLayerDisabled?'#ead0dc':'#b3e0ea'};border-radius:4px;margin-bottom:${aiLayerDisabled?'0':'12px'}">
+                    <span style="font-size:14px;flex-shrink:0">${aiLayerDisabled?'⚠':'✓'}</span>
+                    <span style="font-size:13px;color:${aiLayerDisabled?'#d82d6b':'#009bb9'};flex:1">
+                        ${aiLayerDisabled ? 'AI Layer disattivato — eletta.js non pubblica il profilo' : 'AI Layer attivo — eletta.js pubblica il profilo hotel ai crawler AI'}
+                    </span>
+                    <button id="btn-toggle-ai-layer" class="${aiLayerDisabled?'btn-update':'btn-ping'}" style="margin-left:0;padding:6px 14px;font-size:12px;flex-shrink:0">
+                        ${aiLayerDisabled ? 'Attiva' : 'Disattiva'}
+                    </button>
+                </div>
+                ${!aiLayerDisabled ? `<div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:white;border:1px solid #e4e4ec;border-radius:4px;margin-bottom:16px">
+                    <span style="color:#d82d6b;font-size:14px">🔗</span>
+                    <a href="${escHtml(scriptAiUrl)}" target="_blank" style="color:#d82d6b;font-weight:600;font-size:13px;text-decoration:none;word-break:break-all">${escHtml(scriptAiUrl)}</a>
+                </div>` : ''}` : isActive ? `<div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:white;border:1px solid #e4e4ec;border-radius:4px;margin-bottom:16px">
                     <span style="color:#d82d6b;font-size:14px">🔗</span>
                     <a href="${escHtml(aiProfileUrl)}" target="_blank" style="color:#d82d6b;font-weight:700;font-size:13px;text-decoration:none">${escHtml(aiProfileUrl)}</a>
                 </div>` : `<div style="padding:12px 16px;background:#fce8ef;border:1px solid #ead0dc;border-radius:4px;margin-bottom:16px;font-size:13px;color:#d82d6b;font-weight:600">
@@ -2871,7 +2884,15 @@
                 <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Checklist AI Layer</div></div>
             </div>
             <div style="padding:16px 20px">
-                ${isScriptJs ? `<div style="font-size:13px;color:#009bb9;padding:8px 0">AI Layer non disponibile in modalità Script JS. eletta.js si aggiorna automaticamente dal CDN.</div>` : [
+                ${isScriptJs ? `<div style="display:flex;flex-direction:column;gap:0">
+                    ${[
+                        {label:'eletta.js installato e attivo', ok: site?.last_heartbeat && ((new Date()-new Date(site.last_heartbeat))/3600000)<25},
+                        {label:'AI Layer abilitato', ok: !aiLayerDisabled},
+                        {label:'Schema.org compilato', ok: !!(site?.schema_data?.name||site?.hotel_profile?.nome_hotel)},
+                        {label:'Profilo hotel compilato', ok: !!(site?.hotel_profile?.nome_hotel||site?.hotel_profile?.nome)},
+                        {label:'FAQ configurate', ok: (site?.faq_data?.items||[]).length > 0},
+                    ].map(({label,ok})=>'<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f4f4f8"><span style="color:#d82d6b;font-size:14px;font-weight:800">'+(ok?'✓':'✗')+'</span><span style="font-size:13px;color:'+(ok?'#35364f':'#4b4d68')+'">'+escHtml(label)+'</span></div>').join('')}
+                </div>` : [
                     {label:'Plugin versione ≥ 1.9.2', ok: !semverGt('1.9.2', site?.plugin_version||'0')},
                     {label:'Heartbeat attivo (< 25h)', ok: site?.last_heartbeat && ((new Date()-new Date(site.last_heartbeat))/3600000)<25},
                     {label:'Endpoint /ai-profile attivo', ok: geo.has_ai_profile === true},
@@ -2885,6 +2906,20 @@
                 </div>`).join('')}
             </div>
         </div>`;
+
+        // Toggle kill switch AI Layer (solo siti Script JS)
+        const toggleAiBtn = document.getElementById('btn-toggle-ai-layer');
+        if (toggleAiBtn) {
+            toggleAiBtn.addEventListener('click', async () => {
+                toggleAiBtn.disabled = true;
+                toggleAiBtn.textContent = '⏳';
+                const newHp = { ...(site.hotel_profile || {}), ai_layer_disabled: !aiLayerDisabled };
+                await _SBq.from('isi_sites').update({ hotel_profile: newHp }).eq('site_id', site.site_id);
+                _aiLayerInited = false;
+                const { data: fresh } = await _SBq.from('isi_sites').select('*').eq('site_id', site.site_id).single();
+                if (fresh) initAiLayerPanel(fresh);
+            });
+        }
     }
 
     // ─── COERENZA CONTENUTI ──────────────────────────────────────────────────────
