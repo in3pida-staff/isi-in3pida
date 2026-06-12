@@ -759,7 +759,7 @@
                         <div style="font-size:18px;font-weight:600;color:#171b33;letter-spacing:-.01em">Stato contenuti</div>
                     </div>
                     <div>
-                        <div style="font-size:10px;font-weight:700;color:#4a4a6a;letter-spacing:.08em;text-transform:uppercase;padding:10px 0 8px 16px;border-bottom:1px solid #e2e2e2;background:#fafafa">SEZIONI</div>
+                        <div style="font-size:11px;font-weight:700;color:#4a4a6a;letter-spacing:.08em;text-transform:uppercase;padding:10px 0 8px 16px;border-bottom:1px solid #e2e2e2;background:#fafafa">SEZIONI</div>
                         ${[
                             {k:'overview', l:'PANORAMICA',         v:'Semafori e punteggi'},
                             {k:'faq',      l:'FAQ',                v: covPct!==null?(covPct+'% coperto'):'1 pubblicata'},
@@ -772,12 +772,12 @@
                         ].map(({k,l,v},i)=>{
                             const isAct=i===0;
                             return '<div class="stato-sezione-row" data-sec="'+k+'"'+(isAct?' data-active="1"':'')+' style="display:flex;align-items:stretch;cursor:pointer;border-bottom:1px solid #e2e2e2;transition:background .15s">'
-                                + '<div class="ssec-label" style="width:130px;flex-shrink:0;background:#fafafa;padding:11px 14px;border-right:1px solid #e2e2e2;font-size:10px;font-weight:600;color:'+(isAct?'#0D5F75':'#888')+';letter-spacing:.03em;text-transform:uppercase;display:flex;align-items:center">'+l+'</div>'
-                                + '<div style="flex:1;padding:11px 14px;background:#fff;font-size:12px;color:'+(isAct?'#0D5F75':'#35364f')+';text-align:right;display:flex;align-items:center;justify-content:flex-end;font-weight:'+(isAct?'600':'400')+'">'+v+'</div>'
+                                + '<div class="ssec-label" style="width:130px;flex-shrink:0;background:#fafafa;padding:11px 14px;border-right:1px solid #e2e2e2;font-size:11px;font-weight:600;color:'+(isAct?'#0D5F75':'#888')+';letter-spacing:.03em;text-transform:uppercase;display:flex;align-items:center">'+l+'</div>'
+                                + '<div style="flex:1;padding:11px 14px;background:#fff;font-size:13px;color:'+(isAct?'#0D5F75':'#35364f')+';text-align:right;display:flex;align-items:center;justify-content:flex-end;font-weight:'+(isAct?'600':'400')+'">'+v+'</div>'
                                 + '</div>';
                         }).join('')}
                         <div style="padding:14px 16px">
-                            <button id="btn-stato-sync-all" style="width:100%;background:#0D5F75;color:white;border:none;border-radius:6px;padding:10px;font-size:13px;font-weight:600;letter-spacing:.05em;cursor:pointer;font-family:var(--font)">SINCRONIZZA</button>
+                            <button id="btn-stato-sync-all" style="width:100%;background:#0D5F75;color:white;border:none;border-radius:6px;padding:10px;font-size:14px;font-weight:600;letter-spacing:.05em;cursor:pointer;font-family:var(--font)">SINCRONIZZA</button>
                         </div>
                     </div>
                 </div>
@@ -2415,8 +2415,11 @@
                 body: JSON.stringify({ secret: _aFaqSecret, action: 'delete', faq: { id } }), signal: ctrl.signal,
             });
             const d = await r.json().catch(() => ({}));
-            if (r.ok && d.ok) loadAdminFaqList();
-            else alert('Errore durante eliminazione');
+            if (r.ok && d.ok) {
+                _aFaqItems = _aFaqItems.filter(x => x.id !== id);
+                const el = document.getElementById('faq-admin-list');
+                if (el) renderAdminFaqList(el);
+            } else alert('Errore durante eliminazione');
         } catch (e) { alert('Errore: ' + e.message); }
     }
 
@@ -2825,11 +2828,22 @@
             // Salva anche nel plugin WordPress se disponibile
             if (_aFaqBase) {
                 const ctrl = new AbortController(); setTimeout(() => ctrl.abort(), 12000);
+                const existingWp = _aFaqItems.find(f => (f.question||'').trim().toLowerCase() === query.trim().toLowerCase());
+                const wpAction = existingWp ? 'update' : 'add';
+                const wpFaq = existingWp
+                    ? { id: existingWp.id, question: query, answer: aiAnswer, solo_ai: true, order: 0 }
+                    : { question: query, answer: aiAnswer, solo_ai: true, order: 0 };
                 await fetch(_aFaqBase + '/wp-json/in3pida/v1/faq', {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ secret: _aFaqSecret, action: 'add', faq: { question: query, answer: aiAnswer, solo_ai: true, order: 0 } }),
+                    body: JSON.stringify({ secret: _aFaqSecret, action: wpAction, faq: wpFaq }),
                     signal: ctrl.signal,
                 }).catch(() => {});
+                if (existingWp) {
+                    existingWp.answer = aiAnswer;
+                } else {
+                    // aggiorna lista locale dopo add per future sovrascritture
+                    loadAdminFaqList();
+                }
             }
 
             const row = btn.closest('div[style*="display:flex"]');
