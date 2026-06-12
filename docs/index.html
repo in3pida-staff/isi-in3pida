@@ -3417,21 +3417,21 @@ ${rows}
         const _faqUrl = `https://in3pida-staff.github.io/isi-in3pida/faq.html?id=${site.site_id}`;
         const _neverConnected = _hrsAgo >= 9999;
         const _installBanner = _neverConnected
-            ? '<div style="margin:0 20px 16px;padding:12px 14px;background:#fce8ef;border:1px solid #ead0dc;border-radius:8px;display:flex;align-items:flex-start;gap:10px">' +
-              '<span style="font-size:18px;line-height:1">⚠</span>' +
+            ? '<div style="margin:12px 0 4px;padding:10px 12px;background:#fce8ef;border:1px solid #ead0dc;border-radius:4px;display:flex;align-items:flex-start;gap:8px">' +
+              '<span style="font-size:15px;line-height:1.4">⚠</span>' +
               '<div><div style="font-size:13px;color:#d82d6b;margin-bottom:2px">' + (_isScriptMode ? 'Script' : 'Plugin') + ' non installato</div>' +
               '<div style="font-size:12px;color:#4b4d68">' + (_isScriptMode ? 'Nessun segnale ricevuto. Copia lo script qui sotto e incollalo nel &lt;head&gt; del sito.' : 'Nessun segnale ricevuto. Installa il plugin sul sito WordPress.') + '</div></div></div>'
             : _isOnline
-                ? '<div style="margin:0 20px 16px;padding:10px 14px;background:#e9f7fb;border:1px solid #b3e0ea;border-radius:8px;font-size:13px;color:#009bb9">✓ ' + (_isScriptMode ? 'Script' : 'Plugin') + ' installato e attivo</div>'
-                : '<div style="margin:0 20px 16px;padding:10px 14px;background:#fce8ef;border:1px solid #ead0dc;border-radius:8px;font-size:13px;color:#d82d6b">⚠ ' + (_isScriptMode ? 'Script' : 'Plugin') + ' installato ma nessun segnale recente</div>';
+                ? '<div style="margin:12px 0 4px;padding:9px 12px;background:#e9f7fb;border:1px solid #b3e0ea;border-radius:4px;font-size:13px;color:#009bb9">✓ ' + (_isScriptMode ? 'Script' : 'Plugin') + ' installato e attivo</div>'
+                : '<div style="margin:12px 0 4px;padding:9px 12px;background:#fce8ef;border:1px solid #ead0dc;border-radius:4px;font-size:13px;color:#d82d6b">⚠ ' + (_isScriptMode ? 'Script' : 'Plugin') + ' installato ma nessun segnale recente</div>';
         const connSection = cardH + chH(_connDot,'Connessione') +
-            '<div style="padding:0 20px">' +
+            '<div style="padding:0 20px 16px">' +
             row('Stato', `<span style="color:${_connDot};font-weight:400">${_connLabel}</span>`) +
-            '</div>' +
             _installBanner +
+            '</div>' +
             (_isScriptMode ? (
                 '<div style="padding:10px 20px 16px;border-top:1px solid #f4f4f8">' +
-                '<div style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Script da incollare nel sito</div>' +
+                '<div style="font-size:11px;color:#aaa;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Script da incollare nel sito</div>' +
                 '<div style="display:flex;gap:8px;align-items:center">' +
                 '<code style="flex:1;background:#f4f4f8;border-radius:6px;padding:10px 12px;font-size:11px;color:#4b4d68;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;border:1px solid #e4e4ec;font-family:monospace">' + escHtml(_scriptTag) + '</code>' +
                 `<button class="btn-update" id="btn-copy-script" style="flex-shrink:0;font-size:11px;padding:6px 14px;margin-left:0;white-space:nowrap">Copia</button>` +
