@@ -1476,15 +1476,15 @@
             return;
         }
         const secH = t => `<div style="background:#f4f4f8;padding:9px 20px;border-top:1px solid #e4e4ec;border-bottom:1px solid #e4e4ec;font-size:10px;font-weight:700;color:#4a4a6a;letter-spacing:.07em;text-transform:uppercase">${t}</div>`;
-        const fld = (l,v) => !v ? '' : `<div><div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px">${l}</div><div style="font-size:13px;font-weight:600;color:#171b33">${escHtml(String(v))}</div></div>`;
+        const fld = (l,v) => !v ? '' : `<div><div style="font-size:10px;font-weight:400;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">${l}</div><div style="font-size:13px;font-weight:400;color:#171b33">${escHtml(String(v))}</div></div>`;
         const grd = (cols,...items) => `<div style="display:grid;grid-template-columns:${cols};gap:14px;padding:12px 20px">${items.join('')}</div>`;
-        const tag = v => `<span style="background:#fbf4f7;border:1px solid #ead0dc;color:#d82d6b;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px">${escHtml(v)}</span>`;
+        const tag = v => `<span style="background:white;border:1px solid #e4e4ec;color:#35364f;font-size:11px;font-weight:400;padding:3px 10px;border-radius:20px">${escHtml(v)}</span>`;
         let html = '';
 
         // INFORMAZIONI STRUTTURA
         html += secH('Informazioni struttura');
         html += grd('1fr 1fr 1fr 1fr', fld('Nome struttura',p.nome_hotel), fld('Tipo',p.tipo_struttura), fld('Stelle',p.stelle?p.stelle+' ★':''), fld('Prezzo',p.prezzo_medio));
-        if (p.descrizione) html += `<div style="padding:0 20px 14px"><div style="background:#fbf4f7;border-radius:4px;padding:10px 14px;font-size:13px;color:#35364f;line-height:1.6">${escHtml(p.descrizione)}</div></div>`;
+        if (p.descrizione) html += `<div style="padding:16px 20px 14px"><div style="border-radius:4px;padding:10px 14px;font-size:13px;color:#35364f;line-height:1.6">${escHtml(p.descrizione)}</div></div>`;
 
         // CONTATTI
         if (p.telefono||p.email||p.sito_web) {
