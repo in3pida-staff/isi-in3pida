@@ -706,6 +706,7 @@
             _SBq.from('isi_sites').select('*').eq('site_id',siteId).single(),
             _SBq.from('isi_pse_queries').select('created_at,cost_usd,result,query').eq('site_id',siteId).order('created_at',{ascending:false}).limit(500),
         ]);
+        if (site?.site_name) document.getElementById('hero-title').textContent = site.site_name;
         const hrs = site?.last_heartbeat ? (now - new Date(site.last_heartbeat))/3600000 : 9999;
         const geo = site?.geo_scores || {};
         const rawFallbackD = [geo.chunk_avg, geo.citation_avg].filter(s=>s!=null && s>0);
