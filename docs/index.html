@@ -3400,10 +3400,10 @@ ${rows}
         const cfg = hp.isi_config || {};
         const geo = site?.geo_scores || {};
         const cardH = '<div class="card" style="margin-bottom:20px;border:1px solid #e4e4ec;box-shadow:none">';
-        const chH = (dot,title) => '<div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:'+dot+';display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">'+title+'</div></div></div>';
-        const row = (l,v) => '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f4f4f8"><span style="font-size:13px;font-weight:600;color:#4b4d68">'+l+'</span><span style="font-size:13px;color:#171b33;font-weight:700">'+v+'</span></div>';
-        const toggl = (id,label,checked) => '<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #f4f4f8"><span style="font-size:13px;font-weight:600;color:#4b4d68">'+label+'</span><label style="display:inline-flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="cfg-'+id+'" '+(checked?'checked':'')+' style="width:16px;height:16px;accent-color:#d82d6b"><span style="font-size:12px;color:#aaa">'+(checked?'Attivo':'Disattivo')+'</span></label></div>';
-        const inp = (id,label,val,ph,type) => '<div style="padding:10px 0;border-bottom:1px solid #f4f4f8"><label style="font-size:11px;font-weight:700;color:#aaa;letter-spacing:.05em;text-transform:uppercase;display:block;margin-bottom:6px">'+label+'</label><input type="'+(type||'text')+'" id="cfg-'+id+'" value="'+escHtml(val||'')+'" placeholder="'+escHtml(ph||'')+'" style="width:100%;border:1px solid #e4e4ec;border-radius:6px;padding:8px 12px;font-size:13px;color:#171b33;outline:none;box-sizing:border-box"></div>';
+        const chH = (dot,title) => '<div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:'+dot+';display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:400;color:#666b84;letter-spacing:.05em;text-transform:uppercase">'+title+'</div></div></div>';
+        const row = (l,v) => '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f4f4f8"><span style="font-size:13px;color:#4b4d68">'+l+'</span><span style="font-size:13px;color:#171b33">'+v+'</span></div>';
+        const toggl = (id,label,checked) => '<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #f4f4f8"><span style="font-size:13px;color:#4b4d68">'+label+'</span><label style="display:inline-flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="cfg-'+id+'" '+(checked?'checked':'')+' style="width:16px;height:16px;accent-color:#d82d6b"><span style="font-size:12px;color:#aaa">'+(checked?'Attivo':'Disattivo')+'</span></label></div>';
+        const inp = (id,label,val,ph,type) => '<div style="padding:10px 0;border-bottom:1px solid #f4f4f8"><label style="font-size:11px;font-weight:400;color:#aaa;letter-spacing:.05em;text-transform:uppercase;display:block;margin-bottom:6px">'+label+'</label><input type="'+(type||'text')+'" id="cfg-'+id+'" value="'+escHtml(val||'')+'" placeholder="'+escHtml(ph||'')+'" style="width:100%;border:1px solid #e4e4ec;border-radius:6px;padding:8px 12px;font-size:13px;color:#171b33;outline:none;box-sizing:border-box"></div>';
 
         const _isScriptMode = site.plugin_version ? (site.plugin_version).startsWith('js-') : hp.site_mode === 'script';
         const _lastHB = site.last_heartbeat;
@@ -3420,11 +3420,11 @@ ${rows}
             _scriptNeverConnected
                 ? '<div style="margin:0 20px 16px;padding:12px 14px;background:#fce8ef;border:1px solid #ead0dc;border-radius:8px;display:flex;align-items:flex-start;gap:10px">' +
                   '<span style="font-size:18px;line-height:1">⚠</span>' +
-                  '<div><div style="font-size:13px;font-weight:700;color:#d82d6b;margin-bottom:2px">Script non installato</div>' +
+                  '<div><div style="font-size:13px;color:#d82d6b;margin-bottom:2px">Script non installato</div>' +
                   '<div style="font-size:12px;color:#4b4d68">Nessun segnale ricevuto. Copia lo script qui sotto e incollalo nel &lt;head&gt; del sito.</div></div></div>'
                 : _scriptOk
-                    ? '<div style="margin:0 20px 16px;padding:10px 14px;background:#e9f7fb;border:1px solid #b3e0ea;border-radius:8px;font-size:13px;font-weight:700;color:#009bb9">✓ Script installato e attivo</div>'
-                    : '<div style="margin:0 20px 16px;padding:10px 14px;background:#fce8ef;border:1px solid #ead0dc;border-radius:8px;font-size:13px;font-weight:700;color:#d82d6b">⚠ Script installato ma nessun segnale recente</div>'
+                    ? '<div style="margin:0 20px 16px;padding:10px 14px;background:#e9f7fb;border:1px solid #b3e0ea;border-radius:8px;font-size:13px;color:#009bb9">✓ Script installato e attivo</div>'
+                    : '<div style="margin:0 20px 16px;padding:10px 14px;background:#fce8ef;border:1px solid #ead0dc;border-radius:8px;font-size:13px;color:#d82d6b">⚠ Script installato ma nessun segnale recente</div>'
         ) : '';
         const connSection = cardH + chH(_connDot,'Connessione') +
             '<div style="padding:0 20px">' +
@@ -3444,6 +3444,7 @@ ${rows}
 
         cont.innerHTML =
             connSection +
+            (!_isScriptMode ? (
             cardH + chH('#d82d6b','Abilitazioni Plugin') +
             '<div style="padding:0 20px">' +
             toggl('llm_layer','LLM Ready Layer (llms.txt + AI sitemap)', geo.has_ai_profile!==false) +
@@ -3457,7 +3458,8 @@ ${rows}
             '<div style="padding:0 20px">' +
             inp('gemini_key','Chiave API Google Gemini (Mappa Query → Genera risposta)', cfg.gemini_api_key?'••••••••••'+cfg.gemini_api_key.slice(-4):'','Incolla la chiave da aistudio.google.com') +
             inp('isi_token','Token ISI (sync con isi.in3pida.it)', cfg.isi_token?'••••'+cfg.isi_token.slice(-8):'','Token fornito da ISI') +
-            '</div><div style="padding:14px 20px;display:flex;gap:10px"><button id="btn-save-cfg-keys" class="btn-update" style="margin-left:0">Salva chiavi</button><div id="cfg-keys-msg" style="font-size:13px;padding:8px 0"></div></div></div>' +
+            '</div><div style="padding:14px 20px;display:flex;gap:10px"><button id="btn-save-cfg-keys" class="btn-update" style="margin-left:0">Salva chiavi</button><div id="cfg-keys-msg" style="font-size:13px;padding:8px 0"></div></div></div>'
+            ) : '') +
 
             cardH + chH('#d82d6b','Sync ISI — Visibilità AI') +
             '<div style="padding:16px 20px">' +
