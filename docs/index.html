@@ -2731,6 +2731,39 @@
     window.generaRispostaQuery = async function(btn, cat, query, siteId) {
         const origText = btn.textContent;
         btn.disabled = true;
+        btn.textContent = '⏳ Verifica...';
+        // Validazione campi minimi obbligatori
+        try {
+            const { data: _sv } = await _SBq.from('isi_sites').select('hotel_profile,schema_data').eq('site_id', siteId).single();
+            const _hp = _sv?.hotel_profile || {}, _sc = _sv?.schema_data || {};
+            const _checks = {
+                'Nome hotel':   _sc.name || _hp.nome_hotel || _hp.nome,
+                'Destinazione': _sc.address?.addressLocality || _hp.citta || _hp.localita || _hp.destinazione || _hp.comune,
+                'Stelle':       _sc.starRating?.ratingValue || _hp.stelle,
+                'Via':          _sc.address?.streetAddress || _hp.indirizzo || _hp.via
+            };
+            const _missing = Object.entries(_checks).filter(([,v]) => !v).map(([k]) => k);
+            if (_missing.length) {
+                btn.disabled = false; btn.textContent = origText;
+                await new Promise(res => {
+                    const ov = document.createElement('div');
+                    ov.style.cssText = 'position:fixed;inset:0;background:rgba(23,27,51,.45);z-index:9999;display:flex;align-items:center;justify-content:center';
+                    ov.innerHTML = `<div style="background:white;border-radius:10px;padding:28px 28px 24px;max-width:400px;width:90%;box-shadow:0 8px 32px rgba(23,27,51,.18)">
+                        <div style="font-size:15px;font-weight:600;color:#171b33;margin-bottom:6px">Informazioni insufficienti</div>
+                        <div style="font-size:13px;color:#4b4d68;margin-bottom:14px;line-height:1.5">Compila le seguenti informazioni su Schema.org:</div>
+                        <ul style="margin:0 0 20px 16px;padding:0;font-size:13px;color:#0D5F75;font-weight:600;line-height:1.8">${_missing.map(m=>`<li>${m}</li>`).join('')}</ul>
+                        <div style="display:flex;justify-content:flex-end">
+                            <button class="btn-update" style="padding:7px 20px;font-size:13px">OK</button>
+                        </div>
+                    </div>`;
+                    document.body.appendChild(ov);
+                    const close = () => { document.body.removeChild(ov); res(); };
+                    ov.querySelector('.btn-update').addEventListener('click', close);
+                    ov.addEventListener('click', e => { if (e.target === ov) close(); });
+                });
+                return;
+            }
+        } catch(e) { /* se non riesce a verificare, procede comunque */ }
         btn.textContent = '⏳ Generazione...';
         let aiAnswer = null;
         try {
