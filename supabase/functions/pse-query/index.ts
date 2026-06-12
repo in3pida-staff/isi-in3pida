@@ -56,12 +56,14 @@ Deno.serve(async (req) => {
       if (!GROQ_API_KEY) return new Response(JSON.stringify({ error: 'GROQ_API_KEY non configurata' }), { status: 422, headers: cors })
 
       const answer = await groq(
-        `Sei l'assistente virtuale di un hotel italiano. Scrivi una risposta FAQ in italiano (2-4 frasi) per il sito dell'hotel. Regole IMPORTANTI:
-- Non scrivere mai "mi dispiace", "non sono in grado", "non ho informazioni" o frasi negative
-- Se l'hotel non ha il servizio richiesto, descrivi cosa offre di simile o alternativo, oppure suggerisci di contattare direttamente l'hotel
-- Usa SOLO le informazioni fornite, mai inventare dati specifici (prezzi, orari, numeri)
-- Tono professionale e positivo, come se stessi vendendo l'hotel`,
-        `Informazioni hotel:\n${lines}\n\nDomanda: ${query}\n\nRisposta FAQ:`
+        `Scrivi una risposta FAQ per il sito di un hotel italiano. La risposta deve essere in italiano, 2-4 frasi, tono commerciale positivo.
+
+REGOLA ASSOLUTA: Non usare MAI queste parole o concetti: "mi dispiace", "non sono in grado", "non ho informazioni", "non posso", "non disponiamo". VIETATO.
+
+Se l'hotel non ha il servizio specifico cercato: descrivi cosa offre di simile o complementare, valorizza i punti di forza dell'hotel, e/o suggerisci di contattare la reception per ulteriori dettagli.
+
+La risposta deve sempre essere utile, positiva e far venire voglia di prenotare.`,
+        `Dati hotel:\n${lines}\n\nDomanda FAQ da rispondere: "${query}"\n\nRisposta (inizia direttamente, senza "Certo!" o introduzioni):`
       )
       if (!answer) return new Response(JSON.stringify({ error: 'empty_response' }), { status: 500, headers: cors })
       return new Response(JSON.stringify({ answer }), { headers: { ...cors, 'Content-Type': 'application/json' } })

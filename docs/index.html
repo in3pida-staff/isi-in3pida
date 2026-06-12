@@ -2534,6 +2534,8 @@
         if (!cont) return;
         const faqData = site?.faq_data || {};
         const qmap = faqData.query_map || faqData.mappa_query || {};
+        // Indice domande FAQ esistenti per rilevare copertura automatica
+        const faqQuestions = new Set((faqData.items || []).map(f => (f.question || '').toLowerCase().trim()));
 
         // Calcola copertura per singola query
         const cats = Object.keys(MAPPA_DEFAULTS);
@@ -2541,7 +2543,7 @@
         cats.forEach(cat => {
             const qs = MAPPA_DEFAULTS[cat];
             const entry = qmap[cat] || {};
-            const coveredSet = new Set(Array.isArray(entry.covered_queries) ? entry.covered_queries : (entry.covered ? qs : []));
+            const coveredSet = new Set([...(Array.isArray(entry.covered_queries) ? entry.covered_queries : (entry.covered ? qs : [])), ...qs.filter(q => faqQuestions.has(q.toLowerCase().trim()))]);
             totalQ += qs.length;
             coveredQ += qs.filter(q => coveredSet.has(q) || coveredSet.has(q.toLowerCase())).length;
         });
@@ -2614,7 +2616,7 @@
             cats.forEach(cat => {
                 const qs = MAPPA_DEFAULTS[cat];
                 const entry = qmap[cat] || {};
-                const coveredSet = new Set(Array.isArray(entry.covered_queries) ? entry.covered_queries : (entry.covered ? qs : []));
+                const coveredSet = new Set([...(Array.isArray(entry.covered_queries) ? entry.covered_queries : (entry.covered ? qs : [])), ...qs.filter(q => faqQuestions.has(q.toLowerCase().trim()))]);
                 qs.forEach(q => { if (!coveredSet.has(q) && !coveredSet.has(q.toLowerCase())) uncovered.push({query: q, cat}); });
             });
 
@@ -2702,7 +2704,7 @@
             const label = cat.replace(/_/g,' ').replace(/\b\w/g, c => c.toUpperCase());
             const qs = MAPPA_DEFAULTS[cat];
             const entry = qmap[cat] || {};
-            const coveredSet = new Set(Array.isArray(entry.covered_queries) ? entry.covered_queries : (entry.covered ? qs : []));
+            const coveredSet = new Set([...(Array.isArray(entry.covered_queries) ? entry.covered_queries : (entry.covered ? qs : [])), ...qs.filter(q => faqQuestions.has(q.toLowerCase().trim()))]);
             const covQ = qs.filter(q => coveredSet.has(q) || coveredSet.has(q.toLowerCase())).length;
             return `<div class="card" style="margin-bottom:12px;border:1px solid #e4e4ec;box-shadow:none">
                 <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
