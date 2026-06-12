@@ -640,7 +640,7 @@
             const hbColor  = '#d82d6b';
             const geo = site.geo_scores || {};
             const rawFallback = [geo.chunk_avg, geo.citation_avg].filter(s=>s!=null && s>0);
-            const geoAvg = geo.completeness_score != null ? geo.completeness_score : (geo.ai_readiness != null ? geo.ai_readiness : (rawFallback.length ? Math.round(rawFallback.reduce((a,b)=>a+b,0)/rawFallback.length) : null));
+            const geoAvg = geo.ai_readiness != null ? geo.ai_readiness : (geo.completeness_score != null ? geo.completeness_score : (rawFallback.length ? Math.round(rawFallback.reduce((a,b)=>a+b,0)/rawFallback.length) : null));
             const geoAvgBg = geoAvg===null?'#fbf4f7':geoAvg>=70?'#fbf4f7':geoAvg>=40?'#fbf4f7':'#fce8ef';
             const geoAvgTc = geoAvg===null?'#666b84':geoAvg>=70?'#d82d6b':geoAvg>=40?'#d82d6b':'#b00020';
             const geoHtml = geoAvg!==null ? `<span style="background:${geoAvgBg};color:${geoAvgTc};font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap">${geoAvg}/100</span>` : `<span style="color:#666b84;font-size:12px">—</span>`;
@@ -710,7 +710,7 @@
         const hrs = site?.last_heartbeat ? (now - new Date(site.last_heartbeat))/3600000 : 9999;
         const geo = site?.geo_scores || {};
         const rawFallbackD = [geo.chunk_avg, geo.citation_avg].filter(s=>s!=null && s>0);
-        const geoAvg = geo.completeness_score != null ? geo.completeness_score : (geo.ai_readiness != null ? geo.ai_readiness : (rawFallbackD.length ? Math.round(rawFallbackD.reduce((a,b)=>a+b,0)/rawFallbackD.length) : null));
+        const geoAvg = geo.ai_readiness != null ? geo.ai_readiness : (geo.completeness_score != null ? geo.completeness_score : (rawFallbackD.length ? Math.round(rawFallbackD.reduce((a,b)=>a+b,0)/rawFallbackD.length) : null));
         const cs = geo.completeness_score ?? null;
         const checklist = geo.checklist || [];
         const covPct = geo.coverage_pct ?? null;

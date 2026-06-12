@@ -32,14 +32,38 @@
     return rows?.[0] || null;
   }
 
-  async function sendHeartbeat(siteId, siteName) {
-    const payload = {
-      site_id: siteId,
-      site_name: siteName || document.title,
-      site_url: location.origin,
-      plugin_version: 'js-1.0.0',
-      last_seen_at: new Date().toISOString(),
-    };
+  function computeGeoScores(site) {
+    const sd = site.schema_data || {};
+    const hp = site.hotel_profile || {};
+    const faqItems = ((site.faq_data || {}).items || [])
+      .filter(function(i) { return i.status === 'publish' || i.status === 'published' || (!i.status && i.solo_ai !== true); });
+
+    var checks = [
+      sd.name || hp.nome_hotel,
+      sd.description || hp.descrizione,
+      sd.telephone || hp.telefono,
+      sd.email || hp.email,
+      sd.city || hp.citta,
+      sd.street || hp.via,
+      sd.official_rating || hp.stelle,
+      sd.checkin_time || hp.checkin_dalle,
+      sd.checkout_time || hp.checkout_dalle,
+      sd.latitude || hp.latitudine,
+    ];
+    var filled = checks.filter(Boolean).length;
+    var completeness_score = Math.round(filled / checks.length * 100);
+    var coverage_pct = faqItems.length >= 10 ? 100 : faqItems.length >= 5 ? 75 : faqItems.length >= 1 ? 40 : 0;
+    var has_ai_profile = hp.ai_layer_disabled !== true;
+    var ai_readiness = Math.round(completeness_score * 0.5 + coverage_pct * 0.3 + (has_ai_profile ? 20 : 0));
+
+    return { completeness_score: completeness_score, coverage_pct: coverage_pct, has_ai_profile: has_ai_profile, ai_readiness: ai_readiness };
+  }
+
+  async function sendHeartbeat(siteId, siteName, site) {
+    var now = new Date().toISOString();
+    var scores = site ? computeGeoScores(site) : null;
+    var patch = { last_heartbeat: now, site_url: location.origin };
+    if (scores) patch.geo_scores = scores;
     await fetch(`${SUPABASE_URL}/rest/v1/isi_sites?site_id=eq.${encodeURIComponent(siteId)}`, {
       method: 'PATCH',
       headers: {
@@ -48,8 +72,8 @@
         'Content-Type': 'application/json',
         Prefer: 'return=minimal',
       },
-      body: JSON.stringify({ last_heartbeat: payload.last_seen_at, site_url: payload.site_url }),
-    }).catch(() => {});
+      body: JSON.stringify(patch),
+    }).catch(function() {});
   }
 
   function injectAiLayerLink(siteId) {
@@ -175,8 +199,8 @@
     injectSchema(site);
     if (!(site.hotel_profile || {}).ai_layer_disabled) injectAiLayerLink(siteId);
     renderFaqWidget(site);
-    await sendHeartbeat(siteId, site.site_name);
-    setInterval(() => sendHeartbeat(siteId, site.site_name), HEARTBEAT_INTERVAL);
+    await sendHeartbeat(siteId, site.site_name, site);
+    setInterval(function() { sendHeartbeat(siteId, site.site_name, site); }, HEARTBEAT_INTERVAL);
   }
 
   if (document.readyState === 'loading') {
