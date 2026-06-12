@@ -3415,23 +3415,20 @@ ${rows}
         const _scriptSrc = `https://in3pida-staff.github.io/isi-in3pida/eletta.js?id=${site.site_id}`;
         const _scriptTag = `<script src="${_scriptSrc}" async><\/script>`;
         const _faqUrl = `https://in3pida-staff.github.io/isi-in3pida/faq.html?id=${site.site_id}`;
-        const _scriptNeverConnected = _isScriptMode && _hrsAgo >= 9999;
-        const _scriptOk = _isScriptMode && _isOnline;
-        const _scriptInstallBanner = _isScriptMode ? (
-            _scriptNeverConnected
-                ? '<div style="margin:0 20px 16px;padding:12px 14px;background:#fce8ef;border:1px solid #ead0dc;border-radius:8px;display:flex;align-items:flex-start;gap:10px">' +
-                  '<span style="font-size:18px;line-height:1">⚠</span>' +
-                  '<div><div style="font-size:13px;color:#d82d6b;margin-bottom:2px">Script non installato</div>' +
-                  '<div style="font-size:12px;color:#4b4d68">Nessun segnale ricevuto. Copia lo script qui sotto e incollalo nel &lt;head&gt; del sito.</div></div></div>'
-                : _scriptOk
-                    ? '<div style="margin:0 20px 16px;padding:10px 14px;background:#e9f7fb;border:1px solid #b3e0ea;border-radius:8px;font-size:13px;color:#009bb9">✓ Script installato e attivo</div>'
-                    : '<div style="margin:0 20px 16px;padding:10px 14px;background:#fce8ef;border:1px solid #ead0dc;border-radius:8px;font-size:13px;color:#d82d6b">⚠ Script installato ma nessun segnale recente</div>'
-        ) : '';
+        const _neverConnected = _hrsAgo >= 9999;
+        const _installBanner = _neverConnected
+            ? '<div style="margin:0 20px 16px;padding:12px 14px;background:#fce8ef;border:1px solid #ead0dc;border-radius:8px;display:flex;align-items:flex-start;gap:10px">' +
+              '<span style="font-size:18px;line-height:1">⚠</span>' +
+              '<div><div style="font-size:13px;color:#d82d6b;margin-bottom:2px">' + (_isScriptMode ? 'Script' : 'Plugin') + ' non installato</div>' +
+              '<div style="font-size:12px;color:#4b4d68">' + (_isScriptMode ? 'Nessun segnale ricevuto. Copia lo script qui sotto e incollalo nel &lt;head&gt; del sito.' : 'Nessun segnale ricevuto. Installa il plugin sul sito WordPress.') + '</div></div></div>'
+            : _isOnline
+                ? '<div style="margin:0 20px 16px;padding:10px 14px;background:#e9f7fb;border:1px solid #b3e0ea;border-radius:8px;font-size:13px;color:#009bb9">✓ ' + (_isScriptMode ? 'Script' : 'Plugin') + ' installato e attivo</div>'
+                : '<div style="margin:0 20px 16px;padding:10px 14px;background:#fce8ef;border:1px solid #ead0dc;border-radius:8px;font-size:13px;color:#d82d6b">⚠ ' + (_isScriptMode ? 'Script' : 'Plugin') + ' installato ma nessun segnale recente</div>';
         const connSection = cardH + chH(_connDot,'Connessione') +
             '<div style="padding:0 20px">' +
             row('Stato', `<span style="color:${_connDot};font-weight:400">${_connLabel}</span>`) +
             '</div>' +
-            _scriptInstallBanner +
+            _installBanner +
             (_isScriptMode ? (
                 '<div style="padding:10px 20px 16px;border-top:1px solid #f4f4f8">' +
                 '<div style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Script da incollare nel sito</div>' +
