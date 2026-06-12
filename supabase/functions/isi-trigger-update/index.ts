@@ -15,17 +15,42 @@ Deno.serve(async (req) => {
 
   // Auth
   const token = (req.headers.get('Authorization') || '').replace('Bearer ', '');
-  const anonClient = createClient(SUPABASE_URL, ANON_KEY);
-  const { data: { user }, error: authErr } = await anonClient.auth.getUser(token);
-  if (authErr || !user) {
-    return new Response(JSON.stringify({ error: 'Non autorizzato' }), { status: 401, headers: cors });
+  const isServiceKey = token === SERVICE_ROLE_KEY;
+  if (!isServiceKey) {
+    const anonClient = createClient(SUPABASE_URL, ANON_KEY);
+    const { data: { user }, error: authErr } = await anonClient.auth.getUser(token);
+    if (authErr || !user) {
+      return new Response(JSON.stringify({ error: 'Non autorizzato' }), { status: 401, headers: cors });
+    }
   }
 
   const admin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
     auth: { autoRefreshToken: false, persistSession: false },
   });
 
-  const { site_id, all } = await req.json();
+  const body = await req.json();
+  const { site_id, all, action } = body;
+
+  // ── RELEASE: pubblica nuova versione corrente ──────────────────────────────
+  if (action === 'release') {
+    const { version, download_url, changelog } = body;
+    if (!version || !download_url) {
+      return new Response(JSON.stringify({ error: 'version e download_url obbligatori' }), { status: 400, headers: cors });
+    }
+    // 1. Azzera is_current su tutte le righe
+    await admin.from('isi_plugin_versions').update({ is_current: false }).neq('id', '00000000-0000-0000-0000-000000000000');
+    // 2. Inserisci la nuova versione
+    const { data: inserted } = await admin.from('isi_plugin_versions')
+      .insert({ version, download_url, changelog: changelog || null, is_current: false, released_at: new Date().toISOString() })
+      .select('id').single();
+    // 3. Forza is_current=true per id (bypassa trigger)
+    if (inserted?.id) {
+      await admin.from('isi_plugin_versions').update({ is_current: true }).eq('id', inserted.id);
+    }
+    // 4. Verifica
+    const { data: check } = await admin.from('isi_plugin_versions').select('version,is_current').eq('is_current', true).single();
+    return new Response(JSON.stringify({ ok: true, current: check }), { headers: { ...cors, 'Content-Type': 'application/json' } });
+  }
 
   // Fetch current plugin version + download URL
   const { data: verData, error: verErr } = await admin
