@@ -2806,7 +2806,7 @@
         const hp = site?.hotel_profile || {};
         const siteConfig = hp.isi_config || {};
         const base = (site?.site_url || '').replace(/\/$/, '');
-        const aiProfileUrl = base + '/ai-profile';
+        const aiProfileUrl = base + '/wp-json/in3pida/v1/ai-profile';
         const isActive = geo.has_ai_profile === true;
         const isScriptJs = (site?.plugin_version||'').startsWith('js-') || hp.site_mode === 'script';
         const aiLayerDisabled = hp.ai_layer_disabled === true;
