@@ -2340,8 +2340,8 @@
         }
         const fmt = d => { if (!d) return '—'; const dt = new Date(d); return dt.toLocaleDateString('it-IT',{day:'2-digit',month:'short',year:'numeric'})+'\n'+dt.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'}); };
         el.innerHTML = items.map((f, i) => {
-            const pub = f.status === 'draft' ? '<span style="background:#fbf4f7;color:#d82d6b;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px">Bozza</span>' : '<span style="background:#fbf4f7;color:#d82d6b;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px">Pubblicato</span>';
-            const ai  = f.solo_ai ? '<span style="background:#fce8ef;color:#d82d6b;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:4px">Solo AI</span>' : '';
+            const pub = f.status === 'draft' ? '<span style="background:#fbf4f7;color:#d82d6b;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap">Bozza</span>' : '<span style="background:#fbf4f7;color:#d82d6b;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap">Pubblicato</span>';
+            const ai  = f.solo_ai ? '<span style="background:#fce8ef;color:#d82d6b;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap">Solo AI</span>' : '<span style="background:#f4f4f8;color:#aaa;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap">Visibile</span>';
             return `<div style="display:grid;grid-template-columns:1fr 80px 65px 140px 105px;gap:0;align-items:center;padding:12px 20px;border-bottom:1px solid #f4f4f8">
                 <div style="min-width:0">
                     <div style="font-size:13px;font-weight:700;color:#171b33;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${i+1}. ${escHtml(f.question)}</div>
