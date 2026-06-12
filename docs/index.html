@@ -2778,6 +2778,30 @@
             if (!json.answer) throw new Error(json.error || 'Nessuna risposta generata');
             aiAnswer = json.answer;
 
+            // Se il modello segnala dati insufficienti, mostra avviso prima di salvare
+            if (json.sufficient === false) {
+                btn.disabled = false; btn.textContent = origText;
+                await new Promise(res2 => {
+                    const ov = document.createElement('div');
+                    ov.style.cssText = 'position:fixed;inset:0;background:rgba(23,27,51,.45);z-index:9999;display:flex;align-items:center;justify-content:center';
+                    ov.innerHTML = `<div style="background:white;border-radius:10px;padding:28px 28px 24px;max-width:420px;width:90%;box-shadow:0 8px 32px rgba(23,27,51,.18)">
+                        <div style="font-size:15px;font-weight:600;color:#171b33;margin-bottom:6px">Profilo incompleto per questa FAQ</div>
+                        <div style="font-size:13px;color:#4b4d68;margin-bottom:14px;line-height:1.5">Il profilo hotel non contiene informazioni specifiche per rispondere a questa domanda. La risposta generata potrebbe essere generica.<br><br>Completa il profilo Schema.org con più dettagli per ottenere risposte più precise.</div>
+                        <div style="background:#f7f8fc;border-radius:6px;padding:12px 14px;font-size:12px;color:#4b4d68;font-style:italic;margin-bottom:20px;line-height:1.6">${escHtml(aiAnswer)}</div>
+                        <div style="display:flex;gap:8px;justify-content:flex-end">
+                            <button class="btn-ping" id="_faq-ins-cancel" style="padding:7px 16px;font-size:13px">Annulla</button>
+                            <button class="btn-update" id="_faq-ins-ok" style="padding:7px 16px;font-size:13px">Usa comunque</button>
+                        </div>
+                    </div>`;
+                    document.body.appendChild(ov);
+                    const close = (use) => { document.body.removeChild(ov); res2(use); };
+                    ov.querySelector('#_faq-ins-ok').addEventListener('click', () => close(true));
+                    ov.querySelector('#_faq-ins-cancel').addEventListener('click', () => close(false));
+                    ov.addEventListener('click', e => { if (e.target === ov) close(false); });
+                }).then(use => { if (!use) { aiAnswer = null; } else { btn.disabled = true; btn.textContent = '💾 Salvataggio...'; } });
+                if (!aiAnswer) return;
+            }
+
             btn.textContent = '💾 Salvataggio...';
 
             // Salva in Supabase faq_data direttamente

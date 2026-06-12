@@ -6,13 +6,14 @@ const GROQ_API_KEY = Deno.env.get('GROQ_API_KEY') ?? ''
 
 const cors = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'authorization, content-type' }
 
-async function groq(systemPrompt: string, userPrompt: string, maxTokens = 400): Promise<string> {
+async function groq(systemPrompt: string, userPrompt: string, maxTokens = 400, temperature = 0.7): Promise<string> {
   const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${GROQ_API_KEY}` },
     body: JSON.stringify({
       model: 'llama-3.1-8b-instant',
       max_tokens: maxTokens,
+      temperature,
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt }
@@ -44,6 +45,7 @@ Deno.serve(async (req) => {
         sc.name || hp.nome_hotel || hp.nome || site.site_name ? `Hotel: ${sc.name || hp.nome_hotel || hp.nome || site.site_name}` : '',
         sc.starRating?.ratingValue || hp.stelle ? `Stelle: ${sc.starRating?.ratingValue || hp.stelle}` : '',
         sc.address?.streetAddress  || hp.indirizzo ? `Indirizzo: ${sc.address?.streetAddress || hp.indirizzo}` : '',
+        sc.address?.addressLocality || hp.citta || hp.localita ? `Città: ${sc.address?.addressLocality || hp.citta || hp.localita}` : '',
         sc.telephone || hp.telefono ? `Telefono: ${sc.telephone || hp.telefono}` : '',
         sc.email     || hp.email    ? `Email: ${sc.email || hp.email}` : '',
         sc.checkinTime  || hp.check_in  ? `Check-in: ${sc.checkinTime || hp.check_in}` : '',
@@ -55,18 +57,35 @@ Deno.serve(async (req) => {
       if (!lines.trim()) return new Response(JSON.stringify({ error: 'no_data' }), { status: 422, headers: cors })
       if (!GROQ_API_KEY) return new Response(JSON.stringify({ error: 'GROQ_API_KEY non configurata' }), { status: 422, headers: cors })
 
-      const answer = await groq(
-        `Scrivi una risposta FAQ per il sito di un hotel italiano. La risposta deve essere in italiano, 2-4 frasi, tono commerciale positivo.
+      const raw = await groq(
+        `Sei un redattore di FAQ per siti di hotel italiani. Rispondi SOLO con JSON valido, nessun testo extra.
 
-REGOLA ASSOLUTA: Non usare MAI queste parole o concetti: "mi dispiace", "non sono in grado", "non ho informazioni", "non posso", "non disponiamo". VIETATO.
+REGOLE FONDAMENTALI:
+1. Rispondi sempre in italiano, tono commerciale positivo, 2-4 frasi.
+2. Usa SOLO i fatti presenti nei dati forniti. Non inventare prezzi, orari, servizi specifici non menzionati.
+3. Se la domanda è generica o abbinabile a qualcosa nei dati, rispondi con quello che sai — imposta "sufficient": true.
+4. Imposta "sufficient": false SOLO se la domanda richiede un fatto specifico (es. prezzo esatto, orario preciso, servizio concreto) che NON è nei dati e sarebbe impossibile rispondere senza inventarlo.
+5. Non usare MAI: "mi dispiace", "non sono in grado", "non ho informazioni", "non posso".
+6. Puoi suggerire di contattare la reception per dettagli molto specifici, ma solo come frase finale — non come unica risposta.
 
-Se l'hotel non ha il servizio specifico cercato: descrivi cosa offre di simile o complementare, valorizza i punti di forza dell'hotel, e/o suggerisci di contattare la reception per ulteriori dettagli.
-
-La risposta deve sempre essere utile, positiva e far venire voglia di prenotare.`,
-        `Dati hotel:\n${lines}\n\nDomanda FAQ da rispondere: "${query}"\n\nRisposta (inizia direttamente, senza "Certo!" o introduzioni):`
+Formato risposta:
+{"answer":"<risposta in italiano>","sufficient":<true|false>}`,
+        `Dati hotel:\n${lines}\n\nDomanda FAQ: "${query}"\n\nRispondi con JSON:`,
+        500,
+        0.3
       )
-      if (!answer) return new Response(JSON.stringify({ error: 'empty_response' }), { status: 500, headers: cors })
-      return new Response(JSON.stringify({ answer }), { headers: { ...cors, 'Content-Type': 'application/json' } })
+
+      let parsed: { answer?: string; sufficient?: boolean } = {}
+      try {
+        const jsonMatch = raw.match(/\{[\s\S]*\}/)
+        parsed = jsonMatch ? JSON.parse(jsonMatch[0]) : {}
+      } catch { parsed = {} }
+
+      if (!parsed.answer) return new Response(JSON.stringify({ error: 'empty_response' }), { status: 500, headers: cors })
+      return new Response(
+        JSON.stringify({ answer: parsed.answer, sufficient: parsed.sufficient !== false }),
+        { headers: { ...cors, 'Content-Type': 'application/json' } }
+      )
     }
 
     // ─── PSE QUERY ────────────────────────────────────────────────────────────
