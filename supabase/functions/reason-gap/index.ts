@@ -1,6 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
-const GEMINI_API_KEY   = Deno.env.get('GEMINI_API_KEY') ?? ''
 const SUPABASE_URL     = Deno.env.get('SUPABASE_URL') ?? ''
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 
@@ -35,9 +34,13 @@ Deno.serve(async (req) => {
 
     if (!site) return new Response(JSON.stringify({ error: 'Site not found' }), { status: 404, headers: cors })
 
+    const geminiKey = Deno.env.get('GEMINI_API_KEY') || (site.hotel_profile as any)?.isi_config?.gemini_api_key || ''
+    if (!geminiKey) return new Response(JSON.stringify({ error: 'Chiave API Gemini non configurata. Vai in Impostazioni → Chiavi API.' }), { status: 422, headers: cors })
+
+    const now = new Date()
+
     if (!isAdmin) {
       const lastRun = site.last_reason_gap_at ? new Date(site.last_reason_gap_at) : null
-      const now = new Date()
       const daysSince = lastRun ? (now.getTime() - lastRun.getTime()) / 86400000 : 999
       if (daysSince < 7)
         return new Response(JSON.stringify({ error: 'rate_limit', next_allowed_at: new Date(lastRun!.getTime() + 7 * 86400000).toISOString() }), { status: 429, headers: cors })
@@ -76,7 +79,7 @@ Per ciascuna ricerca, indica in modo semplice (max 2 righe) cosa manca nel profi
 ]`
 
     const geminiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
