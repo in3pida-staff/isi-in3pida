@@ -332,7 +332,7 @@ table.sites-table tbody tr:hover td { background: #e8ecf7; }
 .site-name-cell { font-weight: 600; font-size: 14px; }
 .th-center { text-align: center !important; }
 .td-center { text-align: center; }
-.tip-q { display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:#0D5F75;color:#fff;font-size:10px;font-weight:800;cursor:help;margin-left:5px;position:relative;vertical-align:middle;flex-shrink:0;border:2px solid #0D5F75;box-shadow:0 0 0 2px rgba(13,95,117,.2); }
+.tip-q { display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:#EFEF14;color:#0D5F75;font-size:10px;font-weight:800;cursor:help;margin-left:5px;position:relative;vertical-align:middle;flex-shrink:0;border:2px solid #EFEF14;box-shadow:0 0 0 2px rgba(239,239,20,.25); }
 
 /* ─── PSE TOGGLE ─────────────────────────────────────────────────────────── */
 .pse-toggle { position:relative; display:inline-block; width:44px; height:24px; }
