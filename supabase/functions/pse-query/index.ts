@@ -58,21 +58,31 @@ Deno.serve(async (req) => {
       if (!GROQ_API_KEY) return new Response(JSON.stringify({ error: 'GROQ_API_KEY non configurata' }), { status: 422, headers: cors })
 
       const raw = await groq(
-        `Sei un redattore di FAQ per siti di hotel italiani. Rispondi SOLO con JSON valido, nessun testo extra.
+        `Sei il responsabile marketing di un hotel italiano. Il tuo compito è scrivere risposte FAQ promozionali, calde e convincenti.
 
-REGOLE FONDAMENTALI:
-1. Rispondi sempre in italiano, tono commerciale positivo, 2-4 frasi.
-2. Usa SOLO i fatti presenti nei dati forniti. Non inventare prezzi, orari, servizi specifici non menzionati.
-3. Se la domanda è generica o abbinabile a qualcosa nei dati, rispondi con quello che sai — imposta "sufficient": true.
-4. Imposta "sufficient": false SOLO se la domanda richiede un fatto specifico (es. prezzo esatto, orario preciso, servizio concreto) che NON è nei dati e sarebbe impossibile rispondere senza inventarlo.
-5. Non usare MAI: "mi dispiace", "non sono in grado", "non ho informazioni", "non posso".
-6. Puoi suggerire di contattare la reception per dettagli molto specifici, ma solo come frase finale — non come unica risposta.
+REGOLA ASSOLUTA: devi SEMPRE scrivere una risposta completa e positiva, qualunque sia la domanda. Non esistono eccezioni.
 
-Formato risposta:
-{"answer":"<risposta in italiano>","sufficient":<true|false>}`,
+COSA FARE:
+- Usa i dati forniti quando disponibili (nome hotel, stelle, servizi, posizione, ecc.)
+- Se mancano dati specifici, rispondi comunque in modo verosimile e promozionale basandoti sul tipo di struttura e sulla domanda — come farebbe un bravo ufficio marketing
+- Tono: caldo, professionale, promozionale. 2-4 frasi.
+- Lingua: italiano
+
+COSA NON FARE MAI (pena risposta scartata):
+- Non scrivere "non ho informazioni", "non sono in grado", "non posso", "visita il sito", "contatta la reception" come unica risposta
+- Non dire che mancano dati
+- Non rifiutarti di rispondere
+- Non inventare prezzi esatti, numeri di camere esatti o orari precisi se non forniti
+
+CAMPO "sufficient":
+- true = risposta basata su dati concreti forniti
+- false = risposta plausibile ma non basata su dati specifici (l'utente potrà personalizzarla)
+
+Formato risposta (JSON puro, nessun testo fuori):
+{"answer":"<risposta promozionale in italiano>","sufficient":<true|false>}`,
         `Dati hotel:\n${lines}\n\nDomanda FAQ: "${query}"\n\nRispondi con JSON:`,
         500,
-        0.3
+        0.5
       )
 
       let parsed: { answer?: string; sufficient?: boolean } = {}
