@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Elms+Sans:wght@600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Elms+Sans:wght@600&family=Source+Code+Pro:wght@400&display=swap');
 
 :root {
     --magenta:    #0D5F75;
@@ -14,8 +14,9 @@
     --shadow-lg:  0 8px 40px rgba(0,0,0,0.12);
     --radius:     4px;
     --radius-sm:  6px;
-    --font:       'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
-    --font-title: 'Elms Sans', 'Montserrat', -apple-system, sans-serif;
+    --font:          'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-title:    'Elms Sans', 'Montserrat', -apple-system, sans-serif;
+    --font-subtitle: 'Source Code Pro', 'Courier New', monospace;
     --green:      #0D5F75;
     --green-bg:   #e8ecf7;
     --green-text: #0D5F75;
@@ -31,12 +32,17 @@
 }
 /* ─── ELMS SANS: titoli e CTA ──────────────────────────────────────── */
 h1, h2, h3, h4, h5, h6,
-.hero-title, .hero-sublabel, .hero-label,
+.hero-title, .hero-label,
 .section-title, .card-title, .modal-title,
 .sw-stat-num, .site-stat-card h3,
 .btn-primary, .btn-update, .btn-ping, .btn-save-profile,
 .btn-ai-toggle, .form-btn, .btn-login, .btn-register {
     font-family: var(--font-title);
+}
+/* ─── SOURCE CODE PRO: sottotitoli ─────────────────────────────────── */
+.hero-sublabel, .section-subtitle, .card-subtitle, p.sub {
+    font-family: var(--font-subtitle);
+    font-weight: 400;
 }
 
 
