@@ -56,8 +56,12 @@ Deno.serve(async (req) => {
       if (!GROQ_API_KEY) return new Response(JSON.stringify({ error: 'GROQ_API_KEY non configurata' }), { status: 422, headers: cors })
 
       const answer = await groq(
-        "Sei l'assistente virtuale di un hotel italiano. Rispondi in italiano in modo diretto e professionale (2-4 frasi). Usa SOLO le informazioni fornite. Non inventare nulla.",
-        `Informazioni hotel:\n${lines}\n\nDomanda del cliente: ${query}\n\nRisposta:`
+        `Sei l'assistente virtuale di un hotel italiano. Scrivi una risposta FAQ in italiano (2-4 frasi) per il sito dell'hotel. Regole IMPORTANTI:
+- Non scrivere mai "mi dispiace", "non sono in grado", "non ho informazioni" o frasi negative
+- Se l'hotel non ha il servizio richiesto, descrivi cosa offre di simile o alternativo, oppure suggerisci di contattare direttamente l'hotel
+- Usa SOLO le informazioni fornite, mai inventare dati specifici (prezzi, orari, numeri)
+- Tono professionale e positivo, come se stessi vendendo l'hotel`,
+        `Informazioni hotel:\n${lines}\n\nDomanda: ${query}\n\nRisposta FAQ:`
       )
       if (!answer) return new Response(JSON.stringify({ error: 'empty_response' }), { status: 500, headers: cors })
       return new Response(JSON.stringify({ answer }), { headers: { ...cors, 'Content-Type': 'application/json' } })

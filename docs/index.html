@@ -2350,7 +2350,7 @@
                 <div style="padding:0 16px;text-align:center;font-size:11px;color:#666b84;white-space:pre-line;line-height:1.4">${fmt(f.date||f.created_at)}</div>
                 <div style="padding:0 12px;text-align:center;font-size:13px;font-weight:700;color:#171b33">${f.menu_order ?? f.order ?? 0}</div>
                 <div style="padding:0 8px;display:flex;align-items:center;gap:4px;justify-content:center">${f.link?`<a href="${escHtml(f.link)}" target="_blank" class="btn-ping" style="font-size:11px;padding:3px 8px;text-decoration:none">Apri pagina</a>`:''}<button class="btn-ping" style="font-size:11px;padding:3px 8px;line-height:1.4" onclick="openAdminFaqModal(${f.id})">Modifica</button><button class="btn-ping" style="font-size:11px;padding:3px 8px;line-height:1.4" onclick="deleteAdminFaq(${f.id})">🗑️</button></div>
-                <div style="padding:0 8px;text-align:center">${pub}${ai}</div>
+                <div style="padding:0 8px;text-align:center;white-space:nowrap;display:flex;flex-wrap:nowrap;align-items:center;gap:4px;justify-content:center">${pub}${ai}</div>
             </div>`;
         }).join('');
     }
@@ -2748,7 +2748,13 @@
             const items = Array.isArray(fd.items) ? fd.items : [];
             const newFaq = { id: Date.now(), question: query, answer: aiAnswer, solo_ai: true, status: 'publish', menu_order: 0, created_at: new Date().toISOString() };
             items.push(newFaq);
-            await _SBq.from('isi_sites').update({ faq_data: { ...fd, items } }).eq('site_id', siteId);
+            // Aggiorna query_map per mantenere "Coperta ✓" dopo reload
+            const qmap = fd.query_map || {};
+            const catEntry = qmap[cat] || {};
+            const covQ = Array.isArray(catEntry.covered_queries) ? catEntry.covered_queries : [];
+            if (!covQ.includes(query)) covQ.push(query);
+            qmap[cat] = { ...catEntry, covered_queries: covQ };
+            await _SBq.from('isi_sites').update({ faq_data: { ...fd, items, query_map: qmap } }).eq('site_id', siteId);
 
             // Salva anche nel plugin WordPress se disponibile
             if (_aFaqBase) {
