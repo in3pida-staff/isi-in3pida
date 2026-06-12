@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Elms+Sans:wght@600&display=swap');
 
 :root {
     --magenta:    #0D5F75;
@@ -7,7 +7,7 @@
     --cyan2:      #666b84;
     --dark:       #171b33;
     --grey:       #666b84;
-    --light:      #fbf4f7;
+    --light:      #e8ecf7;
     --white:      #ffffff;
     --border:     #e4e4ec;
     --shadow:     0 2px 20px rgba(0,0,0,0.07);
@@ -15,19 +15,30 @@
     --radius:     4px;
     --radius-sm:  6px;
     --font:       'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-title: 'Elms Sans', 'Montserrat', -apple-system, sans-serif;
     --green:      #0D5F75;
-    --green-bg:   #fbf4f7;
+    --green-bg:   #e8ecf7;
     --green-text: #0D5F75;
     --yellow:     #b00020;
-    --yellow-bg:  #e8f2f5;
+    --yellow-bg:  #C1CBE8;
     --yellow-text:#b00020;
     --red:        #b00020;
-    --red-bg:     #e8f2f5;
+    --red-bg:     #C1CBE8;
     --red-text:   #b00020;
     --grey-dot:   #666b84;
     --grey-bg:    #f4f4f8;
     --grey-text:  #4b4d68;
 }
+/* ─── ELMS SANS: titoli e CTA ──────────────────────────────────────── */
+h1, h2, h3, h4, h5, h6,
+.hero-title, .hero-sublabel, .hero-label,
+.section-title, .card-title, .modal-title,
+.sw-stat-num, .site-stat-card h3,
+.btn-primary, .btn-update, .btn-ping, .btn-save-profile,
+.btn-ai-toggle, .form-btn, .btn-login, .btn-register {
+    font-family: var(--font-title);
+}
+
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -68,7 +79,7 @@ body {
 .navbar-logo img { height: 26px; object-fit: contain; }
 
 .navbar-badge {
-    background: #e8f2f5; color: var(--magenta);
+    background: #C1CBE8; color: var(--magenta);
     font-size: 11px; font-weight: 700;
     padding: 3px 10px; border-radius: 20px; letter-spacing: .02em;
 }
@@ -135,7 +146,7 @@ body {
 }
 .user-dropdown-item:hover { background: #f8f8fc; }
 .user-dropdown-item.logout { color: var(--magenta); }
-.user-dropdown-item.logout:hover { background: #e8f2f5; }
+.user-dropdown-item.logout:hover { background: #e8ecf7; }
 
 /* modal profilo */
 .profile-avatar-section {
@@ -155,7 +166,7 @@ body {
     font-family: var(--font); padding: 6px 14px; border-radius: 8px;
     transition: all .15s;
 }
-.btn-upload:hover { border-color: var(--magenta); color: var(--magenta); }
+.btn-upload:hover { border-color: var(--cyan); color: var(--magenta); }
 .profile-field { margin-bottom: 14px; }
 .profile-label { display: block; font-size: 11px; font-weight: 700; color: var(--grey); margin-bottom: 5px; }
 .profile-input {
@@ -311,7 +322,7 @@ table.sites-table th {
 table.sites-table td { padding: 13px 14px; font-size: 13px; border-bottom: 1px solid #f4f4f8; }
 table.sites-table tr:last-child td { border-bottom: none; }
 table.sites-table tbody tr { transition: background .12s; }
-table.sites-table tbody tr:hover td { background: #fdf0f5; }
+table.sites-table tbody tr:hover td { background: #e8ecf7; }
 .site-name-cell { font-weight: 600; font-size: 14px; }
 .th-center { text-align: center !important; }
 .td-center { text-align: center; }
@@ -333,10 +344,10 @@ table.sites-table tbody tr:hover td { background: #fdf0f5; }
     padding: 7px 14px; border-radius: 4px; cursor: pointer;
     transition: all .15s; white-space: nowrap;
 }
-.btn-ping:hover    { background: var(--magenta); border-color: var(--magenta); color: white; }
+.btn-ping:hover    { background: var(--cyan); border-color: var(--cyan); color: var(--magenta); }
 .btn-ping:disabled { opacity: .5; cursor: default; }
 .btn-ai-toggle     { background: white !important; border-color: #e4e4ec !important; color: #C1CBE8 !important; }
-.btn-ai-toggle:hover { background: var(--magenta) !important; border-color: var(--magenta) !important; color: white !important; }
+.btn-ai-toggle:hover { background: var(--cyan) !important; border-color: var(--cyan) !important; color: var(--magenta) !important; }
 
 /* ─── BTN UPDATE ─────────────────────────────────────────────────────────── */
 .btn-update {
@@ -345,13 +356,13 @@ table.sites-table tbody tr:hover td { background: #fdf0f5; }
     padding: 7px 16px; border-radius: 6px; cursor: pointer;
     transition: all .15s; white-space: nowrap; margin-left: auto;
 }
-.btn-update:hover    { background: var(--magenta2); }
+.btn-update:hover    { background: var(--cyan); color: var(--magenta); }
 .btn-update:disabled { opacity: .5; cursor: default; }
 
 /* ─── DOT ────────────────────────────────────────────────────────────────── */
 .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
 .dot.green  { background: #35364f;         box-shadow: 0 0 0 4px rgba(53,54,79,.15); }
-.dot.yellow { background: #ead0dc;         box-shadow: 0 0 0 4px rgba(13,95,117,.10); }
+.dot.yellow { background: #C1CBE8;         box-shadow: 0 0 0 4px rgba(13,95,117,.10); }
 .dot.red    { background: #b00020;        box-shadow: 0 0 0 4px rgba(176,0,32,.15); }
 .dot.grey   { background: var(--grey-dot); }
 
@@ -414,7 +425,7 @@ table.sites-table tbody tr:hover td { background: #fdf0f5; }
     font-size: 14px; font-weight: 700; cursor: pointer;
     transition: background .15s; margin-top: 10px;
 }
-.btn-primary:hover    { background: var(--magenta2); }
+.btn-primary:hover    { background: var(--cyan); color: var(--magenta); }
 .btn-primary:disabled { opacity: .6; cursor: default; }
 
 /* ─── LOGIN ESTESO ───────────────────────────────────────────────────────── */
@@ -432,7 +443,7 @@ table.sites-table tbody tr:hover td { background: #fdf0f5; }
     padding: 13px 20px; font-family: var(--font); font-size: 14px; font-weight: 600;
     color: var(--dark); cursor: pointer; transition: border-color .15s, background .15s;
 }
-.btn-google:hover { border-color: var(--magenta); background: #f0f7f9; }
+.btn-google:hover { border-color: var(--cyan); background: #e8ecf7; }
 .btn-google:disabled { opacity: .6; cursor: default; }
 .btn-back {
     display: inline-flex; align-items: center; gap: 8px;
@@ -443,7 +454,7 @@ table.sites-table tbody tr:hover td { background: #fdf0f5; }
     transition: all .15s; margin-bottom: 20px;
     box-shadow: var(--shadow);
 }
-.btn-back:hover { border-color: var(--magenta); color: var(--magenta); background: #e8f2f5; }
+.btn-back:hover { border-color: var(--cyan); color: var(--magenta); background: #e8ecf7; }
 .site-url-cell  { font-size: 11px; color: var(--grey); margin-top: 2px; }
 .login-register { font-size: 13px; color: var(--grey); margin-top: 18px; }
 .login-register a { color: var(--magenta); font-weight: 700; text-decoration: none; }
