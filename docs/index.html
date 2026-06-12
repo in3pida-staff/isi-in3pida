@@ -2864,9 +2864,9 @@
                 ${isScriptJs ? `
                 <div style="display:flex;align-items:center;gap:12px;padding:8px 12px;background:${aiLayerDisabled?'#e8ecf7':'#e8ecf7'};border:1px solid ${aiLayerDisabled?'#C1CBE8':'#C1CBE8'};border-radius:4px;margin-bottom:${aiLayerDisabled?'0':'12px'}">
                     <span style="font-size:14px;flex-shrink:0">${aiLayerDisabled?'⚠':'✓'}</span>
-                    <span style="font-size:13px;color:${aiLayerDisabled?'#0D5F75':'#C1CBE8'};flex:1">
+                    <span style="font-size:13px;color:#0D5F75;flex:1">
                         ${aiLayerDisabled ? 'AI Layer disattivato — eletta.js non pubblica il profilo' : 'AI Layer attivo — eletta.js pubblica il profilo hotel ai crawler AI'}
-                        ${!aiLayerDisabled ? ' &nbsp;<a href="'+escHtml(scriptAiUrl)+'" target="_blank" style="color:#C1CBE8;font-size:12px;text-decoration:underline">Visualizza profilo</a>' : ''}
+                        ${!aiLayerDisabled ? ' &nbsp;<a href="'+escHtml(scriptAiUrl)+'" target="_blank" style="color:#0D5F75;font-size:12px;text-decoration:underline">Visualizza profilo</a>' : ''}
                     </span>
                     <button id="btn-toggle-ai-layer" class="${aiLayerDisabled?'btn-update':'btn-ping btn-ai-toggle'}" style="margin-left:0;padding:6px 14px;font-size:12px;flex-shrink:0;${aiLayerDisabled?'':'background:white'}">
                         ${aiLayerDisabled ? 'Attiva' : 'Disattiva'}
@@ -2874,7 +2874,7 @@
                 </div>
                 ` : isActive ? `<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:#e8ecf7;border:1px solid #C1CBE8;border-radius:4px;margin-bottom:12px">
                     <span style="font-size:14px;flex-shrink:0">✓</span>
-                    <span style="font-size:13px;color:#C1CBE8;flex:1">AI Layer attivo — endpoint leggibile dai crawler AI &nbsp;<a href="${escHtml(aiProfileUrl)}" target="_blank" style="color:#C1CBE8;font-size:12px;text-decoration:underline">Visualizza profilo</a></span>
+                    <span style="font-size:13px;color:#0D5F75;flex:1">AI Layer attivo — endpoint leggibile dai crawler AI &nbsp;<a href="${escHtml(aiProfileUrl)}" target="_blank" style="color:#0D5F75;font-size:12px;text-decoration:underline">Visualizza profilo</a></span>
                     <button id="btn-toggle-ai-layer" class="btn-ping btn-ai-toggle" style="margin-left:0;padding:6px 14px;font-size:12px;flex-shrink:0">Disattiva</button>
                 </div>` : `<div style="padding:12px 16px;background:#e8ecf7;border:1px solid #C1CBE8;border-radius:4px;margin-bottom:16px;font-size:13px;color:#0D5F75;font-weight:600">
                     ⚠ AI Layer non attivo. Vai in Configurazione, abilita LLM Ready Layer e clicca SINCRONIZZA — il plugin applicherà le impostazioni automaticamente.
@@ -3027,7 +3027,7 @@
                     statusHtml = '<span style="font-size:12px;color:#666b84">Non ancora scansionato</span>';
                 } else if (incoerCount === 0 && hasResults) {
                     const nf = notFoundCount > 0 ? ' · '+notFoundCount+' non trovati' : '';
-                    statusHtml = '<span style="font-size:12px;color:#C1CBE8">✓ '+matchCount+'/'+totalCount+' campi allineati'+nf+'</span>';
+                    statusHtml = '<span style="font-size:12px;color:#0D5F75">✓ '+matchCount+'/'+totalCount+' campi allineati'+nf+'</span>';
                 } else if (hasResults) {
                     const nf = notFoundCount > 0 ? ' · '+notFoundCount+' non trovati' : '';
                     statusHtml = '<span style="font-size:12px;color:#b00020">✗ '+matchCount+'/'+totalCount+' allineati · '+incoerCount+' incoerenze'+nf+'</span>';
@@ -3479,7 +3479,7 @@ ${rows}
               '<div><div style="font-size:13px;color:#0D5F75;margin-bottom:2px">' + (_isScriptMode ? 'Script' : 'Plugin') + ' non installato</div>' +
               '<div style="font-size:12px;color:#4b4d68">' + (_isScriptMode ? 'Nessun segnale ricevuto. Copia lo script qui sotto e incollalo nel &lt;head&gt; del sito.' : 'Nessun segnale ricevuto. Installa il plugin sul sito WordPress.') + '</div></div></div>'
             : _isOnline
-                ? '<div style="margin:12px 0 4px;padding:9px 12px;background:#e8ecf7;border:1px solid #C1CBE8;border-radius:4px;font-size:13px;color:#C1CBE8">✓ ' + (_isScriptMode ? 'Script' : 'Plugin') + ' installato e attivo</div>'
+                ? '<div style="margin:12px 0 4px;padding:9px 12px;background:#e8ecf7;border:1px solid #C1CBE8;border-radius:4px;font-size:13px;color:#0D5F75">✓ ' + (_isScriptMode ? 'Script' : 'Plugin') + ' installato e attivo</div>'
                 : '<div style="margin:12px 0 4px;padding:9px 12px;background:#e8ecf7;border:1px solid #C1CBE8;border-radius:4px;font-size:13px;color:#0D5F75">⚠ ' + (_isScriptMode ? 'Script' : 'Plugin') + ' installato ma nessun segnale recente</div>';
         const connSection = cardH + chH(_connDot,'Connessione') +
             '<div style="padding:0 20px 16px">' +

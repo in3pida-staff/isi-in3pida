@@ -358,6 +358,9 @@ table.sites-table tbody tr:hover td { background: #e8ecf7; }
 }
 .btn-update:hover    { background: var(--cyan); color: var(--magenta); }
 .btn-update:disabled { opacity: .5; cursor: default; }
+.btn-scan-ch:hover   { background: var(--cyan) !important; color: var(--magenta) !important; }
+.btn-save-ch:hover   { border-color: var(--cyan) !important; color: var(--magenta) !important; background: #e8ecf7 !important; }
+#btn-stato-sync-all:hover { background: var(--cyan) !important; color: var(--magenta) !important; }
 
 /* ─── DOT ────────────────────────────────────────────────────────────────── */
 .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
