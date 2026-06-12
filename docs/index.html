@@ -3486,11 +3486,7 @@ ${rows}
             toggl('faq_enabled','FAQ Pubbliche', cfg.faq_enabled!==false) +
             '</div><div style="padding:14px 20px;display:flex;align-items:center;gap:10px"><button id="btn-save-cfg-toggle" class="btn-update" style="margin-left:0">Salva abilitazioni</button><span id="cfg-toggle-msg" style="font-size:13px;color:#d82d6b"></span></div></div>' +
 
-            cardH + chH('#d82d6b','Chiavi API') +
-            '<div style="padding:0 20px">' +
-            inp('gemini_key','Chiave API Google Gemini (Mappa Query → Genera risposta)', cfg.gemini_api_key?'••••••••••'+cfg.gemini_api_key.slice(-4):'','Incolla la chiave da aistudio.google.com') +
-            inp('isi_token','Token ISI (sync con isi.in3pida.it)', cfg.isi_token?'••••'+cfg.isi_token.slice(-8):'','Token fornito da ISI') +
-            '</div><div style="padding:14px 20px;display:flex;gap:10px"><button id="btn-save-cfg-keys" class="btn-update" style="margin-left:0">Salva chiavi</button><div id="cfg-keys-msg" style="font-size:13px;padding:8px 0"></div></div></div>'
+            ''
             ) : '') +
 
             cardH + chH('#d82d6b','Sync ISI — Visibilità AI') +
