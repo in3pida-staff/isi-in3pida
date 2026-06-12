@@ -1254,10 +1254,18 @@
         document.getElementById('btn-back-detail').addEventListener('click', () => loadTab(currentTab));
 
         // ── sync button
+        const _isScriptJs = (site?.plugin_version||'').startsWith('js-') || site?.hotel_profile?.site_mode === 'script';
         const doSync = async (btn, resetText) => {
             const base = (site?.site_url || '').replace(/\/$/, '');
             btn.textContent = '⏳ Sincronizzazione...'; btn.disabled = true;
             try {
+                if (_isScriptJs) {
+                    // Script JS mode: no WP plugin — just update last_heartbeat in Supabase
+                    await _SBq.from('isi_sites').update({ last_heartbeat: new Date().toISOString() }).eq('site_id', siteId);
+                    btn.textContent = '✓ Sincronizzato';
+                    setTimeout(() => loadSiteDetail(siteId), 1500);
+                    return;
+                }
                 const r = await fetch(base + '/wp-json/in3pida/v1/force-heartbeat', { method:'POST', headers:{'Content-Type':'application/json'}, signal:AbortSignal.timeout(20000) });
                 if (r.ok) {
                     const data = await r.json().catch(() => ({}));
