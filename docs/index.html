@@ -2718,7 +2718,11 @@
                             <span style="font-size:14px;color:${isCov?'#d82d6b':'#ead0dc'};font-weight:800;flex-shrink:0">${isCov?'✓':'✗'}</span>
                             <span style="font-size:13px;color:#171b33;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(q)}</span>
                         </div>
-                        ${!isCov ? `<div style="display:flex;gap:6px;margin-left:12px;flex-shrink:0"><button class="btn-update" style="padding:5px 12px;font-size:11px" onclick="generaRispostaQuery(this,'${escHtml(cat)}','${escHtml(q).replace(/'/g,"\\'")}','${escHtml(site.site_id)}')">✦ Genera risposta</button><button class="btn-ping" style="padding:5px 10px;font-size:11px" onclick="apriModaleFaqManuale('${escHtml(q).replace(/'/g,"\\'")}')">✎ Scrivi</button></div>` : `<span style="font-size:11px;color:#d82d6b;font-weight:700;flex-shrink:0;margin-left:12px">Coperta ✓</span>`}
+                        <div style="display:flex;align-items:center;gap:6px;margin-left:12px;flex-shrink:0">
+                            ${isCov ? `<span style="font-size:11px;color:#d82d6b;font-weight:700;white-space:nowrap">Coperta ✓</span>` : ''}
+                            <button class="btn-update" style="padding:5px 12px;font-size:11px" onclick="generaRispostaQuery(this,'${escHtml(cat)}','${escHtml(q).replace(/'/g,"\\'")}','${escHtml(site.site_id)}')">✦ Genera risposta</button>
+                            <button class="btn-ping" style="padding:5px 10px;font-size:11px" onclick="apriModaleFaqManuale('${escHtml(q).replace(/'/g,"\\'")}')">✎ Scrivi</button>
+                        </div>
                     </div>`;
                 }).join('')}
             </div>`;
@@ -2770,7 +2774,10 @@
 
             const row = btn.closest('div[style*="display:flex"]');
             if (row) {
-                btn.outerHTML = '<span style="font-size:11px;color:#d82d6b;font-weight:700;flex-shrink:0;margin-left:12px">Coperta ✓</span>';
+                const wrapper = btn.closest('div[style*="gap:6px"]');
+                if (wrapper) {
+                    wrapper.innerHTML = `<span style="font-size:11px;color:#d82d6b;font-weight:700;white-space:nowrap">Coperta ✓</span><button class="btn-update" style="padding:5px 12px;font-size:11px" onclick="generaRispostaQuery(this,'${escHtml(cat)}','${escHtml(query).replace(/'/g,"\\'")}','${escHtml(siteId)}')">✦ Genera risposta</button><button class="btn-ping" style="padding:5px 10px;font-size:11px" onclick="apriModaleFaqManuale('${escHtml(query).replace(/'/g,"\\'")}')">✎ Scrivi</button>`;
+                }
             }
             loadAdminFaqList();
         } catch(e) {
