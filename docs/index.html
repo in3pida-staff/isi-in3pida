@@ -1259,8 +1259,25 @@
             btn.textContent = '⏳ Sincronizzazione...'; btn.disabled = true;
             try {
                 const r = await fetch(base + '/wp-json/in3pida/v1/force-heartbeat', { method:'POST', headers:{'Content-Type':'application/json'}, signal:AbortSignal.timeout(20000) });
-                if (r.ok) { btn.textContent = '✓ Sincronizzato'; setTimeout(() => loadSiteDetail(siteId), 1500); }
-                else { btn.textContent = '✗ Errore ' + r.status; setTimeout(() => { btn.textContent = resetText; btn.disabled = false; }, 3000); }
+                if (r.ok) {
+                    const data = await r.json().catch(() => ({}));
+                    // Plugin can't write to Supabase (RLS blocks anon key) — dashboard saves via auth session
+                    const now = new Date().toISOString();
+                    const existingGeo = site?.geo_scores || {};
+                    const newGeo = data.geo_scores || {};
+                    const mergedGeo = { ...existingGeo };
+                    Object.entries(newGeo).forEach(([k, v]) => { if (v !== null && v !== undefined) mergedGeo[k] = v; });
+                    const patch = { geo_scores: mergedGeo, last_heartbeat: now };
+                    if (data.plugin_version) patch.plugin_version = data.plugin_version;
+                    if (data.faq_data)       patch.faq_data       = data.faq_data;
+                    if (data.schema_data)    patch.schema_data    = data.schema_data;
+                    await _SBq.from('isi_sites').update(patch).eq('site_id', siteId);
+                    btn.textContent = '✓ Sincronizzato';
+                    setTimeout(() => loadSiteDetail(siteId), 1500);
+                } else {
+                    btn.textContent = '✗ Errore ' + r.status;
+                    setTimeout(() => { btn.textContent = resetText; btn.disabled = false; }, 3000);
+                }
             } catch(e) { btn.textContent = '✗ Non raggiungibile'; setTimeout(() => { btn.textContent = resetText; btn.disabled = false; }, 3000); }
         };
         document.getElementById('btn-stato-sync-all').addEventListener('click', () => doSync(document.getElementById('btn-stato-sync-all'), 'SINCRONIZZA'));
