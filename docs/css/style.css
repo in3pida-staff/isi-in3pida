@@ -335,6 +335,8 @@ table.sites-table tbody tr:hover td { background: #fdf0f5; }
 }
 .btn-ping:hover    { background: var(--magenta); border-color: var(--magenta); color: white; }
 .btn-ping:disabled { opacity: .5; cursor: default; }
+.btn-ai-toggle     { background: white !important; border-color: #b3e0ea !important; color: #009bb9 !important; }
+.btn-ai-toggle:hover { background: var(--magenta) !important; border-color: var(--magenta) !important; color: white !important; }
 
 /* ─── BTN UPDATE ─────────────────────────────────────────────────────────── */
 .btn-update {
