@@ -1484,7 +1484,7 @@
         // INFORMAZIONI STRUTTURA
         html += secH('Informazioni struttura');
         html += grd('1fr 1fr 1fr 1fr', fld('Nome struttura',p.nome_hotel), fld('Tipo',p.tipo_struttura), fld('Stelle',p.stelle?p.stelle+' ★':''), fld('Prezzo',p.prezzo_medio));
-        if (p.descrizione) html += `<div style="padding:16px 20px 14px"><div style="border-radius:4px;padding:10px 14px;font-size:13px;color:#35364f;line-height:1.6">${escHtml(p.descrizione)}</div></div>`;
+        if (p.descrizione) html += `<div style="padding:16px 20px 14px"><div style="border:1px solid #e4e4ec;border-radius:4px;padding:10px 14px;font-size:13px;color:#35364f;line-height:1.6">${escHtml(p.descrizione)}</div></div>`;
 
         // CONTATTI
         if (p.telefono||p.email||p.sito_web) {
