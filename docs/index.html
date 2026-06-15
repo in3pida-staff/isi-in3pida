@@ -8,7 +8,7 @@
     <meta http-equiv="Expires" content="0">
     <title>Eletta — Posiziona il tuo sito nelle ricerche AI</title>
     <link rel="icon" type="image/png" href="images/favicon.png?v=2">
-    <link rel="stylesheet" href="css/style.css?v=20260615d">
+    <link rel="stylesheet" href="css/style.css?v=20260615e">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
@@ -620,8 +620,10 @@
     }
 
     // ─── GAUGE + BAR CHART HELPERS ───────────────────────────────────────────────
-    function gaugeHtml(pct, threshold) {
+    function gaugeHtml(pct, threshold, opts={}) {
         const cx=90, cy=88, r=68, sw=18;
+        const suffix = opts.suffix ?? '%';
+        const statusFn = opts.statusFn ?? (p => p >= threshold ? 'buona copertura' : 'da migliorare');
         const fillColor = pct===null ? '#e8ecf7' : '#0D5F75';
         const bgPath = `M ${cx-r} ${cy} A ${r} ${r} 0 0 1 ${cx+r} ${cy}`;
         let fillPath = '';
@@ -632,8 +634,8 @@
             const ey = (cy - r * Math.sin(rad)).toFixed(1);
             fillPath = `<path d="M ${cx-r} ${cy} A ${r} ${r} 0 0 1 ${ex} ${ey}" fill="none" stroke="${fillColor}" stroke-width="${sw}" stroke-linecap="round"/>`;
         }
-        const valText = pct !== null ? pct + '%' : '—';
-        const subText = pct === null ? 'nessun dato' : pct >= threshold ? 'buona copertura' : 'da migliorare';
+        const valText = pct !== null ? pct + suffix : '—';
+        const subText = pct === null ? 'nessun dato' : statusFn(pct);
         const subColor = pct === null ? '#C1CBE8' : '#0D5F75';
         return `<svg viewBox="0 0 180 104" style="width:100%;height:auto;display:block;margin:0 auto">` +
             `<path d="${bgPath}" fill="none" stroke="#e8ecf7" stroke-width="${sw}" stroke-linecap="round"/>` +
@@ -937,9 +939,8 @@
                 </div>
                 <div style="padding:16px 20px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
                     <div style="background:white;border:1.5px solid #0D5F75;border-radius:4px;padding:16px 18px">
-                        <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:4px">MEDIA PUNTEGGI <span class='tip-q' data-tip='Media ponderata di tutti i punteggi AI del sito. Rappresenta la prontezza complessiva per essere citato dai motori AI.'>?</span></div>
-                        <div style="font-size:38px;font-weight:800;line-height:1;color:${geoAvg!==null?'#171b33':'#C1CBE8'}">${geoAvg!==null?geoAvg:'—'}</div>
-                        <div style="font-size:12px;font-weight:600;color:${geoAvg!==null?'#171b33':'#C1CBE8'};margin-top:6px">${geoAvg!==null?(geoAvg>=70?'ottimizzato':geoAvg>=40?'da migliorare':'critico'):'nessun dato'} / 100</div>
+                        <div style="font-size:12px;font-weight:500;color:#4a4a6a;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;display:flex;align-items:center;gap:4px">GEO SCORE <span class='tip-q' data-tip='Media ponderata di tutti i punteggi AI del sito. Rappresenta la prontezza complessiva per essere citato dai motori AI.'>?</span></div>
+                        ${gaugeHtml(geoAvg, 70, {suffix:'', statusFn: p => p>=70?'ottimizzato':p>=40?'da migliorare':'critico'})}
                     </div>
                     ${geoRows}
                 </div>
