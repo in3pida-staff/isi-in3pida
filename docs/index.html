@@ -645,7 +645,7 @@
             { l1:'QUERY',  l2:'COPERTE',  v:covered??0,   tip:'Categorie di domande con risposta configurata, leggibili dai motori AI.' }
         ];
         const maxV = Math.max(...vals.map(x=>x.v), 1);
-        const W=420, H=100, barW=50, padL=38, padR=8, padT=22, padB=12;
+        const W=420, H=158, barW=52, padL=38, padR=8, padT=24, padB=52;
         const areaW = W - padL - padR;
         const areaH = H - padT - padB;
         const n = vals.length;
@@ -660,23 +660,22 @@
         svg += `<line x1="${padL}" y1="${padT-6}" x2="${padL}" y2="${padT+areaH}" stroke="#dde0ea" stroke-width="1.5"/>`;
         vals.forEach((it, i) => {
             const x = padL + spc + i*(barW+spc);
+            const xc = x + barW/2;
             const h = Math.max(Math.round(it.v/maxV*areaH), 2);
             const y = padT + areaH - h;
             svg += `<rect x="${x}" y="${y}" width="${barW}" height="${h}" fill="#0D5F75"/>`;
-            svg += `<text x="${x+barW/2}" y="${y-6}" text-anchor="middle" font-size="13" font-weight="800" fill="#171b33" font-family="system-ui,sans-serif">${it.v}</text>`;
+            svg += `<text x="${xc}" y="${y-6}" text-anchor="middle" font-size="13" font-weight="800" fill="#171b33" font-family="system-ui,sans-serif">${it.v}</text>`;
+            const ly1 = padT + areaH + 13;
+            const ly2 = ly1 + 11;
+            svg += `<text x="${xc}" y="${ly1}" text-anchor="middle" font-size="8.5" font-weight="600" fill="#9ca3af" font-family="system-ui,sans-serif" letter-spacing=".4">${it.l1}</text>`;
+            svg += `<text x="${xc}" y="${ly2}" text-anchor="middle" font-size="8.5" font-weight="600" fill="#9ca3af" font-family="system-ui,sans-serif" letter-spacing=".4">${it.l2}</text>`;
+            const tipCY = ly2 + 13;
+            svg += `<g class="tip-q" data-tip="${it.tip}" style="cursor:help">`;
+            svg += `<circle cx="${xc}" cy="${tipCY}" r="7" fill="#EFEF14"/>`;
+            svg += `<text x="${xc}" y="${tipCY+3.5}" text-anchor="middle" font-size="9" font-weight="800" fill="#0D5F75" font-family="system-ui,sans-serif">?</text>`;
+            svg += `</g>`;
         });
-        const svgOut = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:${H}px;display:block">${svg}</svg>`;
-        const labelsHtml = '<div style="position:relative;height:38px;margin-top:1px">' +
-            vals.map((it, i) => {
-                const xc = padL + spc + i*(barW+spc) + barW/2;
-                const pct = (xc/W*100).toFixed(2);
-                return `<div style="position:absolute;left:${pct}%;transform:translateX(-50%);text-align:center">` +
-                    `<div style="font-size:8.5px;font-weight:600;color:#9ca3af;text-transform:uppercase;letter-spacing:.4px;line-height:1.4;white-space:nowrap">${it.l1}<br>${it.l2}</div>` +
-                    `<span class="tip-q" data-tip="${it.tip}" style="margin-top:1px">?</span>` +
-                    `</div>`;
-            }).join('') +
-            '</div>';
-        return `<div style="width:100%">${svgOut}${labelsHtml}</div>`;
+        return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block">${svg}</svg>`;
     }
 
     // ─── TABELLA SITI (condivisa) ─────────────────────────────────────────────────
