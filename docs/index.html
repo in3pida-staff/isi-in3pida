@@ -615,6 +615,50 @@
         renderSitiTable(data, 'siti-container', costsMap);
     }
 
+    // ─── GAUGE + BAR CHART HELPERS ───────────────────────────────────────────────
+    function gaugeHtml(pct, threshold) {
+        const cx=60, cy=62, r=46, sw=9;
+        const fillColor = pct===null ? '#e8ecf7' : pct>=threshold ? '#0D5F75' : '#d82d6b';
+        const bgPath = `M ${cx-r} ${cy} A ${r} ${r} 0 0 1 ${cx+r} ${cy}`;
+        let fillPath = '';
+        if (pct !== null && pct > 0) {
+            const p = Math.min(pct, 99.9);
+            const rad = (180 - p * 1.8) * Math.PI / 180;
+            const ex = (cx + r * Math.cos(rad)).toFixed(1);
+            const ey = (cy - r * Math.sin(rad)).toFixed(1);
+            fillPath = `<path d="M ${cx-r} ${cy} A ${r} ${r} 0 0 1 ${ex} ${ey}" fill="none" stroke="${fillColor}" stroke-width="${sw}" stroke-linecap="round"/>`;
+        }
+        const valText = pct !== null ? pct + '%' : '—';
+        const subText = pct === null ? 'nessun dato' : pct >= threshold ? 'buona copertura' : 'da migliorare';
+        const subColor = pct === null ? '#C1CBE8' : '#0D5F75';
+        return `<svg viewBox="0 0 120 74" style="width:110px;height:68px;display:block;margin:0 auto">` +
+            `<path d="${bgPath}" fill="none" stroke="#e8ecf7" stroke-width="${sw}" stroke-linecap="round"/>` +
+            fillPath +
+            `<text x="${cx}" y="${cy+3}" text-anchor="middle" dominant-baseline="middle" font-family="system-ui,-apple-system,sans-serif" font-size="18" font-weight="800" fill="${pct!==null?'#171b33':'#C1CBE8'}">${valText}</text>` +
+            `</svg><div style="font-size:12px;font-weight:600;color:${subColor};text-align:center;margin-top:2px">${subText}</div>`;
+    }
+    function barChartHtml(uncovered, total, covered) {
+        if (total === null) return '<div style="text-align:center;color:#C1CBE8;font-size:14px;padding:28px 0">nessun dato</div>';
+        const vals = [
+            { l1:'SENZA', l2:'RISPOSTA', v:uncovered??0, color:'#d82d6b' },
+            { l1:'QUERY', l2:'TOTALI',   v:total,        color:'#C1CBE8' },
+            { l1:'QUERY', l2:'COPERTE',  v:covered??0,   color:'#0D5F75' }
+        ];
+        const maxV = Math.max(...vals.map(x=>x.v), 1);
+        const W=270, H=84, barW=64, gap=19, padL=22, padT=18, padB=24, areaH=84-18-24;
+        let bars = '';
+        vals.forEach((it,i)=>{
+            const x = padL + i*(barW+gap);
+            const h = Math.max(Math.round(it.v/maxV*areaH), 3);
+            const y = padT + areaH - h;
+            bars += `<rect x="${x}" y="${y}" width="${barW}" height="${h}" rx="4" fill="${it.color}"/>`;
+            bars += `<text x="${x+barW/2}" y="${y-5}" text-anchor="middle" font-size="13" font-weight="800" fill="#171b33" font-family="system-ui,sans-serif">${it.v}</text>`;
+            bars += `<text x="${x+barW/2}" y="${H-13}" text-anchor="middle" font-size="8" font-weight="700" fill="#aaa" font-family="system-ui,sans-serif" letter-spacing=".4">${it.l1}</text>`;
+            bars += `<text x="${x+barW/2}" y="${H-4}" text-anchor="middle" font-size="8" font-weight="700" fill="#aaa" font-family="system-ui,sans-serif" letter-spacing=".4">${it.l2}</text>`;
+        });
+        return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:${H}px;display:block">${bars}</svg>`;
+    }
+
     // ─── TABELLA SITI (condivisa) ─────────────────────────────────────────────────
     function renderSitiTable(data, containerId, costsMap) {
         const el = document.getElementById(containerId);
@@ -913,10 +957,9 @@
                 </div>
                 <div style="padding:16px 20px">
                     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:${(covPct!==null&&(freshAlerts.length||missingQueries.length))?'16px':'0'}">
-                        <div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:16px 18px">
-                            <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:4px">COVERAGE FAQ <span class='tip-q' data-tip='Percentuale di domande degli ospiti coperta dalle FAQ pubblicate. ≥80% buona copertura.'>?</span></div>
-                            <div style="font-size:32px;font-weight:800;line-height:1;color:${covPct===null?'#C1CBE8':'#171b33'}">${covPct!==null?covPct+'%':'—'}</div>
-                            <div style="font-size:12px;font-weight:600;color:${covPct===null?'#C1CBE8':'#0D5F75'};margin-top:6px">${covPct===null?'nessun dato':covPct>=80?'buona copertura':'da migliorare'}</div>
+                        <div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:12px 18px">
+                            <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:4px;display:flex;align-items:center;gap:4px">COVERAGE FAQ <span class='tip-q' data-tip='Percentuale di domande degli ospiti coperta dalle FAQ pubblicate. ≥80% buona copertura.'>?</span></div>
+                            ${gaugeHtml(covPct, 80)}
                         </div>
                         <div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:16px 18px">
                             <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:4px">SENZA RISPOSTA <span class='tip-q' data-tip='Numero di domande degli ospiti senza una risposta FAQ disponibile sul sito.'>?</span></div>
@@ -943,26 +986,13 @@
                     <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><div style="font-size:12px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Mappa Query</div></div>
                 </div>
                 <div style="padding:16px 20px">
-                    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:${qMapPct!==null?'16px':'0'}">
-                        <div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:16px 18px">
-                            <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:4px">COPERTURA <span class='tip-q' data-tip='Percentuale di categorie di query conversazionali degli ospiti con risposta configurata. ≥70% buona copertura.'>?</span></div>
-                            <div style="font-size:32px;font-weight:800;line-height:1;color:${qMapPct===null?'#C1CBE8':'#171b33'}">${qMapPct!==null?qMapPct+'%':'—'}</div>
-                            <div style="font-size:12px;font-weight:600;color:${qMapPct===null?'#C1CBE8':'#0D5F75'};margin-top:6px">${qMapPct===null?'nessun dato':qMapPct>=70?'buona copertura':'da migliorare'}</div>
+                    <div style="display:grid;grid-template-columns:1fr 3fr;gap:12px;margin-bottom:${qMapPct!==null?'16px':'0'}">
+                        <div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:12px 18px">
+                            <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:4px;display:flex;align-items:center;gap:4px">COPERTURA <span class='tip-q' data-tip='Percentuale di categorie di query conversazionali degli ospiti con risposta configurata. ≥70% buona copertura.'>?</span></div>
+                            ${gaugeHtml(qMapPct, 70)}
                         </div>
-                        <div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:16px 18px">
-                            <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:4px">SENZA RISPOSTA <span class='tip-q' data-tip='Categorie di query conversazionali degli ospiti senza risposta configurata nella Mappa Query.'>?</span></div>
-                            <div style="font-size:32px;font-weight:800;line-height:1;color:#171b33">${qUncovered!==null?qUncovered:'—'}</div>
-                            <div style="font-size:12px;font-weight:600;color:#0D5F75;margin-top:6px">${qUncovered>0?'queries mancanti':'tutto coperto'}</div>
-                        </div>
-                        <div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:16px 18px">
-                            <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:4px">QUERY TOTALI <span class='tip-q' data-tip='Numero totale di categorie di query conversazionali rilevate nel sistema Mappa Query.'>?</span></div>
-                            <div style="font-size:32px;font-weight:800;line-height:1;color:#171b33">${qTotal!==null?qTotal:'—'}</div>
-                            <div style="font-size:12px;font-weight:600;color:#0D5F75;margin-top:6px">${qTotal!==null?'rilevate':'nessun dato'}</div>
-                        </div>
-                        <div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:16px 18px">
-                            <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:4px">QUERY COPERTE <span class='tip-q' data-tip='Categorie di query con risposta configurata — direttamente leggibili dai motori AI.'>?</span></div>
-                            <div style="font-size:32px;font-weight:800;line-height:1;color:#171b33">${qTotal!==null&&qUncovered!==null?qTotal-qUncovered:'—'}</div>
-                            <div style="font-size:12px;font-weight:600;color:#0D5F75;margin-top:6px">${qTotal!==null?'con risposta':'nessun dato'}</div>
+                        <div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:16px 18px;display:flex;align-items:center">
+                            ${barChartHtml(qUncovered, qTotal, qTotal!==null&&qUncovered!==null?qTotal-qUncovered:null)}
                         </div>
                     </div>
                     ${qMapPct !== null && qMapPct < 70 ? '<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-top:1px solid #f4f4f8;margin-top:4px"><span style="color:#0D5F75;font-weight:800;font-size:13px">⚠</span><span style="font-size:14px;color:#4b4d68">Alcune categorie di ospiti non hanno risposta — vai su <strong>Mappa Query</strong> nella sidebar per aggiungerle.</span></div>' : ''}
