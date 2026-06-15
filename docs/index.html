@@ -1031,11 +1031,12 @@
                         const pct=tot>0?Math.round(cited/tot*100):null;
                         const cost=(pseData||[]).reduce((a,r)=>a+(parseFloat(r.cost_usd)||0),0);
                         const bx=(l,v,sub,vc,tip)=>'<div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:16px 18px"><div style="font-size:12px;color:#4a4a6a;font-weight:500;letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:4px">'+l+(tip?'<span class="tip-q" data-tip="'+tip+'">?</span>':'')+'</div><div style="font-size:24px;font-weight:800;color:#171b33;line-height:1">'+v+'</div><div style="font-size:14px;font-weight:600;color:'+vc+';margin-top:5px">'+sub+'</div></div>';
-                        return '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px">'+
+                        const isAdmin = _currentUserRole === 'admin';
+                        return '<div style="display:grid;grid-template-columns:repeat('+(isAdmin?4:3)+',1fr);gap:10px;margin-bottom:16px">'+
                             bx('QUERY TOTALI',tot,'eseguite','#0D5F75','Numero di query PSE simulate negli ultimi 30 giorni.')+
                             bx('CITAZIONI',cited,'trovate','#0D5F75','Quante volte l\'hotel è risultato visibile nelle risposte AI simulate.')+
                             bx('TASSO CITAZ.',pct!==null?pct+'%':'—',pct!==null?(pct>=50?'buona visibilità':'da migliorare'):'nessun dato',pct!==null?(pct>=50?'#0D5F75':'#0D5F75'):'#C1CBE8','Percentuale di query in cui l\'hotel viene citato dall\'AI. ≥50% = buona visibilità.')+
-                            bx('COSTO TOT.','€'+cost.toFixed(4),'speso','#666b84','Costo totale in euro delle query PSE simulate negli ultimi 30 giorni.')+
+                            (isAdmin ? bx('COSTO TOT.','€'+cost.toFixed(4),'speso','#666b84','Costo totale in euro delle query PSE simulate negli ultimi 30 giorni.') : '')+
                         '</div>';
                     })()}
                     <canvas id="chart-overview-pse-bar" style="max-height:160px"></canvas>
