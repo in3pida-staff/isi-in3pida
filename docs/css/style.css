@@ -50,6 +50,8 @@ h1, h2, h3, h4, h5, h6,
 
 body {
     font-family: var(--font);
+    font-size: 15px;
+    font-weight: 300;
     background: #f0f0f4;
     color: var(--dark);
     min-height: 100vh;
@@ -146,7 +148,7 @@ body {
 .user-dropdown-item {
     display: flex; align-items: center; gap: 10px;
     width: 100%; background: none; border: none; cursor: pointer;
-    font-family: var(--font); font-size: 13px; font-weight: 500;
+    font-family: var(--font); font-size: 14px; font-weight: 300;
     color: var(--dark); padding: 12px 18px; text-align: left;
     transition: background .12s;
 }
@@ -178,7 +180,7 @@ body {
 .profile-input {
     width: 100%; box-sizing: border-box;
     border: 1.5px solid var(--border); border-radius: 4px;
-    padding: 9px 12px; font-family: var(--font); font-size: 13px; color: var(--dark);
+    padding: 9px 12px; font-family: var(--font); font-size: 14px; color: var(--dark);
     outline: none; transition: border-color .15s; background: var(--white);
 }
 .profile-input:focus { border-color: var(--magenta); }
@@ -187,7 +189,7 @@ textarea.profile-input { resize: vertical; }
 .btn-save-profile {
     width: 100%; background: var(--magenta); color: white; border: none;
     border-radius: 6px; padding: 11px; font-family: var(--font);
-    font-size: 13px; font-weight: 700; cursor: pointer; transition: opacity .15s;
+    font-size: 14px; font-weight: 700; cursor: pointer; transition: opacity .15s;
 }
 .btn-save-profile:hover { opacity: .88; }
 
@@ -223,11 +225,11 @@ textarea.profile-input { resize: vertical; }
 .info-row {
     display: flex; align-items: flex-start; gap: 12px;
     padding: 8px 0; border-bottom: 1px solid #f4f4f8;
-    font-size: 13px; color: var(--text);
+    font-size: 14px; color: var(--text);
 }
 .info-row:last-child { border-bottom: none; }
 .info-divider { height: 1px; background: #eef0f6; margin: 8px 0; }
-.info-text { font-size: 13px; color: var(--text); line-height: 1.6; }
+.info-text { font-size: 14px; color: var(--text); line-height: 1.6; }
 
 /* ─── LAYOUT ─────────────────────────────────────────────────────────────── */
 .main {
@@ -299,7 +301,7 @@ textarea.profile-input { resize: vertical; }
 .sw-stat-label { font-size: 12px; color: var(--grey); font-weight: 500; margin-top: 5px; }
 
 /* ─── SECTION TITLE ──────────────────────────────────────────────────────── */
-.section-title { font-size: 14px; font-weight: 700; color: var(--grey); margin-bottom: 16px; }
+.section-title { font-size: 15px; font-weight: 600; color: var(--grey); margin-bottom: 16px; }
 
 /* ─── CARD ───────────────────────────────────────────────────────────────── */
 .card {
@@ -315,21 +317,21 @@ textarea.profile-input { resize: vertical; }
     background: #fafafa;
     display: flex; align-items: center; justify-content: space-between;
 }
-.card-title { font-size: 14px; font-weight: 700; }
+.card-title { font-size: 15px; font-weight: 600; }
 
 /* ─── TABLE ──────────────────────────────────────────────────────────────── */
 table.sites-table { width: 100%; border-collapse: collapse; overflow: visible; }
 table.sites-table th {
     text-align: left; padding: 12px 14px;
-    font-size: 11px; font-weight: 700; color: #999;
+    font-size: 12px; font-weight: 700; color: #999;
     background: #fafafa; border-bottom: 1px solid var(--border);
     white-space: nowrap; position: relative; overflow: visible;
 }
-table.sites-table td { padding: 13px 14px; font-size: 13px; border-bottom: 1px solid #f4f4f8; }
+table.sites-table td { padding: 13px 14px; font-size: 14px; border-bottom: 1px solid #f4f4f8; }
 table.sites-table tr:last-child td { border-bottom: none; }
 table.sites-table tbody tr { transition: background .12s; }
 table.sites-table tbody tr:hover td { background: #e8ecf7; }
-.site-name-cell { font-weight: 600; font-size: 14px; }
+.site-name-cell { font-weight: 600; font-size: 15px; }
 .th-center { text-align: center !important; }
 .td-center { text-align: center; }
 .tip-q { display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:#EFEF14;color:#0D5F75;font-size:10px;font-weight:800;cursor:help;margin-left:5px;position:relative;vertical-align:middle;flex-shrink:0;border:2px solid #EFEF14;box-shadow:0 0 0 2px rgba(239,239,20,.25); }

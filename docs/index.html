@@ -692,36 +692,36 @@
             const geoAvg = geo.ai_readiness != null ? geo.ai_readiness : (geo.completeness_score != null ? geo.completeness_score : (rawFallback.length ? Math.round(rawFallback.reduce((a,b)=>a+b,0)/rawFallback.length) : null));
             const geoAvgBg = geoAvg===null?'#e8ecf7':geoAvg>=70?'#e8ecf7':geoAvg>=40?'#e8ecf7':'#e8ecf7';
             const geoAvgTc = geoAvg===null?'#666b84':geoAvg>=70?'#0D5F75':geoAvg>=40?'#0D5F75':'#b00020';
-            const geoHtml = geoAvg!==null ? `<span style="background:${geoAvgBg};color:${geoAvgTc};font-size:13px;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap">${geoAvg}/100</span>` : `<span style="color:#666b84;font-size:13px">—</span>`;
+            const geoHtml = geoAvg!==null ? `<span style="background:${geoAvgBg};color:${geoAvgTc};font-size:14px;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap">${geoAvg}/100</span>` : `<span style="color:#666b84;font-size:14px">—</span>`;
             const covPct = geo.coverage_pct ?? null;
             const covHtml = covPct !== null
-                ? `<span style="background:#e8ecf7;color:#0D5F75;font-size:13px;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap">${covPct}%</span>`
-                : `<span style="color:#666b84;font-size:13px">—</span>`;
+                ? `<span style="background:#e8ecf7;color:#0D5F75;font-size:14px;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap">${covPct}%</span>`
+                : `<span style="color:#666b84;font-size:14px">—</span>`;
             const cs = geo.completeness_score ?? null;
             const csHtml = cs !== null
-                ? `<span style="background:#e8ecf7;color:#0D5F75;font-size:13px;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap">${cs}/100</span>`
-                : `<span style="color:#666b84;font-size:13px">—</span>`;
+                ? `<span style="background:#e8ecf7;color:#0D5F75;font-size:14px;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap">${cs}/100</span>`
+                : `<span style="color:#666b84;font-size:14px">—</span>`;
             const isScriptJs = (site.plugin_version||'').startsWith('js-') || site.hotel_profile?.site_mode === 'script';
             const isOld = !isScriptJs && latestVersion && site.plugin_version && semverGt(latestVersion.version, site.plugin_version);
-            const verHtml = `<span style="font-weight:600">${escHtml(site.plugin_version||'—')}</span>${isOld?` <span style="background:rgba(13,95,117,0.08);color:var(--magenta);font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;vertical-align:middle">aggiornare</span>`:''}`;
+            const verHtml = `<span style="font-weight:600">${escHtml(site.plugin_version||'—')}</span>${isOld?` <span style="background:rgba(13,95,117,0.08);color:var(--magenta);font-size:11px;font-weight:700;padding:2px 7px;border-radius:20px;vertical-align:middle">aggiornare</span>`:''}`;
             const isConnected = hrs < 25;
             const dotColor = isConnected ? '#0D5F75' : '#666b84';
             const dotTitle = isConnected ? 'Collegamento con il sito attivo' : 'Collegamento con il sito non attivo';
             const siteCost = costsMap?.[site.site_id] || 0;
             const aggiornaBtnHtml = isScriptJs
-                ? `<button class="btn-ping" style="font-size:12px;padding:4px 10px;cursor:default;min-width:90px;text-align:center" disabled onclick="event.stopPropagation()">Auto</button>`
+                ? `<button class="btn-ping" style="font-size:13px;padding:4px 10px;cursor:default;min-width:90px;text-align:center" disabled onclick="event.stopPropagation()">Auto</button>`
                 : isOld
-                    ? `<button class="btn-update" style="font-size:12px;padding:4px 10px;margin-left:0;border:1.5px solid transparent;min-width:90px;text-align:center" onclick="event.stopPropagation();aggiornaSito('${escHtml(site.site_id)}')">Aggiorna</button>`
-                    : `<button class="btn-ping" style="font-size:12px;padding:4px 10px;cursor:default;min-width:90px;text-align:center" disabled onclick="event.stopPropagation()">Aggiornato</button>`;
+                    ? `<button class="btn-update" style="font-size:13px;padding:4px 10px;margin-left:0;border:1.5px solid transparent;min-width:90px;text-align:center" onclick="event.stopPropagation();aggiornaSito('${escHtml(site.site_id)}')">Aggiorna</button>`
+                    : `<button class="btn-ping" style="font-size:13px;padding:4px 10px;cursor:default;min-width:90px;text-align:center" disabled onclick="event.stopPropagation()">Aggiornato</button>`;
             html += `<tr data-site-id="${escHtml(site.site_id)}" style="cursor:pointer">
                 <td><span class="dot" style="background:${dotColor};box-shadow:0 0 0 4px ${dotColor}26;cursor:help" title="${escHtml(dotTitle)}"></span></td>
-                <td><div class="site-name-cell">${escHtml(site.site_name||'—')}</div><div style="font-size:12px;color:var(--grey);margin-top:2px">${escHtml(site.site_url||'')}</div></td>
-                <td style="font-size:13px;color:${hbColor};font-weight:600">${hbTesto}</td>
+                <td><div class="site-name-cell">${escHtml(site.site_name||'—')}</div><div style="font-size:13px;color:var(--grey);margin-top:2px">${escHtml(site.site_url||'')}</div></td>
+                <td style="font-size:14px;color:${hbColor};font-weight:600">${hbTesto}</td>
                 <td>${verHtml}</td>
                 <td class="td-center">${geoHtml}</td>
                 <td class="td-center">${covHtml}</td>
                 <td class="td-center">${csHtml}</td>
-                <td style="white-space:nowrap"><div style="display:inline-flex;gap:5px;align-items:center">${aggiornaBtnHtml}<button class="btn-ping" style="font-size:12px;padding:4px 10px" onclick="event.stopPropagation();toggleSitoAttivo('${escHtml(site.site_id)}','${escHtml(site.site_url||'')}',this)">Disattiva</button></div></td>
+                <td style="white-space:nowrap"><div style="display:inline-flex;gap:5px;align-items:center">${aggiornaBtnHtml}<button class="btn-ping" style="font-size:13px;padding:4px 10px" onclick="event.stopPropagation();toggleSitoAttivo('${escHtml(site.site_id)}','${escHtml(site.site_url||'')}',this)">Disattiva</button></div></td>
             </tr>`;
         });
         html += '</tbody></table>';
