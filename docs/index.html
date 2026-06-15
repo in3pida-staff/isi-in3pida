@@ -621,7 +621,7 @@
 
     // ─── GAUGE + BAR CHART HELPERS ───────────────────────────────────────────────
     function gaugeHtml(pct, threshold, opts={}) {
-        const cx=90, cy=88, r=68, sw=18;
+        const cx=90, cy=88, r=68, sw=26;
         const suffix = opts.suffix ?? '%';
         const statusFn = opts.statusFn ?? (p => p >= threshold ? 'buona copertura' : 'da migliorare');
         const fillColor = pct===null ? '#e8ecf7' : '#0D5F75';
@@ -638,7 +638,7 @@
         const subText = pct === null ? 'nessun dato' : statusFn(pct);
         const subColor = pct === null ? '#C1CBE8' : '#0D5F75';
         if (opts.compact) {
-            const cc=90, yc=64, rc=58, sc=10;
+            const cc=90, yc=64, rc=58, sc=14;
             const bgC = `M ${cc-rc} ${yc} A ${rc} ${rc} 0 0 1 ${cc+rc} ${yc}`;
             let fillC = '';
             if (pct !== null && pct > 0) {
