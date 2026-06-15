@@ -648,7 +648,7 @@
                 const ey = (yc - rc * Math.sin(rad)).toFixed(1);
                 fillC = `<path d="M ${cc-rc} ${yc} A ${rc} ${rc} 0 0 1 ${ex} ${ey}" fill="none" stroke="${fillColor}" stroke-width="${sc}" stroke-linecap="round"/>`;
             }
-            return `<svg viewBox="0 0 180 86" style="width:100%;height:86px;display:block;margin:0 auto">` +
+            return `<svg viewBox="0 0 180 86" style="width:100%;max-width:180px;height:auto;display:block;margin:0 auto">` +
                 `<path d="${bgC}" fill="none" stroke="#e8ecf7" stroke-width="${sc}" stroke-linecap="round"/>` +
                 fillC +
                 `<text x="${cc}" y="${yc+4}" text-anchor="middle" dominant-baseline="middle" font-size="20" font-weight="800" fill="${pct!==null?'#171b33':'#C1CBE8'}" font-family="system-ui,sans-serif">${valText}</text>` +
@@ -661,8 +661,8 @@
             `<path d="${bgPath}" fill="none" stroke="#e8ecf7" stroke-width="${sw}" stroke-linecap="round"/>` +
             fillPath +
             `<text x="${cx}" y="${cy+4}" text-anchor="middle" dominant-baseline="middle" font-family="system-ui,-apple-system,sans-serif" font-size="26" font-weight="800" fill="${pct!==null?'#171b33':'#C1CBE8'}">${valText}</text>` +
-            `<text x="${cx-r}" y="101" text-anchor="middle" font-size="9" fill="#C1CBE8" font-family="system-ui,sans-serif">0</text>` +
-            `<text x="${cx+r}" y="101" text-anchor="middle" font-size="9" fill="#C1CBE8" font-family="system-ui,sans-serif">100</text>` +
+            `<text x="8" y="93" text-anchor="start" font-size="9" fill="#C1CBE8" font-family="system-ui,sans-serif">0</text>` +
+            `<text x="172" y="93" text-anchor="end" font-size="9" fill="#C1CBE8" font-family="system-ui,sans-serif">100</text>` +
             `</svg><div style="font-size:12px;font-weight:600;color:${subColor};text-align:center;margin-top:2px">${subText}</div>`;
     }
     function barChartHtml(uncovered, total, covered) {
