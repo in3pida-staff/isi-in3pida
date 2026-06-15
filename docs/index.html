@@ -1109,6 +1109,14 @@
                     })()}
                     <canvas id="chart-overview-pse-bar" style="max-height:160px"></canvas>
                     <div id="overview-pse-no-data" style="display:none;color:#aaa;font-size:14px;text-align:center;padding:20px 0">Nessun dato PSE disponibile — le query appariranno dopo la prima sincronizzazione.</div>
+                    <div id="ov-pse-llm-bars" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid #f0f0f4"></div>
+                    <div style="margin-top:16px;padding-top:14px;border-top:1px solid #f0f0f4">
+                        <div style="display:flex;gap:10px">
+                            <input type="text" id="ov-pse-query-input" placeholder='es. "hotel con piscina a Roma"' style="flex:1;border:1px solid #d1d5db;border-radius:6px;padding:8px 12px;font-size:13px;color:#171b33;font-family:var(--font);outline:none">
+                            <button id="ov-pse-run-btn" class="btn-update" style="white-space:nowrap;padding:8px 16px;font-size:13px">✦ Analizza</button>
+                        </div>
+                        <div id="ov-pse-run-result" style="display:none;margin-top:14px"></div>
+                    </div>
                 </div>
             </div>
             </div><!-- /scontent-overview -->
@@ -1482,7 +1490,7 @@
         initTooltips(el);
 
         // ── overview PSE chart (rendered on default view)
-        initOverviewPseChart(pseData);
+        initOverviewPseChart(pseData, siteId, site?.hotel_profile || {});
         initScoreHistoryChart(site, geoAvg, cs, covPct);
 
         // ── existing inits
@@ -2717,10 +2725,17 @@
     }
 
     let _pseChartsInited = false;
-    function initOverviewPseChart(pse) {
+    function initOverviewPseChart(pse, siteId, hotelCtx) {
         const noData = document.getElementById('overview-pse-no-data');
         const canvas = document.getElementById('chart-overview-pse-bar');
         if (!canvas) return;
+        // Wire query button
+        const _ovBtn = document.getElementById('ov-pse-run-btn');
+        if (_ovBtn && !_ovBtn._wired) {
+            _ovBtn._wired = true;
+            _ovBtn.addEventListener('click', () => runPseQuery(siteId, hotelCtx, 'ov-'));
+            document.getElementById('ov-pse-query-input')?.addEventListener('keydown', e => { if (e.key === 'Enter') runPseQuery(siteId, hotelCtx, 'ov-'); });
+        }
         if (!pse || !pse.length) {
             canvas.style.display = 'none';
             if (noData) noData.style.display = 'block';
@@ -2733,13 +2748,13 @@
             days.push(d.toISOString().slice(0,10));
             labels.push(i===0 ? 'Oggi' : d.toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit'}));
         }
-        const counts = {}, cited = {};
-        days.forEach(d => { counts[d]=0; cited[d]=0; });
+        const counts = {}, citedMap = {};
+        days.forEach(d => { counts[d]=0; citedMap[d]=0; });
         pse.forEach(r => {
             const day = r.created_at?.slice(0,10);
             if (day && counts[day]!==undefined) {
                 counts[day]++;
-                if (r.result?.cited||r.result?.found||r.result?.match_found) cited[day]++;
+                if (r.result?.cited||r.result?.found||r.result?.match_found) citedMap[day]++;
             }
         });
         if (window._overviewPseChart) { try { window._overviewPseChart.destroy(); } catch(e){} }
@@ -2748,8 +2763,8 @@
             data: {
                 labels,
                 datasets: [
-                    { label:'Query totali', data:days.map(d=>counts[d]), backgroundColor:'rgba(13,95,117,0.18)', borderColor:'#0D5F75', borderWidth:1.5, borderRadius:3 },
-                    { label:'Citazioni', data:days.map(d=>cited[d]), backgroundColor:'rgba(13,95,117,0.18)', borderColor:'#0D5F75', borderWidth:1.5, borderRadius:3 },
+                    { label:'Query', data:days.map(d=>counts[d]), backgroundColor:'#C1CBE8', borderRadius:3 },
+                    { label:'Citate', data:days.map(d=>citedMap[d]), backgroundColor:'#0D5F75', borderRadius:3 },
                 ]
             },
             options: {
@@ -2761,12 +2776,45 @@
                 }
             }
         });
+        _renderLlmBars(pse, 'ov-pse-llm-bars');
     }
 
-    async function runPseQuery(siteId, hotelCtx) {
-        const input = document.getElementById('pse-query-input');
-        const btn   = document.getElementById('pse-run-btn');
-        const res   = document.getElementById('pse-run-result');
+    function _renderLlmBars(items, elId) {
+        const el = document.getElementById(elId);
+        if (!el) return;
+        if (!items.length) { el.style.display = 'none'; return; }
+        const groqTotal = items.length;
+        const groqCited = items.filter(r => r.result?.llm_results?.groq?.cited !== undefined ? r.result.llm_results.groq.cited : !!(r.result?.cited||r.result?.found||r.result?.match_found)).length;
+        const groqProbs = items.map(r => r.result?.llm_results?.groq?.probability ?? r.result?.probability).filter(p => p != null);
+        const groqAvgProb = groqProbs.length ? Math.round(groqProbs.reduce((a,b)=>a+b,0)/groqProbs.length) : null;
+        const gemItems = items.filter(r => r.result?.llm_results?.gemini);
+        const gemTotal = gemItems.length;
+        const gemCited = gemItems.filter(r => r.result.llm_results.gemini.cited).length;
+        const gemProbs = gemItems.map(r => r.result.llm_results.gemini.probability).filter(p => p != null);
+        const gemAvgProb = gemProbs.length ? Math.round(gemProbs.reduce((a,b)=>a+b,0)/gemProbs.length) : null;
+        const groqCitedPct = groqTotal > 0 ? Math.round(groqCited/groqTotal*100) : 0;
+        const gemCitedPct  = gemTotal  > 0 ? Math.round(gemCited/gemTotal*100)  : 0;
+        const mkRow = (name, barPct, pctLabel, count) => `<div style="display:flex;align-items:center;gap:12px;margin-bottom:14px"><div style="width:120px;font-size:13px;color:#171b33;font-weight:500;flex-shrink:0">${name}</div><div style="flex:1;background:#f0f0f4;border-radius:3px;height:8px;overflow:hidden"><div style="height:100%;width:${Math.max(0,Math.min(100,barPct))}%;background:#0D5F75;border-radius:3px"></div></div><div style="width:44px;text-align:right;font-size:13px;color:#171b33;font-weight:500">${pctLabel}</div><div style="width:36px;text-align:right;font-size:13px;font-weight:700;color:#0D5F75">${count}</div></div>`;
+        const noGem = '<div style="font-size:12px;color:#C1CBE8;padding:4px 0 2px">Gemini Flash — dati disponibili dopo le prossime query</div>';
+        const citedRows = mkRow('Groq Llama 3.1', groqCitedPct, groqCitedPct+'%', groqCited) + (gemTotal>0 ? mkRow('Gemini Flash', gemCitedPct, gemCitedPct+'%', gemCited) : noGem);
+        const probRows  = mkRow('Groq Llama 3.1', groqAvgProb??0, groqAvgProb!=null?groqAvgProb+'%':'—', groqAvgProb!=null?groqAvgProb+'%':'—') + (gemAvgProb!=null ? mkRow('Gemini Flash', gemAvgProb, gemAvgProb+'%', gemAvgProb+'%') : noGem);
+        el.innerHTML = `<div style="font-size:15px;font-weight:700;color:#171b33;margin-bottom:14px">Distribuzione per LLM</div><div style="display:inline-flex;border:1px solid #e4e4ec;border-radius:6px;overflow:hidden;margin-bottom:18px"><button data-llmtab="cited" style="padding:6px 16px;font-size:13px;background:#e8ecf7;border:none;cursor:pointer;color:#0D5F75;font-weight:600">Citazioni</button><button data-llmtab="prob" style="padding:6px 16px;font-size:13px;background:white;border:none;border-left:1px solid #e4e4ec;cursor:pointer;color:#666b84;font-weight:400">Probabilità media</button></div><div class="llm-tab-pane" data-pane="cited">${citedRows}</div><div class="llm-tab-pane" data-pane="prob" style="display:none">${probRows}</div>`;
+        el.style.display = 'block';
+        el.querySelectorAll('[data-llmtab]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tab = btn.dataset.llmtab;
+                el.querySelectorAll('[data-llmtab]').forEach(b => { b.style.background='white'; b.style.color='#666b84'; b.style.fontWeight='400'; });
+                btn.style.background='#e8ecf7'; btn.style.color='#0D5F75'; btn.style.fontWeight='600';
+                el.querySelectorAll('.llm-tab-pane').forEach(p => { p.style.display = p.dataset.pane===tab?'block':'none'; });
+            });
+        });
+    }
+
+    async function runPseQuery(siteId, hotelCtx, prefix) {
+        const pfx = prefix || '';
+        const input = document.getElementById(pfx + 'pse-query-input');
+        const btn   = document.getElementById(pfx + 'pse-run-btn');
+        const res   = document.getElementById(pfx + 'pse-run-result');
         const query = (input?.value || '').trim();
         if (!query) { input?.focus(); return; }
         btn.disabled = true; btn.textContent = '⏳ Analisi in corso...';
@@ -2842,34 +2890,7 @@
                 options: { plugins:{ legend:{ display:false } }, scales:{ x:{ grid:{ display:false }, ticks:{ maxTicksLimit:8, color:'#aaa', font:{ size:10 } } }, y:{ beginAtZero:true, grid:{ color:'#f0f0f4' }, ticks:{ stepSize:1, color:'#aaa', font:{ size:10 } } } } }
             });
         }
-        // LLM distribution bars
-        const llmEl = document.getElementById('pse-llm-bars');
-        if (llmEl && items.length > 0) {
-            const groqItems = items.filter(r => r.result?.llm_results?.groq || !r.result?.llm_results);
-            const groqCited = items.filter(r => r.result?.llm_results?.groq?.cited !== undefined ? r.result.llm_results.groq.cited : (r.result?.cited || r.result?.found || r.result?.match_found)).length;
-            const groqTotal = items.length;
-            const geminiItems = items.filter(r => r.result?.llm_results?.gemini);
-            const geminiCited = geminiItems.filter(r => r.result.llm_results.gemini.cited).length;
-            const geminiTotal = geminiItems.length;
-            const mkBar = (label, cited, total) => {
-                const pct = total > 0 ? Math.round(cited/total*100) : null;
-                const w = pct ?? 0;
-                return '<div style="margin-bottom:18px">'
-                    +'<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">'
-                    +'<div style="font-size:13px;font-weight:600;color:#171b33">'+label+'</div>'
-                    +'<div style="font-size:12px;color:#666b84">'+(total>0?cited+' / '+total+' query':'nessun dato')+'</div>'
-                    +'</div>'
-                    +'<div style="background:#f0f0f4;border-radius:4px;height:10px;overflow:hidden">'
-                    +'<div style="height:100%;width:'+w+'%;background:#0D5F75;border-radius:4px"></div>'
-                    +'</div>'
-                    +'<div style="font-size:11px;color:#0D5F75;font-weight:700;margin-top:4px">'+(pct!==null?pct+'% citato':'—')+'</div>'
-                    +'</div>';
-            };
-            llmEl.innerHTML = mkBar('Groq (Llama 3.1 8B)', groqCited, groqTotal)
-                + (geminiTotal > 0
-                    ? mkBar('Google Gemini 1.5 Flash', geminiCited, geminiTotal)
-                    : '<div style="font-size:13px;color:#C1CBE8;padding-top:4px">Google Gemini Flash — dati disponibili dopo le prossime query</div>');
-        }
+        _renderLlmBars(items, 'pse-llm-bars');
     }
 
     // ─── MAPPA QUERY MANAGEMENT ──────────────────────────────────────────────────
