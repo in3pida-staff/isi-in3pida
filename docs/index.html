@@ -1367,8 +1367,13 @@
                 <div class="card" style="border:1px solid #e4e4ec;box-shadow:none;margin:0">
                     <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><div style="font-size:12px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Presenza nei risultati AI</div></div></div>
                     <div style="padding:20px;display:flex;flex-direction:column;align-items:center;min-height:260px;justify-content:center">
-                        <canvas id="chart-pse-donut" style="max-width:200px;max-height:200px"></canvas>
-                        <div id="pse-donut-legend" style="margin-top:12px;font-size:13px;color:#666b84;text-align:center"></div>
+                        ${(()=>{
+                            const _tot=(pseData||[]).length;
+                            const _cit=(pseData||[]).filter(r=>r.result?.llm_results?.groq?.cited??!!(r.result?.cited||r.result?.found||r.result?.match_found)).length;
+                            const _pct=_tot>0?Math.round(_cit/_tot*100):null;
+                            return '<div style="width:100%;max-width:220px">'+gaugeHtml(_pct,50,{statusFn:p=>p>=50?'buona visibilità':'da migliorare'})+'</div>'
+                                +'<div style="margin-top:8px;font-size:13px;color:#666b84;text-align:center">'+(_tot>0?'<span style="color:#0D5F75;font-weight:700">'+_cit+' citazioni</span> su '+_tot+' query':'Nessuna query PSE registrata.')+'</div>';
+                        })()}
                     </div>
                 </div>
                 <div class="card" style="border:1px solid #e4e4ec;box-shadow:none;margin:0">
@@ -2867,20 +2872,6 @@
         if (_pseChartsInited) return;
         _pseChartsInited = true;
         const items = pseData || [];
-        const cited = items.filter(r => r.result?.llm_results?.groq?.cited ?? !!(r.result?.cited || r.result?.found || r.result?.match_found)).length;
-        const notCited = items.length - cited;
-        const donutCtx = document.getElementById('chart-pse-donut');
-        if (donutCtx && items.length > 0) {
-            new Chart(donutCtx, {
-                type: 'doughnut',
-                data: { labels:['Citato','Non citato'], datasets:[{ data:[cited,notCited], backgroundColor:['#0D5F75','#C1CBE8'], borderWidth:0 }] },
-                options: { cutout:'70%', plugins:{ legend:{ display:false } } }
-            });
-            document.getElementById('pse-donut-legend').innerHTML =
-                '<span style="color:#0D5F75;font-weight:700">'+cited+' citazioni</span> su '+items.length+' query';
-        } else if (donutCtx) {
-            donutCtx.parentElement.innerHTML = '<div style="color:#aaa;font-size:14px;text-align:center">Nessuna query PSE registrata.</div>';
-        }
         const barCtx = document.getElementById('chart-pse-bar');
         if (barCtx && items.length > 0) {
             const now = new Date(); const days = {};
