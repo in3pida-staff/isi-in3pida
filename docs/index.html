@@ -618,7 +618,7 @@
     // ─── GAUGE + BAR CHART HELPERS ───────────────────────────────────────────────
     function gaugeHtml(pct, threshold) {
         const cx=90, cy=88, r=72, sw=13;
-        const fillColor = pct===null ? '#e8ecf7' : pct>=threshold ? '#0D5F75' : '#d82d6b';
+        const fillColor = pct===null ? '#e8ecf7' : '#0D5F75';
         const bgPath = `M ${cx-r} ${cy} A ${r} ${r} 0 0 1 ${cx+r} ${cy}`;
         let fillPath = '';
         if (pct !== null && pct > 0) {
@@ -640,22 +640,27 @@
     function barChartHtml(uncovered, total, covered) {
         if (total === null) return '<div style="text-align:center;color:#C1CBE8;font-size:14px;padding:28px 0">nessun dato</div>';
         const vals = [
-            { l1:'SENZA',   l2:'RISPOSTA', v:uncovered??0, color:'#d82d6b' },
-            { l1:'QUERY',   l2:'TOTALI',   v:total,        color:'#0D5F75' },
-            { l1:'QUERY',   l2:'COPERTE',  v:covered??0,   color:'#C1CBE8' }
+            { l1:'SENZA',  l2:'RISPOSTA', v:uncovered??0, color:'#ead0dc' },
+            { l1:'QUERY',  l2:'TOTALI',   v:total,        color:'#C1CBE8' },
+            { l1:'QUERY',  l2:'COPERTE',  v:covered??0,   color:'#0D5F75' }
         ];
         const maxV = Math.max(...vals.map(x=>x.v), 1);
-        const W=300, H=96, barW=40, padT=18, padB=28, areaH=H-padT-padB;
+        const W=360, H=110, barW=36, padT=18, padB=30, areaH=H-padT-padB;
         const spc = Math.round((W - vals.length*barW) / (vals.length+1));
-        let svg = `<line x1="${Math.round(spc*0.5)}" y1="${padT+areaH+1}" x2="${W-Math.round(spc*0.5)}" y2="${padT+areaH+1}" stroke="#e8ecf7" stroke-width="1.5"/>`;
+        let svg = '';
+        [0.5, 1].forEach(f => {
+            const gy = (padT + areaH*(1-f)).toFixed(1);
+            const c = f===1 ? '#dde0ea' : '#f0f2f8';
+            svg += `<line x1="${spc/2}" y1="${gy}" x2="${W-spc/2}" y2="${gy}" stroke="${c}" stroke-width="1.5"/>`;
+        });
         vals.forEach((it,i)=>{
             const x = spc + i*(barW+spc);
             const h = Math.max(Math.round(it.v/maxV*areaH), 3);
             const y = padT + areaH - h;
-            svg += `<rect x="${x}" y="${y}" width="${barW}" height="${h}" rx="3" fill="${it.color}"/>`;
-            svg += `<text x="${x+barW/2}" y="${y-6}" text-anchor="middle" font-size="12" font-weight="700" fill="#171b33" font-family="system-ui,sans-serif">${it.v}</text>`;
-            svg += `<text x="${x+barW/2}" y="${H-14}" text-anchor="middle" font-size="8" font-weight="700" fill="#9ca3af" font-family="system-ui,sans-serif" letter-spacing=".5">${it.l1}</text>`;
-            svg += `<text x="${x+barW/2}" y="${H-4}" text-anchor="middle" font-size="8" font-weight="700" fill="#9ca3af" font-family="system-ui,sans-serif" letter-spacing=".5">${it.l2}</text>`;
+            svg += `<rect x="${x}" y="${y}" width="${barW}" height="${h}" rx="4" fill="${it.color}"/>`;
+            svg += `<text x="${x+barW/2}" y="${y-6}" text-anchor="middle" font-size="13" font-weight="800" fill="#171b33" font-family="system-ui,sans-serif">${it.v}</text>`;
+            svg += `<text x="${x+barW/2}" y="${H-16}" text-anchor="middle" font-size="8.5" font-weight="700" fill="#9ca3af" font-family="system-ui,sans-serif" letter-spacing=".4">${it.l1}</text>`;
+            svg += `<text x="${x+barW/2}" y="${H-5}" text-anchor="middle" font-size="8.5" font-weight="700" fill="#9ca3af" font-family="system-ui,sans-serif" letter-spacing=".4">${it.l2}</text>`;
         });
         return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:${H}px;display:block">${svg}</svg>`;
     }
