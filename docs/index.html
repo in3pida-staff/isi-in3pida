@@ -617,7 +617,7 @@
 
     // ─── GAUGE + BAR CHART HELPERS ───────────────────────────────────────────────
     function gaugeHtml(pct, threshold) {
-        const cx=90, cy=88, r=72, sw=13;
+        const cx=90, cy=88, r=68, sw=18;
         const fillColor = pct===null ? '#e8ecf7' : '#0D5F75';
         const bgPath = `M ${cx-r} ${cy} A ${r} ${r} 0 0 1 ${cx+r} ${cy}`;
         let fillPath = '';
@@ -640,27 +640,27 @@
     function barChartHtml(uncovered, total, covered) {
         if (total === null) return '<div style="text-align:center;color:#C1CBE8;font-size:14px;padding:28px 0">nessun dato</div>';
         const vals = [
-            { l1:'SENZA',  l2:'RISPOSTA', v:uncovered??0, color:'#ead0dc' },
-            { l1:'QUERY',  l2:'TOTALI',   v:total,        color:'#C1CBE8' },
-            { l1:'QUERY',  l2:'COPERTE',  v:covered??0,   color:'#0D5F75' }
+            { l1:'SENZA',  l2:'RISPOSTA', v:uncovered??0 },
+            { l1:'QUERY',  l2:'TOTALI',   v:total        },
+            { l1:'QUERY',  l2:'COPERTE',  v:covered??0   }
         ];
         const maxV = Math.max(...vals.map(x=>x.v), 1);
         const W=360, H=110, barW=36, padT=18, padB=30, areaH=H-padT-padB;
         const spc = Math.round((W - vals.length*barW) / (vals.length+1));
         let svg = '';
-        [0.5, 1].forEach(f => {
+        [0.33, 0.66, 1].forEach(f => {
             const gy = (padT + areaH*(1-f)).toFixed(1);
             const c = f===1 ? '#dde0ea' : '#f0f2f8';
-            svg += `<line x1="${spc/2}" y1="${gy}" x2="${W-spc/2}" y2="${gy}" stroke="${c}" stroke-width="1.5"/>`;
+            svg += `<line x1="${spc/2}" y1="${gy}" x2="${W-spc/2}" y2="${gy}" stroke="${c}" stroke-width="1"/>`;
         });
         vals.forEach((it,i)=>{
             const x = spc + i*(barW+spc);
             const h = Math.max(Math.round(it.v/maxV*areaH), 3);
             const y = padT + areaH - h;
-            svg += `<rect x="${x}" y="${y}" width="${barW}" height="${h}" rx="4" fill="${it.color}"/>`;
+            svg += `<rect x="${x}" y="${y}" width="${barW}" height="${h}" fill="#0D5F75"/>`;
             svg += `<text x="${x+barW/2}" y="${y-6}" text-anchor="middle" font-size="13" font-weight="800" fill="#171b33" font-family="system-ui,sans-serif">${it.v}</text>`;
-            svg += `<text x="${x+barW/2}" y="${H-16}" text-anchor="middle" font-size="8.5" font-weight="700" fill="#9ca3af" font-family="system-ui,sans-serif" letter-spacing=".4">${it.l1}</text>`;
-            svg += `<text x="${x+barW/2}" y="${H-5}" text-anchor="middle" font-size="8.5" font-weight="700" fill="#9ca3af" font-family="system-ui,sans-serif" letter-spacing=".4">${it.l2}</text>`;
+            svg += `<text x="${x+barW/2}" y="${H-16}" text-anchor="middle" font-size="8.5" font-weight="600" fill="#9ca3af" font-family="system-ui,sans-serif" letter-spacing=".4">${it.l1}</text>`;
+            svg += `<text x="${x+barW/2}" y="${H-5}" text-anchor="middle" font-size="8.5" font-weight="600" fill="#9ca3af" font-family="system-ui,sans-serif" letter-spacing=".4">${it.l2}</text>`;
         });
         return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:${H}px;display:block">${svg}</svg>`;
     }
@@ -944,7 +944,7 @@
                             <div style="font-size:14px;font-weight:600;color:#0D5F75;margin-top:6px">campi fondamentali</div>
                         </div>
                         <div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:16px 18px">
-                            <div style="font-size:12px;font-weight:500;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;display:flex;align-items:center;gap:4px">COMPILATI <span class='tip-q' data-tip='Campi fondamentali già compilati e disponibili per i motori AI.'>?</span></div>
+                            <div style="font-size:12px;font-weight:500;color:#4a4a6a;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;display:flex;align-items:center;gap:4px">COMPILATI <span class='tip-q' data-tip='Campi fondamentali già compilati e disponibili per i motori AI.'>?</span></div>
                             <div style="font-size:32px;font-weight:800;line-height:1;color:#171b33">${12-checklist.length}</div>
                             <div style="font-size:14px;font-weight:600;color:#0D5F75;margin-top:6px">di 12 totali</div>
                         </div>
@@ -964,23 +964,23 @@
                 <div style="padding:16px 20px">
                     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:${(covPct!==null&&(freshAlerts.length||missingQueries.length))?'16px':'0'}">
                         <div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:12px 18px">
-                            <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:4px;display:flex;align-items:center;gap:4px">COVERAGE FAQ <span class='tip-q' data-tip='Percentuale di domande degli ospiti coperta dalle FAQ pubblicate. ≥80% buona copertura.'>?</span></div>
+                            <div style="font-size:12px;font-weight:500;color:#4a4a6a;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;display:flex;align-items:center;gap:4px">COVERAGE FAQ <span class='tip-q' data-tip='Percentuale di domande degli ospiti coperta dalle FAQ pubblicate. ≥80% buona copertura.'>?</span></div>
                             ${gaugeHtml(covPct, 80)}
                         </div>
                         <div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:16px 18px">
-                            <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:4px">SENZA RISPOSTA <span class='tip-q' data-tip='Numero di domande degli ospiti senza una risposta FAQ disponibile sul sito.'>?</span></div>
+                            <div style="font-size:12px;font-weight:500;color:#4a4a6a;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;display:flex;align-items:center;gap:4px">SENZA RISPOSTA <span class='tip-q' data-tip='Numero di domande degli ospiti senza una risposta FAQ disponibile sul sito.'>?</span></div>
                             <div style="font-size:32px;font-weight:800;line-height:1;color:#171b33">${missingAnswers!==null?missingAnswers:'—'}</div>
-                            <div style="font-size:12px;font-weight:600;color:#0D5F75;margin-top:6px">${missingAnswers>0?'domande mancanti':'tutto coperto'}</div>
+                            <div style="font-size:14px;font-weight:600;color:#0D5F75;margin-top:6px">${missingAnswers>0?'domande mancanti':'tutto coperto'}</div>
                         </div>
                         <div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:16px 18px">
-                            <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:4px">ULTIMA FAQ <span class='tip-q' data-tip='Giorni dall ultima pubblicazione o aggiornamento di FAQ nel plugin. >180 giorni → aggiornare.'>?</span></div>
+                            <div style="font-size:12px;font-weight:500;color:#4a4a6a;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;display:flex;align-items:center;gap:4px">ULTIMA FAQ <span class='tip-q' data-tip='Giorni dall ultima pubblicazione o aggiornamento di FAQ nel plugin. >180 giorni → aggiornare.'>?</span></div>
                             <div style="font-size:32px;font-weight:800;line-height:1;color:${daysFaq===null?'#C1CBE8':'#171b33'}">${daysFaq!==null?daysFaq:'—'}</div>
-                            <div style="font-size:12px;font-weight:600;color:${daysFaq===null?'#C1CBE8':'#0D5F75'};margin-top:6px">${daysFaq!==null?'giorni fa':'nessun dato'}</div>
+                            <div style="font-size:14px;font-weight:600;color:${daysFaq===null?'#C1CBE8':'#0D5F75'};margin-top:6px">${daysFaq!==null?'giorni fa':'nessun dato'}</div>
                         </div>
                         <div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:16px 18px">
-                            <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:4px">ULTIMO SCHEMA <span class='tip-q' data-tip='Giorni dall ultimo aggiornamento Schema.org (LodgingBusiness/HotelSchema). >180 giorni → aggiornare.'>?</span></div>
+                            <div style="font-size:12px;font-weight:500;color:#4a4a6a;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;display:flex;align-items:center;gap:4px">ULTIMO SCHEMA <span class='tip-q' data-tip='Giorni dall ultimo aggiornamento Schema.org (LodgingBusiness/HotelSchema). >180 giorni → aggiornare.'>?</span></div>
                             <div style="font-size:32px;font-weight:800;line-height:1;color:${daysSchema===null?'#C1CBE8':'#171b33'}">${daysSchema!==null?daysSchema:'—'}</div>
-                            <div style="font-size:12px;font-weight:600;color:${daysSchema===null?'#C1CBE8':'#0D5F75'};margin-top:6px">${daysSchema!==null?'giorni fa':'nessun dato'}</div>
+                            <div style="font-size:14px;font-weight:600;color:${daysSchema===null?'#C1CBE8':'#0D5F75'};margin-top:6px">${daysSchema!==null?'giorni fa':'nessun dato'}</div>
                         </div>
                     </div>
                     ${covPct!==null&&freshAlerts.length?`<div style="margin-bottom:12px">${freshAlerts.map(a=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f4f4f8"><span style="color:#0D5F75;font-weight:800;font-size:13px">⚠</span><span style="font-size:14px">${escHtml(a)}</span></div>`).join('')}</div>`:''}
@@ -994,7 +994,7 @@
                 <div style="padding:16px 20px">
                     <div style="display:grid;grid-template-columns:1fr 3fr;gap:12px;margin-bottom:${qMapPct!==null?'16px':'0'}">
                         <div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:12px 18px">
-                            <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:4px;display:flex;align-items:center;gap:4px">COPERTURA <span class='tip-q' data-tip='Percentuale di categorie di query conversazionali degli ospiti con risposta configurata. ≥70% buona copertura.'>?</span></div>
+                            <div style="font-size:12px;font-weight:500;color:#4a4a6a;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;display:flex;align-items:center;gap:4px">COPERTURA <span class='tip-q' data-tip='Percentuale di categorie di query conversazionali degli ospiti con risposta configurata. ≥70% buona copertura.'>?</span></div>
                             ${gaugeHtml(qMapPct, 70)}
                         </div>
                         <div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:16px 18px;display:flex;align-items:center">
