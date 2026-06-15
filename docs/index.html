@@ -1095,7 +1095,7 @@
                 <div style="padding:16px 20px">
                     ${(()=>{
                         const tot=pseData?.length||0;
-                        const cited=(pseData||[]).filter(r=>r.result?.cited||r.result?.found||r.result?.match_found).length;
+                        const cited=(pseData||[]).filter(r=>r.result?.llm_results?.groq?.cited??!!(r.result?.cited||r.result?.found||r.result?.match_found)).length;
                         const pct=tot>0?Math.round(cited/tot*100):null;
                         const cost=(pseData||[]).reduce((a,r)=>a+(parseFloat(r.cost_usd)||0),0);
                         const bx=(l,v,sub,vc,tip)=>'<div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:16px 18px"><div style="font-size:12px;color:#4a4a6a;font-weight:500;letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:4px">'+l+(tip?'<span class="tip-q" data-tip="'+tip+'">?</span>':'')+'</div><div style="font-size:24px;font-weight:800;color:#171b33;line-height:1">'+v+'</div><div style="font-size:14px;font-weight:600;color:'+vc+';margin-top:5px">'+sub+'</div></div>';
@@ -1379,7 +1379,7 @@
             <div class="card" style="border:1px solid #e4e4ec;box-shadow:none;margin:0">
                 <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><div style="font-size:12px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Riepilogo PSE</div></div></div>
                 <div id="pse-stats-grid" style="padding:16px 20px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
-                    ${(()=>{const tot=pseData?.length||0;const totCost=(pseData||[]).reduce((a,r)=>a+(parseFloat(r.cost_usd)||0),0);const cited=(pseData||[]).filter(r=>(r.result?.cited||r.result?.found||r.result?.match_found)).length;const pct=tot>0?Math.round(cited/tot*100):null;const bx=(l,v,s,vc)=>'<div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:16px 18px"><div style="font-size:12px;color:#4a4a6a;font-weight:500;letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px">'+l+'</div><div style="font-size:28px;font-weight:800;color:#171b33;line-height:1">'+v+'</div><div style="font-size:14px;font-weight:600;color:'+vc+';margin-top:5px">'+s+'</div></div>';return bx('QUERY TOTALI',tot,'eseguite','#0D5F75')+bx('CITAZIONI',cited,'trovate','#0D5F75')+bx('TASSO CITAZIONE',pct!==null?pct+'%':'—',pct!==null?(pct>=50?'buona visibilità':'da migliorare'):'nessun dato',pct!==null?'#0D5F75':'#C1CBE8')+bx('COSTO TOTALE','€'+totCost.toFixed(4),'speso','#666b84');})()}
+                    ${(()=>{const tot=pseData?.length||0;const totCost=(pseData||[]).reduce((a,r)=>a+(parseFloat(r.cost_usd)||0),0);const cited=(pseData||[]).filter(r=>r.result?.llm_results?.groq?.cited??!!(r.result?.cited||r.result?.found||r.result?.match_found)).length;const pct=tot>0?Math.round(cited/tot*100):null;const bx=(l,v,s,vc)=>'<div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:16px 18px"><div style="font-size:12px;color:#4a4a6a;font-weight:500;letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px">'+l+'</div><div style="font-size:28px;font-weight:800;color:#171b33;line-height:1">'+v+'</div><div style="font-size:14px;font-weight:600;color:'+vc+';margin-top:5px">'+s+'</div></div>';return bx('QUERY TOTALI',tot,'eseguite','#0D5F75')+bx('CITAZIONI',cited,'trovate','#0D5F75')+bx('TASSO CITAZIONE',pct!==null?pct+'%':'—',pct!==null?(pct>=50?'buona visibilità':'da migliorare'):'nessun dato',pct!==null?'#0D5F75':'#C1CBE8')+bx('COSTO TOTALE','€'+totCost.toFixed(4),'speso','#666b84');})()}
                 </div>
             </div>
             <div class="card" style="border:1px solid #e4e4ec;box-shadow:none;margin:0;margin-top:20px">
@@ -2756,7 +2756,7 @@
             const day = r.created_at?.slice(0,10);
             if (day && counts[day]!==undefined) {
                 counts[day]++;
-                if (r.result?.cited||r.result?.found||r.result?.match_found) citedMap[day]++;
+                if (r.result?.llm_results?.groq?.cited??!!(r.result?.cited||r.result?.found||r.result?.match_found)) citedMap[day]++;
             }
         });
         if (window._overviewPseChart) { try { window._overviewPseChart.destroy(); } catch(e){} }
@@ -2867,7 +2867,7 @@
         if (_pseChartsInited) return;
         _pseChartsInited = true;
         const items = pseData || [];
-        const cited = items.filter(r => r.result?.cited || r.result?.found || r.result?.match_found).length;
+        const cited = items.filter(r => r.result?.llm_results?.groq?.cited ?? !!(r.result?.cited || r.result?.found || r.result?.match_found)).length;
         const notCited = items.length - cited;
         const donutCtx = document.getElementById('chart-pse-donut');
         if (donutCtx && items.length > 0) {
@@ -2952,7 +2952,7 @@
         const sovEl = document.getElementById('sov-card');
         if (sovEl) {
             const pseItems = (pseData || []).filter(p => p.query);
-            const isCited = p => p.result?.cited || p.result?.found || p.result?.match_found;
+            const isCited = p => p.result?.llm_results?.groq?.cited ?? !!(p.result?.cited || p.result?.found || p.result?.match_found);
             let headerExtra = '';
             let bodyHtml = '';
 
