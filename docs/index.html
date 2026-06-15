@@ -8,7 +8,7 @@
     <meta http-equiv="Expires" content="0">
     <title>Eletta — Posiziona il tuo sito nelle ricerche AI</title>
     <link rel="icon" type="image/png" href="images/favicon.png?v=2">
-    <link rel="stylesheet" href="css/style.css?v=20260615b">
+    <link rel="stylesheet" href="css/style.css?v=20260615c">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
@@ -640,29 +640,43 @@
     function barChartHtml(uncovered, total, covered) {
         if (total === null) return '<div style="text-align:center;color:#C1CBE8;font-size:14px;padding:28px 0">nessun dato</div>';
         const vals = [
-            { l1:'SENZA',  l2:'RISPOSTA', v:uncovered??0 },
-            { l1:'QUERY',  l2:'TOTALI',   v:total        },
-            { l1:'QUERY',  l2:'COPERTE',  v:covered??0   }
+            { l1:'SENZA',  l2:'RISPOSTA', v:uncovered??0, tip:'Categorie di domande degli ospiti senza una risposta configurata.' },
+            { l1:'QUERY',  l2:'TOTALI',   v:total,        tip:'Numero totale di categorie di domande degli ospiti monitorate.' },
+            { l1:'QUERY',  l2:'COPERTE',  v:covered??0,   tip:'Categorie di domande con risposta configurata, leggibili dai motori AI.' }
         ];
         const maxV = Math.max(...vals.map(x=>x.v), 1);
-        const W=360, H=110, barW=36, padT=18, padB=30, areaH=H-padT-padB;
-        const spc = Math.round((W - vals.length*barW) / (vals.length+1));
+        const W=420, H=100, barW=50, padL=38, padR=8, padT=22, padB=12;
+        const areaW = W - padL - padR;
+        const areaH = H - padT - padB;
+        const n = vals.length;
+        const spc = Math.round((areaW - n*barW) / (n+1));
         let svg = '';
-        [0.33, 0.66, 1].forEach(f => {
-            const gy = (padT + areaH*(1-f)).toFixed(1);
-            const c = f===1 ? '#dde0ea' : '#f0f2f8';
-            svg += `<line x1="${spc/2}" y1="${gy}" x2="${W-spc/2}" y2="${gy}" stroke="${c}" stroke-width="1"/>`;
+        const half = Math.round(maxV / 2);
+        [0, half, maxV].forEach((v, ti) => {
+            const gy = (padT + areaH * (1 - v/maxV)).toFixed(1);
+            svg += `<line x1="${padL}" y1="${gy}" x2="${W-padR}" y2="${gy}" stroke="${ti===0?'#dde0ea':'#f0f2f8'}" stroke-width="${ti===0?'1.5':'1'}"/>`;
+            svg += `<text x="${padL-5}" y="${(parseFloat(gy)+3.5).toFixed(1)}" text-anchor="end" font-size="9" fill="#9ca3af" font-family="system-ui,sans-serif">${v}</text>`;
         });
-        vals.forEach((it,i)=>{
-            const x = spc + i*(barW+spc);
-            const h = Math.max(Math.round(it.v/maxV*areaH), 3);
+        svg += `<line x1="${padL}" y1="${padT-6}" x2="${padL}" y2="${padT+areaH}" stroke="#dde0ea" stroke-width="1.5"/>`;
+        vals.forEach((it, i) => {
+            const x = padL + spc + i*(barW+spc);
+            const h = Math.max(Math.round(it.v/maxV*areaH), 2);
             const y = padT + areaH - h;
             svg += `<rect x="${x}" y="${y}" width="${barW}" height="${h}" fill="#0D5F75"/>`;
             svg += `<text x="${x+barW/2}" y="${y-6}" text-anchor="middle" font-size="13" font-weight="800" fill="#171b33" font-family="system-ui,sans-serif">${it.v}</text>`;
-            svg += `<text x="${x+barW/2}" y="${H-16}" text-anchor="middle" font-size="8.5" font-weight="600" fill="#9ca3af" font-family="system-ui,sans-serif" letter-spacing=".4">${it.l1}</text>`;
-            svg += `<text x="${x+barW/2}" y="${H-5}" text-anchor="middle" font-size="8.5" font-weight="600" fill="#9ca3af" font-family="system-ui,sans-serif" letter-spacing=".4">${it.l2}</text>`;
         });
-        return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:${H}px;display:block">${svg}</svg>`;
+        const svgOut = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:${H}px;display:block">${svg}</svg>`;
+        const labelsHtml = '<div style="position:relative;height:38px;margin-top:1px">' +
+            vals.map((it, i) => {
+                const xc = padL + spc + i*(barW+spc) + barW/2;
+                const pct = (xc/W*100).toFixed(2);
+                return `<div style="position:absolute;left:${pct}%;transform:translateX(-50%);text-align:center">` +
+                    `<div style="font-size:8.5px;font-weight:600;color:#9ca3af;text-transform:uppercase;letter-spacing:.4px;line-height:1.4;white-space:nowrap">${it.l1}<br>${it.l2}</div>` +
+                    `<span class="tip-q" data-tip="${it.tip}" style="margin-top:1px">?</span>` +
+                    `</div>`;
+            }).join('') +
+            '</div>';
+        return svgOut + labelsHtml;
     }
 
     // ─── TABELLA SITI (condivisa) ─────────────────────────────────────────────────
@@ -675,8 +689,8 @@
         const now = new Date();
         const totalCost = Object.values(costsMap||{}).reduce((a,b)=>a+(b||0),0);
         let html = `<table class="sites-table"><thead><tr>
-            <th>Stato</th><th>Sito</th><th>Ultimo segnale</th>
-            <th>Versione</th>
+            <th>Stato <span class="tip-q" data-tip="Semaforo di connessione: verde = plugin attivo, rosso = plugin non risponde da oltre 4 ore.">?</span></th><th>Sito</th><th>Ultimo segnale <span class="tip-q" data-tip="Quando il plugin ha inviato l'ultimo aggiornamento all'app ISI.">?</span></th>
+            <th>Versione <span class="tip-q" data-tip="Versione del plugin in3pida FAQ installata su questo sito.">?</span></th>
             <th class="th-center">GEO Score <span class="tip-q" data-tip="Quanto il sito è ottimizzato per essere citato dai motori AI come ChatGPT e Google.">?</span></th>
             <th class="th-center">Missing Answer <span class="tip-q" data-tip="Percentuale di domande degli utenti a cui il sito sa rispondere. Più è alto, meno risposte mancano.">?</span></th>
             <th class="th-center">Completezza AI <span class="tip-q" data-tip="Quanto il profilo dell'hotel è completo: nome, indirizzo, telefono, descrizione, FAQ ecc.">?</span></th>
@@ -1017,12 +1031,12 @@
                         const cited=(pseData||[]).filter(r=>r.result?.cited||r.result?.found||r.result?.match_found).length;
                         const pct=tot>0?Math.round(cited/tot*100):null;
                         const cost=(pseData||[]).reduce((a,r)=>a+(parseFloat(r.cost_usd)||0),0);
-                        const bx=(l,v,sub,vc)=>'<div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:16px 18px"><div style="font-size:12px;color:#4a4a6a;font-weight:500;letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px">'+l+'</div><div style="font-size:24px;font-weight:800;color:#171b33;line-height:1">'+v+'</div><div style="font-size:14px;font-weight:600;color:'+vc+';margin-top:5px">'+sub+'</div></div>';
+                        const bx=(l,v,sub,vc,tip)=>'<div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:16px 18px"><div style="font-size:12px;color:#4a4a6a;font-weight:500;letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:4px">'+l+(tip?'<span class="tip-q" data-tip="'+tip+'">?</span>':'')+'</div><div style="font-size:24px;font-weight:800;color:#171b33;line-height:1">'+v+'</div><div style="font-size:14px;font-weight:600;color:'+vc+';margin-top:5px">'+sub+'</div></div>';
                         return '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px">'+
-                            bx('QUERY TOTALI',tot,'eseguite','#0D5F75')+
-                            bx('CITAZIONI',cited,'trovate','#0D5F75')+
-                            bx('TASSO CITAZ.',pct!==null?pct+'%':'—',pct!==null?(pct>=50?'buona visibilità':'da migliorare'):'nessun dato',pct!==null?(pct>=50?'#0D5F75':'#0D5F75'):'#C1CBE8')+
-                            bx('COSTO TOT.','€'+cost.toFixed(4),'speso','#666b84')+
+                            bx('QUERY TOTALI',tot,'eseguite','#0D5F75','Numero di query PSE simulate negli ultimi 30 giorni.')+
+                            bx('CITAZIONI',cited,'trovate','#0D5F75','Quante volte l\'hotel è risultato visibile nelle risposte AI simulate.')+
+                            bx('TASSO CITAZ.',pct!==null?pct+'%':'—',pct!==null?(pct>=50?'buona visibilità':'da migliorare'):'nessun dato',pct!==null?(pct>=50?'#0D5F75':'#0D5F75'):'#C1CBE8','Percentuale di query in cui l\'hotel viene citato dall\'AI. ≥50% = buona visibilità.')+
+                            bx('COSTO TOT.','€'+cost.toFixed(4),'speso','#666b84','Costo totale in euro delle query PSE simulate negli ultimi 30 giorni.')+
                         '</div>';
                     })()}
                     <canvas id="chart-overview-pse-bar" style="max-height:160px"></canvas>
