@@ -1342,6 +1342,17 @@
 
             <!-- ═══ PANE: STATISTICHE PSE ═══ -->
             <div id="scontent-pse" style="display:none">
+            <div class="card" style="border:1px solid #e4e4ec;box-shadow:none;margin:0;margin-bottom:20px">
+                <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><div style="font-size:12px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Simula una query PSE</div></div></div>
+                <div style="padding:20px 24px">
+                    <div style="font-size:13px;color:#666b84;margin-bottom:14px;line-height:1.5">Inserisci una domanda come la farebbe un utente a ChatGPT o Google AI. Il sistema analizza se questo hotel verrebbe citato nella risposta, usando sia Groq che Gemini.</div>
+                    <div style="display:flex;gap:10px">
+                        <input type="text" id="pse-query-input" placeholder='es. "migliore hotel con piscina a Roma"' style="flex:1;border:1px solid #d1d5db;border-radius:6px;padding:9px 12px;font-size:14px;color:#171b33;font-family:var(--font);outline:none">
+                        <button id="pse-run-btn" class="btn-update" style="white-space:nowrap;padding:9px 20px">✦ Analizza</button>
+                    </div>
+                    <div id="pse-run-result" style="display:none;margin-top:16px"></div>
+                </div>
+            </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px">
                 <div class="card" style="border:1px solid #e4e4ec;box-shadow:none;margin:0">
                     <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><div style="font-size:12px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Presenza nei risultati AI</div></div></div>
@@ -1435,7 +1446,15 @@
             if (lbl) lbl.style.color = '#0D5F75';
             const val = row.querySelectorAll('span')[1];
             if (val) val.style.color = '#0D5F75';
-            if (sec === 'pse') initPseCharts(pseData);
+            if (sec === 'pse') {
+                initPseCharts(pseData);
+                const _runBtn = document.getElementById('pse-run-btn');
+                if (_runBtn && !_runBtn._wired) {
+                    _runBtn._wired = true;
+                    _runBtn.addEventListener('click', () => runPseQuery(siteId, site?.hotel_profile || {}));
+                    document.getElementById('pse-query-input')?.addEventListener('keydown', e => { if (e.key === 'Enter') runPseQuery(siteId, site?.hotel_profile || {}); });
+                }
+            }
             if (sec === 'mappa') initMappaQueryMgmt(site, pseData);
             if (sec === 'coerenza') initCoerenzaTable(site);
             if (sec === 'ai_layer') initAiLayerPanel(site);
@@ -2742,6 +2761,56 @@
                 }
             }
         });
+    }
+
+    async function runPseQuery(siteId, hotelCtx) {
+        const input = document.getElementById('pse-query-input');
+        const btn   = document.getElementById('pse-run-btn');
+        const res   = document.getElementById('pse-run-result');
+        const query = (input?.value || '').trim();
+        if (!query) { input?.focus(); return; }
+        btn.disabled = true; btn.textContent = '⏳ Analisi in corso...';
+        res.style.display = 'none';
+        try {
+            // Auto-abilita PSE per questo hotel
+            await _SB.from('isi_sites').update({ pse_enabled: true }).eq('site_id', siteId);
+            const { data: { session: sess } } = await _SB.auth.getSession();
+            if (!sess) throw new Error('Sessione scaduta');
+            const r = await fetch(`${SUPABASE_URL}/functions/v1/pse-query`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + sess.access_token },
+                body: JSON.stringify({ site_id: siteId, query, hotel_context: hotelCtx })
+            });
+            const json = await r.json();
+            if (!r.ok) throw new Error(json.error || 'Errore PSE');
+            const d = json.result || {};
+            const groqP = d.llm_results?.groq?.probability ?? d.probability ?? null;
+            const gemP  = d.llm_results?.gemini?.probability ?? null;
+            const avgP  = gemP !== null ? Math.round((groqP + gemP) / 2) : groqP;
+            const color = avgP !== null ? (avgP >= 60 ? '#0D5F75' : avgP >= 35 ? '#666b84' : '#d82d6b') : '#aaa';
+            const verdict = d.verdict || (avgP >= 60 ? 'Probabile' : avgP >= 35 ? 'Incerto' : 'Improbabile');
+            let html = `<div style="background:#f7f8fc;border-radius:8px;padding:18px 20px;border:1px solid #e4e4ec">
+                <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px">
+                    <div style="font-size:36px;font-weight:800;line-height:1;color:${color}">${avgP !== null ? avgP+'%' : '—'}</div>
+                    <div>
+                        <div style="font-size:15px;font-weight:700;color:#171b33">${verdict}</div>
+                        <div style="font-size:12px;color:#666b84;margin-top:2px">${gemP !== null ? 'Groq: '+groqP+'% &nbsp;•&nbsp; Gemini: '+gemP+'%' : 'Groq: '+(groqP ?? '—')+'%'}</div>
+                    </div>
+                </div>`;
+            if (d.why) html += `<div style="font-size:13px;color:#4b4d68;line-height:1.6;margin-bottom:10px">${escHtml(d.why)}</div>`;
+            if (d.sample_answer) html += `<div style="font-size:13px;color:#171b33;background:white;border-left:3px solid #0D5F75;padding:8px 12px;border-radius:0 4px 4px 0;font-style:italic;margin-bottom:10px;line-height:1.6">"${escHtml(d.sample_answer)}"</div>`;
+            if (d.suggestions?.length) html += `<div style="font-size:12px;color:#0D5F75;font-weight:600;margin-bottom:4px">Suggerimenti:</div><ul style="margin:0;padding-left:18px;font-size:13px;color:#4b4d68;line-height:1.7">${d.suggestions.map(s=>`<li>${escHtml(s)}</li>`).join('')}</ul>`;
+            html += '</div>';
+            res.innerHTML = html;
+            res.style.display = 'block';
+            // Ricarica i grafici nella sezione PSE dopo 1s
+            setTimeout(() => { _pseChartsInited = false; }, 1200);
+        } catch(e) {
+            res.innerHTML = `<div style="color:#d82d6b;font-size:13px">${escHtml(e.message)}</div>`;
+            res.style.display = 'block';
+        } finally {
+            btn.disabled = false; btn.textContent = '✦ Analizza';
+        }
     }
 
     function initPseCharts(pseData) {
