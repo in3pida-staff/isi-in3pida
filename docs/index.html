@@ -860,9 +860,8 @@
                     </div>
                     <div style="padding:16px 20px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
                         <div style="border:1.5px solid #0D5F75;border-radius:4px;padding:16px 18px">
-                            <div style="font-size:12px;font-weight:500;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;display:flex;align-items:center;gap:4px">GEO SCORE <span class='tip-q' data-tip='Punteggio complessivo di ottimizzazione per AI. ≥70 ottimizzato, 40–69 da migliorare, <40 critico.'>?</span></div>
-                            <div style="font-size:32px;font-weight:800;line-height:1;color:${geoAvg!==null?'#171b33':'#C1CBE8'}">${geoAvg!==null?geoAvg:'—'}</div>
-                            <div style="font-size:14px;font-weight:600;color:${geoAvg!==null?'#171b33':'#C1CBE8'};margin-top:6px">${geoAvg!==null?(geoAvg>=70?'ottimizzato':geoAvg>=40?'da migliorare':'critico'):'nessun dato'}</div>
+                            <div style="font-size:12px;font-weight:500;color:#4a4a6a;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;display:flex;align-items:center;gap:4px">GEO SCORE <span class='tip-q' data-tip='Punteggio complessivo di ottimizzazione per AI. ≥70 ottimizzato, 40–69 da migliorare, <40 critico.'>?</span></div>
+                            ${gaugeHtml(geoAvg, 70, {suffix:'', statusFn: p => p>=70?'ottimizzato':p>=40?'da migliorare':'critico'})}
                         </div>
                         <div style="border:1px solid #e4e4ec;border-radius:4px;padding:16px 18px">
                             <div style="font-size:12px;font-weight:500;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;display:flex;align-items:center;gap:4px">COMPLETEZZA AI <span class='tip-q' data-tip='Quanto è completo il profilo AI dell hotel: nome, indirizzo, descrizione, contatti, FAQ ecc. ≥80 ottimizzato.'>?</span></div>
