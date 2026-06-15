@@ -676,7 +676,7 @@
                     `</div>`;
             }).join('') +
             '</div>';
-        return svgOut + labelsHtml;
+        return `<div style="width:100%">${svgOut}${labelsHtml}</div>`;
     }
 
     // ─── TABELLA SITI (condivisa) ─────────────────────────────────────────────────
@@ -689,7 +689,7 @@
         const now = new Date();
         const totalCost = Object.values(costsMap||{}).reduce((a,b)=>a+(b||0),0);
         let html = `<table class="sites-table"><thead><tr>
-            <th>Stato <span class="tip-q" data-tip="Semaforo di connessione: verde = plugin attivo, rosso = plugin non risponde da oltre 4 ore.">?</span></th><th>Sito</th><th>Ultimo segnale <span class="tip-q" data-tip="Quando il plugin ha inviato l'ultimo aggiornamento all'app ISI.">?</span></th>
+            <th>Stato <span class="tip-q" data-tip="Pallino colorato = plugin connesso (segnale ricevuto nelle ultime 25 ore). Pallino grigio = plugin non risponde.">?</span></th><th>Sito</th><th>Ultimo segnale <span class="tip-q" data-tip="Quando il plugin ha inviato l'ultimo aggiornamento all'app ISI.">?</span></th>
             <th>Versione <span class="tip-q" data-tip="Versione del plugin in3pida FAQ installata su questo sito.">?</span></th>
             <th class="th-center">GEO Score <span class="tip-q" data-tip="Quanto il sito è ottimizzato per essere citato dai motori AI come ChatGPT e Google.">?</span></th>
             <th class="th-center">Missing Answer <span class="tip-q" data-tip="Percentuale di domande degli utenti a cui il sito sa rispondere. Più è alto, meno risposte mancano.">?</span></th>
