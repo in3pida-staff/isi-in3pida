@@ -617,7 +617,7 @@
 
     // ─── GAUGE + BAR CHART HELPERS ───────────────────────────────────────────────
     function gaugeHtml(pct, threshold) {
-        const cx=60, cy=62, r=46, sw=9;
+        const cx=90, cy=88, r=72, sw=13;
         const fillColor = pct===null ? '#e8ecf7' : pct>=threshold ? '#0D5F75' : '#d82d6b';
         const bgPath = `M ${cx-r} ${cy} A ${r} ${r} 0 0 1 ${cx+r} ${cy}`;
         let fillPath = '';
@@ -631,32 +631,33 @@
         const valText = pct !== null ? pct + '%' : '—';
         const subText = pct === null ? 'nessun dato' : pct >= threshold ? 'buona copertura' : 'da migliorare';
         const subColor = pct === null ? '#C1CBE8' : '#0D5F75';
-        return `<svg viewBox="0 0 120 74" style="width:110px;height:68px;display:block;margin:0 auto">` +
+        return `<svg viewBox="0 0 180 104" style="width:100%;height:auto;display:block;margin:0 auto">` +
             `<path d="${bgPath}" fill="none" stroke="#e8ecf7" stroke-width="${sw}" stroke-linecap="round"/>` +
             fillPath +
-            `<text x="${cx}" y="${cy+3}" text-anchor="middle" dominant-baseline="middle" font-family="system-ui,-apple-system,sans-serif" font-size="18" font-weight="800" fill="${pct!==null?'#171b33':'#C1CBE8'}">${valText}</text>` +
+            `<text x="${cx}" y="${cy+4}" text-anchor="middle" dominant-baseline="middle" font-family="system-ui,-apple-system,sans-serif" font-size="26" font-weight="800" fill="${pct!==null?'#171b33':'#C1CBE8'}">${valText}</text>` +
             `</svg><div style="font-size:12px;font-weight:600;color:${subColor};text-align:center;margin-top:2px">${subText}</div>`;
     }
     function barChartHtml(uncovered, total, covered) {
         if (total === null) return '<div style="text-align:center;color:#C1CBE8;font-size:14px;padding:28px 0">nessun dato</div>';
         const vals = [
-            { l1:'SENZA', l2:'RISPOSTA', v:uncovered??0, color:'#d82d6b' },
-            { l1:'QUERY', l2:'TOTALI',   v:total,        color:'#C1CBE8' },
-            { l1:'QUERY', l2:'COPERTE',  v:covered??0,   color:'#0D5F75' }
+            { l1:'SENZA',   l2:'RISPOSTA', v:uncovered??0, color:'#d82d6b' },
+            { l1:'QUERY',   l2:'TOTALI',   v:total,        color:'#0D5F75' },
+            { l1:'QUERY',   l2:'COPERTE',  v:covered??0,   color:'#C1CBE8' }
         ];
         const maxV = Math.max(...vals.map(x=>x.v), 1);
-        const W=270, H=84, barW=64, gap=19, padL=22, padT=18, padB=24, areaH=84-18-24;
-        let bars = '';
+        const W=300, H=96, barW=40, padT=18, padB=28, areaH=H-padT-padB;
+        const spc = Math.round((W - vals.length*barW) / (vals.length+1));
+        let svg = `<line x1="${Math.round(spc*0.5)}" y1="${padT+areaH+1}" x2="${W-Math.round(spc*0.5)}" y2="${padT+areaH+1}" stroke="#e8ecf7" stroke-width="1.5"/>`;
         vals.forEach((it,i)=>{
-            const x = padL + i*(barW+gap);
+            const x = spc + i*(barW+spc);
             const h = Math.max(Math.round(it.v/maxV*areaH), 3);
             const y = padT + areaH - h;
-            bars += `<rect x="${x}" y="${y}" width="${barW}" height="${h}" rx="4" fill="${it.color}"/>`;
-            bars += `<text x="${x+barW/2}" y="${y-5}" text-anchor="middle" font-size="13" font-weight="800" fill="#171b33" font-family="system-ui,sans-serif">${it.v}</text>`;
-            bars += `<text x="${x+barW/2}" y="${H-13}" text-anchor="middle" font-size="8" font-weight="700" fill="#aaa" font-family="system-ui,sans-serif" letter-spacing=".4">${it.l1}</text>`;
-            bars += `<text x="${x+barW/2}" y="${H-4}" text-anchor="middle" font-size="8" font-weight="700" fill="#aaa" font-family="system-ui,sans-serif" letter-spacing=".4">${it.l2}</text>`;
+            svg += `<rect x="${x}" y="${y}" width="${barW}" height="${h}" rx="3" fill="${it.color}"/>`;
+            svg += `<text x="${x+barW/2}" y="${y-6}" text-anchor="middle" font-size="12" font-weight="700" fill="#171b33" font-family="system-ui,sans-serif">${it.v}</text>`;
+            svg += `<text x="${x+barW/2}" y="${H-14}" text-anchor="middle" font-size="8" font-weight="700" fill="#9ca3af" font-family="system-ui,sans-serif" letter-spacing=".5">${it.l1}</text>`;
+            svg += `<text x="${x+barW/2}" y="${H-4}" text-anchor="middle" font-size="8" font-weight="700" fill="#9ca3af" font-family="system-ui,sans-serif" letter-spacing=".5">${it.l2}</text>`;
         });
-        return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:${H}px;display:block">${bars}</svg>`;
+        return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:${H}px;display:block">${svg}</svg>`;
     }
 
     // ─── TABELLA SITI (condivisa) ─────────────────────────────────────────────────
