@@ -2391,6 +2391,26 @@
             if (!r.ok) throw new Error('HTTP ' + r.status);
             const data = await r.json();
             _aFaqItems = data.items || [];
+            // Deduplica per domanda: mantieni l'ID più alto, cancella i vecchi in background
+            if (_aFaqBase) {
+                const seen = new Map();
+                const toDelete = [];
+                _aFaqItems.forEach(f => {
+                    const key = (f.question||'').trim().toLowerCase();
+                    if (seen.has(key)) {
+                        const prev = seen.get(key);
+                        if ((f.id||0) > (prev.id||0)) { toDelete.push(prev.id); seen.set(key, f); }
+                        else { toDelete.push(f.id); }
+                    } else { seen.set(key, f); }
+                });
+                if (toDelete.length) {
+                    _aFaqItems = Array.from(seen.values());
+                    toDelete.forEach(id => fetch(_aFaqBase + '/wp-json/in3pida/v1/faq', {
+                        method: 'POST', headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({secret: _aFaqSecret, action: 'delete', faq: {id}})
+                    }).catch(()=>{}));
+                }
+            }
             const badge = document.getElementById('faq-admin-count');
             if (badge) badge.textContent = _aFaqItems.length ? '(' + _aFaqItems.length + ')' : '';
             renderAdminFaqList(el);
@@ -2924,12 +2944,12 @@
                 }
             }
 
-            const row = btn.closest('div[style*="display:flex"]');
-            if (row) {
-                const wrapper = btn.closest('div[style*="gap:6px"]');
-                if (wrapper) {
-                    wrapper.innerHTML = `<span style="font-size:12px;color:#0D5F75;font-weight:700;white-space:nowrap">Coperta ✓</span><button class="btn-update" style="padding:5px 12px;font-size:12px" onclick="generaRispostaQuery(this,'${escHtml(cat)}','${escHtml(query).replace(/'/g,"\\'")}','${escHtml(siteId)}')">✦ Genera risposta</button><button class="btn-ping" style="padding:5px 10px;font-size:12px" onclick="apriModaleFaqManuale('${escHtml(query).replace(/'/g,"\\'")}')">✎ Scrivi</button>`;
-                }
+            const wrapper = btn.closest('div[style*="gap:6px"]');
+            if (wrapper) {
+                wrapper.innerHTML = `<span style="font-size:12px;color:#0D5F75;font-weight:700;white-space:nowrap">Coperta ✓</span><button class="btn-update" style="padding:5px 12px;font-size:12px" onclick="generaRispostaQuery(this,'${escHtml(cat)}','${escHtml(query).replace(/'/g,"\\'")}','${escHtml(siteId)}')">✦ Genera risposta</button><button class="btn-ping" style="padding:5px 10px;font-size:12px" onclick="apriModaleFaqManuale('${escHtml(query).replace(/'/g,"\\'")}')">✎ Scrivi</button>`;
+                // Aggiorna ✗→✓ sul lato sinistro della riga
+                const checkSpan = wrapper.parentElement?.querySelector('span[style*="font-size:15px"]');
+                if (checkSpan) { checkSpan.textContent = '✓'; checkSpan.style.color = '#0D5F75'; }
             }
             loadAdminFaqList();
         } catch(e) {
