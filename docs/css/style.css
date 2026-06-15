@@ -323,7 +323,7 @@ textarea.profile-input { resize: vertical; }
 table.sites-table { width: 100%; border-collapse: collapse; overflow: visible; }
 table.sites-table th {
     text-align: left; padding: 12px 14px;
-    font-size: 12px; font-weight: 700; color: #999;
+    font-size: 13px; font-weight: 700; color: #999;
     background: #fafafa; border-bottom: 1px solid var(--border);
     white-space: nowrap; position: relative; overflow: visible;
 }

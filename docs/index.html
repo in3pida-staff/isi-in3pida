@@ -8,7 +8,7 @@
     <meta http-equiv="Expires" content="0">
     <title>Eletta — Posiziona il tuo sito nelle ricerche AI</title>
     <link rel="icon" type="image/png" href="images/favicon.png?v=2">
-    <link rel="stylesheet" href="css/style.css?v=20260615c">
+    <link rel="stylesheet" href="css/style.css?v=20260615d">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
@@ -266,7 +266,7 @@
                     <div class="sw-stat-text">
                         <div class="sw-stat-num" id="kpi-latest-version" style="font-size:52px">—</div>
                         <div style="font-size:13px;color:var(--grey);font-weight:500;margin-top:4px" id="kpi-latest-date"></div>
-                        <div class="sw-stat-label" style="margin-top:2px">Ultima versione</div>
+                        <div class="sw-stat-label" style="margin-top:2px">Ultima versione<span id="kpi-latest-download" style="display:none"> · <a id="kpi-latest-download-link" href="#" target="_blank" style="color:var(--magenta);font-weight:600;text-decoration:none">↓ Scarica zip</a></span></div>
                     </div>
                 </div>
                 <div class="sw-stat-card" style="cursor:pointer" onclick="window.location.href='costs.html'">
@@ -577,7 +577,7 @@
     async function loadPanoramica() {
         const [sitesRes, latestVerRes, tuttiSiti, costRes] = await Promise.all([
             _SBq.from('isi_sites').select('site_id', {count:'exact'}),
-            _SBq.from('isi_plugin_versions').select('version,released_at').eq('is_current', true).limit(1).single(),
+            _SBq.from('isi_plugin_versions').select('version,released_at,download_url').eq('is_current', true).limit(1).single(),
             _SBq.from('isi_sites').select('*').order('last_heartbeat',{ascending:false}),
             _SBq.from('isi_pse_queries').select('cost_usd'),
         ]);
@@ -591,6 +591,10 @@
                 const d = new Date(v.released_at);
                 const fmt = d.toLocaleDateString('it-IT', {day:'2-digit', month:'2-digit', year:'numeric'});
                 document.getElementById('kpi-latest-date').textContent = fmt;
+            }
+            if (v.download_url) {
+                document.getElementById('kpi-latest-download-link').href = v.download_url;
+                document.getElementById('kpi-latest-download').style.display = 'inline';
             }
         }
         const siti = tuttiSiti.data ?? [];
