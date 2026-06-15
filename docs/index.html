@@ -1361,6 +1361,10 @@
                     ${(()=>{const tot=pseData?.length||0;const totCost=(pseData||[]).reduce((a,r)=>a+(parseFloat(r.cost_usd)||0),0);const cited=(pseData||[]).filter(r=>(r.result?.cited||r.result?.found||r.result?.match_found)).length;const pct=tot>0?Math.round(cited/tot*100):null;const bx=(l,v,s,vc)=>'<div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:16px 18px"><div style="font-size:12px;color:#4a4a6a;font-weight:500;letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px">'+l+'</div><div style="font-size:28px;font-weight:800;color:#171b33;line-height:1">'+v+'</div><div style="font-size:14px;font-weight:600;color:'+vc+';margin-top:5px">'+s+'</div></div>';return bx('QUERY TOTALI',tot,'eseguite','#0D5F75')+bx('CITAZIONI',cited,'trovate','#0D5F75')+bx('TASSO CITAZIONE',pct!==null?pct+'%':'—',pct!==null?(pct>=50?'buona visibilità':'da migliorare'):'nessun dato',pct!==null?'#0D5F75':'#C1CBE8')+bx('COSTO TOTALE','€'+totCost.toFixed(4),'speso','#666b84');})()}
                 </div>
             </div>
+            <div class="card" style="border:1px solid #e4e4ec;box-shadow:none;margin:0;margin-top:20px">
+                <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><div style="font-size:12px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Distribuzione per LLM</div></div></div>
+                <div id="pse-llm-bars" style="padding:20px 24px"><div style="color:#aaa;font-size:14px">Nessun dato disponibile.</div></div>
+            </div>
             </div><!-- /scontent-pse -->
 
                 </div><!-- /right column -->
@@ -2768,6 +2772,34 @@
                 data: { labels: Object.keys(days).map(d=>d.slice(5)), datasets:[{ data:Object.values(days), backgroundColor:'#e4e4ec', borderRadius:4 }] },
                 options: { plugins:{ legend:{ display:false } }, scales:{ x:{ grid:{ display:false }, ticks:{ maxTicksLimit:8, color:'#aaa', font:{ size:10 } } }, y:{ beginAtZero:true, grid:{ color:'#f0f0f4' }, ticks:{ stepSize:1, color:'#aaa', font:{ size:10 } } } } }
             });
+        }
+        // LLM distribution bars
+        const llmEl = document.getElementById('pse-llm-bars');
+        if (llmEl && items.length > 0) {
+            const groqItems = items.filter(r => r.result?.llm_results?.groq || !r.result?.llm_results);
+            const groqCited = items.filter(r => r.result?.llm_results?.groq?.cited !== undefined ? r.result.llm_results.groq.cited : (r.result?.cited || r.result?.found || r.result?.match_found)).length;
+            const groqTotal = items.length;
+            const geminiItems = items.filter(r => r.result?.llm_results?.gemini);
+            const geminiCited = geminiItems.filter(r => r.result.llm_results.gemini.cited).length;
+            const geminiTotal = geminiItems.length;
+            const mkBar = (label, cited, total) => {
+                const pct = total > 0 ? Math.round(cited/total*100) : null;
+                const w = pct ?? 0;
+                return '<div style="margin-bottom:18px">'
+                    +'<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">'
+                    +'<div style="font-size:13px;font-weight:600;color:#171b33">'+label+'</div>'
+                    +'<div style="font-size:12px;color:#666b84">'+(total>0?cited+' / '+total+' query':'nessun dato')+'</div>'
+                    +'</div>'
+                    +'<div style="background:#f0f0f4;border-radius:4px;height:10px;overflow:hidden">'
+                    +'<div style="height:100%;width:'+w+'%;background:#0D5F75;border-radius:4px"></div>'
+                    +'</div>'
+                    +'<div style="font-size:11px;color:#0D5F75;font-weight:700;margin-top:4px">'+(pct!==null?pct+'% citato':'—')+'</div>'
+                    +'</div>';
+            };
+            llmEl.innerHTML = mkBar('Groq (Llama 3.1 8B)', groqCited, groqTotal)
+                + (geminiTotal > 0
+                    ? mkBar('Google Gemini 1.5 Flash', geminiCited, geminiTotal)
+                    : '<div style="font-size:13px;color:#C1CBE8;padding-top:4px">Google Gemini Flash — dati disponibili dopo le prossime query</div>');
         }
     }
 
