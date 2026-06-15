@@ -638,7 +638,7 @@
         const subText = pct === null ? 'nessun dato' : statusFn(pct);
         const subColor = pct === null ? '#C1CBE8' : '#0D5F75';
         if (opts.compact) {
-            const cc=90, yc=44, rc=34, sc=10;
+            const cc=90, yc=52, rc=46, sc=10;
             const bgC = `M ${cc-rc} ${yc} A ${rc} ${rc} 0 0 1 ${cc+rc} ${yc}`;
             let fillC = '';
             if (pct !== null && pct > 0) {
@@ -652,9 +652,9 @@
                 `<path d="${bgC}" fill="none" stroke="#e8ecf7" stroke-width="${sc}" stroke-linecap="round"/>` +
                 fillC +
                 `<text x="${cc}" y="${yc+4}" text-anchor="middle" dominant-baseline="middle" font-size="20" font-weight="800" fill="${pct!==null?'#171b33':'#C1CBE8'}" font-family="system-ui,sans-serif">${valText}</text>` +
-                `<text x="4" y="${yc+18}" text-anchor="start" font-size="8" fill="#C1CBE8" font-family="system-ui,sans-serif">0</text>` +
-                `<text x="176" y="${yc+18}" text-anchor="end" font-size="8" fill="#C1CBE8" font-family="system-ui,sans-serif">100</text>` +
-                `<text x="${cc}" y="68" text-anchor="middle" font-size="11" font-weight="600" fill="${subColor}" font-family="system-ui,sans-serif">${subText}</text>` +
+                `<text x="${cc-rc}" y="${yc+16}" text-anchor="middle" font-size="8" fill="#C1CBE8" font-family="system-ui,sans-serif">0</text>` +
+                `<text x="${cc+rc}" y="${yc+16}" text-anchor="middle" font-size="8" fill="#C1CBE8" font-family="system-ui,sans-serif">100</text>` +
+                `<text x="${cc}" y="70" text-anchor="middle" font-size="11" font-weight="600" fill="${subColor}" font-family="system-ui,sans-serif">${subText}</text>` +
                 `</svg>`;
         }
         return `<svg viewBox="0 0 180 104" style="width:100%;height:auto;display:block;margin:0 auto">` +
