@@ -3340,26 +3340,6 @@
                 </div>`}
             </div>
         </div>
-        <div class="card" style="margin-bottom:20px;border:1px solid #e4e4ec;box-shadow:none">
-            <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
-                <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><div style="font-size:12px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Punteggi AI Layer</div></div>
-            </div>
-            <div style="padding:16px 20px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
-                ${[
-                    {l:'AI Readiness',k:'ai_readiness'},
-                    {l:'Answer Extraction',k:'answer_extraction'},
-                    {l:'AI Visibility',k:'ai_visibility'},
-                    {l:'Entity Authority',k:'entity_authority'},
-                ].map(({l,k})=>{
-                    const v = geo[k] ?? null;
-                    return `<div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:14px 16px">
-                        <div style="font-size:12px;font-weight:500;color:#9ca3af;letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px">${l}</div>
-                        <div style="font-size:28px;font-weight:800;color:${v!==null?'#171b33':'#C1CBE8'}">${v!==null?v:'—'}</div>
-                        <div style="font-size:12px;font-weight:600;color:${v===null?'#C1CBE8':'#0D5F75'};margin-top:5px">${v===null?'nessun dato':v>=70?'ottimizzato':v>=40?'da migliorare':'critico'}</div>
-                    </div>`;
-                }).join('')}
-            </div>
-        </div>
         <div class="card" style="border:1px solid #e4e4ec;box-shadow:none">
             <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
                 <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><div style="font-size:12px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Checklist AI Layer</div></div>
