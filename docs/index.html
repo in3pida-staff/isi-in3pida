@@ -638,7 +638,7 @@
         const subText = pct === null ? 'nessun dato' : statusFn(pct);
         const subColor = pct === null ? '#C1CBE8' : '#0D5F75';
         if (opts.compact) {
-            const cc=90, yc=52, rc=46, sc=10;
+            const cc=90, yc=64, rc=58, sc=10;
             const bgC = `M ${cc-rc} ${yc} A ${rc} ${rc} 0 0 1 ${cc+rc} ${yc}`;
             let fillC = '';
             if (pct !== null && pct > 0) {
@@ -648,21 +648,21 @@
                 const ey = (yc - rc * Math.sin(rad)).toFixed(1);
                 fillC = `<path d="M ${cc-rc} ${yc} A ${rc} ${rc} 0 0 1 ${ex} ${ey}" fill="none" stroke="${fillColor}" stroke-width="${sc}" stroke-linecap="round"/>`;
             }
-            return `<svg viewBox="0 0 180 72" style="width:100%;height:72px;display:block;margin:0 auto">` +
+            return `<svg viewBox="0 0 180 86" style="width:100%;height:86px;display:block;margin:0 auto">` +
                 `<path d="${bgC}" fill="none" stroke="#e8ecf7" stroke-width="${sc}" stroke-linecap="round"/>` +
                 fillC +
                 `<text x="${cc}" y="${yc+4}" text-anchor="middle" dominant-baseline="middle" font-size="20" font-weight="800" fill="${pct!==null?'#171b33':'#C1CBE8'}" font-family="system-ui,sans-serif">${valText}</text>` +
                 `<text x="${cc-rc}" y="${yc+16}" text-anchor="middle" font-size="8" fill="#C1CBE8" font-family="system-ui,sans-serif">0</text>` +
                 `<text x="${cc+rc}" y="${yc+16}" text-anchor="middle" font-size="8" fill="#C1CBE8" font-family="system-ui,sans-serif">100</text>` +
-                `<text x="${cc}" y="70" text-anchor="middle" font-size="11" font-weight="600" fill="${subColor}" font-family="system-ui,sans-serif">${subText}</text>` +
+                `<text x="${cc}" y="83" text-anchor="middle" font-size="11" font-weight="600" fill="${subColor}" font-family="system-ui,sans-serif">${subText}</text>` +
                 `</svg>`;
         }
         return `<svg viewBox="0 0 180 104" style="width:100%;height:auto;display:block;margin:0 auto">` +
             `<path d="${bgPath}" fill="none" stroke="#e8ecf7" stroke-width="${sw}" stroke-linecap="round"/>` +
             fillPath +
             `<text x="${cx}" y="${cy+4}" text-anchor="middle" dominant-baseline="middle" font-family="system-ui,-apple-system,sans-serif" font-size="26" font-weight="800" fill="${pct!==null?'#171b33':'#C1CBE8'}">${valText}</text>` +
-            `<text x="4" y="101" text-anchor="start" font-size="9" fill="#C1CBE8" font-family="system-ui,sans-serif">0</text>` +
-            `<text x="176" y="101" text-anchor="end" font-size="9" fill="#C1CBE8" font-family="system-ui,sans-serif">100</text>` +
+            `<text x="${cx-r}" y="101" text-anchor="middle" font-size="9" fill="#C1CBE8" font-family="system-ui,sans-serif">0</text>` +
+            `<text x="${cx+r}" y="101" text-anchor="middle" font-size="9" fill="#C1CBE8" font-family="system-ui,sans-serif">100</text>` +
             `</svg><div style="font-size:12px;font-weight:600;color:${subColor};text-align:center;margin-top:2px">${subText}</div>`;
     }
     function barChartHtml(uncovered, total, covered) {
