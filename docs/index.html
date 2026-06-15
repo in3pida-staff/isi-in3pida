@@ -1107,10 +1107,12 @@
                             (isAdmin ? bx('COSTO TOT.','€'+cost.toFixed(4),'speso','#666b84','Costo totale in euro delle query PSE simulate negli ultimi 30 giorni.') : '')+
                         '</div>';
                     })()}
-                    <canvas id="chart-overview-pse-bar" style="max-height:160px"></canvas>
-                    <div id="overview-pse-no-data" style="display:none;color:#aaa;font-size:14px;text-align:center;padding:20px 0">Nessun dato PSE disponibile — le query appariranno dopo la prima sincronizzazione.</div>
-                    <div id="ov-pse-llm-bars" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid #f0f0f4"></div>
-                    <div style="margin-top:16px;padding-top:14px;border-top:1px solid #f0f0f4">
+                    <div style="border:1px solid #e4e4ec;border-radius:6px;padding:16px;margin-bottom:14px">
+                        <canvas id="chart-overview-pse-bar" style="max-height:160px"></canvas>
+                        <div id="overview-pse-no-data" style="display:none;color:#aaa;font-size:14px;text-align:center;padding:20px 0">Nessun dato PSE disponibile — le query appariranno dopo la prima sincronizzazione.</div>
+                    </div>
+                    <div id="ov-pse-llm-bars" style="display:none;border:1px solid #e4e4ec;border-radius:6px;padding:16px;margin-bottom:14px"></div>
+                    <div style="border:1px solid #e4e4ec;border-radius:6px;padding:14px 16px">
                         <div style="display:flex;gap:10px">
                             <input type="text" id="ov-pse-query-input" placeholder='es. "hotel con piscina a Roma"' style="flex:1;border:1px solid #d1d5db;border-radius:6px;padding:8px 12px;font-size:13px;color:#171b33;font-family:var(--font);outline:none">
                             <button id="ov-pse-run-btn" class="btn-update" style="white-space:nowrap;padding:8px 16px;font-size:13px">✦ Analizza</button>
