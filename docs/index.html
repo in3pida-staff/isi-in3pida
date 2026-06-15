@@ -2885,11 +2885,11 @@
 
             btn.textContent = '💾 Salvataggio...';
 
-            // Salva in Supabase faq_data direttamente
-            const { data: siteRow } = await _SBq.from('isi_sites').select('faq_data').eq('site_id', siteId).single();
+            // Salva in Supabase faq_data direttamente (usa _SB autenticato per leggere dati esistenti)
+            const { data: siteRow } = await _SB.from('isi_sites').select('faq_data').eq('site_id', siteId).single();
             const fd = siteRow?.faq_data || {};
-            const items = Array.isArray(fd.items) ? fd.items : [];
-            const existingIdx = items.findIndex(f => f.question?.trim().toLowerCase() === query.trim().toLowerCase());
+            const items = Array.isArray(fd.items) ? [...fd.items] : [];
+            const existingIdx = items.findIndex(f => (f.question||'').trim().toLowerCase() === query.trim().toLowerCase());
             if (existingIdx >= 0) {
                 items[existingIdx] = { ...items[existingIdx], answer: aiAnswer, solo_ai: true, status: 'publish', updated_at: new Date().toISOString() };
             } else {
@@ -2901,7 +2901,7 @@
             const covQ = Array.isArray(catEntry.covered_queries) ? catEntry.covered_queries : [];
             if (!covQ.includes(query)) covQ.push(query);
             qmap[cat] = { ...catEntry, covered_queries: covQ };
-            await _SBq.from('isi_sites').update({ faq_data: { ...fd, items, query_map: qmap } }).eq('site_id', siteId);
+            await _SB.from('isi_sites').update({ faq_data: { ...fd, items, query_map: qmap } }).eq('site_id', siteId);
 
             // Salva anche nel plugin WordPress se disponibile
             if (_aFaqBase) {
@@ -2919,8 +2919,8 @@
                 if (existingWp) {
                     existingWp.answer = aiAnswer;
                 } else {
-                    // aggiorna lista locale dopo add per future sovrascritture
-                    loadAdminFaqList();
+                    // Aggiorna subito la cache locale così il prossimo generate trova l'item esistente
+                    _aFaqItems.push({ id: Date.now(), question: query, answer: aiAnswer, solo_ai: true, status: 'publish', order: 0 });
                 }
             }
 
