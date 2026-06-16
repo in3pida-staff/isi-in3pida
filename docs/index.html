@@ -799,7 +799,7 @@
                 <td class="td-center">${geoHtml}</td>
                 <td class="td-center">${covHtml}</td>
                 <td class="td-center">${csHtml}</td>
-                <td style="white-space:nowrap"><div style="display:inline-flex;gap:5px;align-items:center">${aggiornaBtnHtml}<button class="btn-ping" style="font-size:13px;padding:4px 10px" onclick="event.stopPropagation();toggleSitoAttivo('${escHtml(site.site_id)}','${escHtml(site.site_url||'')}',this)">Disattiva</button><button class="btn-ping" style="font-size:13px;padding:4px 10px;background:#e8ecf7;color:#0D5F75" onclick="event.stopPropagation();openSitePerms('${escHtml(site.site_id)}','${escHtml(site.site_name||'')}')">Gestisci Permessi</button></div></td>
+                <td style="white-space:nowrap"><div style="display:inline-flex;gap:5px;align-items:center">${aggiornaBtnHtml}<button class="btn-ping" style="font-size:13px;padding:4px 10px" onclick="event.stopPropagation();toggleSitoAttivo('${escHtml(site.site_id)}','${escHtml(site.site_url||'')}',this)">Disattiva</button><button class="btn-ping" style="font-size:13px;padding:4px 10px;background:#e8ecf7;color:#0D5F75" onclick="event.stopPropagation();openSitePerms('${escHtml(site.site_id)}','${escHtml(site.site_name||'')}')">Permessi</button></div></td>
             </tr>`;
             window._sitePermsData = window._sitePermsData || {};
             window._sitePermsData[site.site_id] = site.features_override || {};
