@@ -924,18 +924,18 @@
                                 <div style="font-size:12px;font-weight:500;color:#4a4a6a;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;display:flex;align-items:center;gap:4px">GEO SCORE <span class='tip-q' data-tip='Punteggio complessivo di ottimizzazione per AI. ≥70 ottimizzato, 40–69 da migliorare, <40 critico.'>?</span></div>
                                 ${gaugeHtml(geoAvg, 70, {suffix:'', statusFn: p => p>=70?'ottimizzato':p>=40?'da migliorare':'critico'})}
                             </div>
-                            <div style="background:white;border:1px solid #e4e4ec;border-radius:4px;display:grid;grid-template-columns:repeat(3,1fr)">
-                                <div style="padding:16px 18px;border-right:1px solid #e4e4ec">
+                            <div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:12px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;align-items:start">
+                                <div style="border:1px solid #e4e4ec;border-radius:4px;padding:14px 16px">
                                     <div style="font-size:12px;font-weight:500;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;display:flex;align-items:center;gap:4px">COMPLETEZZA AI <span class='tip-q' data-tip='Quanto è completo il profilo AI dell hotel: nome, indirizzo, descrizione, contatti, FAQ ecc. ≥80 ottimizzato.'>?</span></div>
                                     <div style="font-size:32px;font-weight:800;line-height:1;color:${cs!==null?'#171b33':'#C1CBE8'}">${cs!==null?cs:'—'}</div>
                                     <div style="font-size:14px;font-weight:600;color:${cs!==null?'#0D5F75':'#C1CBE8'};margin-top:6px">${cs!==null?(cs>=70?'ottimizzato':cs>=40?'da migliorare':'critico'):'nessun dato'}</div>
                                 </div>
-                                <div style="padding:16px 18px;border-right:1px solid #e4e4ec">
+                                <div style="border:1px solid #e4e4ec;border-radius:4px;padding:14px 16px">
                                     <div style="font-size:12px;font-weight:500;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;display:flex;align-items:center;gap:4px">COVERAGE FAQ <span class='tip-q' data-tip='Percentuale di domande degli ospiti a cui il sito risponde tramite FAQ. ≥80% buona copertura.'>?</span></div>
                                     <div style="font-size:32px;font-weight:800;line-height:1;color:${covPct!==null?'#171b33':'#C1CBE8'}">${covPct!==null?covPct+'%':'—'}</div>
                                     <div style="font-size:14px;font-weight:600;color:${covPct!==null?'#0D5F75':'#C1CBE8'};margin-top:6px">${covPct!==null?covPct+'% coperto':'nessun dato'}</div>
                                 </div>
-                                <div style="padding:16px 18px">
+                                <div style="border:1px solid #e4e4ec;border-radius:4px;padding:14px 16px">
                                     <div style="font-size:12px;font-weight:500;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;display:flex;align-items:center;gap:4px">MAPPA QUERY <span class='tip-q' data-tip='Percentuale di categorie di query conversazionali degli ospiti coperte dal sito. ≥70% buona copertura.'>?</span></div>
                                     <div style="font-size:32px;font-weight:800;line-height:1;color:${qMapPct!==null?'#171b33':'#C1CBE8'}">${qMapPct!==null?qMapPct+'%':'—'}</div>
                                     <div style="font-size:14px;font-weight:600;color:${qMapPct!==null?'#0D5F75':'#C1CBE8'};margin-top:6px">${qMapPct!==null?qMapPct+'% coperto':'nessun dato'}</div>
