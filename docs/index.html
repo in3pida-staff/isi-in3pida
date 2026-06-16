@@ -4250,10 +4250,16 @@ ${rows}
 
     window.openSitePerms = function(siteId, siteName) {
         const perms = window._sitePermsData[siteId] || {};
+        const site  = (allSiti || []).find(s => s.site_id === siteId) || {};
+        const isJs  = (site.plugin_version||'').startsWith('js-') || site.hotel_profile?.site_mode === 'script';
         document.getElementById('perm-site-id').value = siteId;
         document.getElementById('perm-site-title').textContent = `Permessi — ${siteName}`;
         document.getElementById('perm-site-plugin-grid').innerHTML = buildFeatureToggles('sp', perms.plugin || {});
         document.getElementById('perm-site-app-grid').innerHTML    = buildFeatureToggles('sa', perms.app || {});
+        // Nascondi colonna plugin per siti JS-mode
+        const pluginCol = document.getElementById('perm-site-plugin-grid').parentElement;
+        pluginCol.style.display = isJs ? 'none' : '';
+        document.getElementById('perm-site-overlay').querySelector('[style*="grid-template-columns"]').style.gridTemplateColumns = isJs ? '1fr' : '1fr 1fr';
         document.getElementById('perm-site-msg').style.display = 'none';
         document.getElementById('perm-site-overlay').style.display = 'flex';
     };
