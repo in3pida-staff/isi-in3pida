@@ -1,0 +1,57 @@
+#!/bin/bash
+# USO: ./release-plugin.sh 2.4.7 "Descrizione del rilascio"
+set -e
+
+VERSION="$1"
+CHANGELOG="$2"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+ENV_FILE="$SCRIPT_DIR/.env"
+
+if [ -z "$VERSION" ] || [ -z "$CHANGELOG" ]; then
+  echo "USO: ./release-plugin.sh <versione> \"<changelog>\""
+  echo "ESEMPIO: ./release-plugin.sh 2.4.7 \"Aggiunto sistema permessi\""
+  exit 1
+fi
+
+# Carica variabili da .env
+if [ ! -f "$ENV_FILE" ]; then
+  echo "ERRORE: file .env non trovato in $SCRIPT_DIR"
+  exit 1
+fi
+source "$ENV_FILE"
+
+SUPABASE_URL="${SUPABASE_URL}"
+SERVICE_KEY="${SUPABASE_SERVICE_KEY}"
+SOURCE_ZIP="/Users/mariodamore/Desktop/in3pida sito intelligente/in3pida-faq-${VERSION}.zip"
+DOCS_ZIP="$SCRIPT_DIR/docs/in3pida-faq-${VERSION}.zip"
+
+if [ ! -f "$SOURCE_ZIP" ]; then
+  echo "ERRORE: ZIP non trovato: $SOURCE_ZIP"
+  exit 1
+fi
+
+echo "→ [1/3] Copio ZIP in docs/"
+cp "$SOURCE_ZIP" "$DOCS_ZIP"
+
+echo "→ [2/3] Aggiorno Supabase (is_current)"
+node -e "
+const { createClient } = require('@supabase/supabase-js');
+const sb = createClient('${SUPABASE_URL}','${SERVICE_KEY}',{auth:{persistSession:false}});
+sb.from('isi_plugin_versions').update({is_current:false}).neq('version','${VERSION}').then(()=>
+sb.from('isi_plugin_versions').upsert({version:'${VERSION}',changelog:'${CHANGELOG}',download_url:'https://isi.in3pida.it/in3pida-faq-${VERSION}.zip',is_current:true,released_at:new Date().toISOString()},{onConflict:'version'}).then(r=>{
+  if(r.error){console.error('ERRORE Supabase:',r.error.message);process.exit(1);}
+  else{console.log('Supabase OK');}
+}));
+"
+
+echo "→ [3/3] Git add, commit, push"
+cd "$SCRIPT_DIR"
+git add "docs/in3pida-faq-${VERSION}.zip"
+git commit -m "Plugin v${VERSION}: ${CHANGELOG}"
+git push
+
+echo ""
+echo "✓ Release ${VERSION} completata:"
+echo "  ZIP:      docs/in3pida-faq-${VERSION}.zip"
+echo "  Supabase: is_current = true"
+echo "  GitHub:   pushed"
