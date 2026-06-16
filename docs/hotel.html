@@ -100,7 +100,7 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const _SB  = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const _SBq = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth:{ persistSession:false, autoRefreshToken:false } });
 
-let _site = null, _pluginBase = '', _pluginSecret = '';
+let _site = null, _pluginBase = '', _pluginSecret = '', _appFeatures = {}, _siteAppPerms = {};
 let _faqItems = [], _faqFilter = 'all', _faqSearch = '';
 let _pseChartsInited = false, _mappaInited = false, _coerenzaInited = false, _configInited = false;
 
@@ -138,6 +138,8 @@ async function init() {
     }
 
     _site = site;
+    _appFeatures = user.user_metadata?.app_features || {};
+    _siteAppPerms = site.features_override?.app || {};
     _pluginBase   = (site.site_url || '').replace(/\/$/, '');
     _pluginSecret = site.site_id;
     try {
@@ -151,6 +153,26 @@ async function init() {
     document.getElementById('nav-site-name').textContent   = siteName;
 
     renderContent(site, pseData || [], now);
+    applyAppFeatures(_appFeatures, _siteAppPerms);
+}
+
+// ─── PERMESSI APP ──────────────────────────────────────────────────────────────
+function applyAppFeatures(userF, siteF) {
+    const tabMap = { panoramica:'panoramica', faq:'faq', schema_org:'schema', mappa_query:'mappa', coerenza:'coerenza', config:'config', statistiche:'pse' };
+    const allowed = key => userF[key] !== false && siteF[key] !== false;
+    let firstVisible = null;
+    Object.entries(tabMap).forEach(([key, tab]) => {
+        if (!allowed(key)) {
+            document.querySelector(`.htab-btn[data-tab="${tab}"]`)?.remove();
+            const pane = document.getElementById('htab-' + tab);
+            if (pane) pane.style.display = 'none';
+        } else if (!firstVisible) {
+            firstVisible = tab;
+        }
+    });
+    if (firstVisible && !document.querySelector('.htab-btn[data-tab="panoramica"]')) {
+        document.querySelector(`.htab-btn[data-tab="${firstVisible}"]`)?.click();
+    }
 }
 
 // ─── RENDER MAIN CONTENT ───────────────────────────────────────────────────────
