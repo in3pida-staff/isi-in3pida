@@ -923,17 +923,25 @@
                             <div style="background:white;border:1px solid #e4e4ec;border-radius:4px;overflow:hidden">
                                 <div style="padding:12px 14px 2px;display:flex;align-items:center;gap:4px;font-size:12px;font-weight:600;color:#4a4a6a;text-transform:uppercase;letter-spacing:.05em">GEO SCORE <span class='tip-q' data-tip='Punteggio complessivo di ottimizzazione per AI. ≥70 ottimizzato, 40–69 da migliorare, &lt;40 critico.'>?</span></div>
                                 ${(()=>{
-                                    const s=geoAvg, cx=100, cy=102, r=87.5, sw=25;
-                                    const rO=r+sw/2;
-                                    const circ=2*Math.PI*r;
-                                    const arcLen=circ*(200/360), gapLen=circ-arcLen;
-                                    const filled=s!==null?arcLen*(s/100):0;
+                                    const s=geoAvg;
+                                    const cx=100,cy=102,rO=100,rI=75;
+                                    const sDeg=170,tDeg=200;
+                                    const toRad=d=>d*Math.PI/180;
+                                    const pt=(r,d)=>[(cx+r*Math.cos(toRad(d))).toFixed(3),(cy+r*Math.sin(toRad(d))).toFixed(3)].join(',');
+                                    function donutArc(a1,a2){
+                                        const sp=((a2-a1)+720)%360;
+                                        if(sp<0.01)return'';
+                                        const la=sp>180?1:0;
+                                        return`M${pt(rO,a1)}A${rO},${rO},0,${la},1,${pt(rO,a2)}L${pt(rI,a2)}A${rI},${rI},0,${la},0,${pt(rI,a1)}Z`;
+                                    }
                                     const col=s===null?'rgba(13,95,117,0.25)':'#0D5F75';
-                                    const track='#b5d0e8';
-                                    const rot=`rotate(170 ${cx} ${cy})`;
                                     const lbl=s!==null?(s>=70?'ottimizzato':s>=40?'da migliorare':'critico'):'nessun dato';
                                     const desc=s!==null?(s>=70?'Ottimizzato per i motori AI':s>=40?'Visibilità AI migliorabile':'Non ottimizzato per i motori AI'):'Nessun dato disponibile';
-                                    return `<div style="padding:0"><svg viewBox="0 0 200 125" style="width:100%;height:auto;display:block"><defs><radialGradient id="gg" cx="${cx}" cy="${cy}" r="${rO}" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#e8f4fa"/><stop offset="100%" stop-color="#b8dff0"/></radialGradient></defs><circle cx="${cx}" cy="${cy}" r="${rO}" fill="url(#gg)"/><circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${track}" stroke-width="${sw}" stroke-dasharray="${arcLen.toFixed(1)} ${gapLen.toFixed(1)}" stroke-linecap="round" transform="${rot}"/><circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${col}" stroke-width="${sw}" stroke-dasharray="${filled.toFixed(1)} ${(circ-filled).toFixed(1)}" stroke-linecap="round" transform="${rot}"/><text x="${cx}" y="72" text-anchor="middle" dominant-baseline="middle"><tspan font-size="28" font-weight="800" fill="${col}" font-family="Inter,system-ui,sans-serif">${s!==null?s:'—'}</tspan><tspan font-size="11" font-weight="600" fill="${col}" font-family="Inter,system-ui,sans-serif" dy="-2"> /100</tspan></text><text x="${cx}" y="98" text-anchor="middle" dominant-baseline="middle" font-size="17" font-weight="800" fill="#171b33" font-family="Inter,system-ui,sans-serif">${lbl}</text></svg><div style="background:#dff1f9;padding:8px 12px 12px;font-size:11px;color:#4a6e7a;text-align:center;line-height:1.4">${desc}</div></div>`;
+                                    const progDeg=s!==null?tDeg*(s/100):0;
+                                    const tPath=donutArc(sDeg,sDeg+tDeg);
+                                    const pPath=progDeg>0?donutArc(sDeg,sDeg+progDeg):'';
+                                    return `<div style="padding:0"><svg viewBox="0 0 200 125" style="width:100%;height:auto;display:block"><defs><radialGradient id="gg" cx="${cx}" cy="${cy}" r="${rI}" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#e8f4fa"/><stop offset="100%" stop-color="#b8dff0"/></radialGradient></defs><circle cx="${cx}" cy="${cy}" r="${rI}" fill="url(#gg)"/><path d="${tPath}" fill="#b5d0e8"/>${pPath?`<path d="${pPath}" fill="${col}"/>`:''}
+<text x="${cx}" y="72" text-anchor="middle" dominant-baseline="middle"><tspan font-size="28" font-weight="800" fill="${col}" font-family="Inter,system-ui,sans-serif">${s!==null?s:'—'}</tspan><tspan font-size="11" font-weight="600" fill="${col}" font-family="Inter,system-ui,sans-serif" dy="-2"> /100</tspan></text><text x="${cx}" y="98" text-anchor="middle" dominant-baseline="middle" font-size="17" font-weight="800" fill="#171b33" font-family="Inter,system-ui,sans-serif">${lbl}</text></svg><div style="background:#dff1f9;padding:8px 12px 12px;font-size:11px;color:#4a6e7a;text-align:center;line-height:1.4">${desc}</div></div>`;
                                 })()}
                             </div>
                             <div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:12px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;align-items:start">
