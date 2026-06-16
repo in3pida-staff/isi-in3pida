@@ -35,11 +35,18 @@ echo "→ [2/4] Aggiorno Supabase (is_current)"
 node -e "
 const { createClient } = require('@supabase/supabase-js');
 const sb = createClient('${SUPABASE_URL}','${SERVICE_KEY}',{auth:{persistSession:false}});
-sb.from('isi_plugin_versions').update({is_current:false}).neq('version','${VERSION}').then(()=>
-sb.from('isi_plugin_versions').upsert({version:'${VERSION}',changelog:'${CHANGELOG}',download_url:'https://isi.in3pida.it/in3pida-faq-${VERSION}.zip',is_current:true,released_at:new Date().toISOString()},{onConflict:'version'}).then(r=>{
-  if(r.error){console.error('ERRORE Supabase:',r.error.message);process.exit(1);}
-  else{console.log('Supabase OK');}
-}));
+(async()=>{
+  // 1. Azzera tutte le versioni
+  const r1 = await sb.from('isi_plugin_versions').update({is_current:false}).gte('version','0');
+  if(r1.error){console.error('ERRORE step1:',r1.error.message);process.exit(1);}
+  // 2. Inserisci o aggiorna la nuova versione (is_current ancora false)
+  const r2 = await sb.from('isi_plugin_versions').upsert({version:'${VERSION}',changelog:'${CHANGELOG}',download_url:'https://isi.in3pida.it/in3pida-faq-${VERSION}.zip',is_current:false,released_at:new Date().toISOString()},{onConflict:'version'});
+  if(r2.error){console.error('ERRORE step2:',r2.error.message);process.exit(1);}
+  // 3. Imposta is_current=true solo per questa versione
+  const r3 = await sb.from('isi_plugin_versions').update({is_current:true}).eq('version','${VERSION}');
+  if(r3.error){console.error('ERRORE step3:',r3.error.message);process.exit(1);}
+  console.log('Supabase OK');
+})();
 "
 
 echo "→ [3/4] Git add, commit, push"
