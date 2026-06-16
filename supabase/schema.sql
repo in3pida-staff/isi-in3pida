@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS isi_sites (
     hotel_profile jsonb DEFAULT '{}',
     schema_data jsonb DEFAULT '{}',
     faq_data jsonb DEFAULT '{}',
+    features_override jsonb DEFAULT '{}',
     last_heartbeat timestamptz,
     first_seen timestamptz DEFAULT now(),
     created_at timestamptz DEFAULT now()
@@ -23,6 +24,7 @@ CREATE TABLE IF NOT EXISTS isi_sites (
 -- ALTER TABLE isi_sites ADD COLUMN IF NOT EXISTS hotel_profile jsonb DEFAULT '{}';
 -- ALTER TABLE isi_sites ADD COLUMN IF NOT EXISTS schema_data jsonb DEFAULT '{}';
 -- ALTER TABLE isi_sites ADD COLUMN IF NOT EXISTS faq_data jsonb DEFAULT '{}';
+-- ALTER TABLE isi_sites ADD COLUMN IF NOT EXISTS features_override jsonb DEFAULT '{}';
 
 CREATE TABLE IF NOT EXISTS isi_pse_queries (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,

@@ -100,14 +100,22 @@
             </div>
             <div class="info-card-body">
                 <input type="hidden" id="edit-user-id">
-                <div id="edit-user-photo-preview" style="text-align:center;margin-bottom:16px"></div>
+                <input type="hidden" id="edit-user-photo">
+                <div class="profile-field">
+                    <label class="profile-label">Foto profilo</label>
+                    <div style="display:flex;align-items:center;gap:16px;margin-top:4px">
+                        <div id="edit-user-photo-preview" style="flex-shrink:0"></div>
+                        <div>
+                            <label class="btn-upload" for="edit-user-photo-input" style="cursor:pointer">Carica foto</label>
+                            <input type="file" id="edit-user-photo-input" accept="image/*" style="display:none">
+                            <div style="font-size:12px;color:var(--grey);margin-top:6px">JPG, PNG — max 2MB</div>
+                            <div id="edit-user-photo-msg" style="font-size:12px;margin-top:4px;display:none"></div>
+                        </div>
+                    </div>
+                </div>
                 <div class="profile-field">
                     <label class="profile-label">Nome completo</label>
                     <input type="text" id="edit-user-name" class="profile-input" placeholder="Nome completo">
-                </div>
-                <div class="profile-field">
-                    <label class="profile-label">Foto profilo (URL immagine)</label>
-                    <input type="url" id="edit-user-photo" class="profile-input" placeholder="https://..." oninput="updateEditPhotoPreview(this.value)">
                 </div>
                 <div class="profile-field">
                     <label class="profile-label">Ruolo</label>
@@ -125,12 +133,41 @@
                 <div id="edit-user-features-wrap" style="display:none">
                     <div style="font-size:12px;font-weight:700;color:var(--grey);letter-spacing:.06em;margin:20px 0 10px;padding-bottom:6px;border-bottom:2px solid #e8ecf7;text-transform:uppercase">Funzioni plugin attive</div>
                     <div id="edit-user-features-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px"></div>
-                    <div style="font-size:12px;font-weight:700;color:var(--grey);letter-spacing:.06em;margin:20px 0 10px;padding-bottom:6px;border-bottom:2px solid #e8ecf7;text-transform:uppercase">Visibilità voci menu plugin</div>
+                    <div style="font-size:12px;font-weight:700;color:var(--grey);letter-spacing:.06em;margin:20px 0 10px;padding-bottom:6px;border-bottom:2px solid #e8ecf7;text-transform:uppercase">Visibilità menu plugin</div>
                     <div id="edit-user-menu-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px"></div>
+                    <div style="font-size:12px;font-weight:700;color:var(--grey);letter-spacing:.06em;margin:20px 0 10px;padding-bottom:6px;border-bottom:2px solid #e8ecf7;text-transform:uppercase">Funzioni app attive</div>
+                    <div id="edit-user-app-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px"></div>
                 </div>
                 <div id="edit-user-error" style="color:#b00020;font-size:14px;margin-top:8px;display:none"></div>
                 <div class="profile-actions">
                     <button class="btn-save-profile" id="btn-save-user">Salva</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PERMESSI INSTALLAZIONE -->
+    <div id="perm-site-overlay" class="info-overlay" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+        <div class="info-card" style="max-width:660px;width:100%;max-height:90vh;overflow-y:auto">
+            <div class="info-card-header">
+                <span id="perm-site-title">Permessi installazione</span>
+                <button class="info-close" onclick="document.getElementById('perm-site-overlay').style.display='none'">✕</button>
+            </div>
+            <div class="info-card-body">
+                <input type="hidden" id="perm-site-id">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+                    <div>
+                        <div style="font-size:12px;font-weight:700;color:var(--grey);letter-spacing:.06em;margin-bottom:12px;padding-bottom:6px;border-bottom:2px solid #e8ecf7;text-transform:uppercase">Plugin WordPress</div>
+                        <div id="perm-site-plugin-grid" style="display:flex;flex-direction:column;gap:8px"></div>
+                    </div>
+                    <div>
+                        <div style="font-size:12px;font-weight:700;color:var(--grey);letter-spacing:.06em;margin-bottom:12px;padding-bottom:6px;border-bottom:2px solid #e8ecf7;text-transform:uppercase">App Eletta</div>
+                        <div id="perm-site-app-grid" style="display:flex;flex-direction:column;gap:8px"></div>
+                    </div>
+                </div>
+                <div id="perm-site-msg" style="font-size:13px;margin-top:14px;display:none"></div>
+                <div class="profile-actions">
+                    <button class="btn-save-profile" id="btn-save-site-perms">Salva permessi</button>
                 </div>
             </div>
         </div>
@@ -762,8 +799,10 @@
                 <td class="td-center">${geoHtml}</td>
                 <td class="td-center">${covHtml}</td>
                 <td class="td-center">${csHtml}</td>
-                <td style="white-space:nowrap"><div style="display:inline-flex;gap:5px;align-items:center">${aggiornaBtnHtml}<button class="btn-ping" style="font-size:13px;padding:4px 10px" onclick="event.stopPropagation();toggleSitoAttivo('${escHtml(site.site_id)}','${escHtml(site.site_url||'')}',this)">Disattiva</button></div></td>
+                <td style="white-space:nowrap"><div style="display:inline-flex;gap:5px;align-items:center">${aggiornaBtnHtml}<button class="btn-ping" style="font-size:13px;padding:4px 10px" onclick="event.stopPropagation();toggleSitoAttivo('${escHtml(site.site_id)}','${escHtml(site.site_url||'')}',this)">Disattiva</button><button class="btn-ping" style="font-size:13px;padding:4px 10px;background:#e8ecf7;color:#0D5F75" onclick="event.stopPropagation();openSitePerms('${escHtml(site.site_id)}','${escHtml(site.site_name||'')}')">Gestisci Permessi</button></div></td>
             </tr>`;
+            window._sitePermsData = window._sitePermsData || {};
+            window._sitePermsData[site.site_id] = site.features_override || {};
         });
         html += '</tbody></table>';
         el.innerHTML = `<div style="overflow-x:auto">${html}</div>`;
@@ -4035,9 +4074,39 @@ ${rows}
             el.innerHTML = `<img src="${escHtml(url)}" alt="avatar" style="width:64px;height:64px;border-radius:50%;object-fit:cover;border:2px solid #e4e4ec">`;
         } else {
             const n = document.getElementById('edit-user-name')?.value || 'U';
-            el.innerHTML = `<div style="width:64px;height:64px;border-radius:50%;background:#0D5F75;color:white;display:inline-flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;margin:0 auto">${escHtml(n.charAt(0).toUpperCase())}</div>`;
+            el.innerHTML = `<div style="width:64px;height:64px;border-radius:50%;background:#0D5F75;color:white;display:inline-flex;align-items:center;justify-content:center;font-size:24px;font-weight:700">${escHtml(n.charAt(0).toUpperCase())}</div>`;
         }
     };
+
+    document.getElementById('edit-user-photo-input').addEventListener('change', async e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const targetId = document.getElementById('edit-user-id').value;
+        if (!targetId) return;
+        const msgEl = document.getElementById('edit-user-photo-msg');
+        if (file.size > 2*1024*1024) { msgEl.textContent='File troppo grande (max 2MB)'; msgEl.style.color='#b00020'; msgEl.style.display='block'; return; }
+        msgEl.textContent='Caricamento...'; msgEl.style.color='#0D5F75'; msgEl.style.display='block';
+        const reader = new FileReader();
+        reader.onload = ev => {
+            const img = new Image();
+            img.onload = () => {
+                const S=256, c=document.createElement('canvas'); c.width=S; c.height=S;
+                const ctx=c.getContext('2d'), m=Math.min(img.width,img.height), sx=(img.width-m)/2, sy=(img.height-m)/2;
+                ctx.drawImage(img, sx, sy, m, m, 0, 0, S, S);
+                c.toBlob(async blob => {
+                    const path = `${targetId}.jpg`;
+                    const { error: upErr } = await _SB.storage.from('avatars').upload(path, blob, { upsert:true, contentType:'image/jpeg' });
+                    if (upErr) { msgEl.textContent='Errore: '+upErr.message; msgEl.style.color='#b00020'; return; }
+                    const url = _SB.storage.from('avatars').getPublicUrl(path).data.publicUrl+'?t='+Date.now();
+                    document.getElementById('edit-user-photo').value = url;
+                    updateEditPhotoPreview(url);
+                    msgEl.textContent='Foto caricata'; msgEl.style.color='#0D5F75';
+                }, 'image/jpeg', 0.85);
+            };
+            img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
 
     async function loadUtenti() {
         document.getElementById('utenti-container').innerHTML = '<div class="loading"><div class="spinner"></div> Caricamento...</div>';
@@ -4105,11 +4174,14 @@ ${rows}
         const photo = u.user_metadata?.avatar_url || '';
         const pluginFeatures  = u.user_metadata?.plugin_features  || {};
         const menuVisibility  = u.user_metadata?.menu_visibility   || {};
+        const appFeatures     = u.user_metadata?.app_features      || {};
         document.getElementById('edit-user-id').value     = u.id;
         document.getElementById('edit-user-name').value   = name;
         document.getElementById('edit-user-role').value   = role;
         document.getElementById('edit-user-photo').value  = photo;
         document.getElementById('edit-user-siteid').value = u.user_metadata?.site_id || '';
+        document.getElementById('edit-user-photo-msg').style.display = 'none';
+        document.getElementById('edit-user-photo-input').value = '';
         updateEditPhotoPreview(photo);
         const isAlb = role === 'albergatore';
         document.getElementById('edit-user-siteid-wrap').style.display    = isAlb ? '' : 'none';
@@ -4117,6 +4189,7 @@ ${rows}
         if (isAlb) {
             document.getElementById('edit-user-features-grid').innerHTML = buildFeatureToggles('ef', pluginFeatures);
             document.getElementById('edit-user-menu-grid').innerHTML     = buildFeatureToggles('em', menuVisibility);
+            document.getElementById('edit-user-app-grid').innerHTML      = buildFeatureToggles('ea', appFeatures);
         }
         document.getElementById('edit-user-error').style.display = 'none';
         document.getElementById('edit-user-overlay').style.display = 'flex';
@@ -4128,6 +4201,7 @@ ${rows}
         if (isAlb) {
             document.getElementById('edit-user-features-grid').innerHTML = buildFeatureToggles('ef', {});
             document.getElementById('edit-user-menu-grid').innerHTML     = buildFeatureToggles('em', {});
+            document.getElementById('edit-user-app-grid').innerHTML      = buildFeatureToggles('ea', {});
         }
     });
 
@@ -4150,13 +4224,15 @@ ${rows}
         if (site_id !== null) body.site_id = site_id;
         if (photo) body.avatar_url = photo;
         if (role === 'albergatore') {
-            const feats = {}, menu = {};
+            const feats = {}, menu = {}, appF = {};
             PLUGIN_FEATURES.forEach(f => {
                 feats[f.key] = document.getElementById('ef-'+f.key)?.checked ?? true;
                 menu[f.key]  = document.getElementById('em-'+f.key)?.checked ?? true;
+                appF[f.key]  = document.getElementById('ea-'+f.key)?.checked ?? true;
             });
             body.plugin_features = feats;
             body.menu_visibility = menu;
+            body.app_features    = appF;
         }
         try {
             const { data:{ session } } = await _SB.auth.getSession();
@@ -4168,6 +4244,35 @@ ${rows}
             document.getElementById('edit-user-overlay').style.display = 'none';
             loadUtenti();
         } catch(e) { document.getElementById('edit-user-error').textContent=e.message; document.getElementById('edit-user-error').style.display='block'; }
+    });
+
+    window._sitePermsData = {};
+
+    window.openSitePerms = function(siteId, siteName) {
+        const perms = window._sitePermsData[siteId] || {};
+        document.getElementById('perm-site-id').value = siteId;
+        document.getElementById('perm-site-title').textContent = `Permessi — ${siteName}`;
+        document.getElementById('perm-site-plugin-grid').innerHTML = buildFeatureToggles('sp', perms.plugin || {});
+        document.getElementById('perm-site-app-grid').innerHTML    = buildFeatureToggles('sa', perms.app || {});
+        document.getElementById('perm-site-msg').style.display = 'none';
+        document.getElementById('perm-site-overlay').style.display = 'flex';
+    };
+
+    document.getElementById('btn-save-site-perms').addEventListener('click', async () => {
+        const siteId = document.getElementById('perm-site-id').value;
+        const plugin = {}, app = {};
+        PLUGIN_FEATURES.forEach(f => {
+            plugin[f.key] = document.getElementById('sp-'+f.key)?.checked ?? true;
+            app[f.key]    = document.getElementById('sa-'+f.key)?.checked ?? true;
+        });
+        const msgEl = document.getElementById('perm-site-msg');
+        try {
+            const { error } = await _SBq.from('isi_sites').update({ features_override: { plugin, app } }).eq('site_id', siteId);
+            if (error) throw new Error(error.message);
+            window._sitePermsData[siteId] = { plugin, app };
+            msgEl.textContent = 'Permessi salvati'; msgEl.style.color = '#0D5F75'; msgEl.style.display = 'block';
+            setTimeout(() => { document.getElementById('perm-site-overlay').style.display = 'none'; }, 1200);
+        } catch(e) { msgEl.textContent = 'Errore: '+e.message; msgEl.style.color = '#b00020'; msgEl.style.display = 'block'; }
     });
 
     async function eliminaUtente(userId, nome) {
