@@ -805,7 +805,7 @@
             window._sitePermsData[site.site_id] = site.features_override || {};
         });
         html += '</tbody></table>';
-        el.innerHTML = `<div style="overflow-x:auto">${html}</div>`;
+        el.innerHTML = `<div>${html}</div>`;
 
         const hasUpdates = data.some(s => {
             const sIsJs = (s.plugin_version||'').startsWith('js-') || s.hotel_profile?.site_mode === 'script';

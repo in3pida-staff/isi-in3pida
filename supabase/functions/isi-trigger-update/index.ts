@@ -13,20 +13,29 @@ const cors = {
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
 
-  // Auth
+  // Auth: acepta service role key (cualquier formato) o JWT de usuario válido
   const token = (req.headers.get('Authorization') || '').replace('Bearer ', '');
-  const isServiceKey = token === SERVICE_ROLE_KEY;
-  if (!isServiceKey) {
-    const anonClient = createClient(SUPABASE_URL, ANON_KEY);
-    const { data: { user }, error: authErr } = await anonClient.auth.getUser(token);
-    if (authErr || !user) {
-      return new Response(JSON.stringify({ error: 'Non autorizzato' }), { status: 401, headers: cors });
-    }
-  }
-
   const admin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
     auth: { autoRefreshToken: false, persistSession: false },
   });
+  // Verifica se è un JWT utente valido
+  const anonClient = createClient(SUPABASE_URL, ANON_KEY);
+  const { data: { user } } = await anonClient.auth.getUser(token);
+  // Verifica se è la service role key (sia vecchio JWT che nuovo sb_secret_*)
+  let isAdmin = false;
+  if (user) {
+    isAdmin = true;
+  } else {
+    // Tenta verifica admin: crea client con il token ricevuto e verifica accesso
+    try {
+      const testClient = createClient(SUPABASE_URL, token, { auth: { autoRefreshToken: false, persistSession: false } });
+      const { error: testErr } = await testClient.from('isi_sites').select('site_id').limit(1);
+      if (!testErr) isAdmin = true;
+    } catch (_) { /* non è un service key */ }
+  }
+  if (!isAdmin) {
+    return new Response(JSON.stringify({ error: 'Non autorizzato' }), { status: 401, headers: cors });
+  }
 
   const body = await req.json();
   const { site_id, all, action } = body;
@@ -88,7 +97,7 @@ Deno.serve(async (req) => {
           download_url: verData.download_url,
           version:      verData.version,
         }),
-        signal: AbortSignal.timeout(30000),
+        signal: AbortSignal.timeout(90000),
       });
       const body = await res.json().catch(() => ({}));
       return {

@@ -52,7 +52,7 @@ echo "→ [4/4] Trigger aggiornamento automatico su tutti i siti"
 node -e "
 fetch('${SUPABASE_URL}/functions/v1/isi-trigger-update', {
   method: 'POST',
-  headers: { 'Authorization': 'Bearer ${SERVICE_KEY}', 'Content-Type': 'application/json' },
+  headers: { 'Authorization': 'Bearer ${SERVICE_KEY}', 'apikey': '${SERVICE_KEY}', 'Content-Type': 'application/json' },
   body: JSON.stringify({ all: true })
 }).then(r=>r.json()).then(d=>{
   if (!d.results) { console.log('Trigger risposta:', JSON.stringify(d)); return; }
