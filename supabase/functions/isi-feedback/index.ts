@@ -1,5 +1,9 @@
-const RESEND_KEY  = Deno.env.get('RESEND_API_KEY') ?? '';
-const DEST_EMAIL  = 'mario@in3pida.it';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+const RESEND_KEY   = Deno.env.get('RESEND_API_KEY') ?? '';
+const DEST_EMAIL   = 'mario@in3pida.it';
+const SB_URL       = Deno.env.get('SUPABASE_URL')!;
+const SB_KEY       = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
 const cors = {
   'Access-Control-Allow-Origin': '*',
@@ -15,24 +19,33 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({ error: 'Messaggio vuoto' }), { status: 400, headers: cors });
   }
 
-  const emailPayload: Record<string, unknown> = {
-    from: 'Eletta Feedback <noreply@isi.in3pida.it>',
-    to: [DEST_EMAIL],
-    subject: `Feedback albergatore${reply_to ? ' — ' + reply_to : ''}`,
-    text: message + (reply_to ? '\n\n— ' + reply_to : ''),
-  };
-  if (reply_to) emailPayload.reply_to = reply_to;
+  const sb = createClient(SB_URL, SB_KEY, { auth: { autoRefreshToken: false, persistSession: false } });
 
-  const res = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify(emailPayload),
-  });
+  // Save to DB always
+  await sb.from('isi_feedback').insert({ message: message.trim(), reply_to: reply_to || null, sent_by_email: false });
 
-  if (!res.ok) {
-    const err = await res.text();
-    return new Response(JSON.stringify({ error: err }), { status: 500, headers: cors });
+  // Try email if key is present
+  let emailSent = false;
+  if (RESEND_KEY) {
+    const emailPayload: Record<string, unknown> = {
+      from: 'Eletta Feedback <noreply@isi.in3pida.it>',
+      to: [DEST_EMAIL],
+      subject: `Feedback albergatore${reply_to ? ' — ' + reply_to : ''}`,
+      text: message.trim() + (reply_to ? '\n\n— ' + reply_to : ''),
+    };
+    if (reply_to) emailPayload.reply_to = reply_to;
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(emailPayload),
+    });
+    if (res.ok) {
+      emailSent = true;
+      await sb.from('isi_feedback').update({ sent_by_email: true }).order('created_at', { ascending: false }).limit(1);
+    }
   }
 
-  return new Response(JSON.stringify({ ok: true }), { headers: { ...cors, 'Content-Type': 'application/json' } });
+  return new Response(JSON.stringify({ ok: true, saved: true, emailed: emailSent }), {
+    headers: { ...cors, 'Content-Type': 'application/json' },
+  });
 });
