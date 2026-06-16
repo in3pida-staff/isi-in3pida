@@ -919,26 +919,36 @@
                         <span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span>
                         <span style="font-size:12px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">PANORAMICA GEO SCORE</span>
                     </div>
-                    <div style="padding:16px 20px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
-                        <div style="border:1.5px solid #0D5F75;border-radius:4px;padding:16px 18px">
-                            <div style="font-size:12px;font-weight:500;color:#4a4a6a;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;display:flex;align-items:center;gap:4px">GEO SCORE <span class='tip-q' data-tip='Punteggio complessivo di ottimizzazione per AI. ≥70 ottimizzato, 40–69 da migliorare, <40 critico.'>?</span></div>
-                            <div style="font-size:32px;font-weight:800;line-height:1;color:${geoAvg!==null?'#171b33':'#C1CBE8'}">${geoAvg!==null?geoAvg:'—'}</div>
-                            <div style="font-size:14px;font-weight:600;color:${geoAvg!==null?'#0D5F75':'#C1CBE8'};margin-top:6px">${geoAvg!==null?(geoAvg>=70?'ottimizzato':geoAvg>=40?'da migliorare':'critico'):'nessun dato'}</div>
+                    <div style="padding:16px 20px;display:grid;grid-template-columns:180px 1fr;gap:16px;align-items:stretch">
+                        <div style="border:1.5px solid #0D5F75;border-radius:4px;padding:16px 12px;display:flex;flex-direction:column;align-items:center;justify-content:center">
+                            <div style="font-size:11px;font-weight:700;color:#4a4a6a;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;display:flex;align-items:center;gap:4px">GEO SCORE <span class='tip-q' data-tip='Punteggio complessivo di ottimizzazione per AI. ≥70 ottimizzato, 40–69 da migliorare, <40 critico.'>?</span></div>
+                            ${(()=>{
+                                const s=geoAvg, r=40, cx=50, cy=50, circ=2*Math.PI*r, arc=circ*.75;
+                                const filled=s!==null?arc*(s/100):0, col=s===null?'#C1CBE8':'#0D5F75', rot='rotate(135 '+cx+' '+cy+')';
+                                return '<svg viewBox="0 0 100 85" style="width:130px;display:block">'
+                                    +'<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="#e8ecf7" stroke-width="9" stroke-dasharray="'+arc.toFixed(1)+' '+(circ-arc).toFixed(1)+'" stroke-linecap="round" transform="'+rot+'"/>'
+                                    +'<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+col+'" stroke-width="9" stroke-dasharray="'+filled.toFixed(1)+' '+(circ-filled).toFixed(1)+'" stroke-linecap="round" transform="'+rot+'"/>'
+                                    +'<text x="'+cx+'" y="'+cy+'" text-anchor="middle" dominant-baseline="middle" font-size="24" font-weight="800" fill="#171b33">'+(s!==null?s:'—')+'</text>'
+                                    +'</svg>';
+                            })()}
+                            <div style="font-size:13px;font-weight:700;color:${geoAvg!==null?'#0D5F75':'#C1CBE8'};margin-top:4px">${geoAvg!==null?(geoAvg>=70?'ottimizzato':geoAvg>=40?'da migliorare':'critico'):'nessun dato'}</div>
                         </div>
-                        <div style="border:1px solid #e4e4ec;border-radius:4px;padding:16px 18px">
-                            <div style="font-size:12px;font-weight:500;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;display:flex;align-items:center;gap:4px">COMPLETEZZA AI <span class='tip-q' data-tip='Quanto è completo il profilo AI dell hotel: nome, indirizzo, descrizione, contatti, FAQ ecc. ≥80 ottimizzato.'>?</span></div>
-                            <div style="font-size:32px;font-weight:800;line-height:1;color:${cs!==null?'#171b33':'#C1CBE8'}">${cs!==null?cs:'—'}</div>
-                            <div style="font-size:14px;font-weight:600;color:${cs!==null?'#0D5F75':'#C1CBE8'};margin-top:6px">${cs!==null?(cs>=70?'ottimizzato':cs>=40?'da migliorare':'critico'):'nessun dato'}</div>
-                        </div>
-                        <div style="border:1px solid #e4e4ec;border-radius:4px;padding:16px 18px">
-                            <div style="font-size:12px;font-weight:500;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;display:flex;align-items:center;gap:4px">COVERAGE FAQ <span class='tip-q' data-tip='Percentuale di domande degli ospiti a cui il sito risponde tramite FAQ. ≥80% buona copertura.'>?</span></div>
-                            <div style="font-size:32px;font-weight:800;line-height:1;color:${covPct!==null?'#171b33':'#C1CBE8'}">${covPct!==null?covPct+'%':'—'}</div>
-                            <div style="font-size:14px;font-weight:600;color:${covPct!==null?'#0D5F75':'#C1CBE8'};margin-top:6px">${covPct!==null?covPct+'% coperto':'nessun dato'}</div>
-                        </div>
-                        <div style="border:1px solid #e4e4ec;border-radius:4px;padding:16px 18px">
-                            <div style="font-size:12px;font-weight:500;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;display:flex;align-items:center;gap:4px">MAPPA QUERY <span class='tip-q' data-tip='Percentuale di categorie di query conversazionali degli ospiti coperte dal sito. ≥70% buona copertura.'>?</span></div>
-                            <div style="font-size:32px;font-weight:800;line-height:1;color:${qMapPct!==null?'#171b33':'#C1CBE8'}">${qMapPct!==null?qMapPct+'%':'—'}</div>
-                            <div style="font-size:14px;font-weight:600;color:${qMapPct!==null?'#0D5F75':'#C1CBE8'};margin-top:6px">${qMapPct!==null?qMapPct+'% coperto':'nessun dato'}</div>
+                        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+                            <div style="border:1px solid #e4e4ec;border-radius:4px;padding:16px 18px">
+                                <div style="font-size:12px;font-weight:500;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;display:flex;align-items:center;gap:4px">COMPLETEZZA AI <span class='tip-q' data-tip='Quanto è completo il profilo AI dell hotel: nome, indirizzo, descrizione, contatti, FAQ ecc. ≥80 ottimizzato.'>?</span></div>
+                                <div style="font-size:32px;font-weight:800;line-height:1;color:${cs!==null?'#171b33':'#C1CBE8'}">${cs!==null?cs:'—'}</div>
+                                <div style="font-size:14px;font-weight:600;color:${cs!==null?'#0D5F75':'#C1CBE8'};margin-top:6px">${cs!==null?(cs>=70?'ottimizzato':cs>=40?'da migliorare':'critico'):'nessun dato'}</div>
+                            </div>
+                            <div style="border:1px solid #e4e4ec;border-radius:4px;padding:16px 18px">
+                                <div style="font-size:12px;font-weight:500;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;display:flex;align-items:center;gap:4px">COVERAGE FAQ <span class='tip-q' data-tip='Percentuale di domande degli ospiti a cui il sito risponde tramite FAQ. ≥80% buona copertura.'>?</span></div>
+                                <div style="font-size:32px;font-weight:800;line-height:1;color:${covPct!==null?'#171b33':'#C1CBE8'}">${covPct!==null?covPct+'%':'—'}</div>
+                                <div style="font-size:14px;font-weight:600;color:${covPct!==null?'#0D5F75':'#C1CBE8'};margin-top:6px">${covPct!==null?covPct+'% coperto':'nessun dato'}</div>
+                            </div>
+                            <div style="border:1px solid #e4e4ec;border-radius:4px;padding:16px 18px">
+                                <div style="font-size:12px;font-weight:500;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;display:flex;align-items:center;gap:4px">MAPPA QUERY <span class='tip-q' data-tip='Percentuale di categorie di query conversazionali degli ospiti coperte dal sito. ≥70% buona copertura.'>?</span></div>
+                                <div style="font-size:32px;font-weight:800;line-height:1;color:${qMapPct!==null?'#171b33':'#C1CBE8'}">${qMapPct!==null?qMapPct+'%':'—'}</div>
+                                <div style="font-size:14px;font-weight:600;color:${qMapPct!==null?'#0D5F75':'#C1CBE8'};margin-top:6px">${qMapPct!==null?qMapPct+'% coperto':'nessun dato'}</div>
+                            </div>
                         </div>
                     </div>
                 </div>
