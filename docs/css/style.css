@@ -78,7 +78,7 @@ body {
 }
 .navbar-left   { display: flex; align-items: center; gap: 12px; }
 .navbar-center { display: flex; align-items: center; gap: 4px; justify-content: center; }
-.navbar-right  { display: flex; align-items: center; justify-content: flex-end; position: relative; }
+.navbar-right  { display: flex; align-items: center; justify-content: flex-end; gap: 10px; position: relative; }
 
 .navbar-logo {
     display: flex; align-items: center;

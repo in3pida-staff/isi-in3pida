@@ -923,18 +923,18 @@
                         <div style="background:#d6eef3;border-radius:12px;padding:20px 16px;display:flex;flex-direction:column;align-items:center;gap:6px">
                             <div style="font-size:14px;font-weight:700;color:#0a4d60;text-transform:uppercase;letter-spacing:.06em;display:flex;align-items:center;gap:4px">GEO SCORE <span class='tip-q' data-tip='Punteggio complessivo di ottimizzazione per AI. ≥70 ottimizzato, 40–69 da migliorare, <40 critico.'>?</span></div>
                             ${(()=>{
-                                const s=geoAvg, r=60, cx=80, cy=78;
+                                const s=geoAvg, r=64, cx=84, cy=82;
                                 const circ=2*Math.PI*r, arc=circ*.75;
                                 const filled=s!==null?arc*(s/100):0;
                                 const col=s===null?'#a0c8d4':'#0D5F75';
                                 const rot='rotate(135 '+cx+' '+cy+')';
-                                return '<svg viewBox="0 0 160 138" style="width:100%;max-width:190px;display:block;margin:0 auto">'
-                                    +'<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="rgba(255,255,255,0.65)" stroke-width="13" stroke-dasharray="'+arc.toFixed(1)+' '+(circ-arc).toFixed(1)+'" stroke-linecap="round" transform="'+rot+'"/>'
-                                    +'<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+col+'" stroke-width="13" stroke-dasharray="'+filled.toFixed(1)+' '+(circ-filled).toFixed(1)+'" stroke-linecap="round" transform="'+rot+'"/>'
-                                    +'<text x="'+cx+'" y="'+(cy+14)+'" text-anchor="middle"><tspan font-size="40" font-weight="800" fill="#0D5F75">'+(s!==null?s:'—')+'</tspan><tspan font-size="17" font-weight="600" fill="#0a4d60"> /100</tspan></text>'
+                                return '<svg viewBox="0 0 168 148" style="width:100%;max-width:200px;display:block;margin:0 auto">'
+                                    +'<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="14" stroke-dasharray="'+arc.toFixed(1)+' '+(circ-arc).toFixed(1)+'" stroke-linecap="round" transform="'+rot+'"/>'
+                                    +'<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+col+'" stroke-width="14" stroke-dasharray="'+filled.toFixed(1)+' '+(circ-filled).toFixed(1)+'" stroke-linecap="round" transform="'+rot+'"/>'
+                                    +'<text x="'+cx+'" y="'+(cy+16)+'" text-anchor="middle"><tspan font-size="48" font-weight="800" fill="#0D5F75">'+(s!==null?s:'—')+'</tspan><tspan font-size="20" font-weight="600" fill="#0a4d60"> /100</tspan></text>'
                                     +'</svg>';
                             })()}
-                            <div style="font-size:22px;font-weight:800;color:#171b33;line-height:1">${geoAvg!==null?(geoAvg>=70?'ottimizzato':geoAvg>=40?'da migliorare':'critico'):'nessun dato'}</div>
+                            <div style="font-size:26px;font-weight:800;color:#171b33;line-height:1">${geoAvg!==null?(geoAvg>=70?'ottimizzato':geoAvg>=40?'da migliorare':'critico'):'nessun dato'}</div>
                             <div style="font-size:12px;color:#0a4d60;text-align:center;line-height:1.4;max-width:170px">${geoAvg!==null?(geoAvg>=70?'Sito ottimizzato per i motori AI':geoAvg>=40?'Visibilità AI migliorabile':'Sito non ottimizzato per i motori AI'):'Nessun dato disponibile'}</div>
                         </div>
                         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
