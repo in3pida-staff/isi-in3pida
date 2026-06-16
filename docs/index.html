@@ -4531,7 +4531,8 @@ ${rows}
         btns.forEach(b => { if (b) { b.disabled = true; b.textContent = '...'; } });
         try {
             const ver   = await getLatestVersion();
-            const sites = siteIds ? allSiti.filter(s => siteIds.includes(s.site_id)) : allSiti;
+            const sites = (siteIds ? allSiti.filter(s => siteIds.includes(s.site_id)) : allSiti)
+                .filter(s => !((s.plugin_version||'').startsWith('js-') || s.hotel_profile?.site_mode === 'script'));
             const results = await Promise.all(sites.map(s => callWpUpdate(s, ver)));
 
             const ok      = results.filter(r => r.ok && !r.skipped).length;
