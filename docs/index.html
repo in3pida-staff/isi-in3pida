@@ -920,14 +920,14 @@
                     </div>
                     <div style="padding:16px 20px">
                         <div style="display:grid;grid-template-columns:1fr 3fr;gap:12px">
-                            <div style="background:radial-gradient(ellipse at 50% 65%,#eaf6fa 0%,#c4e4ee 100%);border:1px solid #b8dce8;border-radius:4px;padding:14px 12px;display:flex;flex-direction:column;align-items:center;gap:6px">
+                            <div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:16px 12px;display:flex;flex-direction:column;align-items:center;gap:6px">
                                 <div style="font-size:12px;font-weight:500;color:#4a4a6a;text-transform:uppercase;letter-spacing:.05em;display:flex;align-items:center;gap:4px">GEO SCORE <span class='tip-q' data-tip='Punteggio complessivo di ottimizzazione per AI. ≥70 ottimizzato, 40–69 da migliorare, <40 critico.'>?</span></div>
                                 ${(()=>{
-                                    const s=geoAvg, cx=90, cy=82, r=68, sw=20;
-                                    const bgPath=`M ${cx-r} ${cy} A ${r} ${r} 0 0 1 ${cx+r} ${cy}`;
-                                    let fp='';
-                                    if(s!==null&&s>0){const p=Math.min(s,99.9),rad=(180-p*1.8)*Math.PI/180,ex=(cx+r*Math.cos(rad)).toFixed(1),ey=(cy-r*Math.sin(rad)).toFixed(1);fp=`<path d="M ${cx-r} ${cy} A ${r} ${r} 0 0 1 ${ex} ${ey}" fill="none" stroke="#0D5F75" stroke-width="${sw}" stroke-linecap="round"/>`;}
-                                    return `<svg viewBox="0 0 180 90" style="width:100%;height:auto;display:block;margin:0 auto"><path d="${bgPath}" fill="none" stroke="rgba(255,255,255,0.75)" stroke-width="${sw}" stroke-linecap="round"/>${fp}<text x="${cx}" y="${cy}" text-anchor="middle"><tspan font-size="44" font-weight="800" fill="#171b33" font-family="system-ui,sans-serif">${s!==null?s:'—'}</tspan><tspan font-size="18" font-weight="600" fill="#0D5F75" font-family="system-ui,sans-serif"> /100</tspan></text></svg>`;
+                                    const s=geoAvg, cx=100, cy=100, r=65, rC=80, sw=13;
+                                    const circ=2*Math.PI*r, arc=circ*.75, filled=s!==null?arc*(s/100):0;
+                                    const col=s===null?'rgba(13,95,117,0.25)':'#0D5F75';
+                                    const rot=`rotate(135 ${cx} ${cy})`;
+                                    return `<svg viewBox="0 0 200 195" style="width:100%;max-width:200px;height:auto;display:block;margin:0 auto"><defs><radialGradient id="gg" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#eaf6fa"/><stop offset="100%" stop-color="#c4e0ec"/></radialGradient></defs><circle cx="${cx}" cy="${cy}" r="${rC}" fill="url(#gg)"/><circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="${sw}" stroke-dasharray="${arc.toFixed(1)} ${(circ-arc).toFixed(1)}" stroke-linecap="round" transform="${rot}"/><circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${col}" stroke-width="${sw}" stroke-dasharray="${filled.toFixed(1)} ${(circ-filled).toFixed(1)}" stroke-linecap="round" transform="${rot}"/><text x="${cx}" y="${cy+6}" text-anchor="middle" dominant-baseline="middle"><tspan font-size="44" font-weight="800" fill="#171b33" font-family="system-ui,sans-serif">${s!==null?s:'—'}</tspan><tspan font-size="18" font-weight="600" fill="#0D5F75" font-family="system-ui,sans-serif"> /100</tspan></text></svg>`;
                                 })()}
                                 <div style="font-size:22px;font-weight:800;color:#0D5F75;line-height:1">${geoAvg!==null?(geoAvg>=70?'ottimizzato':geoAvg>=40?'da migliorare':'critico'):'nessun dato'}</div>
                                 <div style="font-size:11px;color:#4a6e7a;text-align:center;line-height:1.4;max-width:160px">${geoAvg!==null?(geoAvg>=70?'Sito ottimizzato per i motori AI':geoAvg>=40?'Visibilità AI migliorabile':'Sito non ottimizzato per i motori AI'):'Nessun dato disponibile'}</div>
