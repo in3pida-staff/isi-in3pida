@@ -1405,7 +1405,10 @@
             <div id="scontent-mappa" style="display:none">
             <div class="card" style="margin-bottom:20px;border:1px solid #e4e4ec;box-shadow:none">
                 <div style="padding:20px 20px 12px">
-                    <div style="font-size:13px;color:#666b84;margin-bottom:14px">Confronta le domande tipiche per tipologia di ospite con le FAQ pubblicate. Scopri quali mancano e creale con un click.</div>
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+                        <div style="font-size:13px;color:#666b84">Confronta le domande tipiche per tipologia di ospite con le FAQ pubblicate. Scopri quali mancano e creale con un click.</div>
+                        <button id="btn-aggiorna-mappa" style="flex-shrink:0;margin-left:16px;background:white;border:1.5px solid #0D5F75;color:#0D5F75;border-radius:6px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);white-space:nowrap">↺ Aggiorna</button>
+                    </div>
                     <div style="background:#e4e4ec;border-radius:4px;height:6px;margin-bottom:16px;overflow:hidden"><div id="mc-bar" style="height:100%;background:#0D5F75;border-radius:4px;width:0%;transition:width .4s"></div></div>
                     <div style="display:flex;align-items:center;gap:16px">
                         <div style="font-size:40px;font-weight:800;color:#0D5F75;line-height:1" id="mc-score">—</div>
@@ -1598,6 +1601,31 @@
             if (sec === 'config') initConfigPanel(site);
         };
         el.addEventListener('click', _sidebarClickHandler);
+
+        // ── Bottone Aggiorna Mappa Query
+        const btnAggMappa = document.getElementById('btn-aggiorna-mappa');
+        if (btnAggMappa && !btnAggMappa._wired) {
+            btnAggMappa._wired = true;
+            btnAggMappa.addEventListener('click', async () => {
+                btnAggMappa.textContent = '↺ Aggiornamento…';
+                btnAggMappa.disabled = true;
+                try {
+                    const { data: freshSite } = await _SBq.from('isi_sites').select('*').eq('site_id', siteId).single();
+                    if (freshSite) {
+                        Object.assign(site, freshSite);
+                        const { data: freshPse } = await _SBq.from('isi_pse_queries').select('*').eq('site_id', siteId).order('created_at', { ascending: false }).limit(200);
+                        const freshPseData = freshPse || pseData;
+                        _mappaInited = false;
+                        document.getElementById('mappa-query-mgmt').innerHTML = '<div class="loading" style="padding:20px"><div class="spinner"></div></div>';
+                        document.getElementById('reason-gap-card').style.display = 'none';
+                        document.getElementById('sov-card').style.display = 'none';
+                        await initMappaQueryMgmt(freshSite, freshPseData);
+                    }
+                } catch(e) { /* noop */ }
+                btnAggMappa.textContent = '↺ Aggiorna';
+                btnAggMappa.disabled = false;
+            });
+        }
 
         // ── FAQ filter buttons
         el.querySelectorAll('.faq-f-btn').forEach(b => {
