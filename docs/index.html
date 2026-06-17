@@ -2696,10 +2696,19 @@
         const faqData = site.faq_data || {};
         const history = Array.isArray(faqData.score_history) ? [...faqData.score_history] : [];
 
-        // Salva snapshot di oggi se non c'è
+        // Salva snapshot di oggi (crea o aggiorna se mancano le nuove chiavi)
         const todayStr = new Date().toISOString().slice(0, 10);
         const geoSub = faqData.geo || {};
-        if (!history.some(h => h.date === todayStr) && (geoAvg !== null || cs !== null || covPct !== null)) {
+        const todayEntry = history.find(h => h.date === todayStr);
+        if (todayEntry) {
+            if (todayEntry.ai_readiness === undefined) {
+                todayEntry.ai_readiness = geoSub.ai_readiness ?? null;
+                todayEntry.answer_extraction = geoSub.answer_extraction ?? null;
+                todayEntry.quality_safety = geoSub.quality_safety ?? null;
+                todayEntry.ai_visibility = geoSub.ai_visibility ?? null;
+                _SB.from('isi_sites').update({ faq_data: { ...faqData, score_history: history } }).eq('site_id', site.site_id).then(() => {});
+            }
+        } else if (geoAvg !== null || cs !== null || covPct !== null) {
             history.push({ date: todayStr, geo: geoAvg, completeness: cs, coverage: covPct,
                 ai_readiness: geoSub.ai_readiness ?? null, answer_extraction: geoSub.answer_extraction ?? null,
                 quality_safety: geoSub.quality_safety ?? null, ai_visibility: geoSub.ai_visibility ?? null });
