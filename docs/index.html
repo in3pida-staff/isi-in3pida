@@ -5386,7 +5386,7 @@ ${rows}
         try {
             const res = await fetch('https://yyauvoqjdzrbmebeafit.supabase.co/functions/v1/isi-feedback', {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: msg, reply_to: email || null }),
+                body: JSON.stringify({ message: msg, reply_to: email || null, site_name: site?.site_name || '' }),
             });
             const d = await res.json();
             if (res.ok && d.ok) {

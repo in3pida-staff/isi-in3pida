@@ -30,7 +30,7 @@ jobs:
           body  = os.environ.get('ISSUE_BODY', '')
 
           msg = MIMEText(body, 'plain', 'utf-8')
-          msg['Subject'] = f"Feedback ISI: {title}"
+          msg['Subject'] = title
           msg['From']    = f"Eletta ISI <{user}>"
           msg['To']      = "mario@in3pida.it"
 

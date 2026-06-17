@@ -14,7 +14,7 @@ const cors = {
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
 
-  const { message, reply_to } = await req.json().catch(() => ({}));
+  const { message, reply_to, site_name } = await req.json().catch(() => ({}));
   if (!message?.trim()) {
     return new Response(JSON.stringify({ error: 'Messaggio vuoto' }), { status: 400, headers: cors });
   }
@@ -25,7 +25,8 @@ Deno.serve(async (req) => {
   let emailSent = false;
   if (GH_TOKEN) {
     try {
-      const title = `Feedback albergatore${reply_to ? ' — ' + reply_to : ''}`;
+      const hotelName = (site_name || '').trim() || 'Hotel';
+      const title = `Feedback da piattaforma Eletta - ${hotelName}`;
       const body = message.trim() + (reply_to ? `\n\n**Da:** ${reply_to}` : '');
       const res = await fetch(`https://api.github.com/repos/${GH_REPO}/issues`, {
         method: 'POST',
