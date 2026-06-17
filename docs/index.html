@@ -5005,6 +5005,46 @@ ${rows}
         };
     }
 
+    // ─── GSC: carica script GIS (condiviso tra initConfigPanel e initDatiSito) ───
+    async function _loadGisScript() {
+        if (window.google?.accounts?.oauth2) return;
+        await new Promise((res, rej) => {
+            const s = document.createElement('script');
+            s.src = 'https://accounts.google.com/gsi/client';
+            s.onload = res; s.onerror = rej;
+            document.head.appendChild(s);
+        });
+    }
+
+    // Rinnova il token GSC in modo silenzioso (nessun popup, nessuna azione utente).
+    // Google restituisce un nuovo token se la sessione browser è ancora attiva.
+    // Restituisce il nuovo access_token o lancia un errore se la sessione è scaduta.
+    async function _refreshGscTokenSilently(siteId, siteObj) {
+        const clientId = localStorage.getItem('isi_gsc_client_id');
+        if (!clientId) throw new Error('client_id_mancante');
+        await _loadGisScript();
+        return new Promise((resolve, reject) => {
+            const timeout = setTimeout(() => reject(new Error('timeout')), 8000);
+            const tc = window.google.accounts.oauth2.initTokenClient({
+                client_id: clientId,
+                scope: 'https://www.googleapis.com/auth/webmasters.readonly',
+                callback: async (resp) => {
+                    clearTimeout(timeout);
+                    if (resp.error) { reject(new Error(resp.error)); return; }
+                    try {
+                        const { data: fresh } = await _SBq.from('isi_sites').select('hotel_profile').eq('site_id', siteId).single();
+                        const hp = fresh?.hotel_profile || siteObj?.hotel_profile || {};
+                        const newCfg = { ...(hp.isi_config || {}), gsc_token: resp.access_token };
+                        await _SBq.from('isi_sites').update({ hotel_profile: { ...hp, isi_config: newCfg } }).eq('site_id', siteId);
+                        if (siteObj?.hotel_profile?.isi_config) siteObj.hotel_profile.isi_config.gsc_token = resp.access_token;
+                    } catch { /* salvataggio fallito, usiamo il token in memoria */ }
+                    resolve(resp.access_token);
+                }
+            });
+            tc.requestAccessToken({ prompt: '' }); // silent — nessun popup
+        });
+    }
+
     // ─── CONFIGURAZIONE SITO ─────────────────────────────────────────────────────
     let _configInited = false;
     async function initConfigPanel(site) {
@@ -5137,15 +5177,7 @@ ${rows}
         loadGisScript();
 
         // ── Google Search Console OAuth ───────────────────────────────────────────
-        async function loadGisScript() {
-            if (window.google?.accounts?.oauth2) return;
-            await new Promise((res, rej) => {
-                const s = document.createElement('script');
-                s.src = 'https://accounts.google.com/gsi/client';
-                s.onload = res; s.onerror = rej;
-                document.head.appendChild(s);
-            });
-        }
+        const loadGisScript = _loadGisScript;
 
         async function saveGscConfig(email, gscSite, accessToken) {
             const { data: freshSC } = await _SBq.from('isi_sites').select('hotel_profile').eq('site_id', site.site_id).single();
@@ -5353,24 +5385,36 @@ ${rows}
 
         if (cfg.gsc_email && cfg.gsc_site && cfg.gsc_token) {
             const datiGscCont = document.getElementById('dati-gsc-container');
-            // fetchGscData è definita dentro initConfigPanel — usiamo fetch diretto
             const endDate = new Date().toISOString().slice(0,10);
             const startDate = new Date(Date.now() - 28*86400000).toISOString().slice(0,10);
-            fetch(`https://searchconsole.googleapis.com/webmasters/v3/sites/${encodeURIComponent(cfg.gsc_site)}/searchAnalytics/query`, {
-                method: 'POST',
-                headers: { 'Authorization': 'Bearer ' + cfg.gsc_token, 'Content-Type': 'application/json' },
-                body: JSON.stringify({ startDate, endDate, dimensions: ['query'], rowLimit: 10, startRow: 0 })
-            }).then(r => { if (!r.ok) throw new Error('token_expired_' + r.status); return r.json(); }).then(data => {
+
+            async function _fetchAndRenderGsc(token) {
+                const r = await fetch(`https://searchconsole.googleapis.com/webmasters/v3/sites/${encodeURIComponent(cfg.gsc_site)}/searchAnalytics/query`, {
+                    method: 'POST',
+                    headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ startDate, endDate, dimensions: ['query'], rowLimit: 10, startRow: 0 })
+                });
+                if (!r.ok) throw new Error('token_expired_' + r.status);
+                const data = await r.json();
                 const rows = data.rows || [];
-                if (!rows.length) { if (datiGscCont) datiGscCont.innerHTML = '<div style="font-size:13px;color:#9ca3af">Nessun dato disponibile negli ultimi 28 giorni.</div>'; return; }
-                if (datiGscCont) datiGscCont.innerHTML =
+                if (!datiGscCont) return;
+                if (!rows.length) { datiGscCont.innerHTML = '<div style="font-size:13px;color:#9ca3af">Nessun dato disponibile negli ultimi 28 giorni.</div>'; return; }
+                datiGscCont.innerHTML =
                     `<div style="font-size:12px;font-weight:700;color:#666b84;margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em">Top query (ultimi 28 gg)</div>` +
                     `<table style="width:100%;border-collapse:collapse;font-size:12px">` +
                     `<tr style="color:#9ca3af;border-bottom:1px solid #f0f0f5"><td style="padding:4px 8px 4px 0">Query</td><td style="padding:4px 8px;text-align:right">Click</td><td style="padding:4px 8px;text-align:right">Impr.</td><td style="padding:4px 8px;text-align:right">CTR</td><td style="padding:4px 0;text-align:right">Pos.</td></tr>` +
-                    rows.map(r => `<tr style="border-bottom:1px solid #f4f4f8"><td style="padding:5px 8px 5px 0;color:#171b33;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(r.keys[0])}</td><td style="padding:5px 8px;text-align:right;color:#0D5F75;font-weight:600">${r.clicks}</td><td style="padding:5px 8px;text-align:right;color:#666b84">${r.impressions}</td><td style="padding:5px 8px;text-align:right;color:#666b84">${(r.ctr*100).toFixed(1)}%</td><td style="padding:5px 0;text-align:right;color:#666b84">${r.position.toFixed(1)}</td></tr>`).join('') +
+                    rows.map(row => `<tr style="border-bottom:1px solid #f4f4f8"><td style="padding:5px 8px 5px 0;color:#171b33;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(row.keys[0])}</td><td style="padding:5px 8px;text-align:right;color:#0D5F75;font-weight:600">${row.clicks}</td><td style="padding:5px 8px;text-align:right;color:#666b84">${row.impressions}</td><td style="padding:5px 8px;text-align:right;color:#666b84">${(row.ctr*100).toFixed(1)}%</td><td style="padding:5px 0;text-align:right;color:#666b84">${row.position.toFixed(1)}</td></tr>`).join('') +
                     '</table>';
-            }).catch(e => {
-                if (datiGscCont) datiGscCont.innerHTML = `<div style="font-size:13px;color:#9ca3af;line-height:1.6">Token scaduto — vai su <strong>Configurazione</strong>, clicca <strong>Disconnetti</strong> e poi <strong>Collega con Google</strong> di nuovo.</div>`;
+            }
+
+            _fetchAndRenderGsc(cfg.gsc_token).catch(async () => {
+                // Token scaduto: prova rinnovo silenzioso (nessun popup)
+                try {
+                    const newToken = await _refreshGscTokenSilently(site.site_id, site);
+                    await _fetchAndRenderGsc(newToken);
+                } catch {
+                    if (datiGscCont) datiGscCont.innerHTML = '<div style="font-size:13px;color:#9ca3af">Sessione Google scaduta. Riaprendo la sezione Dati Sito il token verrà rinnovato automaticamente. Se il problema persiste, vai in Configurazione → Disconnetti → Collega con Google.</div>';
+                }
             });
         }
     }
