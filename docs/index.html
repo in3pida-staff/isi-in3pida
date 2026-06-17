@@ -3176,29 +3176,38 @@
         const am  = Array.isArray(sc.amenities) ? sc.amenities.map(a => a.toLowerCase()).join(' ') : '';
         const kw  = (sc.keywords     || '').toLowerCase();
         const des = (sc.description  || hp.descrizione || '').toLowerCase();
-        const hpSrv = (hp.servizi      || '').toLowerCase();
-        const hpTgt = (hp.target_clientela || '').toLowerCase();
+        const hpSrv = (hp.servizi || '').toLowerCase();
         const hpKnw = Array.isArray(hp.knowsabout) ? hp.knowsabout.join(' ').toLowerCase() : (hp.knowsabout || '').toLowerCase();
-        const txt = am + ' ' + kw + ' ' + des + ' ' + hpSrv + ' ' + hpTgt + ' ' + hpKnw;
+        // target_clientela è ESCLUSO da txt: il target dichiarato non definisce i servizi offerti
+        const txt = am + ' ' + kw + ' ' + des + ' ' + hpSrv + ' ' + hpKnw;
+        const hpTgt = (hp.target_clientela || '').toLowerCase();
         const city = (sc.city || sc.address?.addressLocality || hp.citta || hp.comune || '').toLowerCase();
         const beachCity = /cattolica|rimini|riccione|cesenatico|bellaria|igea|misano|cervia|milano marittima|pescara|jesolo|bibione|lignano|viareggio|forte dei marmi|marina di|lido di/i;
         return {
-            city:           sc.city || sc.address?.addressLocality || hp.citta || hp.comune || '',
-            hasPiscina:     /piscin/.test(txt),
-            hasSpa:         /\bspa\b|benessere|sauna|hammam|bagno turco|centro benessere/.test(txt),
-            hasPets:        /^s[iì]$/i.test(String(sc.pets_allowed||'')) || sc.pets_allowed === true || sc.pets_allowed === 'true' || /animali|pet friendly|cani/.test(txt),
-            hasFamily:      /family|famil|bambini|animazione bambini/.test(txt),
-            hasMare:        /spiaggia|mare|beach|lungomare|riviera/.test(txt) || beachCity.test(city),
-            hasMontagna:    /montagna|alpi|dolomiti|\bsci\b|neve |trekking/.test(txt),
-            hasRistorante:  /ristorante|cucina|dining/.test(txt),
-            hasColazione:   /colazione|breakfast/.test(txt),
-            hasParcheggio:  /parcheggio|parking|garage/.test(txt),
-            hasAccessibility:/accessib|disabil|barriere architetton/.test(txt) || String(hp.servizi_accessibilita||'').trim().length > 0,
-            hasBusiness:    /business|sala meeting|sala conferenz|coworking|centro congressi/.test(txt),
-            hasSports:      /palestra|biciclette|sport|fitness|escursion/.test(txt),
-            hasMarriages:   /matrimon|wedding|riceviment|cerimoni|banchett/.test(txt),
-            hasWellness:    /\bspa\b|benessere|wellness|sauna|massagg/.test(txt),
-            hasRomantic:    /romantic|luna di miele|honeymoon|suite/.test(txt) || /coppi|romantico/i.test(hpTgt),
+            city:              sc.city || sc.address?.addressLocality || hp.citta || hp.comune || '',
+            // Contesto geografico (dalla città, non dai servizi)
+            hasMare:           beachCity.test(city) || /spiaggia|mare|beach|lungomare|riviera/.test(txt),
+            hasMontagna:       /montagna|alpi|dolomiti|\bsci\b|trekking/.test(txt),
+            // Servizi spiaggia: solo se esplicitamente dichiarati
+            hasSpiaggiaPropria:/spiaggia privata|spiaggia convenzionata|spiaggia riservata|ombrellone incluso|lettino incluso|accesso diretto.{0,12}mare|primo fila/.test(txt),
+            // Family: da servizi/descrizione/knowsabout — NON da target_clientela
+            hasFamily:         /famil|bambini/.test(txt),
+            // Romantic: solo da servizi romantici espliciti — NON da "coppie" in target
+            hasRomantic:       /romantic|luna di miele|honeymoon|suite nuziale|pacchett.{0,8}coppia|camera romantica/.test(txt),
+            // Anziani: solo se il profilo dichiara servizi per senior
+            hasElderly:        /over.?65|terza.?et|anziani|senior|men[uù] dietetico|antiscivolo|servizio medico/.test(txt) || /anziani|over.?65|terza.?et/i.test(hpTgt),
+            // Accessibilità: solo se esplicitamente dichiarata
+            hasAccessibility:  /accessib|disabil|barriere architetton/.test(txt) || String(hp.servizi_accessibilita||'').trim().length > 5,
+            hasPiscina:        /piscin/.test(txt),
+            hasSpa:            /\bspa\b|sauna|hammam|bagno turco|centro benessere/.test(txt),
+            hasPets:           /^s[iì]$/i.test(String(sc.pets_allowed||'')) || sc.pets_allowed === true || sc.pets_allowed === 'true' || /animali|pet friendly|cani/.test(txt),
+            hasRistorante:     /ristorante|cucina|dining/.test(txt),
+            hasColazione:      /colazione|breakfast/.test(txt),
+            hasParcheggio:     /parcheggio|parking|garage/.test(txt),
+            hasBusiness:       /sala meeting|sala conferenz|coworking|centro congressi/.test(txt),
+            hasSports:         /palestra|biciclette|sport|fitness|escursion/.test(txt),
+            hasMarriages:      /matrimon|wedding|riceviment|cerimoni|banchett/.test(txt),
+            hasWellness:       /\bspa\b|benessere|wellness|sauna|massagg/.test(txt),
         };
     }
 
@@ -3218,14 +3227,14 @@
         },
         {
             id: 'family_general', category: 'famiglie_con_bambini', label: 'Family generale',
-            appliesWhen: f => f.hasFamily || f.hasMare,
+            appliesWhen: f => f.hasFamily,
             templates: dest => ['hotel adatto famiglie con bambini piccoli a ' + dest, 'hotel con animazione bambini a ' + dest, 'hotel con camere comunicanti a ' + dest, 'hotel con lettino per neonato a ' + dest, 'hotel con seggioloni e lettini disponibili a ' + dest],
             seasonalTemplates: (dest, y) => ['vacanze family ' + y + ' ' + dest],
             priorityScore: f => (f.hasFamily ? 12 : 0) + (f.hasMare ? 5 : 0) + (f.hasPiscina ? 5 : 0),
         },
         {
             id: 'family_beach', category: 'famiglie_con_bambini', label: 'Family spiaggia',
-            appliesWhen: f => f.hasMare,
+            appliesWhen: f => f.hasMare && f.hasFamily,
             templates: dest => ['hotel family con spiaggia a ' + dest, 'hotel per famiglie sul mare a ' + dest],
             seasonalTemplates: (dest, y) => ['hotel spiaggia bambini estate ' + y + ' ' + dest],
             priorityScore: f => (f.hasMare ? 10 : 0) + (f.hasFamily ? 6 : 0),
@@ -3288,15 +3297,15 @@
             appliesWhen: f => f.hasAccessibility,
             templates: dest => ['hotel accessibile disabili a ' + dest, 'camera disabili hotel a ' + dest, 'hotel con ascensore per disabili a ' + dest, 'parcheggio disabili hotel a ' + dest, 'hotel per sedie a rotelle a ' + dest, 'struttura accessibile sedia rotelle a ' + dest, 'bagno attrezzato disabili hotel a ' + dest, 'hotel senza barriere architettoniche a ' + dest],
             seasonalTemplates: (dest, y) => [],
-            priorityScore: f => f.hasAccessibility ? 16 : 4,
+            priorityScore: f => f.hasAccessibility ? 16 : 0,
         },
         // ── terza_eta_anziani ─────────────────────────────────────────────────
         {
             id: 'seniors_general', category: 'terza_eta_anziani', label: 'Terza età',
-            appliesWhen: () => true,
+            appliesWhen: f => f.hasElderly,
             templates: dest => ['hotel adatto anziani a ' + dest, 'hotel con ascensore a ' + dest, 'struttura per over 65 a ' + dest, 'hotel con menù dietetico anziani a ' + dest, 'hotel vicino farmacia a ' + dest, 'hotel con servizio medico a ' + dest, 'struttura con pavimenti antiscivolo a ' + dest, 'hotel tranquillo per anziani a ' + dest],
             seasonalTemplates: (dest, y) => [],
-            priorityScore: f => (f.hasAccessibility ? 8 : 0) + 4,
+            priorityScore: f => f.hasElderly ? 12 : 0,
         },
         // ── sport_avventura ───────────────────────────────────────────────────
         {
@@ -3324,7 +3333,7 @@
         // ── matrimoni_eventi ──────────────────────────────────────────────────
         {
             id: 'weddings_general', category: 'matrimoni_eventi', label: 'Matrimoni ed eventi',
-            appliesWhen: f => f.hasMarriages || f.hasBusiness,
+            appliesWhen: f => f.hasMarriages,
             templates: dest => ['hotel per matrimoni a ' + dest, 'sala ricevimenti hotel a ' + dest, 'hotel per feste private a ' + dest, 'pacchetti cerimonie hotel a ' + dest, 'hotel con giardino per matrimoni a ' + dest, 'banchetti nuziali hotel a ' + dest, 'allestimento ricevimento hotel a ' + dest, 'hotel per comunioni e cresime a ' + dest],
             seasonalTemplates: (dest, y) => ['matrimoni hotel ' + dest + ' ' + y],
             priorityScore: f => (f.hasMarriages ? 16 : 0) + (f.hasBusiness ? 5 : 0),
@@ -3332,18 +3341,18 @@
         // ── parcheggio ────────────────────────────────────────────────────────
         {
             id: 'parking_general', category: 'parcheggio', label: 'Parcheggio',
-            appliesWhen: () => true,
+            appliesWhen: f => f.hasParcheggio,
             templates: dest => ['hotel con parcheggio gratuito a ' + dest, 'hotel con garage coperto a ' + dest, 'hotel con parcheggio custodito a ' + dest, 'parcheggio camper hotel a ' + dest, 'hotel con posto auto riservato a ' + dest, 'hotel con parcheggio bus a ' + dest, 'hotel con colonnina ricarica auto elettrica a ' + dest, 'parcheggio bici hotel a ' + dest],
             seasonalTemplates: (dest, y) => [],
-            priorityScore: f => f.hasParcheggio ? 14 : 4,
+            priorityScore: f => f.hasParcheggio ? 14 : 0,
         },
         // ── colazione ─────────────────────────────────────────────────────────
         {
             id: 'breakfast_general', category: 'colazione', label: 'Colazione',
-            appliesWhen: () => true,
+            appliesWhen: f => f.hasColazione,
             templates: dest => ['hotel con colazione inclusa a ' + dest, 'orari colazione hotel a ' + dest, 'buffet colazione hotel a ' + dest, 'colazione in camera hotel a ' + dest, 'hotel con colazione gluten free a ' + dest, 'colazione continental hotel a ' + dest, 'colazione salata hotel a ' + dest, 'colazione fino a tardi hotel a ' + dest],
             seasonalTemplates: (dest, y) => [],
-            priorityScore: f => f.hasColazione ? 12 : 4,
+            priorityScore: f => f.hasColazione ? 12 : 0,
         },
         // ── ristorante ────────────────────────────────────────────────────────
         {
@@ -3355,18 +3364,25 @@
         },
         // ── spiaggia_mare ─────────────────────────────────────────────────────
         {
-            id: 'beach_direct', category: 'spiaggia_mare', label: 'Accesso diretto al mare',
+            id: 'beach_nearby', category: 'spiaggia_mare', label: 'Hotel vicino al mare',
             appliesWhen: f => f.hasMare,
-            templates: dest => ['hotel con accesso diretto al mare a ' + dest, 'hotel sul lungomare a ' + dest, 'hotel primo fila mare a ' + dest, 'hotel con bar spiaggia a ' + dest],
+            templates: dest => ['hotel vicino alla spiaggia a ' + dest, 'hotel a due passi dal mare a ' + dest, 'hotel con vista mare a ' + dest, 'hotel sul lungomare a ' + dest],
             seasonalTemplates: (dest, y) => ['hotel sul mare estate ' + y + ' ' + dest],
-            priorityScore: f => f.hasMare ? 16 : 0,
+            priorityScore: f => f.hasMare ? 12 : 0,
+        },
+        {
+            id: 'beach_direct', category: 'spiaggia_mare', label: 'Accesso diretto al mare',
+            appliesWhen: f => f.hasSpiaggiaPropria,
+            templates: dest => ['hotel con accesso diretto al mare a ' + dest, 'hotel primo fila mare a ' + dest, 'hotel con spiaggia privata a ' + dest, 'hotel con bar spiaggia a ' + dest],
+            seasonalTemplates: (dest, y) => ['hotel fronte mare estate ' + y + ' ' + dest],
+            priorityScore: f => f.hasSpiaggiaPropria ? 16 : 0,
         },
         {
             id: 'beach_equipped', category: 'spiaggia_mare', label: 'Spiaggia attrezzata',
-            appliesWhen: f => f.hasMare,
-            templates: dest => ['hotel vicino alla spiaggia a ' + dest, 'hotel con ombrellone e lettino incluso a ' + dest, 'spiaggia privata hotel a ' + dest, 'hotel con spiaggia attrezzata a ' + dest],
+            appliesWhen: f => f.hasSpiaggiaPropria,
+            templates: dest => ['hotel con ombrellone e lettino incluso a ' + dest, 'spiaggia convenzionata hotel a ' + dest, 'hotel con spiaggia attrezzata a ' + dest, 'hotel con spiaggia riservata a ' + dest],
             seasonalTemplates: (dest, y) => ['spiaggia riservata hotel estate ' + y + ' ' + dest],
-            priorityScore: f => f.hasMare ? 12 : 0,
+            priorityScore: f => f.hasSpiaggiaPropria ? 10 : 0,
         },
         // ── trasporti_arrivo ──────────────────────────────────────────────────
         {
@@ -4741,10 +4757,42 @@ ${rows}
                 btnConnectGsc.disabled = true;
                 btnConnectGsc.textContent = '⏳ Connessione...';
                 try {
-                    // Get client ID from edge function
-                    const cfgRes = await fetch(`${SUPABASE_URL}/functions/v1/gsc-config`, { headers: { 'Authorization': 'Bearer ' + (await _SB.auth.getSession()).data.session?.access_token } });
-                    const { clientId } = await cfgRes.json();
-                    if (!clientId) throw new Error('GOOGLE_GSC_CLIENT_ID non configurato nel progetto Supabase');
+                    // Get client ID from localStorage (public, non-secret identifier)
+                    let clientId = localStorage.getItem('isi_gsc_client_id') || '';
+                    if (!clientId) {
+                        clientId = await new Promise((res2, rej2) => {
+                            const ov = document.createElement('div');
+                            ov.style.cssText = 'position:fixed;inset:0;background:rgba(23,27,51,.45);z-index:9999;display:flex;align-items:center;justify-content:center';
+                            ov.innerHTML = `<div style="background:white;border-radius:10px;padding:24px;max-width:520px;width:90%;box-shadow:0 8px 32px rgba(23,27,51,.18)">
+                                <div style="font-size:15px;font-weight:600;color:#171b33;margin-bottom:16px">Configura Google Search Console</div>
+                                <div style="font-size:13px;color:#666b84;margin-bottom:14px;line-height:1.6">Serve un <strong>Google OAuth Client ID</strong> — si crea una volta sola e vale per tutti gli hotel.</div>
+                                <ol style="font-size:13px;color:#171b33;margin:0 0 16px 16px;padding:0;line-height:2.2">
+                                    <li>Vai su <a href="https://console.cloud.google.com/apis/credentials" target="_blank" style="color:#0D5F75;text-decoration:underline">console.cloud.google.com/apis/credentials</a></li>
+                                    <li>Abilita la <strong>Google Search Console API</strong> nel progetto</li>
+                                    <li>Crea credenziali → <strong>ID client OAuth 2.0</strong> → tipo <strong>Applicazione web</strong></li>
+                                    <li>Aggiungi origine autorizzata: <code style="background:#f4f4f8;padding:1px 6px;border-radius:3px;font-size:12px">https://isi.in3pida.it</code></li>
+                                    <li>Copia il <strong>Client ID</strong> e incollalo qui:</li>
+                                </ol>
+                                <input id="_gsc-cid-input" type="text" placeholder="123456789-xxxx.apps.googleusercontent.com" style="width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #e4e4ec;border-radius:4px;font-size:13px;margin-bottom:8px">
+                                <div id="_gsc-cid-msg" style="font-size:12px;color:#d82d6b;margin-bottom:12px;min-height:16px"></div>
+                                <div style="display:flex;gap:8px;justify-content:flex-end">
+                                    <button id="_gsc-cid-cancel" class="btn-ping" style="padding:7px 18px">Annulla</button>
+                                    <button id="_gsc-cid-save" class="btn-update" style="padding:7px 18px">Salva e continua</button>
+                                </div></div>`;
+                            document.body.appendChild(ov);
+                            ov.querySelector('#_gsc-cid-cancel').addEventListener('click', () => { document.body.removeChild(ov); rej2(new Error('annullato')); });
+                            ov.querySelector('#_gsc-cid-save').addEventListener('click', () => {
+                                const v = (ov.querySelector('#_gsc-cid-input').value || '').trim();
+                                if (!v.includes('.apps.googleusercontent.com')) {
+                                    ov.querySelector('#_gsc-cid-msg').textContent = 'Il Client ID deve terminare con .apps.googleusercontent.com';
+                                    return;
+                                }
+                                localStorage.setItem('isi_gsc_client_id', v);
+                                document.body.removeChild(ov);
+                                res2(v);
+                            });
+                        });
+                    }
 
                     await loadGisScript();
 
