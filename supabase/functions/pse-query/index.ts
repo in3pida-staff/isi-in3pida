@@ -3,6 +3,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? ''
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 const GROQ_API_KEY = Deno.env.get('GROQ_API_KEY') ?? ''
+const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY') ?? Deno.env.get('GEMINI_KEY') ?? ''
 
 const cors = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'authorization, content-type' }
 
@@ -24,12 +25,107 @@ async function groq(systemPrompt: string, userPrompt: string, maxTokens = 400, t
   return d.choices?.[0]?.message?.content?.trim() ?? ''
 }
 
+async function gemini(systemPrompt: string, userPrompt: string, maxTokens = 800): Promise<string> {
+  if (!GEMINI_API_KEY) return ''
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: systemPrompt }] },
+        contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
+        generationConfig: { maxOutputTokens: maxTokens, temperature: 0.3 }
+      })
+    }
+  )
+  const d = await res.json()
+  return d.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ?? ''
+}
+
+function parseJson(raw: string): any {
+  try { return JSON.parse(raw) } catch { /* empty */ }
+  try { const m = raw.match(/\{[\s\S]*\}/); return m ? JSON.parse(m[0]) : {} } catch { return {} }
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
 
   try {
     const body = await req.json()
     const { site_id, query, action } = body
+
+    // ─── DEBUG ───────────────────────────────────────────────────────────────
+    if (action === 'debug') {
+      const key = GEMINI_API_KEY
+      let geminiDebug: any = {}
+      try {
+        const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ contents: [{ role:'user', parts:[{ text:'Say hello' }] }], generationConfig:{ maxOutputTokens:20 } })
+        })
+        geminiDebug = await r.json()
+      } catch(e) { geminiDebug = { fetchError: String(e) } }
+      return new Response(JSON.stringify({
+        GEMINI_KEY_set: !!Deno.env.get('GEMINI_KEY'),
+        GEMINI_API_KEY_set: !!Deno.env.get('GEMINI_API_KEY'),
+        GROQ_KEY_set: !!Deno.env.get('GROQ_API_KEY'),
+        gemini_response: geminiDebug,
+      }), { headers: { ...cors, 'Content-Type': 'application/json' } })
+    }
+
+    // ─── DETECT WRITING STYLE ────────────────────────────────────────────────
+    if (action === 'detect_style') {
+      if (!site_id) return new Response(JSON.stringify({ error: 'Missing site_id' }), { status: 400, headers: cors })
+      if (!GROQ_API_KEY) return new Response(JSON.stringify({ error: 'GROQ_API_KEY non configurata' }), { status: 422, headers: cors })
+
+      const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY)
+      const { data: site } = await supabase.from('isi_sites').select('hotel_profile,schema_data,site_name').eq('site_id', site_id).single()
+      if (!site) return new Response(JSON.stringify({ error: 'Site not found' }), { status: 404, headers: cors })
+
+      const hp = site.hotel_profile || {}
+      const sc = site.schema_data   || {}
+      const siteUrl = hp.sito_web || sc.url || ''
+
+      let pageText = ''
+      if (siteUrl) {
+        try {
+          const ctrl = new AbortController()
+          const timer = setTimeout(() => ctrl.abort(), 8000)
+          const resp = await fetch(siteUrl, { signal: ctrl.signal, headers: { 'User-Agent': 'Mozilla/5.0' } })
+          clearTimeout(timer)
+          const html = await resp.text()
+          pageText = html
+            .replace(/<script[\s\S]*?<\/script>/gi, '')
+            .replace(/<style[\s\S]*?<\/style>/gi, '')
+            .replace(/<[^>]+>/g, ' ')
+            .replace(/\s{2,}/g, ' ')
+            .slice(0, 3000)
+        } catch { /* fallback to description */ }
+      }
+
+      const textSource = pageText.trim() || (sc.description || hp.descrizione || '').slice(0, 2000)
+      if (!textSource.trim()) return new Response(JSON.stringify({ error: 'no_text_source' }), { status: 422, headers: cors })
+
+      const raw = await groq(
+        `Sei un esperto di comunicazione alberghiera. Analizza il testo estratto dal sito di un hotel e restituisci il suo stile comunicativo in JSON.
+
+Campi da restituire:
+- "tono": una parola sola tra: formale, professionale, informale, familiare, elegante, vivace
+- "persona": la forma di cortesia usata verso il cliente: "tu", "voi", "lei", o "misto"
+- "personalita": 2-3 parole che descrivono il carattere del testo (es. "caldo e accogliente", "lussuoso e raffinato", "allegro e dinamico")
+- "esempio": una frase rappresentativa del tono estratta letteralmente dal testo (max 120 caratteri)
+
+Formato (JSON puro):
+{"tono":"...","persona":"...","personalita":"...","esempio":"..."}`,
+        `Testo dal sito:\n${textSource}\n\nRispondi con JSON:`,
+        250,
+        0.3
+      )
+      const parsed = parseJson(raw)
+      if (!parsed.tono) return new Response(JSON.stringify({ error: 'style_not_detected' }), { status: 500, headers: cors })
+      return new Response(JSON.stringify({ writing_style: parsed }), { headers: { ...cors, 'Content-Type': 'application/json' } })
+    }
 
     // ─── FAQ GENERATION ──────────────────────────────────────────────────────
     if (action === 'faq_generate') {
@@ -57,16 +153,22 @@ Deno.serve(async (req) => {
       if (!lines.trim()) return new Response(JSON.stringify({ error: 'no_data' }), { status: 422, headers: cors })
       if (!GROQ_API_KEY) return new Response(JSON.stringify({ error: 'GROQ_API_KEY non configurata' }), { status: 422, headers: cors })
 
+      const ws = hp.writing_style || {}
+      const styleInstructions = ws.tono
+        ? `\nSTILE DI COMUNICAZIONE DELL'HOTEL:\n- Tono: ${ws.tono}${ws.persona ? ` — usa la forma "${ws.persona}"` : ''}\n- Personalità: ${ws.personalita || ''}\n${ws.esempio ? `- Esempio dal sito: "${ws.esempio}"\n` : ''}Adatta la risposta a questo stile specifico, mantenendo la stessa voce e personalità del sito dell'hotel.`
+        : '\nTono: caldo, professionale, promozionale.'
+
       const raw = await groq(
-        `Sei il responsabile marketing di un hotel italiano. Il tuo compito è scrivere risposte FAQ promozionali, calde e convincenti.
+        `Sei il responsabile marketing di un hotel italiano. Il tuo compito è scrivere risposte FAQ promozionali e convincenti.
 
 REGOLA ASSOLUTA: devi SEMPRE scrivere una risposta completa e positiva, qualunque sia la domanda. Non esistono eccezioni.
 
 COSA FARE:
 - Usa i dati forniti quando disponibili (nome hotel, stelle, servizi, posizione, ecc.)
 - Se mancano dati specifici, rispondi comunque in modo verosimile e promozionale basandoti sul tipo di struttura e sulla domanda — come farebbe un bravo ufficio marketing
-- Tono: caldo, professionale, promozionale. 2-4 frasi.
+- Lunghezza: 2-4 frasi
 - Lingua: italiano
+${styleInstructions}
 
 COSA NON FARE MAI (pena risposta scartata):
 - Non scrivere "non ho informazioni", "non sono in grado", "non posso", "visita il sito", "contatta la reception" come unica risposta
@@ -85,12 +187,7 @@ Formato risposta (JSON puro, nessun testo fuori):
         0.5
       )
 
-      let parsed: { answer?: string; sufficient?: boolean } = {}
-      try {
-        const jsonMatch = raw.match(/\{[\s\S]*\}/)
-        parsed = jsonMatch ? JSON.parse(jsonMatch[0]) : {}
-      } catch { parsed = {} }
-
+      const parsed = parseJson(raw)
       if (!parsed.answer) return new Response(JSON.stringify({ error: 'empty_response' }), { status: 500, headers: cors })
       return new Response(
         JSON.stringify({ answer: parsed.answer, sufficient: parsed.sufficient !== false }),
@@ -106,28 +203,78 @@ Formato risposta (JSON puro, nessun testo fuori):
     if (!site?.pse_enabled) return new Response(JSON.stringify({ error: 'PSE not enabled' }), { status: 403, headers: cors })
     if (!GROQ_API_KEY) return new Response(JSON.stringify({ error: 'GROQ_API_KEY non configurata' }), { status: 422, headers: cors })
 
-    const systemPrompt = `Sei un consulente GEO (Generative Engine Optimization) specializzato in strutture ricettive italiane.
-Ricevi il profilo di un hotel e una query utente. Analizza se e come questo hotel verrebbe citato in una risposta AI.
-Rispondi SOLO con JSON valido, nessun testo extra:
+    const systemPrompt = `Sei un esperto di GEO (Generative Engine Optimization) per hotel italiani. Analizzi se un hotel verrebbe citato da ChatGPT, Perplexity o Google AI in risposta a una query specifica.
+
+REGOLE per i suggerimenti:
+- Ogni suggerimento deve riferirsi a un dato CONCRETO che manca o è debole nel profilo rispetto alla query ricevuta
+- NON suggerire cose già presenti nel profilo (es. se le stelle ci sono, non dirlo)
+- NON suggerire cose generiche come "aggiornare il sito" o "migliorare la visibilità"
+- Ogni suggerimento deve iniziare con un'azione specifica: "Aggiungi...", "Descrivi...", "Specifica...", "Inserisci...", "Crea una FAQ su..."
+- Collegare il suggerimento alla query: se la query è "hotel per famiglie", i suggerimenti devono riguardare servizi famiglia mancanti, non le stelle
+
+Rispondi SOLO con JSON valido, nessun testo fuori:
 {
-  "probability": <0-100>,
+  "probability": <0-100, quanto è probabile che questo hotel venga citato per QUESTA query>,
   "verdict": "<Molto probabile|Probabile|Incerto|Improbabile|Molto improbabile>",
-  "why": "<perché verrebbe/non verrebbe citato, max 2 righe>",
-  "strengths": ["<forza 1>","<forza 2>"],
-  "weaknesses": ["<debolezza 1>","<debolezza 2>"],
-  "suggestions": ["<suggerimento 1>","<suggerimento 2>","<suggerimento 3>"],
-  "sample_answer": "<come un AI risponderebbe citando questo hotel, max 2 righe>"
+  "why": "<spiega in 1-2 frasi cosa nel profilo supporta o indebolisce la citazione per questa query specifica>",
+  "strengths": ["<punto di forza del profilo rilevante per questa query>","<altro punto di forza>"],
+  "weaknesses": ["<lacuna del profilo rilevante per questa query>","<altra lacuna>"],
+  "suggestions": ["<azione concreta e specifica basata su dato mancante nel profilo>","<seconda azione>","<terza azione>"],
+  "sample_answer": "<frase di esempio come la direbbe ChatGPT citando questo hotel per questa query>"
 }`
 
-    const rawText = await groq(systemPrompt, `Profilo hotel:\n${JSON.stringify(body.hotel_context, null, 2)}\n\nQuery utente: "${query}"`, 800)
-    let result: any = {}
-    try { result = JSON.parse(rawText) } catch { result = { error: 'Parse error', raw: rawText } }
+    const userPrompt = `Profilo hotel:\n${JSON.stringify(body.hotel_context, null, 2)}\n\nQuery utente: "${query}"`
 
-    await supabase.from('isi_pse_queries').insert({
-      site_id, site_name: site.site_name, query,
-      tokens_in: 0, tokens_out: 0, cost_usd: 0,
-      model: 'llama-3.1-8b-instant', result
-    })
+    // Esegui Groq e Gemini in parallelo
+    const [rawGroq, rawGemini] = await Promise.all([
+      groq(systemPrompt, userPrompt, 800).catch(() => ''),
+      gemini(systemPrompt, userPrompt, 800).catch(() => '')
+    ])
+
+    const groqResult = parseJson(rawGroq)
+    const geminiResult = parseJson(rawGemini)
+
+    const groqCited = (groqResult.probability ?? 0) >= 50
+    const geminiCited = GEMINI_API_KEY ? (geminiResult.probability ?? 0) >= 50 : null
+
+    const result = {
+      ...groqResult,
+      llm_results: {
+        groq: {
+          probability: groqResult.probability ?? null,
+          verdict: groqResult.verdict ?? null,
+          cited: groqCited,
+          model: 'llama-3.1-8b-instant'
+        },
+        ...(GEMINI_API_KEY && Object.keys(geminiResult).length > 0 ? {
+          gemini: {
+            probability: geminiResult.probability ?? null,
+            verdict: geminiResult.verdict ?? null,
+            cited: geminiCited,
+            model: 'gemini-1.5-flash'
+          }
+        } : {})
+      }
+    }
+
+    // Trova tutte le righe con la stessa query (case-insensitive) per questo sito
+    const { data: existingRows } = await supabase
+      .from('isi_pse_queries').select('id')
+      .eq('site_id', site_id).ilike('query', query.trim()).limit(20)
+
+    const model = GEMINI_API_KEY ? 'groq+gemini' : 'llama-3.1-8b-instant'
+
+    if (existingRows && existingRows.length > 0) {
+      const keepId = existingRows[0].id
+      const dupeIds = existingRows.slice(1).map((r: any) => r.id)
+      if (dupeIds.length > 0) await supabase.from('isi_pse_queries').delete().in('id', dupeIds)
+      await supabase.from('isi_pse_queries').update({ result, model, tokens_in:0, tokens_out:0, cost_usd:0 }).eq('id', keepId)
+    } else {
+      await supabase.from('isi_pse_queries').insert({
+        site_id, site_name: site.site_name, query: query.trim(),
+        tokens_in: 0, tokens_out: 0, cost_usd: 0, model, result
+      })
+    }
 
     return new Response(JSON.stringify({ ok: true, result, cost_usd: 0 }), {
       headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }

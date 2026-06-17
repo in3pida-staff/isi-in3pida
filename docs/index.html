@@ -1649,6 +1649,8 @@
         if (btnCancel) btnCancel.addEventListener('click', () => { setupHotelProfileForm(_schemaProfile); toggleHotelProfileEdit(false); });
         if (btnSave)   btnSave.addEventListener('click', () => saveHotelProfile(site.site_id));
         if (btnRevert) btnRevert.addEventListener('click', () => revertToPluginProfile(site));
+        const btnRileva = document.getElementById('btn-rileva-stile');
+        if (btnRileva) btnRileva.addEventListener('click', () => rilevaStiloSito(site.site_id));
     }
 
     function renderSchemaView(s) {
@@ -1912,6 +1914,21 @@
             inp('telefono','Telefono', p.telefono,'+39 0541 000000','tel') +
             inp('email','Email', p.email,'info@hotel.it','email') +
             inp('sito_web','Sito web', p.sito_web,'https://www.hotel.it','url') + '</div>' +
+
+            sec('STILE DI COMUNICAZIONE') +
+            '<div style="font-size:14px;color:#666b84;margin-bottom:14px">Analizza automaticamente il sito web e imposta il tono per le risposte FAQ generate dall\'AI.</div>' +
+            ((() => {
+                const ws = p.writing_style || {};
+                if (ws.tono) {
+                    const badges = [ws.tono, ws.persona ? `usa "${ws.persona}"` : '', ws.personalita].filter(Boolean)
+                        .map(b => `<span style="background:#e8f4f7;color:#0D5F75;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:700">${escHtml(b)}</span>`).join('');
+                    return `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px" id="stile-badges">${badges}</div>` +
+                        (ws.esempio ? `<div style="background:#f7f8fc;border-radius:6px;padding:10px 14px;font-size:13px;color:#4b4d68;font-style:italic;margin-bottom:12px;line-height:1.6">"${escHtml(ws.esempio)}"</div>` : '');
+                }
+                return '<div style="font-size:13px;color:#9698a8;margin-bottom:12px" id="stile-badges">Stile non ancora rilevato.</div>';
+            })()) +
+            '<div id="stile-status" style="font-size:13px;margin-bottom:10px"></div>' +
+            '<button type="button" id="btn-rileva-stile" style="background:#0D5F75;color:white;border:none;border-radius:6px;padding:8px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">Rileva stile dal sito</button>' +
 
             sec('INDIRIZZO E GEOLOCALIZZAZIONE') +
             '<div style="display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:12px">' +
@@ -2288,6 +2305,43 @@
     }
     function _fbCopy(text) {
         const ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); showToast('JSON-LD copiato!');
+    }
+
+    async function rilevaStiloSito(siteId) {
+        const btn = document.getElementById('btn-rileva-stile');
+        const statusEl = document.getElementById('stile-status');
+        const badgesEl = document.getElementById('stile-badges');
+        if (!btn) return;
+        btn.disabled = true;
+        btn.textContent = '⏳ Rilevamento...';
+        if (statusEl) { statusEl.style.color = '#4b4d68'; statusEl.textContent = ''; }
+        try {
+            const { data: { session } } = await _SB.auth.getSession();
+            if (!session) throw new Error('Sessione scaduta');
+            const res = await fetch(`${SUPABASE_URL}/functions/v1/pse-query`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
+                body: JSON.stringify({ site_id: siteId, action: 'detect_style' })
+            });
+            const json = await res.json();
+            if (!json.writing_style) throw new Error(json.error || 'Nessuno stile rilevato');
+            const ws = json.writing_style;
+
+            const { data: freshSite } = await _SBq.from('isi_sites').select('hotel_profile').eq('site_id', siteId).single();
+            const hp = freshSite?.hotel_profile || {};
+            await _SBq.from('isi_sites').update({ hotel_profile: { ...hp, writing_style: ws } }).eq('site_id', siteId);
+
+            if (badgesEl) {
+                const badges = [ws.tono, ws.persona ? `usa "${ws.persona}"` : '', ws.personalita].filter(Boolean)
+                    .map(b => `<span style="background:#e8f4f7;color:#0D5F75;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:700">${escHtml(b)}</span>`).join('');
+                badgesEl.innerHTML = badges + (ws.esempio ? `<div style="background:#f7f8fc;border-radius:6px;padding:10px 14px;font-size:13px;color:#4b4d68;font-style:italic;margin-top:10px;line-height:1.6">"${escHtml(ws.esempio)}"</div>` : '');
+            }
+            if (statusEl) { statusEl.style.color = '#0D5F75'; statusEl.textContent = '✓ Stile rilevato e salvato.'; }
+        } catch(e) {
+            if (statusEl) { statusEl.style.color = '#d82d6b'; statusEl.textContent = 'Errore: ' + e.message; }
+        }
+        btn.disabled = false;
+        btn.textContent = 'Rileva stile dal sito';
     }
 
     async function saveHotelProfile(siteId) {
@@ -3219,193 +3273,552 @@
     const INTENT_LIBRARY = [
         // ── famiglie_con_bambini ──────────────────────────────────────────────
         {
-            id: 'family_pool', category: 'famiglie_con_bambini', label: 'Family con piscina',
-            appliesWhen: f => f.hasPiscina && f.hasFamily,
-            templates: dest => ['hotel con piscina per bambini a ' + dest, 'family hotel con piscina a ' + dest, 'hotel con scivoli e piscina bambini a ' + dest],
-            seasonalTemplates: (dest, y) => ['hotel piscina bambini estate ' + y + ' ' + dest],
-            priorityScore: f => (f.hasFamily ? 10 : 0) + (f.hasPiscina ? 10 : 0) + (f.hasMare ? 5 : 0),
-        },
-        {
             id: 'family_general', category: 'famiglie_con_bambini', label: 'Family generale',
             appliesWhen: f => f.hasFamily,
-            templates: dest => ['hotel adatto famiglie con bambini piccoli a ' + dest, 'hotel con animazione bambini a ' + dest, 'hotel con camere comunicanti a ' + dest, 'hotel con lettino per neonato a ' + dest, 'hotel con seggioloni e lettini disponibili a ' + dest],
-            seasonalTemplates: (dest, y) => ['vacanze family ' + y + ' ' + dest],
+            templates: () => [
+                'L\'hotel è adatto per famiglie con bambini piccoli?',
+                'Ci sono servizi specifici per i bambini?',
+                'L\'hotel è family friendly?',
+                'Sono disponibili lettini per neonati?',
+                'Si possono richiedere seggioloni per la cena?',
+                'Ci sono camere comunicanti per famiglie numerose?',
+                'Posso avere una culla in camera?',
+                'L\'hotel offre animazione per bambini?',
+                'Ci sono attività organizzate per i bambini?',
+                'È disponibile un baby sitter su richiesta?',
+                'I bambini pagano la tariffa intera?',
+                'Fino a che età i bambini soggiornano gratis?',
+                'C\'è un parco giochi o un\'area bambini?',
+                'Il ristorante ha un menù dedicato ai bambini?',
+                'Posso scaldare il biberon o il cibo per neonati?',
+            ],
+            seasonalTemplates: () => [
+                'Ci sono pacchetti vacanze estive per famiglie?',
+                'L\'hotel organizza attività per bambini in estate?',
+            ],
             priorityScore: f => (f.hasFamily ? 12 : 0) + (f.hasMare ? 5 : 0) + (f.hasPiscina ? 5 : 0),
+        },
+        {
+            id: 'family_pool', category: 'famiglie_con_bambini', label: 'Family con piscina',
+            appliesWhen: f => f.hasPiscina && f.hasFamily,
+            templates: () => [
+                'La piscina è adatta anche per i bambini?',
+                'C\'è una piscina per bambini o una zona poco profonda?',
+                'Ci sono scivoli o giochi acquatici per bambini?',
+                'La piscina per bambini è sorvegliata?',
+                'I bambini piccoli possono usare la piscina?',
+            ],
+            seasonalTemplates: () => ['La piscina è aperta tutto il giorno in estate?'],
+            priorityScore: f => (f.hasFamily ? 10 : 0) + (f.hasPiscina ? 10 : 0),
         },
         {
             id: 'family_beach', category: 'famiglie_con_bambini', label: 'Family spiaggia',
             appliesWhen: f => f.hasMare && f.hasFamily,
-            templates: dest => ['hotel family con spiaggia a ' + dest, 'hotel per famiglie sul mare a ' + dest],
-            seasonalTemplates: (dest, y) => ['hotel spiaggia bambini estate ' + y + ' ' + dest],
+            templates: () => [
+                'L\'hotel è adatto per famiglie con bambini al mare?',
+                'La spiaggia è sicura per i bambini piccoli?',
+                'C\'è una zona di mare protetta per i bambini?',
+                'L\'hotel organizza attività in spiaggia per famiglie?',
+                'Ci sono ombrelloni e lettini riservati per le famiglie?',
+            ],
+            seasonalTemplates: () => ['Ci sono pacchetti mare per famiglie in estate?'],
             priorityScore: f => (f.hasMare ? 10 : 0) + (f.hasFamily ? 6 : 0),
         },
         // ── coppie_romantici ──────────────────────────────────────────────────
         {
             id: 'romantic_general', category: 'coppie_romantici', label: 'Romantico generale',
             appliesWhen: f => f.hasRomantic || f.hasSpa,
-            templates: dest => ['hotel romantico a ' + dest, 'suite luna di miele a ' + dest, 'hotel per anniversario a ' + dest, 'pacchetti romantici hotel a ' + dest, 'cena romantica in camera hotel a ' + dest],
-            seasonalTemplates: (dest, y) => ['weekend romantico ' + dest + ' ' + y],
+            templates: () => [
+                'L\'hotel offre pacchetti romantici per coppie?',
+                'È possibile organizzare una cena romantica in camera?',
+                'Ci sono suite o camere speciali per la luna di miele?',
+                'L\'hotel ha decorazioni romantiche per occasioni speciali?',
+                'Posso richiedere champagne o fiori in camera all\'arrivo?',
+                'Ci sono pacchetti speciali per anniversari di matrimonio?',
+                'L\'hotel è adatto per un weekend romantico?',
+                'È possibile prenotare una cena privata a lume di candela?',
+                'Ci sono trattamenti benessere per coppie?',
+                'L\'hotel ha terrazze o spazi privati per le coppie?',
+            ],
+            seasonalTemplates: () => [
+                'Ci sono offerte speciali per San Valentino?',
+                'L\'hotel ha pacchetti per la festa degli innamorati?',
+            ],
             priorityScore: f => (f.hasRomantic ? 14 : 0) + (f.hasSpa ? 4 : 0) + (f.hasMare ? 3 : 0),
         },
         {
             id: 'romantic_sea', category: 'coppie_romantici', label: 'Romantico mare',
             appliesWhen: f => f.hasRomantic && f.hasMare,
-            templates: dest => ['hotel romantico sul mare a ' + dest, 'camera con vista panoramica sul mare a ' + dest, 'camera con terrazza privata mare a ' + dest],
-            seasonalTemplates: (dest, y) => ['fuga romantica al mare ' + y + ' ' + dest],
+            templates: () => [
+                'C\'è una camera con vista mare?',
+                'Le camere hanno terrazza o balcone con vista sul mare?',
+                'È possibile fare il bagno al tramonto?',
+                'L\'hotel organizza aperitivi in riva al mare?',
+                'Ci sono angoli romantici vista mare nell\'hotel?',
+            ],
+            seasonalTemplates: () => ['Ci sono pacchetti estivi romantici con vista mare?'],
             priorityScore: f => (f.hasRomantic ? 10 : 0) + (f.hasMare ? 8 : 0),
         },
         {
             id: 'romantic_spa', category: 'coppie_romantici', label: 'Romantico spa',
             appliesWhen: f => f.hasRomantic && f.hasSpa,
-            templates: dest => ['hotel con spa per coppie a ' + dest, 'hotel con vasca idromassaggio a ' + dest, 'weekend benessere coppia a ' + dest],
-            seasonalTemplates: (dest, y) => [],
+            templates: () => [
+                'Ci sono trattamenti spa per coppie?',
+                'La vasca idromassaggio è disponibile per uso privato?',
+                'L\'hotel offre massaggi di coppia?',
+                'È possibile prenotare la spa in esclusiva per due?',
+                'Ci sono rituali benessere dedicati alle coppie?',
+            ],
+            seasonalTemplates: () => [],
             priorityScore: f => (f.hasRomantic ? 8 : 0) + (f.hasSpa ? 8 : 0),
         },
         // ── business_lavoro ───────────────────────────────────────────────────
         {
             id: 'business_general', category: 'business_lavoro', label: 'Business generale',
             appliesWhen: f => f.hasBusiness,
-            templates: dest => ['hotel con sala meeting a ' + dest, 'hotel business con wifi veloce a ' + dest, 'hotel fattura elettronica a ' + dest, 'hotel con area coworking a ' + dest, 'struttura per eventi aziendali a ' + dest, 'hotel con parcheggio auto aziendale a ' + dest],
-            seasonalTemplates: (dest, y) => [],
+            templates: () => [
+                'L\'hotel ha una sala meeting o sala conferenze?',
+                'Il WiFi è veloce e adatto per il lavoro?',
+                'L\'hotel emette fattura elettronica?',
+                'C\'è un\'area coworking o scrivania in camera?',
+                'È possibile prenotare una sala riunioni?',
+                'Il WiFi è incluso nel prezzo?',
+                'Ci sono servizi di stampa o segreteria disponibili?',
+                'La sala meeting è attrezzata con proiettore e schermo?',
+                'L\'hotel può ospitare eventi aziendali o team building?',
+                'Ci sono tariffe speciali per soggiorni di lavoro prolungati?',
+                'È disponibile il servizio in camera per pranzi di lavoro?',
+            ],
+            seasonalTemplates: () => [],
             priorityScore: f => f.hasBusiness ? 18 : 0,
         },
         {
             id: 'business_congress', category: 'business_lavoro', label: 'Congressi e fiere',
             appliesWhen: f => f.hasBusiness,
-            templates: dest => ['hotel vicino fiera o centro congressi a ' + dest, 'hotel con servizio sveglia ' + dest],
-            seasonalTemplates: (dest, y) => [],
+            templates: () => [
+                'L\'hotel è vicino al centro congressi?',
+                'Ci sono navette per fiere ed eventi?',
+                'L\'hotel ha convenzioni con centri fieristici?',
+                'È disponibile il servizio sveglia?',
+                'L\'hotel offre tariffe per gruppi aziendali?',
+                'C\'è il transfer per congressi e fiere?',
+            ],
+            seasonalTemplates: () => [],
             priorityScore: f => f.hasBusiness ? 8 : 0,
         },
         // ── animali_domestici ─────────────────────────────────────────────────
         {
             id: 'pets_general', category: 'animali_domestici', label: 'Animali domestici',
             appliesWhen: f => f.hasPets,
-            templates: dest => ['hotel che accetta cani a ' + dest, 'hotel pet friendly a ' + dest, 'hotel con giardino per cani a ' + dest, 'hotel accetta gatti a ' + dest, 'hotel con cani di grossa taglia a ' + dest, 'costo extra animali domestici hotel a ' + dest],
-            seasonalTemplates: (dest, y) => ['vacanze con cane ' + dest + ' estate ' + y],
+            templates: () => [
+                'L\'hotel accetta animali domestici?',
+                'Posso portare il mio cane in hotel?',
+                'L\'hotel accetta i gatti?',
+                'C\'è un supplemento per gli animali domestici?',
+                'I cani di grossa taglia sono ammessi?',
+                'Ci sono restrizioni sulle razze di cani accettate?',
+                'C\'è un\'area verde dove portare il cane a fare i bisogni?',
+                'Sono disponibili ciotole o cucce per i cani?',
+                'Posso lasciare il mio animale in camera da solo?',
+                'L\'hotel è vicino a un veterinario?',
+                'I cani possono accedere alle aree comuni dell\'hotel?',
+                'C\'è un\'area per far correre il cane?',
+                'Il cane può venire al ristorante con me?',
+            ],
+            seasonalTemplates: () => [
+                'Ci sono offerte estive per vacanze con animali?',
+                'La spiaggia vicina è pet friendly?',
+            ],
             priorityScore: f => f.hasPets ? 20 : 0,
         },
         {
             id: 'pets_beach', category: 'animali_domestici', label: 'Animali + spiaggia',
             appliesWhen: f => f.hasPets && f.hasMare,
-            templates: dest => ['spiaggia che accetta cani vicino hotel a ' + dest, 'hotel pet friendly sul mare a ' + dest],
-            seasonalTemplates: (dest, y) => [],
+            templates: () => [
+                'C\'è una spiaggia pet friendly vicino all\'hotel?',
+                'I cani possono accedere alla spiaggia?',
+                'Ci sono orari specifici in spiaggia per i cani?',
+                'La spiaggia è accessibile con animali domestici?',
+            ],
+            seasonalTemplates: () => [],
             priorityScore: f => (f.hasPets ? 8 : 0) + (f.hasMare ? 6 : 0),
         },
         // ── accessibilita_disabili ────────────────────────────────────────────
         {
             id: 'accessibility_general', category: 'accessibilita_disabili', label: 'Accessibilità',
             appliesWhen: f => f.hasAccessibility,
-            templates: dest => ['hotel accessibile disabili a ' + dest, 'camera disabili hotel a ' + dest, 'hotel con ascensore per disabili a ' + dest, 'parcheggio disabili hotel a ' + dest, 'hotel per sedie a rotelle a ' + dest, 'struttura accessibile sedia rotelle a ' + dest, 'bagno attrezzato disabili hotel a ' + dest, 'hotel senza barriere architettoniche a ' + dest],
-            seasonalTemplates: (dest, y) => [],
+            templates: () => [
+                'L\'hotel è accessibile per persone con disabilità?',
+                'Ci sono camere attrezzate per ospiti con disabilità motorie?',
+                'L\'hotel ha l\'ascensore?',
+                'Ci sono rampe di accesso per sedie a rotelle?',
+                'Il bagno delle camere accessibili è attrezzato?',
+                'C\'è la doccia a pavimento nelle camere per disabili?',
+                'Il parcheggio ha posti riservati ai disabili?',
+                'L\'hotel è privo di barriere architettoniche?',
+                'Le porte delle camere sono sufficientemente larghe per sedie a rotelle?',
+                'Il personale è formato per assistere ospiti con disabilità?',
+                'Il ristorante è accessibile con sedia a rotelle?',
+                'L\'hotel dispone di ausili speciali su richiesta?',
+            ],
+            seasonalTemplates: () => [],
             priorityScore: f => f.hasAccessibility ? 16 : 0,
         },
         // ── terza_eta_anziani ─────────────────────────────────────────────────
         {
             id: 'seniors_general', category: 'terza_eta_anziani', label: 'Terza età',
             appliesWhen: f => f.hasElderly,
-            templates: dest => ['hotel adatto anziani a ' + dest, 'hotel con ascensore a ' + dest, 'struttura per over 65 a ' + dest, 'hotel con menù dietetico anziani a ' + dest, 'hotel vicino farmacia a ' + dest, 'hotel con servizio medico a ' + dest, 'struttura con pavimenti antiscivolo a ' + dest, 'hotel tranquillo per anziani a ' + dest],
-            seasonalTemplates: (dest, y) => [],
+            templates: () => [
+                'L\'hotel è adatto per ospiti anziani?',
+                'Ci sono servizi specifici per gli over 65?',
+                'L\'hotel ha l\'ascensore?',
+                'È possibile avere una camera al piano terra?',
+                'Il personale è disponibile per assistenza agli anziani?',
+                'Il menù prevede opzioni dietetiche per anziani?',
+                'I pavimenti sono antiscivolo?',
+                'L\'hotel è vicino a una farmacia?',
+                'È disponibile un servizio medico o infermieristico?',
+                'L\'hotel è tranquillo e adatto al riposo?',
+                'Ci sono sedie e aree di relax accessibili?',
+                'Il ristorante serve pasti a orari fissi adatti agli anziani?',
+            ],
+            seasonalTemplates: () => [],
             priorityScore: f => f.hasElderly ? 12 : 0,
+        },
+        // ── piscina ───────────────────────────────────────────────────────────
+        {
+            id: 'pool_general', category: 'piscina', label: 'Piscina',
+            appliesWhen: f => f.hasPiscina,
+            templates: () => [
+                'L\'hotel ha la piscina?',
+                'La piscina è all\'aperto o al coperto?',
+                'La piscina è riscaldata?',
+                'Quali sono gli orari della piscina?',
+                'Ci sono lettini in piscina inclusi?',
+                'Bisogna prenotare il posto in piscina?',
+                'La piscina è accessibile a tutti gli ospiti?',
+                'C\'è un bar bordo piscina?',
+                'La piscina ha una zona profonda e una poco profonda?',
+                'L\'hotel ha una piscina esterna con solarium?',
+                'La piscina è aperta tutto l\'anno?',
+                'Ci sono asciugamani disponibili in piscina?',
+            ],
+            seasonalTemplates: () => [
+                'La piscina è aperta durante tutta l\'estate?',
+                'Ci sono eventi in piscina durante la stagione?',
+            ],
+            priorityScore: f => f.hasPiscina ? 14 : 0,
         },
         // ── sport_avventura ───────────────────────────────────────────────────
         {
             id: 'sports_general', category: 'sport_avventura', label: 'Sport generale',
             appliesWhen: f => f.hasSports || f.hasMontagna,
-            templates: dest => ['hotel con palestra a ' + dest, 'hotel con biciclette a noleggio a ' + dest, 'hotel per escursioni a ' + dest, 'hotel vicino piste ciclabili a ' + dest, 'hotel con noleggio attrezzatura sportiva a ' + dest],
-            seasonalTemplates: (dest, y) => ['vacanze sport attivo estate ' + y + ' ' + dest],
+            templates: () => [
+                'L\'hotel ha una palestra?',
+                'È possibile noleggiare biciclette in hotel?',
+                'L\'hotel è vicino a piste ciclabili?',
+                'Ci sono escursioni organizzate dall\'hotel?',
+                'È disponibile il noleggio di attrezzatura sportiva?',
+                'L\'hotel ha un campo da tennis?',
+                'Ci sono corsi di sport acquatici nelle vicinanze?',
+                'L\'hotel organizza tour in bicicletta o a piedi?',
+                'È possibile fare jogging o running nelle vicinanze?',
+                'Ci sono strutture sportive convenzionate con l\'hotel?',
+                'La palestra è inclusa nel soggiorno?',
+                'Quali orari ha la palestra?',
+            ],
+            seasonalTemplates: () => [
+                'Ci sono attività sportive estive organizzate dall\'hotel?',
+            ],
             priorityScore: f => (f.hasSports ? 12 : 0) + (f.hasMontagna ? 8 : 0),
         },
         {
             id: 'sports_mountain', category: 'sport_avventura', label: 'Sport montagna',
             appliesWhen: f => f.hasMontagna,
-            templates: dest => ['hotel per trekking a ' + dest, 'hotel per sci e neve a ' + dest, 'hotel con piscina olimpionica a ' + dest, 'struttura sport acquatici a ' + dest, 'hotel per triathlon a ' + dest],
-            seasonalTemplates: (dest, y) => ['ski hotel ' + dest + ' inverno ' + y],
+            templates: () => [
+                'L\'hotel organizza escursioni in montagna?',
+                'È possibile praticare sci nelle vicinanze?',
+                'Ci sono sentieri di trekking vicino all\'hotel?',
+                'L\'hotel ha un deposito per sci e attrezzatura?',
+                'Ci sono piste da sci accessibili dall\'hotel?',
+                'L\'hotel offre il noleggio di attrezzatura da sci?',
+                'Ci sono guide alpine disponibili?',
+                'L\'hotel organizza tour per ciaspolate o snowshoe?',
+            ],
+            seasonalTemplates: () => [
+                'L\'hotel è aperto durante la stagione invernale?',
+                'Ci sono pacchetti sci per la stagione invernale?',
+            ],
             priorityScore: f => f.hasMontagna ? 14 : 0,
         },
         // ── benessere_spa ─────────────────────────────────────────────────────
         {
             id: 'spa_general', category: 'benessere_spa', label: 'Spa e benessere',
             appliesWhen: f => f.hasSpa || f.hasWellness,
-            templates: dest => ['hotel con spa a ' + dest, 'hotel con centro benessere a ' + dest, 'hotel con sauna e bagno turco a ' + dest, 'massaggi in hotel a ' + dest, 'hotel con percorso benessere a ' + dest, 'hotel con trattamenti estetici a ' + dest, 'hotel con piscina riscaldata a ' + dest],
-            seasonalTemplates: (dest, y) => ['week end benessere hotel ' + dest + ' ' + y],
+            templates: () => [
+                'L\'hotel ha una spa?',
+                'Ci sono trattamenti benessere disponibili?',
+                'L\'hotel ha la sauna?',
+                'È possibile prenotare un massaggio?',
+                'C\'è il bagno turco o l\'hammam?',
+                'La spa è inclusa nel prezzo del soggiorno?',
+                'La spa è aperta anche agli ospiti esterni?',
+                'Quali trattamenti estetici sono disponibili?',
+                'È necessario prenotare i trattamenti in anticipo?',
+                'Ci sono percorsi benessere con più trattamenti?',
+                'L\'hotel ha una piscina riscaldata nella spa?',
+                'Ci sono trattamenti specifici per il viso?',
+                'La spa ha una zona relax o salotto tranquillo?',
+                'I trattamenti sono eseguiti da personale qualificato?',
+            ],
+            seasonalTemplates: () => [
+                'Ci sono pacchetti benessere per l\'inverno?',
+            ],
             priorityScore: f => (f.hasSpa ? 14 : 0) + (f.hasWellness ? 8 : 0),
         },
         // ── matrimoni_eventi ──────────────────────────────────────────────────
         {
             id: 'weddings_general', category: 'matrimoni_eventi', label: 'Matrimoni ed eventi',
             appliesWhen: f => f.hasMarriages,
-            templates: dest => ['hotel per matrimoni a ' + dest, 'sala ricevimenti hotel a ' + dest, 'hotel per feste private a ' + dest, 'pacchetti cerimonie hotel a ' + dest, 'hotel con giardino per matrimoni a ' + dest, 'banchetti nuziali hotel a ' + dest, 'allestimento ricevimento hotel a ' + dest, 'hotel per comunioni e cresime a ' + dest],
-            seasonalTemplates: (dest, y) => ['matrimoni hotel ' + dest + ' ' + y],
-            priorityScore: f => (f.hasMarriages ? 16 : 0) + (f.hasBusiness ? 5 : 0),
+            templates: () => [
+                'L\'hotel organizza matrimoni?',
+                'C\'è una sala ricevimenti disponibile?',
+                'Quante persone può ospitare per un matrimonio?',
+                'L\'hotel ha un giardino per cerimonie all\'aperto?',
+                'È possibile organizzare il banchetto nuziale in hotel?',
+                'L\'hotel offre pacchetti completi per matrimoni?',
+                'Ci sono spazi per cerimonie civili in hotel?',
+                'Il ristorante può essere riservato per eventi privati?',
+                'L\'hotel organizza comunioni e cresime?',
+                'È possibile portare il proprio catering?',
+                'L\'hotel ha convenzioni con fioristi e fotografi?',
+                'Ci sono suite nuziali per la prima notte?',
+                'È possibile fare una degustazione del menù in anticipo?',
+                'L\'hotel ha esperienza nell\'organizzazione di eventi aziendali?',
+            ],
+            seasonalTemplates: () => [],
+            priorityScore: f => f.hasMarriages ? 16 : 0,
         },
         // ── parcheggio ────────────────────────────────────────────────────────
         {
             id: 'parking_general', category: 'parcheggio', label: 'Parcheggio',
             appliesWhen: f => f.hasParcheggio,
-            templates: dest => ['hotel con parcheggio gratuito a ' + dest, 'hotel con garage coperto a ' + dest, 'hotel con parcheggio custodito a ' + dest, 'parcheggio camper hotel a ' + dest, 'hotel con posto auto riservato a ' + dest, 'hotel con parcheggio bus a ' + dest, 'hotel con colonnina ricarica auto elettrica a ' + dest, 'parcheggio bici hotel a ' + dest],
-            seasonalTemplates: (dest, y) => [],
+            templates: () => [
+                'L\'hotel ha il parcheggio?',
+                'Il parcheggio è gratuito?',
+                'Il garage è coperto?',
+                'Il parcheggio è custodito o sorvegliato?',
+                'Bisogna prenotare il posto auto in anticipo?',
+                'C\'è il parcheggio per camper o caravan?',
+                'Sono disponibili colonnine di ricarica per auto elettriche?',
+                'Dove posso parcheggiare la bicicletta in modo sicuro?',
+                'C\'è spazio per moto e scooter?',
+                'Il parcheggio è a pagamento per tutta la durata del soggiorno?',
+                'Ci sono posti auto riservati per i disabili?',
+                'Il parcheggio è nelle vicinanze dell\'hotel o sottostante?',
+            ],
+            seasonalTemplates: () => [],
             priorityScore: f => f.hasParcheggio ? 14 : 0,
         },
         // ── colazione ─────────────────────────────────────────────────────────
         {
             id: 'breakfast_general', category: 'colazione', label: 'Colazione',
             appliesWhen: f => f.hasColazione,
-            templates: dest => ['hotel con colazione inclusa a ' + dest, 'orari colazione hotel a ' + dest, 'buffet colazione hotel a ' + dest, 'colazione in camera hotel a ' + dest, 'hotel con colazione gluten free a ' + dest, 'colazione continental hotel a ' + dest, 'colazione salata hotel a ' + dest, 'colazione fino a tardi hotel a ' + dest],
-            seasonalTemplates: (dest, y) => [],
+            templates: () => [
+                'La colazione è inclusa nel prezzo?',
+                'A che ora viene servita la colazione?',
+                'Fino a che ora è disponibile la colazione?',
+                'C\'è il buffet della colazione?',
+                'È possibile fare colazione in camera?',
+                'L\'hotel offre opzioni gluten free a colazione?',
+                'Ci sono alternative vegane o vegetariane a colazione?',
+                'La colazione è continental o all\'italiana?',
+                'C\'è la colazione salata con uova o affettati?',
+                'I bambini possono fare colazione gratis?',
+                'È possibile richiedere una colazione anticipata?',
+                'La colazione è servita tutti i giorni, festivi inclusi?',
+                'Ci sono opzioni senza lattosio o per intolleranze?',
+                'È possibile avere prodotti locali o biologici a colazione?',
+            ],
+            seasonalTemplates: () => [],
             priorityScore: f => f.hasColazione ? 12 : 0,
         },
         // ── ristorante ────────────────────────────────────────────────────────
         {
             id: 'restaurant_general', category: 'ristorante', label: 'Ristorante',
             appliesWhen: f => f.hasRistorante,
-            templates: dest => ['hotel con ristorante a ' + dest, 'hotel con cena inclusa a ' + dest, 'ristorante tipico in hotel a ' + dest, 'hotel con cucina vegetariana a ' + dest, 'hotel con menù bambini a ' + dest, 'hotel con pizzeria a ' + dest, 'hotel con bar aperto tardi a ' + dest, 'hotel mezza pensione a ' + dest],
-            seasonalTemplates: (dest, y) => [],
+            templates: () => [
+                'L\'hotel ha un ristorante?',
+                'Il ristorante è aperto a cena?',
+                'La cena è inclusa nel prezzo della camera?',
+                'L\'hotel offre la mezza pensione?',
+                'È disponibile la pensione completa?',
+                'Il ristorante è aperto anche agli ospiti esterni?',
+                'Il menù prevede piatti vegetariani?',
+                'Ci sono opzioni vegane nel menù?',
+                'Il ristorante ha un menù per bambini?',
+                'È possibile richiedere un menù per allergie o intolleranze?',
+                'Bisogna prenotare il tavolo per la cena?',
+                'Il bar dell\'hotel è aperto fino a tardi?',
+                'L\'hotel serve il pranzo?',
+                'È possibile ordinare il servizio in camera?',
+                'Il ristorante propone piatti tipici locali?',
+                'L\'hotel ha una carta dei vini?',
+            ],
+            seasonalTemplates: () => [],
             priorityScore: f => f.hasRistorante ? 14 : 0,
         },
         // ── spiaggia_mare ─────────────────────────────────────────────────────
         {
             id: 'beach_nearby', category: 'spiaggia_mare', label: 'Hotel vicino al mare',
             appliesWhen: f => f.hasMare,
-            templates: dest => ['hotel vicino alla spiaggia a ' + dest, 'hotel a due passi dal mare a ' + dest, 'hotel con vista mare a ' + dest, 'hotel sul lungomare a ' + dest],
-            seasonalTemplates: (dest, y) => ['hotel sul mare estate ' + y + ' ' + dest],
+            templates: () => [
+                'L\'hotel è vicino alla spiaggia?',
+                'A quanti minuti a piedi si trova il mare?',
+                'C\'è la vista mare dall\'hotel?',
+                'Le camere hanno il balcone con vista mare?',
+                'L\'hotel è sul lungomare?',
+                'Ci sono spiagge libere nelle vicinanze?',
+                'Come si raggiunge la spiaggia dall\'hotel?',
+                'L\'hotel fornisce asciugamani per la spiaggia?',
+                'Ci sono stabilimenti balneari convenzionati?',
+                'La spiaggia è sabbiosa o ghiaiosa?',
+            ],
+            seasonalTemplates: () => [
+                'La spiaggia è frequentata in estate?',
+                'Ci sono eventi in spiaggia durante la stagione estiva?',
+            ],
             priorityScore: f => f.hasMare ? 12 : 0,
         },
         {
             id: 'beach_direct', category: 'spiaggia_mare', label: 'Accesso diretto al mare',
             appliesWhen: f => f.hasSpiaggiaPropria,
-            templates: dest => ['hotel con accesso diretto al mare a ' + dest, 'hotel primo fila mare a ' + dest, 'hotel con spiaggia privata a ' + dest, 'hotel con bar spiaggia a ' + dest],
-            seasonalTemplates: (dest, y) => ['hotel fronte mare estate ' + y + ' ' + dest],
+            templates: () => [
+                'L\'hotel ha accesso diretto al mare?',
+                'C\'è una spiaggia privata dell\'hotel?',
+                'La spiaggia è riservata agli ospiti?',
+                'L\'hotel è in prima fila sul mare?',
+                'C\'è un bar direttamente in spiaggia?',
+                'La spiaggia dell\'hotel è sorvegliata?',
+                'È possibile fare il bagno direttamente dall\'hotel?',
+            ],
+            seasonalTemplates: () => ['La spiaggia privata è aperta tutta la stagione estiva?'],
             priorityScore: f => f.hasSpiaggiaPropria ? 16 : 0,
         },
         {
             id: 'beach_equipped', category: 'spiaggia_mare', label: 'Spiaggia attrezzata',
             appliesWhen: f => f.hasSpiaggiaPropria,
-            templates: dest => ['hotel con ombrellone e lettino incluso a ' + dest, 'spiaggia convenzionata hotel a ' + dest, 'hotel con spiaggia attrezzata a ' + dest, 'hotel con spiaggia riservata a ' + dest],
-            seasonalTemplates: (dest, y) => ['spiaggia riservata hotel estate ' + y + ' ' + dest],
+            templates: () => [
+                'L\'ombrellone è incluso nel prezzo del soggiorno?',
+                'Il lettino in spiaggia è incluso?',
+                'La spiaggia è attrezzata con ombrelloni e sdraio?',
+                'Quante file di ombrelloni ha la spiaggia?',
+                'C\'è la doccia in spiaggia?',
+                'È possibile avere un ombrellone aggiuntivo?',
+                'Gli asciugamani da mare sono inclusi?',
+                'C\'è il servizio di bar in spiaggia?',
+            ],
+            seasonalTemplates: () => [],
             priorityScore: f => f.hasSpiaggiaPropria ? 10 : 0,
+        },
+        // ── camere_servizi ────────────────────────────────────────────────────
+        {
+            id: 'rooms_general', category: 'camere_servizi', label: 'Camere e servizi',
+            appliesWhen: () => true,
+            templates: () => [
+                'Le camere hanno l\'aria condizionata?',
+                'Il WiFi è gratuito in camera?',
+                'Le camere hanno la TV?',
+                'C\'è la cassaforte in camera?',
+                'Il bagno privato è presente in tutte le camere?',
+                'Le camere hanno il frigobar?',
+                'Ci sono camere con balcone o terrazza?',
+                'Quali tipologie di camera sono disponibili?',
+                'Ci sono camere comunicanti per famiglie?',
+                'Le camere sono insonorizzate?',
+                'Il cambio della biancheria è giornaliero?',
+                'C\'è il servizio di pulizia camera ogni giorno?',
+                'Sono disponibili adattatori elettrici?',
+                'C\'è la macchina del caffè in camera?',
+                'Le camere hanno il riscaldamento?',
+            ],
+            seasonalTemplates: () => [],
+            priorityScore: () => 10,
         },
         // ── trasporti_arrivo ──────────────────────────────────────────────────
         {
             id: 'transport_general', category: 'trasporti_arrivo', label: 'Come arrivare',
             appliesWhen: () => true,
-            templates: dest => ['come arrivare all hotel a ' + dest, 'hotel con navetta aeroporto a ' + dest, 'hotel vicino stazione ferroviaria a ' + dest, 'hotel con servizio transfer a ' + dest, 'hotel con noleggio auto a ' + dest, 'hotel raggiungibile in treno a ' + dest, 'shuttle hotel aeroporto a ' + dest, 'hotel vicino autostrada a ' + dest],
-            seasonalTemplates: (dest, y) => [],
+            templates: dest => [
+                'Come si arriva all\'hotel?',
+                'L\'hotel è vicino alla stazione ferroviaria?',
+                'C\'è il transfer dall\'aeroporto?',
+                'L\'hotel è raggiungibile con i mezzi pubblici?',
+                'C\'è una navetta dall\'aeroporto all\'hotel?',
+                'Qual è l\'aeroporto più vicino?',
+                'Come si arriva in auto' + (dest ? ' a ' + dest : '') + '?',
+                'C\'è un servizio taxi convenzionato con l\'hotel?',
+                'L\'hotel offre noleggio auto o scooter?',
+                'Ci sono autobus o tram che arrivano vicino all\'hotel?',
+                'Dove si parcheggia se si arriva in moto?',
+                'L\'hotel fornisce indicazioni stradali?',
+                'Quanto dista l\'hotel dall\'autostrada?',
+            ],
+            seasonalTemplates: () => [],
             priorityScore: () => 8,
         },
         // ── check_in_out ──────────────────────────────────────────────────────
         {
             id: 'checkin_general', category: 'check_in_out', label: 'Check-in e check-out',
             appliesWhen: () => true,
-            templates: dest => ['orario check in hotel a ' + dest, 'late check out hotel a ' + dest, 'early check in hotel a ' + dest, 'deposito bagagli hotel a ' + dest, 'check in notturno hotel a ' + dest, 'chiave card camera hotel a ' + dest, 'riconsegna chiavi checkout a ' + dest, 'servizio portineria 24h hotel a ' + dest],
-            seasonalTemplates: (dest, y) => [],
-            priorityScore: () => 8,
+            templates: () => [
+                'A che ora è il check-in?',
+                'A che ora è il check-out?',
+                'È possibile fare il check-in anticipato?',
+                'È disponibile il check-out tardivo?',
+                'C\'è il self check-in?',
+                'Come si ritira la chiave se si arriva tardi la notte?',
+                'La reception è aperta 24 ore su 24?',
+                'Posso lasciare i bagagli in hotel prima del check-in?',
+                'È possibile depositare i bagagli dopo il check-out?',
+                'È necessario un documento d\'identità al check-in?',
+                'Come funziona il check-in online?',
+                'Devo pagare alla prenotazione o all\'arrivo?',
+                'Posso comunicare un orario di arrivo?',
+                'Il check-in anticipato ha un costo aggiuntivo?',
+                'C\'è un portiere di notte?',
+            ],
+            seasonalTemplates: () => [],
+            priorityScore: () => 10,
         },
         // ── prenotazione_prezzi ───────────────────────────────────────────────
         {
             id: 'booking_general', category: 'prenotazione_prezzi', label: 'Prenotazione e prezzi',
             appliesWhen: () => true,
-            templates: dest => ['tariffe hotel per notte a ' + dest, 'cancellazione gratuita hotel a ' + dest, 'offerte last minute hotel a ' + dest, 'prezzo minimo garantito hotel a ' + dest, 'caparra prenotazione hotel a ' + dest, 'sconto prenotazione diretta hotel a ' + dest, 'hotel bambini gratis a ' + dest, 'pacchetti tutto incluso hotel a ' + dest],
-            seasonalTemplates: (dest, y) => ['offerte hotel estate ' + y + ' ' + dest, 'last minute hotel ' + dest + ' ' + y],
+            templates: () => [
+                'Qual è il prezzo per notte?',
+                'La cancellazione è gratuita?',
+                'Entro quando posso cancellare gratuitamente?',
+                'Ci sono offerte last minute?',
+                'Il prezzo è garantito sul sito ufficiale?',
+                'È richiesta una caparra alla prenotazione?',
+                'Prenoto direttamente sul sito ho uno sconto?',
+                'I bambini soggiornano gratis?',
+                'Ci sono pacchetti tutto incluso?',
+                'Quali metodi di pagamento sono accettati?',
+                'È possibile pagare in contanti all\'arrivo?',
+                'L\'hotel accetta carta di credito o bancomat?',
+                'È richiesto un deposito cauzionale?',
+                'La tassa di soggiorno è inclusa nel prezzo?',
+                'Ci sono tariffe speciali per soggiorni lunghi?',
+                'L\'hotel offre sconti per gruppi?',
+                'È possibile modificare la prenotazione?',
+                'Come funziona il rimborso in caso di cancellazione?',
+            ],
+            seasonalTemplates: () => [
+                'Ci sono offerte speciali per l\'estate?',
+                'L\'hotel ha promozioni per le festività?',
+            ],
             priorityScore: () => 16,
         },
     ];
