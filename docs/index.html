@@ -2807,11 +2807,13 @@
                 label: ['AI Readiness', 'Answer Extraction', 'Quality Safety', 'AI Visibility'][i],
                 data: data.map(h => h[k] ?? null),
                 borderColor: COLORS[i],
-                backgroundColor: hexGradBig(COLORS[i]),
-                fill: true,
-                tension: 0.4,
+                backgroundColor: 'transparent',
+                fill: false,
+                tension: 0.2,
                 pointRadius: 0,
-                pointHoverRadius: 5,
+                pointHoverRadius: 4.5,
+                pointBackgroundColor: COLORS[i],
+                pointBorderColor: COLORS[i],
                 borderWidth: 2.5,
                 spanGaps: true,
                 hidden: !visible[i],
@@ -2904,9 +2906,9 @@
                 g.addColorStop(0,`rgba(${r},${gr},${b},0.20)`); g.addColorStop(1,`rgba(${r},${gr},${b},0.00)`); return g;
             }
             const datasets = [
-                { label:'GEO Score',    data:data.map(h=>h.geo??null),        borderColor:'#0D5F75', backgroundColor:hexGrad('#0D5F75'), fill:true, tension:0.4, pointRadius:0, pointHoverRadius:4, borderWidth:2.5, spanGaps:true },
-                { label:'Completezza',  data:data.map(h=>h.completeness??null),borderColor:'#5c6ac4', backgroundColor:hexGrad('#5c6ac4'), fill:true, tension:0.4, pointRadius:0, pointHoverRadius:4, borderWidth:2.5, spanGaps:true },
-                { label:'Coverage FAQ', data:data.map(h=>h.coverage??null),   borderColor:'#a29bfe', backgroundColor:hexGrad('#a29bfe'), fill:true, tension:0.4, pointRadius:0, pointHoverRadius:4, borderWidth:2.5, spanGaps:true },
+                { label:'GEO Score',    data:data.map(h=>h.geo??null),        borderColor:'#0D5F75', backgroundColor:'transparent', fill:false, tension:0.2, pointRadius:0, pointHoverRadius:3.5, pointBackgroundColor:'#0D5F75', pointBorderColor:'#0D5F75', borderWidth:2.5, spanGaps:true },
+                { label:'Completezza',  data:data.map(h=>h.completeness??null),borderColor:'#5c6ac4', backgroundColor:'transparent', fill:false, tension:0.2, pointRadius:0, pointHoverRadius:3.5, pointBackgroundColor:'#5c6ac4', pointBorderColor:'#5c6ac4', borderWidth:2.5, spanGaps:true },
+                { label:'Coverage FAQ', data:data.map(h=>h.coverage??null),   borderColor:'#a29bfe', backgroundColor:'transparent', fill:false, tension:0.2, pointRadius:0, pointHoverRadius:3.5, pointBackgroundColor:'#a29bfe', pointBorderColor:'#a29bfe', borderWidth:2.5, spanGaps:true },
             ];
             if (_geoMiniChartInst) _geoMiniChartInst.destroy();
             _geoMiniChartInst = new Chart(canvas, {
