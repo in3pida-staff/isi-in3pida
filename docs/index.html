@@ -3091,27 +3091,12 @@
     // ─── MAPPA QUERY MANAGEMENT ──────────────────────────────────────────────────
     let _mappaInited = false;
 
-    // Query di default per categoria (testo invariato — compatibile con qmap storage esistente)
-    const MAPPA_DEFAULTS = {
-        'famiglie_con_bambini':   ['hotel con piscina per bambini','hotel con camere comunicanti','hotel con lettino per neonato','hotel adatto famiglie con bambini piccoli','hotel con animazione bambini','attività per bambini in hotel','hotel con seggioloni e lettini disponibili','hotel family con spiaggia'],
-        'coppie_romantici':       ['hotel romantico sul mare','suite luna di miele','camera con vista panoramica','pacchetti romantici hotel','cena romantica in camera','hotel con vasca idromassaggio','hotel per anniversario','camera con terrazza privata'],
-        'business_lavoro':        ['hotel con sala meeting','hotel business con wifi veloce','hotel con parcheggio auto aziendale','hotel fattura elettronica','hotel con area coworking','hotel vicino fiera o centro congressi','struttura per eventi aziendali','hotel con servizio sveglia'],
-        'animali_domestici':      ['hotel che accetta cani','hotel pet friendly','hotel con giardino per cani','costo extra animali domestici','hotel con cani di grossa taglia','spiaggia che accetta cani vicino hotel','camera con animali hotel','hotel accetta gatti'],
-        'accessibilita_disabili': ['hotel accessibile disabili','camera disabili hotel','hotel con ascensore per disabili','parcheggio disabili hotel','hotel per sedie a rotelle','struttura accessibile sedia rotelle','bagno attrezzato disabili hotel','hotel senza barriere architettoniche'],
-        'terza_eta_anziani':      ['hotel adatto anziani','hotel con ascensore','struttura per over 65','hotel con menù dietetico anziani','hotel vicino farmacia','hotel con servizio medico','struttura con pavimenti antiscivolo','hotel tranquillo per anziani'],
-        'sport_avventura':        ['hotel con biciclette a noleggio','hotel con palestra','hotel con piscina olimpionica','hotel per escursioni','hotel vicino piste ciclabili','hotel con noleggio attrezzatura sportiva','hotel per triathlon','struttura sport acquatici'],
-        'benessere_spa':          ['hotel con spa','hotel con centro benessere','hotel con sauna e bagno turco','massaggi in hotel','hotel con percorso benessere','hotel con trattamenti estetici','hotel con piscina riscaldata','week end benessere hotel'],
-        'matrimoni_eventi':       ['hotel per matrimoni','sala ricevimenti hotel','hotel per feste private','pacchetti cerimonie hotel','hotel con giardino per matrimoni','banchetti nuziali hotel','allestimento ricevimento hotel','hotel per comunioni e cresime'],
-        'parcheggio':             ['hotel con parcheggio gratuito','hotel con garage coperto','hotel con parcheggio custodito','parcheggio camper hotel','hotel con posto auto riservato','hotel con parcheggio bus','hotel con colonnina ricarica auto elettrica','parcheggio bici hotel'],
-        'colazione':              ['hotel con colazione inclusa','orari colazione hotel','buffet colazione hotel','colazione in camera hotel','hotel con colazione gluten free','colazione continental hotel','colazione salata hotel','colazione fino a tardi hotel'],
-        'ristorante':             ['hotel con ristorante','hotel con cena inclusa','ristorante tipico in hotel','hotel con cucina vegetariana','hotel con menù bambini','hotel con pizzeria','hotel con bar aperto tardi','hotel mezza pensione'],
-        'spiaggia_mare':          ['hotel vicino alla spiaggia','hotel con accesso diretto al mare','hotel con ombrellone e lettino incluso','hotel sul lungomare','spiaggia privata hotel','hotel con spiaggia attrezzata','hotel primo fila mare','hotel con bar spiaggia'],
-        'trasporti_arrivo':       ['come arrivare all hotel','hotel con navetta aeroporto','hotel vicino stazione ferroviaria','hotel con servizio transfer','hotel con noleggio auto','hotel raggiungibile in treno','shuttle hotel aeroporto','hotel vicino autostrada'],
-        'check_in_out':           ['orario check in hotel','late check out hotel','early check in hotel','deposito bagagli hotel','check in notturno hotel','chiave card camera hotel','riconsegna chiavi checkout','servizio portineria 24h hotel'],
-        'prenotazione_prezzi':    ['tariffe hotel per notte','cancellazione gratuita hotel','offerte last minute hotel','prezzo minimo garantito hotel','caparra prenotazione hotel','sconto prenotazione diretta hotel','hotel bambini gratis','pacchetti tutto incluso hotel'],
-    };
+    // ── Intent Library — ~35 intent objects con query dinamiche per destinazione ──
 
-    // Estrae feature rilevanti dai dati Schema.org dell'hotel
+    /**
+     * Estrae feature rilevanti dai dati Schema.org dell'hotel.
+     * Ritorna oggetto con city e boolean per ogni tipo di servizio.
+     */
     function buildHotelFeatures(site) {
         const sc  = site.schema_data   || {};
         const hp  = site.hotel_profile || {};
@@ -3120,44 +3105,298 @@
         const des = (sc.description  || '').toLowerCase();
         const txt = am + ' ' + kw + ' ' + des;
         return {
-            hasPiscina:   /piscin/.test(txt),
-            hasSpa:       /\bspa\b|benessere|sauna|hammam|bagno turco|centro benessere/.test(txt),
-            hasPets:      sc.pets_allowed === true || sc.pets_allowed === 'true' || /animali|pet friendly|cani/.test(txt),
-            hasFamily:    /family|famil|bambini|animazione bambini/.test(txt),
-            hasMare:      /spiaggia|mare|beach|lungomare|riviera/.test(txt),
-            hasMontagna:  /montagna|alpi|dolomiti|\bsci\b|neve |trekking/.test(txt),
-            hasRistorante:/ristorante|cucina|dining/.test(txt),
-            hasColazione: /colazione|breakfast/.test(txt),
-            hasParcheggio:/parcheggio|parking|garage/.test(txt),
+            city:           sc.city || sc.address?.addressLocality || hp.citta || hp.comune || '',
+            hasPiscina:     /piscin/.test(txt),
+            hasSpa:         /\bspa\b|benessere|sauna|hammam|bagno turco|centro benessere/.test(txt),
+            hasPets:        sc.pets_allowed === true || sc.pets_allowed === 'true' || /animali|pet friendly|cani/.test(txt),
+            hasFamily:      /family|famil|bambini|animazione bambini/.test(txt),
+            hasMare:        /spiaggia|mare|beach|lungomare|riviera/.test(txt),
+            hasMontagna:    /montagna|alpi|dolomiti|\bsci\b|neve |trekking/.test(txt),
+            hasRistorante:  /ristorante|cucina|dining/.test(txt),
+            hasColazione:   /colazione|breakfast/.test(txt),
+            hasParcheggio:  /parcheggio|parking|garage/.test(txt),
             hasAccessibility:/accessib|disabil|barriere architetton/.test(txt),
-            hasBusiness:  /business|sala meeting|sala conferenz|coworking|centro congressi/.test(txt),
-            hasSports:    /palestra|biciclette|sport|fitness|escursion/.test(txt),
-            hasMarriages: /matrimon|wedding|riceviment|cerimoni|banchett/.test(txt),
-            hasWellness:  /\bspa\b|benessere|wellness|sauna|massagg/.test(txt),
-            hasRomantic:  /romantic|luna di miele|honeymoon|suite/.test(txt),
+            hasBusiness:    /business|sala meeting|sala conferenz|coworking|centro congressi/.test(txt),
+            hasSports:      /palestra|biciclette|sport|fitness|escursion/.test(txt),
+            hasMarriages:   /matrimon|wedding|riceviment|cerimoni|banchett/.test(txt),
+            hasWellness:    /\bspa\b|benessere|wellness|sauna|massagg/.test(txt),
+            hasRomantic:    /romantic|luna di miele|honeymoon|suite/.test(txt),
         };
     }
 
-    // Priorità degli intenti per categoria basata sulle feature dell'hotel
-    // 'alta' | 'media' | 'bassa' | 'non_rilevante'
-    const INTENT_PRIORITIES = {
-        'famiglie_con_bambini':   f => (f.hasFamily || f.hasPiscina) ? 'alta' : f.hasMare ? 'media' : 'non_rilevante',
-        'coppie_romantici':       f => f.hasRomantic ? 'alta' : 'media',
-        'business_lavoro':        f => f.hasBusiness ? 'alta' : 'non_rilevante',
-        'animali_domestici':      f => f.hasPets ? 'alta' : 'non_rilevante',
-        'accessibilita_disabili': f => f.hasAccessibility ? 'alta' : 'media',
-        'terza_eta_anziani':      f => 'media',
-        'sport_avventura':        f => (f.hasSports || f.hasMontagna) ? (f.hasMontagna ? 'alta' : 'media') : 'bassa',
-        'benessere_spa':          f => (f.hasSpa || f.hasWellness) ? 'alta' : 'non_rilevante',
-        'matrimoni_eventi':       f => (f.hasMarriages || f.hasBusiness) ? 'alta' : 'non_rilevante',
-        'parcheggio':             f => f.hasParcheggio ? 'alta' : 'media',
-        'colazione':              f => f.hasColazione ? 'alta' : 'media',
-        'ristorante':             f => f.hasRistorante ? 'alta' : 'bassa',
-        'spiaggia_mare':          f => f.hasMare ? 'alta' : 'non_rilevante',
-        'trasporti_arrivo':       f => 'media',
-        'check_in_out':           f => 'media',
-        'prenotazione_prezzi':    f => 'alta',
-    };
+    /**
+     * INTENT_LIBRARY — array di intent objects con query dinamiche per destinazione.
+     * Ogni intent ha: id, category (compatibile con qmap storage), label,
+     * appliesWhen(features), templates(dest), seasonalTemplates(dest,year), priorityScore(features).
+     */
+    const INTENT_LIBRARY = [
+        // ── famiglie_con_bambini ──────────────────────────────────────────────
+        {
+            id: 'family_pool', category: 'famiglie_con_bambini', label: 'Family con piscina',
+            appliesWhen: f => f.hasPiscina && f.hasFamily,
+            templates: dest => ['hotel con piscina per bambini a ' + dest, 'family hotel con piscina a ' + dest, 'hotel con scivoli e piscina bambini a ' + dest],
+            seasonalTemplates: (dest, y) => ['hotel piscina bambini estate ' + y + ' ' + dest],
+            priorityScore: f => (f.hasFamily ? 10 : 0) + (f.hasPiscina ? 10 : 0) + (f.hasMare ? 5 : 0),
+        },
+        {
+            id: 'family_general', category: 'famiglie_con_bambini', label: 'Family generale',
+            appliesWhen: f => f.hasFamily || f.hasMare,
+            templates: dest => ['hotel adatto famiglie con bambini piccoli a ' + dest, 'hotel con animazione bambini a ' + dest, 'hotel con camere comunicanti a ' + dest, 'hotel con lettino per neonato a ' + dest, 'hotel con seggioloni e lettini disponibili a ' + dest],
+            seasonalTemplates: (dest, y) => ['vacanze family ' + y + ' ' + dest],
+            priorityScore: f => (f.hasFamily ? 12 : 0) + (f.hasMare ? 5 : 0) + (f.hasPiscina ? 5 : 0),
+        },
+        {
+            id: 'family_beach', category: 'famiglie_con_bambini', label: 'Family spiaggia',
+            appliesWhen: f => f.hasMare,
+            templates: dest => ['hotel family con spiaggia a ' + dest, 'hotel per famiglie sul mare a ' + dest],
+            seasonalTemplates: (dest, y) => ['hotel spiaggia bambini estate ' + y + ' ' + dest],
+            priorityScore: f => (f.hasMare ? 10 : 0) + (f.hasFamily ? 6 : 0),
+        },
+        // ── coppie_romantici ──────────────────────────────────────────────────
+        {
+            id: 'romantic_general', category: 'coppie_romantici', label: 'Romantico generale',
+            appliesWhen: f => f.hasRomantic || f.hasSpa,
+            templates: dest => ['hotel romantico a ' + dest, 'suite luna di miele a ' + dest, 'hotel per anniversario a ' + dest, 'pacchetti romantici hotel a ' + dest, 'cena romantica in camera hotel a ' + dest],
+            seasonalTemplates: (dest, y) => ['weekend romantico ' + dest + ' ' + y],
+            priorityScore: f => (f.hasRomantic ? 14 : 0) + (f.hasSpa ? 4 : 0) + (f.hasMare ? 3 : 0),
+        },
+        {
+            id: 'romantic_sea', category: 'coppie_romantici', label: 'Romantico mare',
+            appliesWhen: f => f.hasRomantic && f.hasMare,
+            templates: dest => ['hotel romantico sul mare a ' + dest, 'camera con vista panoramica sul mare a ' + dest, 'camera con terrazza privata mare a ' + dest],
+            seasonalTemplates: (dest, y) => ['fuga romantica al mare ' + y + ' ' + dest],
+            priorityScore: f => (f.hasRomantic ? 10 : 0) + (f.hasMare ? 8 : 0),
+        },
+        {
+            id: 'romantic_spa', category: 'coppie_romantici', label: 'Romantico spa',
+            appliesWhen: f => f.hasRomantic && f.hasSpa,
+            templates: dest => ['hotel con spa per coppie a ' + dest, 'hotel con vasca idromassaggio a ' + dest, 'weekend benessere coppia a ' + dest],
+            seasonalTemplates: (dest, y) => [],
+            priorityScore: f => (f.hasRomantic ? 8 : 0) + (f.hasSpa ? 8 : 0),
+        },
+        // ── business_lavoro ───────────────────────────────────────────────────
+        {
+            id: 'business_general', category: 'business_lavoro', label: 'Business generale',
+            appliesWhen: f => f.hasBusiness,
+            templates: dest => ['hotel con sala meeting a ' + dest, 'hotel business con wifi veloce a ' + dest, 'hotel fattura elettronica a ' + dest, 'hotel con area coworking a ' + dest, 'struttura per eventi aziendali a ' + dest, 'hotel con parcheggio auto aziendale a ' + dest],
+            seasonalTemplates: (dest, y) => [],
+            priorityScore: f => f.hasBusiness ? 18 : 0,
+        },
+        {
+            id: 'business_congress', category: 'business_lavoro', label: 'Congressi e fiere',
+            appliesWhen: f => f.hasBusiness,
+            templates: dest => ['hotel vicino fiera o centro congressi a ' + dest, 'hotel con servizio sveglia ' + dest],
+            seasonalTemplates: (dest, y) => [],
+            priorityScore: f => f.hasBusiness ? 8 : 0,
+        },
+        // ── animali_domestici ─────────────────────────────────────────────────
+        {
+            id: 'pets_general', category: 'animali_domestici', label: 'Animali domestici',
+            appliesWhen: f => f.hasPets,
+            templates: dest => ['hotel che accetta cani a ' + dest, 'hotel pet friendly a ' + dest, 'hotel con giardino per cani a ' + dest, 'hotel accetta gatti a ' + dest, 'hotel con cani di grossa taglia a ' + dest, 'costo extra animali domestici hotel a ' + dest],
+            seasonalTemplates: (dest, y) => ['vacanze con cane ' + dest + ' estate ' + y],
+            priorityScore: f => f.hasPets ? 20 : 0,
+        },
+        {
+            id: 'pets_beach', category: 'animali_domestici', label: 'Animali + spiaggia',
+            appliesWhen: f => f.hasPets && f.hasMare,
+            templates: dest => ['spiaggia che accetta cani vicino hotel a ' + dest, 'hotel pet friendly sul mare a ' + dest],
+            seasonalTemplates: (dest, y) => [],
+            priorityScore: f => (f.hasPets ? 8 : 0) + (f.hasMare ? 6 : 0),
+        },
+        // ── accessibilita_disabili ────────────────────────────────────────────
+        {
+            id: 'accessibility_general', category: 'accessibilita_disabili', label: 'Accessibilità',
+            appliesWhen: () => true,
+            templates: dest => ['hotel accessibile disabili a ' + dest, 'camera disabili hotel a ' + dest, 'hotel con ascensore per disabili a ' + dest, 'parcheggio disabili hotel a ' + dest, 'hotel per sedie a rotelle a ' + dest, 'struttura accessibile sedia rotelle a ' + dest, 'bagno attrezzato disabili hotel a ' + dest, 'hotel senza barriere architettoniche a ' + dest],
+            seasonalTemplates: (dest, y) => [],
+            priorityScore: f => f.hasAccessibility ? 16 : 4,
+        },
+        // ── terza_eta_anziani ─────────────────────────────────────────────────
+        {
+            id: 'seniors_general', category: 'terza_eta_anziani', label: 'Terza età',
+            appliesWhen: () => true,
+            templates: dest => ['hotel adatto anziani a ' + dest, 'hotel con ascensore a ' + dest, 'struttura per over 65 a ' + dest, 'hotel con menù dietetico anziani a ' + dest, 'hotel vicino farmacia a ' + dest, 'hotel con servizio medico a ' + dest, 'struttura con pavimenti antiscivolo a ' + dest, 'hotel tranquillo per anziani a ' + dest],
+            seasonalTemplates: (dest, y) => [],
+            priorityScore: f => (f.hasAccessibility ? 8 : 0) + 4,
+        },
+        // ── sport_avventura ───────────────────────────────────────────────────
+        {
+            id: 'sports_general', category: 'sport_avventura', label: 'Sport generale',
+            appliesWhen: f => f.hasSports || f.hasMontagna,
+            templates: dest => ['hotel con palestra a ' + dest, 'hotel con biciclette a noleggio a ' + dest, 'hotel per escursioni a ' + dest, 'hotel vicino piste ciclabili a ' + dest, 'hotel con noleggio attrezzatura sportiva a ' + dest],
+            seasonalTemplates: (dest, y) => ['vacanze sport attivo estate ' + y + ' ' + dest],
+            priorityScore: f => (f.hasSports ? 12 : 0) + (f.hasMontagna ? 8 : 0),
+        },
+        {
+            id: 'sports_mountain', category: 'sport_avventura', label: 'Sport montagna',
+            appliesWhen: f => f.hasMontagna,
+            templates: dest => ['hotel per trekking a ' + dest, 'hotel per sci e neve a ' + dest, 'hotel con piscina olimpionica a ' + dest, 'struttura sport acquatici a ' + dest, 'hotel per triathlon a ' + dest],
+            seasonalTemplates: (dest, y) => ['ski hotel ' + dest + ' inverno ' + y],
+            priorityScore: f => f.hasMontagna ? 14 : 0,
+        },
+        // ── benessere_spa ─────────────────────────────────────────────────────
+        {
+            id: 'spa_general', category: 'benessere_spa', label: 'Spa e benessere',
+            appliesWhen: f => f.hasSpa || f.hasWellness,
+            templates: dest => ['hotel con spa a ' + dest, 'hotel con centro benessere a ' + dest, 'hotel con sauna e bagno turco a ' + dest, 'massaggi in hotel a ' + dest, 'hotel con percorso benessere a ' + dest, 'hotel con trattamenti estetici a ' + dest, 'hotel con piscina riscaldata a ' + dest],
+            seasonalTemplates: (dest, y) => ['week end benessere hotel ' + dest + ' ' + y],
+            priorityScore: f => (f.hasSpa ? 14 : 0) + (f.hasWellness ? 8 : 0),
+        },
+        // ── matrimoni_eventi ──────────────────────────────────────────────────
+        {
+            id: 'weddings_general', category: 'matrimoni_eventi', label: 'Matrimoni ed eventi',
+            appliesWhen: f => f.hasMarriages || f.hasBusiness,
+            templates: dest => ['hotel per matrimoni a ' + dest, 'sala ricevimenti hotel a ' + dest, 'hotel per feste private a ' + dest, 'pacchetti cerimonie hotel a ' + dest, 'hotel con giardino per matrimoni a ' + dest, 'banchetti nuziali hotel a ' + dest, 'allestimento ricevimento hotel a ' + dest, 'hotel per comunioni e cresime a ' + dest],
+            seasonalTemplates: (dest, y) => ['matrimoni hotel ' + dest + ' ' + y],
+            priorityScore: f => (f.hasMarriages ? 16 : 0) + (f.hasBusiness ? 5 : 0),
+        },
+        // ── parcheggio ────────────────────────────────────────────────────────
+        {
+            id: 'parking_general', category: 'parcheggio', label: 'Parcheggio',
+            appliesWhen: () => true,
+            templates: dest => ['hotel con parcheggio gratuito a ' + dest, 'hotel con garage coperto a ' + dest, 'hotel con parcheggio custodito a ' + dest, 'parcheggio camper hotel a ' + dest, 'hotel con posto auto riservato a ' + dest, 'hotel con parcheggio bus a ' + dest, 'hotel con colonnina ricarica auto elettrica a ' + dest, 'parcheggio bici hotel a ' + dest],
+            seasonalTemplates: (dest, y) => [],
+            priorityScore: f => f.hasParcheggio ? 14 : 4,
+        },
+        // ── colazione ─────────────────────────────────────────────────────────
+        {
+            id: 'breakfast_general', category: 'colazione', label: 'Colazione',
+            appliesWhen: () => true,
+            templates: dest => ['hotel con colazione inclusa a ' + dest, 'orari colazione hotel a ' + dest, 'buffet colazione hotel a ' + dest, 'colazione in camera hotel a ' + dest, 'hotel con colazione gluten free a ' + dest, 'colazione continental hotel a ' + dest, 'colazione salata hotel a ' + dest, 'colazione fino a tardi hotel a ' + dest],
+            seasonalTemplates: (dest, y) => [],
+            priorityScore: f => f.hasColazione ? 12 : 4,
+        },
+        // ── ristorante ────────────────────────────────────────────────────────
+        {
+            id: 'restaurant_general', category: 'ristorante', label: 'Ristorante',
+            appliesWhen: f => f.hasRistorante,
+            templates: dest => ['hotel con ristorante a ' + dest, 'hotel con cena inclusa a ' + dest, 'ristorante tipico in hotel a ' + dest, 'hotel con cucina vegetariana a ' + dest, 'hotel con menù bambini a ' + dest, 'hotel con pizzeria a ' + dest, 'hotel con bar aperto tardi a ' + dest, 'hotel mezza pensione a ' + dest],
+            seasonalTemplates: (dest, y) => [],
+            priorityScore: f => f.hasRistorante ? 14 : 0,
+        },
+        // ── spiaggia_mare ─────────────────────────────────────────────────────
+        {
+            id: 'beach_direct', category: 'spiaggia_mare', label: 'Accesso diretto al mare',
+            appliesWhen: f => f.hasMare,
+            templates: dest => ['hotel con accesso diretto al mare a ' + dest, 'hotel sul lungomare a ' + dest, 'hotel primo fila mare a ' + dest, 'hotel con bar spiaggia a ' + dest],
+            seasonalTemplates: (dest, y) => ['hotel sul mare estate ' + y + ' ' + dest],
+            priorityScore: f => f.hasMare ? 16 : 0,
+        },
+        {
+            id: 'beach_equipped', category: 'spiaggia_mare', label: 'Spiaggia attrezzata',
+            appliesWhen: f => f.hasMare,
+            templates: dest => ['hotel vicino alla spiaggia a ' + dest, 'hotel con ombrellone e lettino incluso a ' + dest, 'spiaggia privata hotel a ' + dest, 'hotel con spiaggia attrezzata a ' + dest],
+            seasonalTemplates: (dest, y) => ['spiaggia riservata hotel estate ' + y + ' ' + dest],
+            priorityScore: f => f.hasMare ? 12 : 0,
+        },
+        // ── trasporti_arrivo ──────────────────────────────────────────────────
+        {
+            id: 'transport_general', category: 'trasporti_arrivo', label: 'Come arrivare',
+            appliesWhen: () => true,
+            templates: dest => ['come arrivare all hotel a ' + dest, 'hotel con navetta aeroporto a ' + dest, 'hotel vicino stazione ferroviaria a ' + dest, 'hotel con servizio transfer a ' + dest, 'hotel con noleggio auto a ' + dest, 'hotel raggiungibile in treno a ' + dest, 'shuttle hotel aeroporto a ' + dest, 'hotel vicino autostrada a ' + dest],
+            seasonalTemplates: (dest, y) => [],
+            priorityScore: () => 8,
+        },
+        // ── check_in_out ──────────────────────────────────────────────────────
+        {
+            id: 'checkin_general', category: 'check_in_out', label: 'Check-in e check-out',
+            appliesWhen: () => true,
+            templates: dest => ['orario check in hotel a ' + dest, 'late check out hotel a ' + dest, 'early check in hotel a ' + dest, 'deposito bagagli hotel a ' + dest, 'check in notturno hotel a ' + dest, 'chiave card camera hotel a ' + dest, 'riconsegna chiavi checkout a ' + dest, 'servizio portineria 24h hotel a ' + dest],
+            seasonalTemplates: (dest, y) => [],
+            priorityScore: () => 8,
+        },
+        // ── prenotazione_prezzi ───────────────────────────────────────────────
+        {
+            id: 'booking_general', category: 'prenotazione_prezzi', label: 'Prenotazione e prezzi',
+            appliesWhen: () => true,
+            templates: dest => ['tariffe hotel per notte a ' + dest, 'cancellazione gratuita hotel a ' + dest, 'offerte last minute hotel a ' + dest, 'prezzo minimo garantito hotel a ' + dest, 'caparra prenotazione hotel a ' + dest, 'sconto prenotazione diretta hotel a ' + dest, 'hotel bambini gratis a ' + dest, 'pacchetti tutto incluso hotel a ' + dest],
+            seasonalTemplates: (dest, y) => ['offerte hotel estate ' + y + ' ' + dest, 'last minute hotel ' + dest + ' ' + y],
+            priorityScore: () => 16,
+        },
+    ];
+
+    /**
+     * Genera le query per questo hotel a partire dall'Intent Library.
+     * Ritorna { [category]: string[] } — compatibile con MAPPA_DEFAULTS.
+     */
+    function generateQueriesForHotel(site) {
+        const features = buildHotelFeatures(site);
+        const dest = features.city || 'Italia';
+        const month = new Date().getMonth() + 1; // 1-12
+        const year  = new Date().getFullYear();
+        const isSeason = month >= 3 && month <= 9;
+        const result = {};
+        INTENT_LIBRARY.forEach(intent => {
+            if (!intent.appliesWhen(features)) return;
+            const queries = [...intent.templates(dest)];
+            if (isSeason && intent.seasonalTemplates) {
+                const seasonal = intent.seasonalTemplates(dest, year);
+                seasonal.forEach(q => { if (!queries.includes(q)) queries.push(q); });
+            }
+            const cat = intent.category;
+            if (!result[cat]) result[cat] = [];
+            queries.forEach(q => { if (!result[cat].includes(q)) result[cat].push(q); });
+        });
+        return result;
+    }
+
+    /**
+     * Calcola la priorità di una categoria in base ai punteggi degli intenti applicabili.
+     * Forza minimo 'media' per categorie sempre rilevanti.
+     */
+    function getPriorityForCategory(category, features, hotelQueries) {
+        const alwaysMedia = ['prenotazione_prezzi', 'check_in_out', 'trasporti_arrivo'];
+        // Somma priorityScore degli intenti applicabili di questa categoria
+        const score = INTENT_LIBRARY
+            .filter(i => i.category === category && i.appliesWhen(features))
+            .reduce((sum, i) => sum + i.priorityScore(features), 0);
+
+        let prio;
+        if (score >= 15) prio = 'alta';
+        else if (score >= 8) prio = 'media';
+        else if (score >= 3) prio = 'bassa';
+        else prio = 'non_rilevante';
+
+        // Se la categoria non ha query generate (hotel non la supporta), è non_rilevante
+        if (!hotelQueries[category] || !hotelQueries[category].length) {
+            if (!alwaysMedia.includes(category)) return 'non_rilevante';
+        }
+
+        // Garantisce minimo 'media' per le categorie sempre rilevanti
+        if (alwaysMedia.includes(category) && (prio === 'bassa' || prio === 'non_rilevante')) {
+            return 'media';
+        }
+        return prio;
+    }
+
+    /**
+     * Boosta le priorità delle categorie in base ai segnali dal plugin.
+     * signals: array di oggetti { event_type, page_url, element_text }
+     * priorityScores: { [category]: number } — modificato in place
+     */
+    function applySignalBoost(priorityScores, signals) {
+        if (!signals || !signals.length) return;
+        const catKeywords = {
+            'famiglie_con_bambini':   /bambin|family|famil|piscin/i,
+            'coppie_romantici':       /romantico|anniversario|luna.di.miele|coppia/i,
+            'business_lavoro':        /meeting|business|conferenz|coworking|aziend/i,
+            'animali_domestici':      /cane|gatto|animali|pet/i,
+            'benessere_spa':          /spa|benessere|massagg|sauna|wellness/i,
+            'matrimoni_eventi':       /matrimon|riceviment|nozze|cerimoni/i,
+            'spiaggia_mare':          /spiaggia|mare|beach|lungomare/i,
+            'sport_avventura':        /sport|palestra|escursion|biciclette|trekking/i,
+            'prenotazione_prezzi':    /prenota|preventivo|offerta|tariffa|prezzo/i,
+        };
+        signals.forEach(sig => {
+            const text = ((sig.page_url || '') + ' ' + (sig.element_text || '')).toLowerCase();
+            Object.entries(catKeywords).forEach(([cat, rx]) => {
+                if (rx.test(text)) {
+                    priorityScores[cat] = (priorityScores[cat] || 0) + 5;
+                }
+            });
+        });
+    }
 
     const PRIORITY_ORDER = { 'alta':0, 'media':1, 'bassa':2, 'non_rilevante':3 };
     const PRIORITY_BADGE = {
@@ -3176,16 +3415,37 @@
         // Indice domande FAQ esistenti per rilevare copertura automatica
         const faqQuestions = new Set((faqData.items || []).map(f => (f.question || '').toLowerCase().trim()));
 
-        // Calcola priorità intenti per questo hotel
+        // Genera query dinamiche per questo hotel e calcola feature
         const hotelFeatures = buildHotelFeatures(site);
+        const hotelQueries  = generateQueriesForHotel(site);
 
-        // Calcola copertura per singola query (ordina per priorità)
-        const cats = Object.keys(MAPPA_DEFAULTS).sort((a,b) =>
-            PRIORITY_ORDER[INTENT_PRIORITIES[a]?.(hotelFeatures)||'media'] -
-            PRIORITY_ORDER[INTENT_PRIORITIES[b]?.(hotelFeatures)||'media']);
+        // Calcola priorityScores per categoria (con eventuale signal boost)
+        const priorityScores = {};
+        const allCats = [...new Set(INTENT_LIBRARY.map(i => i.category))];
+        allCats.forEach(cat => {
+            priorityScores[cat] = INTENT_LIBRARY
+                .filter(i => i.category === cat && i.appliesWhen(hotelFeatures))
+                .reduce((sum, i) => sum + i.priorityScore(hotelFeatures), 0);
+        });
+        // Signal boost (facoltativo — ignora errori)
+        try {
+            const { data: signals } = await _SBq.from('isi_signals')
+                .select('event_type,page_url,element_text')
+                .eq('site_id', site.site_id)
+                .order('created_at', { ascending: false })
+                .limit(200);
+            if (signals && signals.length) applySignalBoost(priorityScores, signals);
+        } catch(e) { /* ignora se tabella non esiste ancora */ }
+
+        // Ordina categorie per priorità
+        const cats = allCats.sort((a, b) =>
+            PRIORITY_ORDER[getPriorityForCategory(a, hotelFeatures, hotelQueries)] -
+            PRIORITY_ORDER[getPriorityForCategory(b, hotelFeatures, hotelQueries)]);
+
+        // Calcola copertura complessiva
         let totalQ = 0, coveredQ = 0;
         cats.forEach(cat => {
-            const qs = MAPPA_DEFAULTS[cat];
+            const qs = hotelQueries[cat] || [];
             const entry = qmap[cat] || {};
             const coveredSet = new Set([...(Array.isArray(entry.covered_queries) ? entry.covered_queries : (entry.covered ? qs : [])), ...qs.filter(q => faqQuestions.has(q.toLowerCase().trim()))]);
             totalQ += qs.length;
@@ -3217,7 +3477,7 @@
             } else {
                 const clusterRows = cats.map(cat => {
                     const label = cat.replace(/_/g,' ').replace(/\b\w/g, c => c.toUpperCase());
-                    const qs = new Set(MAPPA_DEFAULTS[cat].map(q => q.toLowerCase()));
+                    const qs = new Set((hotelQueries[cat] || []).map(q => q.toLowerCase()));
                     const matched = pseItems.filter(p => qs.has((p.query||'').toLowerCase()));
                     if (!matched.length) return null;
                     const cited = matched.filter(isCited).length;
@@ -3258,7 +3518,7 @@
             // Calcola query scoperte per il bottone
             const uncovered = [];
             cats.forEach(cat => {
-                const qs = MAPPA_DEFAULTS[cat];
+                const qs = hotelQueries[cat] || [];
                 const entry = qmap[cat] || {};
                 const coveredSet = new Set([...(Array.isArray(entry.covered_queries) ? entry.covered_queries : (entry.covered ? qs : [])), ...qs.filter(q => faqQuestions.has(q.toLowerCase().trim()))]);
                 qs.forEach(q => { if (!coveredSet.has(q) && !coveredSet.has(q.toLowerCase())) uncovered.push({query: q, cat}); });
@@ -3344,14 +3604,14 @@
             }
         }
 
-        // Separa rilevanti da non rilevanti
-        const relevantCats = cats.filter(c => (INTENT_PRIORITIES[c]?.(hotelFeatures)||'media') !== 'non_rilevante');
-        const irrelevantCats = cats.filter(c => (INTENT_PRIORITIES[c]?.(hotelFeatures)||'media') === 'non_rilevante');
+        // Separa rilevanti da non rilevanti usando la nuova getPriorityForCategory
+        const relevantCats   = cats.filter(c => getPriorityForCategory(c, hotelFeatures, hotelQueries) !== 'non_rilevante');
+        const irrelevantCats = cats.filter(c => getPriorityForCategory(c, hotelFeatures, hotelQueries) === 'non_rilevante');
 
         const renderCat = cat => {
             const label = cat.replace(/_/g,' ').replace(/\b\w/g, c => c.toUpperCase());
-            const prio = INTENT_PRIORITIES[cat]?.(hotelFeatures) || 'media';
-            const qs = MAPPA_DEFAULTS[cat];
+            const prio  = getPriorityForCategory(cat, hotelFeatures, hotelQueries);
+            const qs    = hotelQueries[cat] || [];
             const entry = qmap[cat] || {};
             const coveredSet = new Set([...(Array.isArray(entry.covered_queries) ? entry.covered_queries : (entry.covered ? qs : [])), ...qs.filter(q => faqQuestions.has(q.toLowerCase().trim()))]);
             const covQ = qs.filter(q => coveredSet.has(q) || coveredSet.has(q.toLowerCase())).length;
@@ -4236,10 +4496,26 @@ ${rows}
 
             cardH + chH('#0D5F75','Google Search Console') +
             '<div style="padding:16px 20px">' +
-            (cfg.sc_detected ? '<div style="padding:9px 12px;background:#e8f4f7;border:1px solid #C1CBE8;border-radius:4px;font-size:13px;color:#0D5F75;margin-bottom:12px">✓ Rilevata possibile configurazione Search Console sul sito</div>' : '<div style="padding:9px 12px;background:#f4f4f8;border:1px solid #e4e4ec;border-radius:4px;font-size:13px;color:#666b84;margin-bottom:12px">○ Search Console non rilevata — inserisci il codice di verifica per attivarla</div>') +
+            (() => {
+                // sc_detection arriva dall'heartbeat: { detected: bool, method: string|null }
+                const scDet = cfg.sc_detection || (cfg.sc_detected ? { detected: true, method: null } : { detected: false, method: null });
+                const scConnected = !!(cfg.sc_connected);
+                if (scConnected) {
+                    return '<div style="padding:9px 12px;background:#e8f4f7;border:1px solid #C1CBE8;border-radius:4px;font-size:13px;color:#0D5F75;margin-bottom:12px">● Search Console collegata e attiva</div>';
+                } else if (scDet.detected) {
+                    const methodLabel = scDet.method ? ' via <strong>' + escHtml(scDet.method) + '</strong>' : '';
+                    return '<div style="padding:9px 12px;background:#e8f4f7;border:1px solid #C1CBE8;border-radius:4px;font-size:13px;color:#0D5F75;margin-bottom:12px">✓ Rilevata' + methodLabel + '</div>';
+                } else {
+                    return '<div style="padding:9px 12px;background:#f4f4f8;border:1px solid #e4e4ec;border-radius:4px;font-size:13px;color:#666b84;margin-bottom:12px">○ Search Console non rilevata — inserisci il codice di verifica o collega tramite Google OAuth</div>';
+                }
+            })() +
             inp('sc_code','Codice verifica Google Search Console', cfg.sc_verification_code||'', 'Incolla il codice HTML (es. google1234abcd)') +
             '<div style="font-size:12px;color:#9ca3af;margin-top:6px;line-height:1.5">Il codice viene salvato e inserito automaticamente nel <code style="background:#f4f4f8;padding:1px 5px;border-radius:3px">&lt;head&gt;</code> del sito tramite plugin. Trovalo in Google Search Console → Impostazioni → Verifica proprietà → Tag HTML.</div>' +
-            '</div><div style="padding:0 20px 14px;display:flex;gap:10px"><button id="btn-save-sc-code" class="btn-update" style="margin-left:0">Salva codice SC</button><span id="sc-code-msg" style="font-size:13px;color:#0D5F75;align-self:center"></span></div></div>';
+            '</div><div style="padding:0 20px 14px;display:flex;align-items:center;gap:10px">' +
+            '<button id="btn-save-sc-code" class="btn-update" style="margin-left:0">Salva codice SC</button>' +
+            '<button id="btn-connect-sc" class="btn-ping" style="margin-left:0">Collega Search Console</button>' +
+            '<span id="sc-code-msg" style="font-size:13px;color:#0D5F75;align-self:center"></span>' +
+            '</div></div>';
 
         document.getElementById('btn-copy-script')?.addEventListener('click', function() {
             navigator.clipboard.writeText(_scriptTag).catch(() => {});
@@ -4289,6 +4565,28 @@ ${rows}
             const { error } = await _SBq.from('isi_sites').update({ hotel_profile: { ...hp3, isi_config: newCfg3 } }).eq('site_id', site.site_id);
             if (msg) { msg.textContent = error ? '✗ Errore' : '✓ Codice salvato — il plugin lo inserirà al prossimo sync'; setTimeout(() => { msg.textContent = ''; }, 4000); }
             if (!error) site.hotel_profile = { ...hp3, isi_config: newCfg3 };
+        });
+        document.getElementById('btn-connect-sc')?.addEventListener('click', () => {
+            const ov = document.createElement('div');
+            ov.style.cssText = 'position:fixed;inset:0;background:rgba(23,27,51,.45);z-index:9999;display:flex;align-items:center;justify-content:center';
+            ov.innerHTML = `<div style="background:white;border-radius:10px;padding:28px 28px 24px;max-width:440px;width:90%;box-shadow:0 8px 32px rgba(23,27,51,.18)">
+                <div style="font-size:15px;color:#171b33;margin-bottom:10px">Collega Google Search Console</div>
+                <div style="font-size:14px;color:#4b4d68;line-height:1.6;margin-bottom:14px">
+                    Collegando Search Console, Eletta potrà leggere i dati di visibilità organica del sito (impressioni, click, posizioni) direttamente da Google e incrociare queste informazioni con le query AI monitorate.<br><br>
+                    Il collegamento avviene tramite autorizzazione Google OAuth: nessuna password viene condivisa.
+                </div>
+                <div style="padding:10px 14px;background:#f4f4f8;border:1px solid #e4e4ec;border-radius:6px;font-size:13px;color:#666b84;margin-bottom:20px">
+                    Funzionalità in arrivo — richiede configurazione Google OAuth
+                </div>
+                <div style="display:flex;gap:8px;justify-content:flex-end">
+                    <button id="_sc-modal-close" class="btn-ping" style="padding:7px 18px;font-size:14px">Chiudi</button>
+                    <button id="_sc-modal-auth" class="btn-update" style="padding:7px 18px;font-size:14px;cursor:not-allowed;opacity:.5" disabled>Autorizza con Google</button>
+                </div>
+            </div>`;
+            document.body.appendChild(ov);
+            const close = () => document.body.removeChild(ov);
+            ov.querySelector('#_sc-modal-close').addEventListener('click', close);
+            ov.addEventListener('click', e => { if (e.target === ov) close(); });
         });
     }
 
