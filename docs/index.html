@@ -2749,6 +2749,7 @@
         }
 
         history.sort((a, b) => a.date.localeCompare(b.date));
+        faqData.score_history = history;
 
         const COLORS  = ['#0D5F75', '#2a8a9e', '#8aa8bc', '#666b84'];
         const KEYS    = ['ai_readiness', 'answer_extraction', 'quality_safety', 'ai_visibility'];
@@ -2865,7 +2866,7 @@
         const faqData = site.faq_data || {};
         const history = Array.isArray(faqData.score_history) ? [...faqData.score_history] : [];
         history.sort((a, b) => a.date.localeCompare(b.date));
-        if (history.length === 0) { canvas.parentElement.style.display = 'none'; return; }
+        if (history.length === 0) { canvas.parentElement.parentElement.style.display = 'none'; return; }
         let _miniDays = 30;
 
         function filteredMini(days) {
