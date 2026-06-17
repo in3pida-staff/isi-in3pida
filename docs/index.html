@@ -4655,7 +4655,6 @@ ${rows}
                 const gscSite  = cfg.gsc_site  || '';
                 if (gscEmail && gscSite) {
                     return `<div style="padding:9px 12px;background:#e8f4f7;border:1px solid #C1CBE8;border-radius:4px;font-size:13px;color:#0D5F75;margin-bottom:12px">● Collegata — <strong>${escHtml(gscSite)}</strong> (${escHtml(gscEmail)})</div>` +
-                    '<div id="gsc-data-container" style="margin-bottom:12px"><div style="font-size:13px;color:#666b84">Caricamento dati...</div></div>' +
                     '<button id="btn-gsc-disconnect" class="btn-ping" style="margin-left:0;font-size:12px">Disconnetti</button>';
                 } else {
                     const _gscDetected = !!(cfg.gsc_verification_tag);
@@ -4706,6 +4705,9 @@ ${rows}
         document.getElementById('btn-force-isi-sync')?.addEventListener('click', () => {
             alert('Sync ISI manuale: funzionalità in arrivo con il modulo ISI Monitor nel plugin.');
         });
+
+        // Precarica GIS subito così il popup OAuth non viene bloccato dal browser
+        loadGisScript();
 
         // ── Google Search Console OAuth ───────────────────────────────────────────
         async function loadGisScript() {
