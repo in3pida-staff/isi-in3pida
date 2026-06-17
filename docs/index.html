@@ -3392,11 +3392,12 @@
     function generateQueriesForHotel(site) {
         const features = buildHotelFeatures(site);
         const dest = features.city || 'Italia';
-        const month = new Date().getMonth() + 1; // 1-12
+        const month = new Date().getMonth() + 1;
         const year  = new Date().getFullYear();
         const isSeason = month >= 3 && month <= 9;
         const result = {};
         INTENT_LIBRARY.forEach(intent => {
+            if (!intent.appliesWhen(features)) return;
             const queries = [...intent.templates(dest)];
             if (isSeason && intent.seasonalTemplates) {
                 const seasonal = intent.seasonalTemplates(dest, year);
@@ -4570,26 +4571,20 @@ ${rows}
             '</div><div style="padding:0 20px 14px;display:flex;gap:10px"><button id="btn-force-isi-sync" class="btn-ping">⚡ Sync manuale ISI</button></div></div>' +
 
             cardH + chH('#0D5F75','Google Search Console') +
-            '<div style="padding:16px 20px">' +
+            '<div style="padding:16px 20px" id="gsc-section">' +
             (() => {
-                // sc_detection arriva dall'heartbeat: { detected: bool, method: string|null }
-                const scDet = cfg.sc_detection || (cfg.sc_detected ? { detected: true, method: null } : { detected: false, method: null });
-                const scConnected = !!(cfg.sc_connected);
-                if (scConnected) {
-                    return '<div style="padding:9px 12px;background:#e8f4f7;border:1px solid #C1CBE8;border-radius:4px;font-size:13px;color:#0D5F75;margin-bottom:12px">● Search Console collegata e attiva</div>';
-                } else if (scDet.detected) {
-                    const methodLabel = scDet.method ? ' via <strong>' + escHtml(scDet.method) + '</strong>' : '';
-                    return '<div style="padding:9px 12px;background:#e8f4f7;border:1px solid #C1CBE8;border-radius:4px;font-size:13px;color:#0D5F75;margin-bottom:12px">✓ Rilevata' + methodLabel + '</div>';
+                const gscEmail = cfg.gsc_email || '';
+                const gscSite  = cfg.gsc_site  || '';
+                if (gscEmail && gscSite) {
+                    return `<div style="padding:9px 12px;background:#e8f4f7;border:1px solid #C1CBE8;border-radius:4px;font-size:13px;color:#0D5F75;margin-bottom:12px">● Collegata — <strong>${escHtml(gscSite)}</strong> (${escHtml(gscEmail)})</div>` +
+                    '<div id="gsc-data-container" style="margin-bottom:12px"><div style="font-size:13px;color:#666b84">Caricamento dati...</div></div>' +
+                    '<button id="btn-gsc-disconnect" class="btn-ping" style="margin-left:0;font-size:12px">Disconnetti</button>';
                 } else {
-                    return '<div style="padding:9px 12px;background:#f4f4f8;border:1px solid #e4e4ec;border-radius:4px;font-size:13px;color:#666b84;margin-bottom:12px">○ Search Console non rilevata — inserisci il codice di verifica o collega tramite Google OAuth</div>';
+                    return '<div style="padding:9px 12px;background:#f4f4f8;border:1px solid #e4e4ec;border-radius:4px;font-size:13px;color:#666b84;margin-bottom:14px">○ Search Console non collegata</div>' +
+                    '<button id="btn-connect-gsc" class="btn-update" style="margin-left:0;display:flex;align-items:center;gap:8px"><svg width="16" height="16" viewBox="0 0 48 48"><path fill="#4285F4" d="M45.12 24.5c0-1.56-.14-3.06-.4-4.5H24v8.51h11.84c-.51 2.75-2.06 5.08-4.39 6.64v5.52h7.11c4.16-3.83 6.56-9.47 6.56-16.17z"/><path fill="#34A853" d="M24 46c5.94 0 10.92-1.97 14.56-5.33l-7.11-5.52c-1.97 1.32-4.49 2.1-7.45 2.1-5.73 0-10.58-3.87-12.31-9.07H4.34v5.7C7.96 41.07 15.4 46 24 46z"/><path fill="#FBBC05" d="M11.69 28.18C11.25 26.86 11 25.45 11 24s.25-2.86.69-4.18v-5.7H4.34C2.85 17.09 2 20.45 2 24c0 3.55.85 6.91 2.34 9.88l7.35-5.7z"/><path fill="#EA4335" d="M24 10.75c3.23 0 6.13 1.11 8.41 3.29l6.31-6.31C34.91 4.18 29.93 2 24 2 15.4 2 7.96 6.93 4.34 14.12l7.35 5.7c1.73-5.2 6.58-9.07 12.31-9.07z"/></svg> Collega con Google</button>' +
+                    '<div id="gsc-msg" style="font-size:13px;color:#9ca3af;margin-top:8px"></div>';
                 }
             })() +
-            inp('sc_code','Codice verifica Google Search Console', cfg.sc_verification_code||'', 'Incolla il codice HTML (es. google1234abcd)') +
-            '<div style="font-size:12px;color:#9ca3af;margin-top:6px;line-height:1.5">Il codice viene salvato e inserito automaticamente nel <code style="background:#f4f4f8;padding:1px 5px;border-radius:3px">&lt;head&gt;</code> del sito tramite plugin. Trovalo in Google Search Console → Impostazioni → Verifica proprietà → Tag HTML.</div>' +
-            '</div><div style="padding:0 20px 14px;display:flex;align-items:center;gap:10px">' +
-            '<button id="btn-save-sc-code" class="btn-update" style="margin-left:0">Salva codice SC</button>' +
-            '<button id="btn-connect-sc" class="btn-ping" style="margin-left:0">Collega Search Console</button>' +
-            '<span id="sc-code-msg" style="font-size:13px;color:#0D5F75;align-self:center"></span>' +
             '</div></div>';
 
         document.getElementById('btn-copy-script')?.addEventListener('click', function() {
@@ -4631,38 +4626,146 @@ ${rows}
         document.getElementById('btn-force-isi-sync')?.addEventListener('click', () => {
             alert('Sync ISI manuale: funzionalità in arrivo con il modulo ISI Monitor nel plugin.');
         });
-        document.getElementById('btn-save-sc-code')?.addEventListener('click', async () => {
-            const code = (document.getElementById('cfg-sc_code')?.value || '').trim();
-            const msg = document.getElementById('sc-code-msg');
+
+        // ── Google Search Console OAuth ───────────────────────────────────────────
+        async function loadGisScript() {
+            if (window.google?.accounts?.oauth2) return;
+            await new Promise((res, rej) => {
+                const s = document.createElement('script');
+                s.src = 'https://accounts.google.com/gsi/client';
+                s.onload = res; s.onerror = rej;
+                document.head.appendChild(s);
+            });
+        }
+
+        async function saveGscConfig(email, gscSite, accessToken) {
             const { data: freshSC } = await _SBq.from('isi_sites').select('hotel_profile').eq('site_id', site.site_id).single();
             const hp3 = freshSC?.hotel_profile || site?.hotel_profile || {};
-            const newCfg3 = { ...(hp3.isi_config || cfg), sc_verification_code: code };
-            const { error } = await _SBq.from('isi_sites').update({ hotel_profile: { ...hp3, isi_config: newCfg3 } }).eq('site_id', site.site_id);
-            if (msg) { msg.textContent = error ? '✗ Errore' : '✓ Codice salvato — il plugin lo inserirà al prossimo sync'; setTimeout(() => { msg.textContent = ''; }, 4000); }
-            if (!error) site.hotel_profile = { ...hp3, isi_config: newCfg3 };
-        });
-        document.getElementById('btn-connect-sc')?.addEventListener('click', () => {
-            const ov = document.createElement('div');
-            ov.style.cssText = 'position:fixed;inset:0;background:rgba(23,27,51,.45);z-index:9999;display:flex;align-items:center;justify-content:center';
-            ov.innerHTML = `<div style="background:white;border-radius:10px;padding:28px 28px 24px;max-width:440px;width:90%;box-shadow:0 8px 32px rgba(23,27,51,.18)">
-                <div style="font-size:15px;color:#171b33;margin-bottom:10px">Collega Google Search Console</div>
-                <div style="font-size:14px;color:#4b4d68;line-height:1.6;margin-bottom:14px">
-                    Collegando Search Console, Eletta potrà leggere i dati di visibilità organica del sito (impressioni, click, posizioni) direttamente da Google e incrociare queste informazioni con le query AI monitorate.<br><br>
-                    Il collegamento avviene tramite autorizzazione Google OAuth: nessuna password viene condivisa.
-                </div>
-                <div style="padding:10px 14px;background:#f4f4f8;border:1px solid #e4e4ec;border-radius:6px;font-size:13px;color:#666b84;margin-bottom:20px">
-                    Funzionalità in arrivo — richiede configurazione Google OAuth
-                </div>
-                <div style="display:flex;gap:8px;justify-content:flex-end">
-                    <button id="_sc-modal-close" class="btn-ping" style="padding:7px 18px;font-size:14px">Chiudi</button>
-                    <button id="_sc-modal-auth" class="btn-update" style="padding:7px 18px;font-size:14px;cursor:not-allowed;opacity:.5" disabled>Autorizza con Google</button>
-                </div>
-            </div>`;
-            document.body.appendChild(ov);
-            const close = () => document.body.removeChild(ov);
-            ov.querySelector('#_sc-modal-close').addEventListener('click', close);
-            ov.addEventListener('click', e => { if (e.target === ov) close(); });
-        });
+            const newCfg3 = { ...(hp3.isi_config || cfg), gsc_email: email, gsc_site: gscSite, gsc_token: accessToken };
+            await _SBq.from('isi_sites').update({ hotel_profile: { ...hp3, isi_config: newCfg3 } }).eq('site_id', site.site_id);
+            site.hotel_profile = { ...hp3, isi_config: newCfg3 };
+        }
+
+        async function fetchGscData(accessToken, gscSite) {
+            const endDate = new Date().toISOString().slice(0,10);
+            const startDate = new Date(Date.now() - 28*86400000).toISOString().slice(0,10);
+            const res = await fetch(`https://searchconsole.googleapis.com/webmasters/v3/sites/${encodeURIComponent(gscSite)}/searchAnalytics/query`, {
+                method: 'POST',
+                headers: { 'Authorization': 'Bearer ' + accessToken, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ startDate, endDate, dimensions: ['query'], rowLimit: 10, startRow: 0 })
+            });
+            if (!res.ok) throw new Error('GSC API error ' + res.status);
+            return await res.json();
+        }
+
+        function renderGscData(data) {
+            const cont = document.getElementById('gsc-data-container');
+            if (!cont) return;
+            const rows = data.rows || [];
+            if (!rows.length) { cont.innerHTML = '<div style="font-size:13px;color:#9ca3af">Nessun dato disponibile negli ultimi 28 giorni.</div>'; return; }
+            cont.innerHTML = `<div style="font-size:12px;font-weight:700;color:#666b84;margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em">Top query (ultimi 28 gg)</div>` +
+                `<table style="width:100%;border-collapse:collapse;font-size:12px">` +
+                `<tr style="color:#9ca3af;border-bottom:1px solid #f0f0f5"><td style="padding:4px 8px 4px 0">Query</td><td style="padding:4px 8px;text-align:right">Click</td><td style="padding:4px 8px;text-align:right">Impr.</td><td style="padding:4px 8px;text-align:right">CTR</td><td style="padding:4px 0;text-align:right">Pos.</td></tr>` +
+                rows.map(r => `<tr style="border-bottom:1px solid #f4f4f8"><td style="padding:5px 8px 5px 0;color:#171b33;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(r.keys[0])}</td><td style="padding:5px 8px;text-align:right;color:#0D5F75;font-weight:600">${r.clicks}</td><td style="padding:5px 8px;text-align:right;color:#666b84">${r.impressions}</td><td style="padding:5px 8px;text-align:right;color:#666b84">${(r.ctr*100).toFixed(1)}%</td><td style="padding:5px 0;text-align:right;color:#666b84">${r.position.toFixed(1)}</td></tr>`).join('') +
+                '</table>';
+        }
+
+        const btnConnectGsc = document.getElementById('btn-connect-gsc');
+        if (btnConnectGsc) {
+            btnConnectGsc.addEventListener('click', async () => {
+                const msg = document.getElementById('gsc-msg');
+                btnConnectGsc.disabled = true;
+                btnConnectGsc.textContent = '⏳ Connessione...';
+                try {
+                    // Get client ID from edge function
+                    const cfgRes = await fetch(`${SUPABASE_URL}/functions/v1/gsc-config`, { headers: { 'Authorization': 'Bearer ' + (await _SB.auth.getSession()).data.session?.access_token } });
+                    const { clientId } = await cfgRes.json();
+                    if (!clientId) throw new Error('GOOGLE_GSC_CLIENT_ID non configurato nel progetto Supabase');
+
+                    await loadGisScript();
+
+                    let sitesData = null;
+                    let userEmail = '';
+
+                    await new Promise((resolve, reject) => {
+                        const tokenClient = window.google.accounts.oauth2.initTokenClient({
+                            client_id: clientId,
+                            scope: 'https://www.googleapis.com/auth/webmasters.readonly https://www.googleapis.com/auth/userinfo.email',
+                            callback: async (resp) => {
+                                if (resp.error) { reject(new Error(resp.error)); return; }
+                                try {
+                                    // Get user email
+                                    const meRes = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', { headers: { 'Authorization': 'Bearer ' + resp.access_token } });
+                                    const me = await meRes.json();
+                                    userEmail = me.email || '';
+
+                                    // Get GSC sites list
+                                    const sitesRes = await fetch('https://searchconsole.googleapis.com/webmasters/v3/sites', { headers: { 'Authorization': 'Bearer ' + resp.access_token } });
+                                    const sitesJson = await sitesRes.json();
+                                    sitesData = { token: resp.access_token, sites: sitesJson.siteEntry || [] };
+                                    resolve();
+                                } catch(e) { reject(e); }
+                            }
+                        });
+                        tokenClient.requestAccessToken({ prompt: 'consent' });
+                    });
+
+                    if (!sitesData.sites.length) throw new Error('Nessuna proprietà trovata in Search Console per questo account');
+
+                    // Show site selection modal
+                    const siteUrl = await new Promise((resolve, reject) => {
+                        const ov = document.createElement('div');
+                        ov.style.cssText = 'position:fixed;inset:0;background:rgba(23,27,51,.45);z-index:9999;display:flex;align-items:center;justify-content:center';
+                        const opts = sitesData.sites.map((s,i) => `<label style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #f4f4f8;cursor:pointer"><input type="radio" name="gsc-site-pick" value="${escHtml(s.siteUrl)}" ${i===0?'checked':''}><span style="font-size:13px;color:#171b33">${escHtml(s.siteUrl)}</span></label>`).join('');
+                        ov.innerHTML = `<div style="background:white;border-radius:10px;padding:24px;max-width:480px;width:90%;box-shadow:0 8px 32px rgba(23,27,51,.18)">
+                            <div style="font-size:15px;color:#171b33;font-weight:600;margin-bottom:14px">Seleziona la proprietà da collegare</div>
+                            <div style="max-height:240px;overflow-y:auto;margin-bottom:16px">${opts}</div>
+                            <div style="display:flex;gap:8px;justify-content:flex-end">
+                                <button id="_gsc-cancel" class="btn-ping" style="padding:7px 18px">Annulla</button>
+                                <button id="_gsc-confirm" class="btn-update" style="padding:7px 18px">Collega</button>
+                            </div></div>`;
+                        document.body.appendChild(ov);
+                        ov.querySelector('#_gsc-cancel').addEventListener('click', () => { document.body.removeChild(ov); reject(new Error('annullato')); });
+                        ov.querySelector('#_gsc-confirm').addEventListener('click', () => {
+                            const checked = ov.querySelector('input[name="gsc-site-pick"]:checked');
+                            document.body.removeChild(ov);
+                            if (checked) resolve(checked.value); else reject(new Error('annullato'));
+                        });
+                    });
+
+                    await saveGscConfig(userEmail, siteUrl, sitesData.token);
+                    // Reload section
+                    _configInited = false;
+                    loadSiteDetail(site.site_id);
+                } catch(e) {
+                    if (e.message !== 'annullato') {
+                        if (msg) msg.textContent = '✗ ' + e.message;
+                    }
+                    btnConnectGsc.disabled = false;
+                    btnConnectGsc.innerHTML = `<svg width="16" height="16" viewBox="0 0 48 48"><path fill="#4285F4" d="M45.12 24.5c0-1.56-.14-3.06-.4-4.5H24v8.51h11.84c-.51 2.75-2.06 5.08-4.39 6.64v5.52h7.11c4.16-3.83 6.56-9.47 6.56-16.17z"/><path fill="#34A853" d="M24 46c5.94 0 10.92-1.97 14.56-5.33l-7.11-5.52c-1.97 1.32-4.49 2.1-7.45 2.1-5.73 0-10.58-3.87-12.31-9.07H4.34v5.7C7.96 41.07 15.4 46 24 46z"/><path fill="#FBBC05" d="M11.69 28.18C11.25 26.86 11 25.45 11 24s.25-2.86.69-4.18v-5.7H4.34C2.85 17.09 2 20.45 2 24c0 3.55.85 6.91 2.34 9.88l7.35-5.7z"/><path fill="#EA4335" d="M24 10.75c3.23 0 6.13 1.11 8.41 3.29l6.31-6.31C34.91 4.18 29.93 2 24 2 15.4 2 7.96 6.93 4.34 14.12l7.35 5.7c1.73-5.2 6.58-9.07 12.31-9.07z"/></svg> Collega con Google`;
+                }
+            });
+        }
+
+        // Se già collegata, carica i dati GSC
+        const btnDisconnectGsc = document.getElementById('btn-gsc-disconnect');
+        if (btnDisconnectGsc) {
+            btnDisconnectGsc.addEventListener('click', async () => {
+                const { data: freshSC } = await _SBq.from('isi_sites').select('hotel_profile').eq('site_id', site.site_id).single();
+                const hp3 = freshSC?.hotel_profile || site?.hotel_profile || {};
+                const newCfg3 = { ...(hp3.isi_config || cfg) };
+                delete newCfg3.gsc_email; delete newCfg3.gsc_site; delete newCfg3.gsc_token;
+                await _SBq.from('isi_sites').update({ hotel_profile: { ...hp3, isi_config: newCfg3 } }).eq('site_id', site.site_id);
+                _configInited = false;
+                loadSiteDetail(site.site_id);
+            });
+            if (cfg.gsc_token && cfg.gsc_site) {
+                fetchGscData(cfg.gsc_token, cfg.gsc_site).then(renderGscData).catch(e => {
+                    const cont = document.getElementById('gsc-data-container');
+                    if (cont) cont.innerHTML = `<div style="font-size:13px;color:#9ca3af">Token scaduto — disconnetti e ricollega.</div>`;
+                });
+            }
+        }
     }
 
     // ─── UTENTI ──────────────────────────────────────────────────────────────────
