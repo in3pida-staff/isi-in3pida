@@ -931,6 +931,7 @@
                             {k:'coerenza', l:'COERENZA',           v:'Confronta canali'},
                             {k:'ai_layer', l:'AI LAYER',           v: geo.has_ai_profile===true?'Attivo':'Non attivo'},
                             {k:'pse',      l:'STATISTICHE PSE',    v:(pseData?.length||0)+' query registrate'},
+                            {k:'dati_sito', l:'DATI SITO',          v: (site?.hotel_profile?.isi_config?.gsc_email ? 'GSC collegata' : 'Segnali sito')},
                             {k:'config',   l:'CONFIGURAZIONE',     v:'Chiavi e abilitazioni'},
                         ].map(({k,l,v},i)=>{
                             const isAct=i===0;
@@ -1504,6 +1505,8 @@
             </div>
             </div><!-- /scontent-pse -->
 
+            <div id="scontent-dati_sito" style="display:none"></div>
+
                 </div><!-- /right column -->
             </div><!-- /outer sidebar layout -->
             `;
@@ -1537,6 +1540,11 @@
                     if (data.plugin_version) patch.plugin_version = data.plugin_version;
                     if (data.faq_data)       patch.faq_data       = { ...(site?.faq_data || {}), ...data.faq_data, score_history: site?.faq_data?.score_history || [] };
                     if (data.schema_data)    patch.schema_data    = data.schema_data;
+                    if (data.pse_signals && Array.isArray(data.pse_signals)) {
+                        const existing = Array.isArray(site?.hotel_profile?.pse_signals) ? site.hotel_profile.pse_signals : [];
+                        const merged = [...existing, ...data.pse_signals].slice(-500);
+                        patch.hotel_profile = { ...(site?.hotel_profile || {}), pse_signals: merged };
+                    }
                     await _SBq.from('isi_sites').update(patch).eq('site_id', siteId);
                     btn.textContent = '✓ Sincronizzato';
                     setTimeout(() => loadSiteDetail(siteId), 1500);
@@ -1549,7 +1557,7 @@
         document.getElementById('btn-stato-sync-all').addEventListener('click', () => doSync(document.getElementById('btn-stato-sync-all'), 'SINCRONIZZA'));
 
         // ── sidebar navigation (event delegation — più robusto di querySelectorAll)
-        const allSecs = ['overview','faq','schema','mappa','coerenza','ai_layer','config','pse'];
+        const allSecs = ['overview','faq','schema','mappa','coerenza','ai_layer','dati_sito','config','pse'];
         if (_sidebarClickHandler) el.removeEventListener('click', _sidebarClickHandler);
         _sidebarClickHandler = e => {
             const row = e.target.closest('.stato-sezione-row[data-sec]');
@@ -1584,6 +1592,7 @@
             if (sec === 'mappa') initMappaQueryMgmt(site, pseData);
             if (sec === 'coerenza') initCoerenzaTable(site);
             if (sec === 'ai_layer') initAiLayerPanel(site);
+            if (sec === 'dati_sito') initDatiSito(site, pseData);
             if (sec === 'config') initConfigPanel(site);
         };
         el.addEventListener('click', _sidebarClickHandler);
@@ -3684,22 +3693,31 @@
         const relevantCats   = cats.filter(c => getPriorityForCategory(c, hotelFeatures, hotelQueries) !== 'non_rilevante');
         const irrelevantCats = cats.filter(c => getPriorityForCategory(c, hotelFeatures, hotelQueries) === 'non_rilevante');
 
-        const renderCat = cat => {
-            const label = cat.replace(/_/g,' ').replace(/\b\w/g, c => c.toUpperCase());
-            const prio  = getPriorityForCategory(cat, hotelFeatures, hotelQueries);
-            const qs    = hotelQueries[cat] || [];
-            const entry = qmap[cat] || {};
-            const coveredSet = new Set([...(Array.isArray(entry.covered_queries) ? entry.covered_queries : (entry.covered ? qs : [])), ...qs.filter(q => faqQuestions.has(q.toLowerCase().trim()))]);
-            const covQ = qs.filter(q => coveredSet.has(q) || coveredSet.has(q.toLowerCase())).length;
-            const dotColor = prio === 'alta' ? '#0D5F75' : prio === 'media' ? '#666b84' : '#9ca3af';
-            return `<div class="card" style="margin-bottom:12px;border:1px solid #e4e4ec;box-shadow:none${prio==='non_rilevante'?';opacity:.45':''}">
-                <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
-                    <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:${dotColor};display:inline-block;flex-shrink:0"></span><div style="font-size:12px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">${escHtml(label)}</div>${PRIORITY_BADGE[prio]}</div>
-                    <span style="background:white;border:1px solid #e4e4ec;border-radius:20px;font-size:10px;font-weight:700;color:#666b84;padding:3px 10px;white-space:nowrap">${covQ}/${qs.length} COPERTE</span>
-                </div>
-                ${qs.map((q) => {
-                    const isCov = coveredSet.has(q) || coveredSet.has(q.toLowerCase());
-                    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 20px;border-top:1px solid #f4f4f8">
+        function generateIntentQueriesForHotel(site) {
+            const features = buildHotelFeatures(site);
+            const dest = features.city || 'Italia';
+            const month = new Date().getMonth() + 1;
+            const year  = new Date().getFullYear();
+            const isSeason = month >= 3 && month <= 9;
+            const result = {};
+            INTENT_LIBRARY.forEach(intent => {
+                if (!intent.appliesWhen(features)) return;
+                const queries = [...intent.templates(dest)];
+                if (isSeason && intent.seasonalTemplates) {
+                    const seasonal = intent.seasonalTemplates(dest, year);
+                    seasonal.forEach(q => { if (!queries.includes(q)) queries.push(q); });
+                }
+                const cat = intent.category;
+                if (!result[cat]) result[cat] = [];
+                result[cat].push({ intent, queries });
+            });
+            return result;
+        }
+
+        const intentQueriesMap = generateIntentQueriesForHotel(site);
+
+        const renderQueryRow = (q, cat, isCov, site) => {
+            return `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 20px;border-top:1px solid #f4f4f8">
                         <div style="display:flex;align-items:center;gap:10px;min-width:0">
                             <span style="font-size:15px;color:${isCov?'#0D5F75':'#C1CBE8'};font-weight:800;flex-shrink:0">${isCov?'✓':'✗'}</span>
                             <span style="font-size:14px;color:#171b33;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(q)}</span>
@@ -3710,7 +3728,51 @@
                             <button class="btn-ping" style="padding:5px 10px;font-size:12px" onclick="apriModaleFaqManuale('${escHtml(q).replace(/'/g,"\\'")}')">✎ Scrivi</button>
                         </div>
                     </div>`;
-                }).join('')}
+        };
+
+        const renderCat = cat => {
+            const label = cat.replace(/_/g,' ').replace(/\b\w/g, c => c.toUpperCase());
+            const prio  = getPriorityForCategory(cat, hotelFeatures, hotelQueries);
+            const qs    = hotelQueries[cat] || [];
+            const entry = qmap[cat] || {};
+            const coveredSet = new Set([...(Array.isArray(entry.covered_queries) ? entry.covered_queries : (entry.covered ? qs : [])), ...qs.filter(q => faqQuestions.has(q.toLowerCase().trim()))]);
+            const covQ = qs.filter(q => coveredSet.has(q) || coveredSet.has(q.toLowerCase())).length;
+            const dotColor = prio === 'alta' ? '#0D5F75' : prio === 'media' ? '#666b84' : '#9ca3af';
+
+            const catIntents = intentQueriesMap[cat] || [];
+            let bodyHtml = '';
+
+            if (catIntents.length > 0) {
+                catIntents.forEach((item, idx) => {
+                    const subHeader = `<div style="font-size:11px;font-weight:700;color:#666b84;text-transform:uppercase;padding:8px 20px 4px${idx > 0 ? ';border-top:1px solid #ececf2' : ''}">` + escHtml(item.intent.label) + '</div>';
+                    const rows = item.queries.map(q => {
+                        const isCov = coveredSet.has(q) || coveredSet.has(q.toLowerCase());
+                        return renderQueryRow(q, cat, isCov, site);
+                    }).join('');
+                    bodyHtml += subHeader + rows;
+                });
+                // Query in hotelQueries[cat] non coperte dagli intenti (fallback)
+                const intentQs = new Set(catIntents.flatMap(i => i.queries));
+                const extraQs = qs.filter(q => !intentQs.has(q));
+                if (extraQs.length) {
+                    bodyHtml += extraQs.map(q => {
+                        const isCov = coveredSet.has(q) || coveredSet.has(q.toLowerCase());
+                        return renderQueryRow(q, cat, isCov, site);
+                    }).join('');
+                }
+            } else {
+                bodyHtml = qs.map(q => {
+                    const isCov = coveredSet.has(q) || coveredSet.has(q.toLowerCase());
+                    return renderQueryRow(q, cat, isCov, site);
+                }).join('');
+            }
+
+            return `<div class="card" style="margin-bottom:12px;border:1px solid #e4e4ec;box-shadow:none${prio==='non_rilevante'?';opacity:.45':''}">
+                <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
+                    <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:${dotColor};display:inline-block;flex-shrink:0"></span><div style="font-size:12px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">${escHtml(label)}</div>${PRIORITY_BADGE[prio]}</div>
+                    <span style="background:white;border:1px solid #e4e4ec;border-radius:20px;font-size:10px;font-weight:700;color:#666b84;padding:3px 10px;white-space:nowrap">${covQ}/${qs.length} COPERTE</span>
+                </div>
+                ${bodyHtml}
             </div>`;
         };
 
@@ -4580,7 +4642,9 @@ ${rows}
                     '<div id="gsc-data-container" style="margin-bottom:12px"><div style="font-size:13px;color:#666b84">Caricamento dati...</div></div>' +
                     '<button id="btn-gsc-disconnect" class="btn-ping" style="margin-left:0;font-size:12px">Disconnetti</button>';
                 } else {
+                    const _gscDetected = !!(cfg.gsc_verification_tag);
                     return '<div style="padding:9px 12px;background:#f4f4f8;border:1px solid #e4e4ec;border-radius:4px;font-size:13px;color:#666b84;margin-bottom:14px">○ Search Console non collegata</div>' +
+                    (_gscDetected ? '<div style="padding:10px 14px;background:#fef9e7;border:1px solid #f0c040;border-radius:4px;font-size:13px;color:#7d6608;margin-bottom:14px;line-height:1.5">⚡ Abbiamo rilevato una possibile configurazione Search Console sul sito. Collegala per analizzare query reali, impression, click, CTR e posizione media.</div>' : '') +
                     '<button id="btn-connect-gsc" class="btn-update" style="margin-left:0;display:flex;align-items:center;gap:8px"><svg width="16" height="16" viewBox="0 0 48 48"><path fill="#4285F4" d="M45.12 24.5c0-1.56-.14-3.06-.4-4.5H24v8.51h11.84c-.51 2.75-2.06 5.08-4.39 6.64v5.52h7.11c4.16-3.83 6.56-9.47 6.56-16.17z"/><path fill="#34A853" d="M24 46c5.94 0 10.92-1.97 14.56-5.33l-7.11-5.52c-1.97 1.32-4.49 2.1-7.45 2.1-5.73 0-10.58-3.87-12.31-9.07H4.34v5.7C7.96 41.07 15.4 46 24 46z"/><path fill="#FBBC05" d="M11.69 28.18C11.25 26.86 11 25.45 11 24s.25-2.86.69-4.18v-5.7H4.34C2.85 17.09 2 20.45 2 24c0 3.55.85 6.91 2.34 9.88l7.35-5.7z"/><path fill="#EA4335" d="M24 10.75c3.23 0 6.13 1.11 8.41 3.29l6.31-6.31C34.91 4.18 29.93 2 24 2 15.4 2 7.96 6.93 4.34 14.12l7.35 5.7c1.73-5.2 6.58-9.07 12.31-9.07z"/></svg> Collega con Google</button>' +
                     '<div id="gsc-msg" style="font-size:13px;color:#9ca3af;margin-top:8px"></div>';
                 }
@@ -4765,6 +4829,70 @@ ${rows}
                     if (cont) cont.innerHTML = `<div style="font-size:13px;color:#9ca3af">Token scaduto — disconnetti e ricollega.</div>`;
                 });
             }
+        }
+    }
+
+    async function initDatiSito(site, pseData) {
+        const cont = document.getElementById('scontent-dati_sito');
+        if (!cont) return;
+        const cfg = site?.hotel_profile?.isi_config || {};
+        const cardStyle = 'border:1px solid #e4e4ec;box-shadow:none;margin-bottom:20px';
+        const cardH = (dot, title) => `<div class="card" style="${cardStyle}"><div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:${dot};display:inline-block;flex-shrink:0"></span><div style="font-size:12px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">${escHtml(title)}</div></div></div>`;
+
+        let html = '';
+
+        if (cfg.gsc_email && cfg.gsc_site && cfg.gsc_token) {
+            html += cardH('#0D5F75', 'Google Search Console') +
+                '<div style="padding:16px 20px" id="dati-gsc-container"><div style="font-size:13px;color:#666b84">Caricamento dati GSC...</div></div></div>';
+        }
+
+        const signals = site?.hotel_profile?.pse_signals;
+        if (Array.isArray(signals) && signals.length) {
+            // Raggruppa per page_url + event_type, top 10
+            const grouped = {};
+            signals.forEach(s => {
+                const key = (s.page_url || '—') + '||' + (s.event_type || '—');
+                grouped[key] = (grouped[key] || 0) + 1;
+            });
+            const sorted = Object.entries(grouped).sort((a, b) => b[1] - a[1]).slice(0, 10);
+            html += cardH('#666b84', 'Segnali Sito') +
+                '<div style="padding:16px 20px">' +
+                '<table style="width:100%;border-collapse:collapse;font-size:13px">' +
+                '<tr style="color:#9ca3af;border-bottom:1px solid #f0f0f5"><td style="padding:4px 8px 4px 0">Pagina</td><td style="padding:4px 8px">Evento</td><td style="padding:4px 0;text-align:right">N.</td></tr>' +
+                sorted.map(([key, count]) => {
+                    const [page_url, event_type] = key.split('||');
+                    return `<tr style="border-bottom:1px solid #f4f4f8"><td style="padding:5px 8px 5px 0;color:#171b33;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(page_url)}</td><td style="padding:5px 8px;color:#666b84">${escHtml(event_type)}</td><td style="padding:5px 0;text-align:right;color:#0D5F75;font-weight:600">${count}</td></tr>`;
+                }).join('') +
+                '</table></div></div>';
+        }
+
+        if (!html) {
+            html = `<div class="card" style="${cardStyle}"><div style="padding:20px 24px;font-size:14px;color:#666b84">Nessun dato. Collega Google Search Console dalla sezione Configurazione.</div></div>`;
+        }
+
+        cont.innerHTML = html;
+
+        if (cfg.gsc_email && cfg.gsc_site && cfg.gsc_token) {
+            const datiGscCont = document.getElementById('dati-gsc-container');
+            // fetchGscData è definita dentro initConfigPanel — usiamo fetch diretto
+            const endDate = new Date().toISOString().slice(0,10);
+            const startDate = new Date(Date.now() - 28*86400000).toISOString().slice(0,10);
+            fetch(`https://searchconsole.googleapis.com/webmasters/v3/sites/${encodeURIComponent(cfg.gsc_site)}/searchAnalytics/query`, {
+                method: 'POST',
+                headers: { 'Authorization': 'Bearer ' + cfg.gsc_token, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ startDate, endDate, dimensions: ['query'], rowLimit: 10, startRow: 0 })
+            }).then(r => r.json()).then(data => {
+                const rows = data.rows || [];
+                if (!rows.length) { if (datiGscCont) datiGscCont.innerHTML = '<div style="font-size:13px;color:#9ca3af">Nessun dato disponibile negli ultimi 28 giorni.</div>'; return; }
+                if (datiGscCont) datiGscCont.innerHTML =
+                    `<div style="font-size:12px;font-weight:700;color:#666b84;margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em">Top query (ultimi 28 gg)</div>` +
+                    `<table style="width:100%;border-collapse:collapse;font-size:12px">` +
+                    `<tr style="color:#9ca3af;border-bottom:1px solid #f0f0f5"><td style="padding:4px 8px 4px 0">Query</td><td style="padding:4px 8px;text-align:right">Click</td><td style="padding:4px 8px;text-align:right">Impr.</td><td style="padding:4px 8px;text-align:right">CTR</td><td style="padding:4px 0;text-align:right">Pos.</td></tr>` +
+                    rows.map(r => `<tr style="border-bottom:1px solid #f4f4f8"><td style="padding:5px 8px 5px 0;color:#171b33;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(r.keys[0])}</td><td style="padding:5px 8px;text-align:right;color:#0D5F75;font-weight:600">${r.clicks}</td><td style="padding:5px 8px;text-align:right;color:#666b84">${r.impressions}</td><td style="padding:5px 8px;text-align:right;color:#666b84">${(r.ctr*100).toFixed(1)}%</td><td style="padding:5px 0;text-align:right;color:#666b84">${r.position.toFixed(1)}</td></tr>`).join('') +
+                    '</table>';
+            }).catch(e => {
+                if (datiGscCont) datiGscCont.innerHTML = `<div style="font-size:13px;color:#9ca3af">Token scaduto — ricollegati dalla sezione Configurazione.</div>`;
+            });
         }
     }
 
