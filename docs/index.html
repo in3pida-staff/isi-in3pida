@@ -2809,11 +2809,22 @@
                 if (!weeks[key]) weeks[key] = { date: key, _items: [] };
                 weeks[key]._items.push(h);
             });
-            return Object.values(weeks).map(w => {
+            const weekly = Object.values(weeks).map(w => {
                 const items = w._items;
                 const avg = k => { const vs = items.map(i => i[k]).filter(v => v != null); return vs.length ? Math.round(vs.reduce((a,b)=>a+b,0)/vs.length) : null; };
                 return { date: w.date, geo: avg('geo'), completeness: avg('completeness'), coverage: avg('coverage'), ai_readiness: avg('ai_readiness'), answer_extraction: avg('answer_extraction'), quality_safety: avg('quality_safety'), ai_visibility: avg('ai_visibility') };
             }).sort((a,b) => a.date.localeCompare(b.date));
+            const keys = ['geo','completeness','coverage','ai_readiness','answer_extraction','quality_safety','ai_visibility'];
+            return weekly.map((pt, i) => {
+                const smoothed = { date: pt.date };
+                keys.forEach(k => {
+                    const prev = weekly[i-1]?.[k], next = weekly[i+1]?.[k], cur = pt[k];
+                    if (cur == null) { smoothed[k] = null; return; }
+                    const vals = [prev, cur, next].filter(v => v != null);
+                    smoothed[k] = Math.round(vals.reduce((a,b)=>a+b,0)/vals.length);
+                });
+                return smoothed;
+            });
         }
 
         function render(days) {
@@ -2827,7 +2838,7 @@
                 borderColor: COLORS[i],
                 backgroundColor: 'transparent',
                 fill: false,
-                tension: 0.2,
+                tension: 0.5,
                 pointRadius: 0,
                 pointHoverRadius: 4.5,
                 pointBackgroundColor: COLORS[i],
@@ -2942,9 +2953,9 @@
                 g.addColorStop(0,`rgba(${r},${gr},${b},0.20)`); g.addColorStop(1,`rgba(${r},${gr},${b},0.00)`); return g;
             }
             const datasets = [
-                { label:'GEO Score',    data:data.map(h=>h.geo??null),        borderColor:'#0D5F75', backgroundColor:'transparent', fill:false, tension:0, pointRadius:0, pointHoverRadius:3.5, pointBackgroundColor:'#0D5F75', pointBorderColor:'#0D5F75', borderWidth:2.5, spanGaps:true },
-                { label:'Completezza',  data:data.map(h=>h.completeness??null),borderColor:'#5c6ac4', backgroundColor:'transparent', fill:false, tension:0, pointRadius:0, pointHoverRadius:3.5, pointBackgroundColor:'#5c6ac4', pointBorderColor:'#5c6ac4', borderWidth:2.5, spanGaps:true },
-                { label:'Coverage FAQ', data:data.map(h=>h.coverage??null),   borderColor:'#a29bfe', backgroundColor:'transparent', fill:false, tension:0, pointRadius:0, pointHoverRadius:3.5, pointBackgroundColor:'#a29bfe', pointBorderColor:'#a29bfe', borderWidth:2.5, spanGaps:true },
+                { label:'GEO Score',    data:data.map(h=>h.geo??null),        borderColor:'#0D5F75', backgroundColor:'transparent', fill:false, tension:0.5, pointRadius:0, pointHoverRadius:3.5, pointBackgroundColor:'#0D5F75', pointBorderColor:'#0D5F75', borderWidth:2.5, spanGaps:true },
+                { label:'Completezza',  data:data.map(h=>h.completeness??null),borderColor:'#5c6ac4', backgroundColor:'transparent', fill:false, tension:0.5, pointRadius:0, pointHoverRadius:3.5, pointBackgroundColor:'#5c6ac4', pointBorderColor:'#5c6ac4', borderWidth:2.5, spanGaps:true },
+                { label:'Coverage FAQ', data:data.map(h=>h.coverage??null),   borderColor:'#a29bfe', backgroundColor:'transparent', fill:false, tension:0.5, pointRadius:0, pointHoverRadius:3.5, pointBackgroundColor:'#a29bfe', pointBorderColor:'#a29bfe', borderWidth:2.5, spanGaps:true },
             ];
             if (_geoMiniChartInst) _geoMiniChartInst.destroy();
             _geoMiniChartInst = new Chart(canvas, {
