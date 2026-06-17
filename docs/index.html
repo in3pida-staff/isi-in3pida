@@ -5391,9 +5391,15 @@ ${rows}
             const d = await res.json();
             if (res.ok && d.ok) {
                 resultEl.textContent = '✓ Grazie! Feedback inviato.'; resultEl.style.color = '#0D5F75'; resultEl.style.display = 'block';
+                // Apri mail client con messaggio pre-compilato → email arriva a mario@in3pida.it
+                const subj = encodeURIComponent('Feedback ISI' + (email ? ' — ' + email : ''));
+                const body = encodeURIComponent(msg + (email ? '\n\nRispondi a: ' + email : ''));
+                const a = document.createElement('a');
+                a.href = 'mailto:mario@in3pida.it?subject=' + subj + '&body=' + body;
+                document.body.appendChild(a); a.click(); document.body.removeChild(a);
                 document.getElementById('isi-feedback-msg').value = '';
                 document.getElementById('isi-feedback-email').value = '';
-                setTimeout(() => { document.getElementById('isi-feedback-overlay').style.display = 'none'; resultEl.style.display = 'none'; }, 2000);
+                setTimeout(() => { document.getElementById('isi-feedback-overlay').style.display = 'none'; resultEl.style.display = 'none'; }, 3000);
             } else { throw new Error(d.error || 'Errore'); }
         } catch(ex) { resultEl.textContent = 'Errore: ' + ex.message; resultEl.style.color = '#b00020'; resultEl.style.display = 'block'; }
         btn.disabled = false; btn.textContent = 'Invia feedback';
