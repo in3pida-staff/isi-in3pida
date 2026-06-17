@@ -967,7 +967,7 @@
                                     <div style="font-size:14px;font-weight:600;color:${qMapPct!==null?'#0D5F75':'#C1CBE8'};margin-top:6px">${qMapPct!==null?qMapPct+'% coperto':'nessun dato'}</div>
                                 </div>
                             </div>
-                            <div style="position:relative;height:140px;background:#C1CBE8;border-radius:4px;overflow:hidden"><canvas id="chart-geo-score-mini"></canvas></div>
+                            <div><div style="display:flex;justify-content:flex-end;gap:12px;margin-bottom:8px"><span class="geo-mini-range" data-days="30" style="font-size:11px;font-weight:700;cursor:pointer;color:#0D5F75;border-bottom:2px solid #0D5F75;padding-bottom:2px">1M</span><span class="geo-mini-range" data-days="180" style="font-size:11px;font-weight:700;cursor:pointer;color:#9ca3af">6M</span><span class="geo-mini-range" data-days="9999" style="font-size:11px;font-weight:700;cursor:pointer;color:#9ca3af">Sempre</span></div><div style="position:relative;height:130px;background:white;border-radius:4px;overflow:hidden"><canvas id="chart-geo-score-mini"></canvas></div></div>
                             </div>
                         </div>
                     </div>
@@ -1074,7 +1074,7 @@
                     </div>
                 </div>
                 <!-- chart -->
-                <div style="position:relative;height:200px;background:#C1CBE8;border-radius:4px;overflow:hidden"><canvas id="chart-score-history"></canvas></div>
+                <div style="position:relative;height:200px;background:white;border-radius:4px;overflow:hidden"><canvas id="chart-score-history"></canvas></div>
                 </div>
             </div>
             ${cs !== null ? `<div class="card" style="margin-bottom:20px;border:1px solid #e4e4ec;box-shadow:none">
@@ -2760,7 +2760,9 @@
                         legend: { display: false },
                         tooltip: {
                             backgroundColor: 'white', titleColor: '#171b33', bodyColor: '#4b4d68',
-                            borderColor: '#e4e4ec', borderWidth: 1, padding: 10,
+                            borderColor: '#e4e4ec', borderWidth: 1, padding: 9,
+                            usePointStyle: true,
+                            bodyFont: { size: 11 }, titleFont: { size: 11 },
                             callbacks: { label: ctx => ' ' + ctx.dataset.label + ': ' + (ctx.parsed.y ?? '—') }
                         }
                     },
@@ -2810,30 +2812,55 @@
         const history = Array.isArray(faqData.score_history) ? [...faqData.score_history] : [];
         history.sort((a, b) => a.date.localeCompare(b.date));
         if (history.length === 0) { canvas.parentElement.style.display = 'none'; return; }
-        const last30 = (() => { const cut = new Date(); cut.setDate(cut.getDate()-30); const cs = cut.toISOString().slice(0,10); return history.filter(h=>h.date>=cs); })();
-        const data = last30.length ? last30 : history;
-        const labels = data.map(h => { const dt = new Date(h.date+'T00:00:00'); return dt.toLocaleDateString('it-IT',{day:'2-digit',month:'short'}); });
-        const datasets = [
-            { label:'GEO Score', data:data.map(h=>h.geo??null), borderColor:'#0D5F75', backgroundColor:'rgba(13,95,117,0.15)', fill:true, tension:0.4, pointRadius:data.length<20?3:1, borderWidth:2, spanGaps:true },
-            { label:'Completezza', data:data.map(h=>h.completeness??null), borderColor:'#4a6e8a', backgroundColor:'transparent', fill:false, tension:0.4, pointRadius:data.length<20?3:1, borderWidth:2, spanGaps:true },
-            { label:'Coverage FAQ', data:data.map(h=>h.coverage??null), borderColor:'#8aa8bc', backgroundColor:'transparent', fill:false, tension:0.4, pointRadius:data.length<20?3:1, borderWidth:2, spanGaps:true },
-        ];
-        if (_geoMiniChartInst) _geoMiniChartInst.destroy();
-        _geoMiniChartInst = new Chart(canvas, {
-            type: 'line',
-            data: { labels, datasets },
-            options: {
-                responsive: true, maintainAspectRatio: false,
-                interaction: { mode:'index', intersect:false },
-                plugins: {
-                    legend: { display:false },
-                    tooltip: { backgroundColor:'white', titleColor:'#171b33', bodyColor:'#4b4d68', borderColor:'#e4e4ec', borderWidth:1, padding:8, callbacks:{ label: ctx => ' '+ctx.dataset.label+': '+(ctx.parsed.y??'—') } }
-                },
-                scales: {
-                    x: { grid:{ color:'rgba(255,255,255,0.3)' }, ticks:{ font:{size:10}, color:'rgba(255,255,255,0.8)', maxTicksLimit:6 } },
-                    y: { min:0, max:100, grid:{ color:'rgba(255,255,255,0.3)' }, ticks:{ font:{size:10}, color:'rgba(255,255,255,0.8)', stepSize:25 } }
+        let _miniDays = 30;
+
+        function filteredMini(days) {
+            if (days >= 9000) return history;
+            const cut = new Date(); cut.setDate(cut.getDate() - days);
+            const cutStr = cut.toISOString().slice(0, 10);
+            return history.filter(h => h.date >= cutStr);
+        }
+
+        function renderMini(days) {
+            const data = filteredMini(days).length ? filteredMini(days) : history;
+            const labels = data.map(h => { const dt = new Date(h.date+'T00:00:00'); return dt.toLocaleDateString('it-IT',{day:'2-digit',month:'short'}); });
+            const datasets = [
+                { label:'GEO Score', data:data.map(h=>h.geo??null), borderColor:'#0D5F75', backgroundColor:'rgba(13,95,117,0.1)', fill:true, tension:0.4, pointRadius:data.length<20?3:1, borderWidth:2, spanGaps:true },
+                { label:'Completezza', data:data.map(h=>h.completeness??null), borderColor:'#666b84', backgroundColor:'transparent', fill:false, tension:0.4, pointRadius:data.length<20?3:1, borderWidth:2, spanGaps:true },
+                { label:'Coverage FAQ', data:data.map(h=>h.coverage??null), borderColor:'#9ca3af', backgroundColor:'transparent', fill:false, tension:0.4, pointRadius:data.length<20?3:1, borderWidth:2, spanGaps:true },
+            ];
+            if (_geoMiniChartInst) _geoMiniChartInst.destroy();
+            _geoMiniChartInst = new Chart(canvas, {
+                type: 'line',
+                data: { labels, datasets },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    interaction: { mode:'index', intersect:false },
+                    plugins: {
+                        legend: { display:false },
+                        tooltip: { backgroundColor:'white', titleColor:'#171b33', bodyColor:'#4b4d68', borderColor:'#e4e4ec', borderWidth:1, padding:7, usePointStyle:true, bodyFont:{size:11}, titleFont:{size:11}, callbacks:{ label: ctx => ' '+ctx.dataset.label+': '+(ctx.parsed.y??'—') } }
+                    },
+                    scales: {
+                        x: { grid:{ color:'#f4f4f8' }, ticks:{ font:{size:10}, color:'#9ca3af', maxTicksLimit:6 } },
+                        y: { min:0, max:100, grid:{ color:'#f4f4f8' }, ticks:{ font:{size:10}, color:'#9ca3af', stepSize:25 } }
+                    }
                 }
-            }
+            });
+        }
+
+        renderMini(_miniDays);
+
+        document.querySelectorAll('.geo-mini-range').forEach(el => {
+            el.addEventListener('click', () => {
+                _miniDays = parseInt(el.dataset.days);
+                document.querySelectorAll('.geo-mini-range').forEach(r => {
+                    const active = r === el;
+                    r.style.color = active ? '#0D5F75' : '#9ca3af';
+                    r.style.borderBottom = active ? '2px solid #0D5F75' : 'none';
+                    r.style.paddingBottom = active ? '2px' : '0';
+                });
+                renderMini(_miniDays);
+            });
         });
     }
 
