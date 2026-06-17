@@ -4820,6 +4820,8 @@ ${rows}
                             }
                         });
                         tokenClient.requestAccessToken({ prompt: 'consent' });
+                        // Timeout: se il popup viene bloccato o chiuso, sblocca il bottone dopo 30s
+                        setTimeout(() => reject(new Error('Popup bloccato o chiuso — riprova')), 30000);
                     });
 
                     if (!sitesData.sites.length) throw new Error('Nessuna proprietà trovata in Search Console per questo account');
