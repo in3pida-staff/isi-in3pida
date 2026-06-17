@@ -3115,7 +3115,7 @@
             hasRistorante:  /ristorante|cucina|dining/.test(txt),
             hasColazione:   /colazione|breakfast/.test(txt),
             hasParcheggio:  /parcheggio|parking|garage/.test(txt),
-            hasAccessibility:/accessib|disabil|barriere architetton/.test(txt),
+            hasAccessibility:/accessib|disabil|barriere architetton/.test(txt) || (hp.servizi_accessibilita||'').trim().length > 0,
             hasBusiness:    /business|sala meeting|sala conferenz|coworking|centro congressi/.test(txt),
             hasSports:      /palestra|biciclette|sport|fitness|escursion/.test(txt),
             hasMarriages:   /matrimon|wedding|riceviment|cerimoni|banchett/.test(txt),
@@ -3207,7 +3207,7 @@
         // ── accessibilita_disabili ────────────────────────────────────────────
         {
             id: 'accessibility_general', category: 'accessibilita_disabili', label: 'Accessibilità',
-            appliesWhen: () => true,
+            appliesWhen: f => f.hasAccessibility,
             templates: dest => ['hotel accessibile disabili a ' + dest, 'camera disabili hotel a ' + dest, 'hotel con ascensore per disabili a ' + dest, 'parcheggio disabili hotel a ' + dest, 'hotel per sedie a rotelle a ' + dest, 'struttura accessibile sedia rotelle a ' + dest, 'bagno attrezzato disabili hotel a ' + dest, 'hotel senza barriere architettoniche a ' + dest],
             seasonalTemplates: (dest, y) => [],
             priorityScore: f => f.hasAccessibility ? 16 : 4,
