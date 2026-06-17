@@ -55,29 +55,32 @@
         btn.textContent = '...'; btn.disabled = true;
         document.getElementById('msg-error').style.display = 'none';
 
-        const { data, error } = await _SB.auth.signUp({
-            email:    document.getElementById('email').value.trim(),
-            password: document.getElementById('password').value,
-            options: {
-                data: { full_name: document.getElementById('name').value.trim() },
-                emailRedirectTo: 'https://isi.in3pida.it/index.html',
-            },
-        });
+        const email    = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+        const fullName = document.getElementById('name').value.trim();
 
-        if (error) {
-            const msg = error.message.includes('already registered') || error.message.includes('already been registered')
-                ? 'Questa email è già registrata.'
-                : error.message;
+        // Crea utente pre-confermato via edge function (nessuna email di conferma)
+        const res = await fetch('https://yyauvoqjdzrbmebeafit.supabase.co/functions/v1/isi-admin-users', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password, full_name: fullName }),
+        });
+        const result = await res.json();
+
+        if (!res.ok || result.error) {
             const el = document.getElementById('msg-error');
-            el.textContent = msg; el.style.display = 'block';
+            el.textContent = result.error || 'Errore durante la registrazione.';
+            el.style.display = 'block';
             btn.textContent = 'Crea account'; btn.disabled = false;
             return;
         }
 
-        if (data.session) {
-            window.location.href = 'index.html';
-        } else {
+        // Account creato — esegui login diretto
+        const { data, error: loginErr } = await _SB.auth.signInWithPassword({ email, password });
+        if (loginErr || !data.session) {
             window.location.href = 'login.html?registered=true';
+        } else {
+            window.location.href = 'index.html';
         }
     });
     </script>

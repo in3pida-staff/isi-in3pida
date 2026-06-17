@@ -7,20 +7,36 @@ const ANON_KEY         = Deno.env.get('SUPABASE_ANON_KEY')!;
 const cors = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, content-type',
-  'Access-Control-Allow-Methods': 'GET, PATCH, DELETE, OPTIONS',
+  'Access-Control-Allow-Methods': 'GET, POST, PATCH, DELETE, OPTIONS',
 };
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
 
+  const admin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
+    auth: { autoRefreshToken: false, persistSession: false }
+  });
+
+  // POST /register — crea utente pre-confermato (nessuna email richiesta)
+  if (req.method === 'POST') {
+    const { email, password, full_name } = await req.json().catch(() => ({}));
+    if (!email || !password) return new Response(JSON.stringify({ error: 'email e password richiesti' }), { status: 400, headers: cors });
+    const { data, error } = await admin.auth.admin.createUser({
+      email, password,
+      email_confirm: true,
+      user_metadata: { full_name: full_name || '' },
+    });
+    if (error) {
+      const msg = error.message.includes('already') ? 'Email già registrata.' : error.message;
+      return new Response(JSON.stringify({ error: msg }), { status: 400, headers: cors });
+    }
+    return new Response(JSON.stringify({ ok: true, user_id: data.user.id }), { headers: { ...cors, 'Content-Type': 'application/json' } });
+  }
+
   const token = (req.headers.get('Authorization') || '').replace('Bearer ', '');
   const anonClient = createClient(SUPABASE_URL, ANON_KEY);
   const { data: { user }, error: authErr } = await anonClient.auth.getUser(token);
   if (authErr || !user) return new Response(JSON.stringify({ error: 'Non autorizzato' }), { status: 401, headers: cors });
-
-  const admin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
-    auth: { autoRefreshToken: false, persistSession: false }
-  });
 
   if (req.method === 'GET') {
     const { data: { users }, error } = await admin.auth.admin.listUsers({ perPage: 200 });
