@@ -2740,8 +2740,9 @@
                 label: ['GEO Score', 'Completezza', 'Coverage FAQ'][i],
                 data: data.map(h => h[k] ?? null),
                 borderColor: COLORS[i],
-                backgroundColor: COLORS[i] + '18',
-                fill: i === 0,
+                backgroundColor: 'transparent',
+                pointBackgroundColor: COLORS[i],
+                fill: false,
                 tension: 0.4,
                 pointRadius: data.length < 20 ? 4 : 2,
                 pointHoverRadius: 6,
@@ -2825,9 +2826,9 @@
             const data = filteredMini(days).length ? filteredMini(days) : history;
             const labels = data.map(h => { const dt = new Date(h.date+'T00:00:00'); return dt.toLocaleDateString('it-IT',{day:'2-digit',month:'short'}); });
             const datasets = [
-                { label:'GEO Score', data:data.map(h=>h.geo??null), borderColor:'#0D5F75', backgroundColor:'rgba(13,95,117,0.1)', fill:true, tension:0.4, pointRadius:data.length<20?3:1, borderWidth:2, spanGaps:true },
-                { label:'Completezza', data:data.map(h=>h.completeness??null), borderColor:'#666b84', backgroundColor:'transparent', fill:false, tension:0.4, pointRadius:data.length<20?3:1, borderWidth:2, spanGaps:true },
-                { label:'Coverage FAQ', data:data.map(h=>h.coverage??null), borderColor:'#9ca3af', backgroundColor:'transparent', fill:false, tension:0.4, pointRadius:data.length<20?3:1, borderWidth:2, spanGaps:true },
+                { label:'GEO Score', data:data.map(h=>h.geo??null), borderColor:'#0D5F75', backgroundColor:'transparent', pointBackgroundColor:'#0D5F75', fill:false, tension:0.4, pointRadius:data.length<20?3:1, borderWidth:2, spanGaps:true },
+                { label:'Completezza', data:data.map(h=>h.completeness??null), borderColor:'#666b84', backgroundColor:'transparent', pointBackgroundColor:'#666b84', fill:false, tension:0.4, pointRadius:data.length<20?3:1, borderWidth:2, spanGaps:true },
+                { label:'Coverage FAQ', data:data.map(h=>h.coverage??null), borderColor:'#9ca3af', backgroundColor:'transparent', pointBackgroundColor:'#9ca3af', fill:false, tension:0.4, pointRadius:data.length<20?3:1, borderWidth:2, spanGaps:true },
             ];
             if (_geoMiniChartInst) _geoMiniChartInst.destroy();
             _geoMiniChartInst = new Chart(canvas, {
