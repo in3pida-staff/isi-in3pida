@@ -3951,7 +3951,7 @@
         cats.forEach(cat => {
             const qs = hotelQueries[cat] || [];
             const entry = qmap[cat] || {};
-            const coveredSet = new Set([...(Array.isArray(entry.covered_queries) ? entry.covered_queries : (entry.covered ? qs : [])), ...qs.filter(q => faqQuestions.has(q.toLowerCase().trim()))]);
+            const _storedCov = Array.isArray(entry.covered_queries) ? entry.covered_queries.filter(q => q.trim().endsWith('?')) : (entry.covered ? qs : []); const coveredSet = new Set([..._storedCov, ...qs.filter(q => faqQuestions.has(q.toLowerCase().trim()))]);
             totalQ += qs.length;
             coveredQ += qs.filter(q => coveredSet.has(q) || coveredSet.has(q.toLowerCase())).length;
         });
@@ -4024,7 +4024,7 @@
             cats.forEach(cat => {
                 const qs = hotelQueries[cat] || [];
                 const entry = qmap[cat] || {};
-                const coveredSet = new Set([...(Array.isArray(entry.covered_queries) ? entry.covered_queries : (entry.covered ? qs : [])), ...qs.filter(q => faqQuestions.has(q.toLowerCase().trim()))]);
+                const _storedCov = Array.isArray(entry.covered_queries) ? entry.covered_queries.filter(q => q.trim().endsWith('?')) : (entry.covered ? qs : []); const coveredSet = new Set([..._storedCov, ...qs.filter(q => faqQuestions.has(q.toLowerCase().trim()))]);
                 qs.forEach(q => { if (!coveredSet.has(q) && !coveredSet.has(q.toLowerCase())) uncovered.push({query: q, cat}); });
             });
 
@@ -4178,7 +4178,7 @@
             const prio  = getPriorityForCategory(cat, hotelFeatures, hotelQueries);
             const qs    = hotelQueries[cat] || [];
             const entry = qmap[cat] || {};
-            const coveredSet = new Set([...(Array.isArray(entry.covered_queries) ? entry.covered_queries : (entry.covered ? qs : [])), ...qs.filter(q => faqQuestions.has(q.toLowerCase().trim()))]);
+            const _storedCov = Array.isArray(entry.covered_queries) ? entry.covered_queries.filter(q => q.trim().endsWith('?')) : (entry.covered ? qs : []); const coveredSet = new Set([..._storedCov, ...qs.filter(q => faqQuestions.has(q.toLowerCase().trim()))]);
             const covQ = qs.filter(q => coveredSet.has(q) || coveredSet.has(q.toLowerCase())).length;
             const dotColor = prio === 'alta' ? '#0D5F75' : prio === 'media' ? '#666b84' : '#9ca3af';
 
