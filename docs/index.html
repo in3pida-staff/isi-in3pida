@@ -5212,7 +5212,7 @@ ${rows}
         async function saveGscConfig(email, gscSite, accessToken) {
             const { data: freshSC } = await _SBq.from('isi_sites').select('hotel_profile').eq('site_id', site.site_id).single();
             const hp3 = freshSC?.hotel_profile || site?.hotel_profile || {};
-            const newCfg3 = { ...(hp3.isi_config || cfg), gsc_email: email, gsc_site: gscSite, gsc_token: accessToken };
+            const newCfg3 = { ...(hp3.isi_config || cfg), gsc_email: email, gsc_site: gscSite, gsc_token: accessToken, gsc_token_ts: Date.now() };
             await _SBq.from('isi_sites').update({ hotel_profile: { ...hp3, isi_config: newCfg3 } }).eq('site_id', site.site_id);
             site.hotel_profile = { ...hp3, isi_config: newCfg3 };
         }
@@ -5417,6 +5417,7 @@ ${rows}
             const datiGscCont = document.getElementById('dati-gsc-container');
             const endDate = new Date().toISOString().slice(0,10);
             const startDate = new Date(Date.now() - 28*86400000).toISOString().slice(0,10);
+            const tokenAgeSec = cfg.gsc_token_ts ? (Date.now() - cfg.gsc_token_ts) / 1000 : Infinity;
 
             function _renderGscRows(rows) {
                 if (!datiGscCont) return;
@@ -5439,12 +5440,42 @@ ${rows}
                 return (await r.json()).rows || [];
             }
 
+            async function _saveToken(token) {
+                try {
+                    const { data: fresh } = await _SBq.from('isi_sites').select('hotel_profile').eq('site_id', site.site_id).single();
+                    const hp = fresh?.hotel_profile || site?.hotel_profile || {};
+                    const nc = { ...(hp.isi_config || {}), gsc_token: token, gsc_token_ts: Date.now() };
+                    await _SBq.from('isi_sites').update({ hotel_profile: { ...hp, isi_config: nc } }).eq('site_id', site.site_id);
+                    if (site?.hotel_profile?.isi_config) { site.hotel_profile.isi_config.gsc_token = token; site.hotel_profile.isi_config.gsc_token_ts = Date.now(); }
+                } catch { /* salvataggio fallito — ok, token in memoria */ }
+            }
+
+            // Rinnovo silenzioso — nessuna UI, nessuna pagina che cambia
+            // Funziona se la sessione Google nel browser è ancora attiva (di solito giorni/settimane)
+            function _silentRefresh() {
+                const clientId = localStorage.getItem('isi_gsc_client_id');
+                if (!clientId || !window.google?.accounts?.oauth2) return Promise.reject(new Error('no_gis'));
+                return new Promise((resolve, reject) => {
+                    const t = setTimeout(() => reject(new Error('timeout')), 6000);
+                    window.google.accounts.oauth2.initTokenClient({
+                        client_id: clientId,
+                        scope: 'https://www.googleapis.com/auth/webmasters.readonly',
+                        callback: async function(resp) {
+                            clearTimeout(t);
+                            if (resp.error) { reject(new Error(resp.error)); return; }
+                            await _saveToken(resp.access_token);
+                            resolve(resp.access_token);
+                        }
+                    }).requestAccessToken({ prompt: 'none' }); // nessuna UI garantita
+                });
+            }
+
             function _showReconnectBtn() {
                 if (!datiGscCont) return;
                 const clientId = localStorage.getItem('isi_gsc_client_id');
                 datiGscCont.innerHTML =
                     '<div style="display:flex;align-items:center;gap:12px;padding:4px 0">' +
-                    '<span style="font-size:13px;color:#666b84">Sessione Google scaduta.</span>' +
+                    '<span style="font-size:13px;color:#666b84">Aggiorna la sessione Google per vedere i dati.</span>' +
                     '<button id="btn-gsc-reconnect" style="background:#0D5F75;color:white;border:none;border-radius:6px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font)">Riconnetti Google</button>' +
                     '</div>';
                 const btn = document.getElementById('btn-gsc-reconnect');
@@ -5452,28 +5483,35 @@ ${rows}
                 btn.addEventListener('click', function() {
                     btn.textContent = 'Connessione in corso…';
                     btn.disabled = true;
-                    // requestAccessToken DEVE essere la prima chiamata nel click — nessun await prima
                     window.google.accounts.oauth2.initTokenClient({
                         client_id: clientId,
                         scope: 'https://www.googleapis.com/auth/webmasters.readonly',
                         callback: async function(resp) {
                             if (resp.error) { btn.textContent = 'Riprova'; btn.disabled = false; return; }
-                            try {
-                                const { data: fresh } = await _SBq.from('isi_sites').select('hotel_profile').eq('site_id', site.site_id).single();
-                                const hp = fresh?.hotel_profile || site?.hotel_profile || {};
-                                const nc = { ...(hp.isi_config || {}), gsc_token: resp.access_token };
-                                await _SBq.from('isi_sites').update({ hotel_profile: { ...hp, isi_config: nc } }).eq('site_id', site.site_id);
-                                if (site?.hotel_profile?.isi_config) site.hotel_profile.isi_config.gsc_token = resp.access_token;
-                            } catch { /* salvataggio fallito */ }
+                            await _saveToken(resp.access_token);
                             _fetchGscRows(resp.access_token).then(_renderGscRows).catch(() => { btn.textContent = 'Riprova'; btn.disabled = false; });
                         }
                     }).requestAccessToken({ prompt: 'select_account' });
-                    // Safety: se il popup viene bloccato il callback non arriva → reset dopo 20s
                     setTimeout(() => { if (btn.disabled) { btn.textContent = 'Riprova'; btn.disabled = false; } }, 20000);
                 });
             }
 
-            _fetchGscRows(cfg.gsc_token).then(_renderGscRows).catch(_showReconnectBtn);
+            async function _loadGscData() {
+                if (tokenAgeSec < 3000) {
+                    // Token fresco (< 50 min): usa direttamente, sicuro al 100%
+                    return await _fetchGscRows(cfg.gsc_token);
+                }
+                // Token vecchio o senza timestamp: prova rinnovo silenzioso prima
+                try {
+                    const freshToken = await _silentRefresh();
+                    return await _fetchGscRows(freshToken);
+                } catch {
+                    // Silent fallito (sessione Google scaduta): prova comunque il token esistente
+                    return await _fetchGscRows(cfg.gsc_token);
+                }
+            }
+
+            _loadGscData().then(_renderGscRows).catch(_showReconnectBtn);
         }
     }
 
