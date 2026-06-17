@@ -4067,7 +4067,10 @@
             rgEl.innerHTML = `<div class="card" style="border:1px solid #e4e4ec;box-shadow:none">
                 <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
                     <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><div style="font-size:12px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Reason Gap</div><span class="tip-q" data-tip="Per ogni query scoperta, spiega cosa manca nel profilo per farla apparire nelle risposte AI." style="background:transparent;border:1px solid #aaa;color:#aaa;box-shadow:none">?</span></div>
-                    ${lastRunDate ? `<span style="font-size:12px;color:#666b84;font-family:var(--font)">Ultimo aggiornamento: ${lastRunDate}</span>` : ''}
+                    <div style="display:flex;align-items:center;gap:10px">
+                        ${lastRunDate ? `<span style="font-size:12px;color:#666b84;font-family:var(--font)">Ultimo aggiornamento: ${lastRunDate}</span>` : ''}
+                        ${hasResults ? `<button id="btn-rg-toggle" style="background:none;border:none;cursor:pointer;font-size:12px;color:#666b84;padding:0;font-family:var(--font)">▼ Nascondi</button>` : ''}
+                    </div>
                 </div>
                 <div style="padding:14px 20px">
                     <div style="margin-bottom:${hasResults?'14px':'0'}">
@@ -4079,6 +4082,17 @@
                 </div>
             </div>`;
             rgEl.style.display = 'block';
+
+            const rgToggle = document.getElementById('btn-rg-toggle');
+            if (rgToggle) {
+                rgToggle.addEventListener('click', () => {
+                    const res = document.getElementById('rg-results');
+                    if (!res) return;
+                    const hidden = res.style.display === 'none';
+                    res.style.display = hidden ? 'block' : 'none';
+                    rgToggle.textContent = hidden ? '▼ Nascondi' : '▶ Mostra risultati';
+                });
+            }
 
             const rgBtn = document.getElementById('btn-reason-gap');
             if (rgBtn && rgCanRun && uncovered.length) {
@@ -5346,7 +5360,7 @@ ${rows}
                 method: 'POST',
                 headers: { 'Authorization': 'Bearer ' + cfg.gsc_token, 'Content-Type': 'application/json' },
                 body: JSON.stringify({ startDate, endDate, dimensions: ['query'], rowLimit: 10, startRow: 0 })
-            }).then(r => r.json()).then(data => {
+            }).then(r => { if (!r.ok) throw new Error('token_expired_' + r.status); return r.json(); }).then(data => {
                 const rows = data.rows || [];
                 if (!rows.length) { if (datiGscCont) datiGscCont.innerHTML = '<div style="font-size:13px;color:#9ca3af">Nessun dato disponibile negli ultimi 28 giorni.</div>'; return; }
                 if (datiGscCont) datiGscCont.innerHTML =
@@ -5356,7 +5370,7 @@ ${rows}
                     rows.map(r => `<tr style="border-bottom:1px solid #f4f4f8"><td style="padding:5px 8px 5px 0;color:#171b33;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(r.keys[0])}</td><td style="padding:5px 8px;text-align:right;color:#0D5F75;font-weight:600">${r.clicks}</td><td style="padding:5px 8px;text-align:right;color:#666b84">${r.impressions}</td><td style="padding:5px 8px;text-align:right;color:#666b84">${(r.ctr*100).toFixed(1)}%</td><td style="padding:5px 0;text-align:right;color:#666b84">${r.position.toFixed(1)}</td></tr>`).join('') +
                     '</table>';
             }).catch(e => {
-                if (datiGscCont) datiGscCont.innerHTML = `<div style="font-size:13px;color:#9ca3af">Token scaduto — ricollegati dalla sezione Configurazione.</div>`;
+                if (datiGscCont) datiGscCont.innerHTML = `<div style="font-size:13px;color:#9ca3af;line-height:1.6">Token scaduto — vai su <strong>Configurazione</strong>, clicca <strong>Disconnetti</strong> e poi <strong>Collega con Google</strong> di nuovo.</div>`;
             });
         }
     }
