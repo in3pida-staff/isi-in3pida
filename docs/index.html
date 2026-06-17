@@ -967,7 +967,7 @@
                                     <div style="font-size:14px;font-weight:600;color:${qMapPct!==null?'#0D5F75':'#C1CBE8'};margin-top:6px">${qMapPct!==null?qMapPct+'% coperto':'nessun dato'}</div>
                                 </div>
                             </div>
-                            <div><div style="display:flex;justify-content:flex-end;gap:12px;margin-bottom:8px"><span class="geo-mini-range" data-days="30" style="font-size:11px;font-weight:700;cursor:pointer;color:#0D5F75;border-bottom:2px solid #0D5F75;padding-bottom:2px">1M</span><span class="geo-mini-range" data-days="180" style="font-size:11px;font-weight:700;cursor:pointer;color:#9ca3af">6M</span><span class="geo-mini-range" data-days="9999" style="font-size:11px;font-weight:700;cursor:pointer;color:#9ca3af">Sempre</span></div><div style="position:relative;height:130px;background:white;border-radius:4px;overflow:hidden"><canvas id="chart-geo-score-mini"></canvas></div></div>
+                            <div><div style="display:flex;justify-content:flex-end;gap:12px;margin-bottom:8px;padding-right:10px"><span class="geo-mini-range" data-days="30" style="font-size:11px;font-weight:700;cursor:pointer;color:#0D5F75;border-bottom:2px solid #0D5F75;padding-bottom:2px">1M</span><span class="geo-mini-range" data-days="180" style="font-size:11px;font-weight:700;cursor:pointer;color:#9ca3af">6M</span><span class="geo-mini-range" data-days="9999" style="font-size:11px;font-weight:700;cursor:pointer;color:#9ca3af">Sempre</span></div><div style="position:relative;height:130px;background:white;border-radius:4px;overflow:hidden"><canvas id="chart-geo-score-mini"></canvas></div></div>
                             </div>
                         </div>
                     </div>
@@ -2836,6 +2836,7 @@
                 data: { labels, datasets },
                 options: {
                     responsive: true, maintainAspectRatio: false,
+                    layout: { padding: { right: 10 } },
                     interaction: { mode:'index', intersect:false },
                     plugins: {
                         legend: { display:false },
