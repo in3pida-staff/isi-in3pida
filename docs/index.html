@@ -202,6 +202,36 @@
                 <div style="font-size:12px;font-weight:700;color:var(--grey);letter-spacing:.06em;text-transform:uppercase;margin:16px 0 10px;padding-bottom:6px;border-bottom:2px solid #e8ecf7">Installazione — Script JS</div>
                 <p>Se il sito non è WordPress, puoi usare lo <strong>Script JS</strong> al posto del plugin. Dalla Panoramica clicca <strong>+ Aggiungi sito</strong>, inserisci il nome dell'hotel e l'URL, poi clicca <strong>Crea sito</strong>. Trovi lo script nella scheda hotel → tab <strong>CONFIGURAZIONE</strong>.</p>
                 <p>Incolla lo script nel <code style="background:#f4f4f8;padding:1px 6px;border-radius:4px;font-size:13px">&lt;head&gt;</code> di ogni pagina del sito, prima del tag <code style="background:#f4f4f8;padding:1px 6px;border-radius:4px;font-size:13px">&lt;/head&gt;</code>. Una volta inserito, lo script si connette automaticamente a Eletta e invia il primo segnale entro pochi secondi. La card <strong>Stato Connessione</strong> diventerà verde.</p>
+                <div style="font-size:12px;font-weight:700;color:var(--grey);letter-spacing:.06em;text-transform:uppercase;margin:16px 0 10px;padding-bottom:6px;border-bottom:2px solid #e8ecf7">Mappa Query — Intenti intelligenti</div>
+                <p>La Mappa Query non è più una lista fissa uguale per tutti: Eletta analizza i dati Schema.org del profilo hotel (servizi, caratteristiche, tipo di struttura) e assegna automaticamente una <strong>priorità</strong> a ciascuna categoria di query.</p>
+                <p>Le categorie vengono classificate come <strong>Alta priorità</strong> (il servizio è presente e rilevante), <strong>Media priorità</strong> (generalmente utile), <strong>Bassa priorità</strong> (marginale) o <strong>Non rilevante</strong> (il servizio non è presente — le categorie non rilevanti sono nascoste di default). In questo modo il lavoro di ottimizzazione si concentra dove ha più impatto per quell'hotel specifico.</p>
+                <div style="font-size:12px;font-weight:700;color:var(--grey);letter-spacing:.06em;text-transform:uppercase;margin:16px 0 10px;padding-bottom:6px;border-bottom:2px solid #e8ecf7">Google Search Console</div>
+                <p>Dal tab <strong>CONFIGURAZIONE</strong> puoi inserire il codice di verifica Google Search Console dell'hotel. Una volta salvato, il plugin lo inserisce automaticamente nel <code style="background:#f4f4f8;padding:1px 6px;border-radius:4px;font-size:13px">&lt;head&gt;</code> del sito come <code style="background:#f4f4f8;padding:1px 6px;border-radius:4px;font-size:13px">&lt;meta name="google-site-verification"&gt;</code>, senza toccare manualmente il codice del sito.</p>
+                <p>Il codice si trova in Google Search Console → Impostazioni → Verifica proprietà → seleziona <strong>Tag HTML</strong> → copia il valore del campo <code>content</code>.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL FEEDBACK -->
+    <div id="isi-feedback-overlay" class="info-overlay" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+        <div class="info-card" style="max-width:460px;width:100%">
+            <div class="info-card-header">
+                <span>📢 Invia feedback</span>
+                <button class="info-close" onclick="document.getElementById('isi-feedback-overlay').style.display='none'">✕</button>
+            </div>
+            <div class="info-card-body">
+                <p style="font-size:14px;color:#666b84;margin:0 0 14px">Inviaci i tuoi suggerimenti o comunicaci un eventuale problema.</p>
+                <textarea id="isi-feedback-msg" placeholder="Scrivi qui..." style="width:100%;height:110px;border:1.5px solid #C1CBE8;border-radius:6px;padding:10px;font-size:14px;font-family:var(--font);resize:vertical;outline:none;color:#171b33;box-sizing:border-box"></textarea>
+                <div style="margin-top:12px">
+                    <label style="font-size:12px;color:#666b84;font-weight:600;display:block;margin-bottom:6px">Rispondi all'e-mail</label>
+                    <input type="email" id="isi-feedback-email" placeholder="tua@email.it" style="width:100%;border:1px solid #d1d5db;border-radius:6px;padding:9px 12px;font-size:14px;font-family:var(--font);outline:none;color:#171b33;box-sizing:border-box">
+                    <div style="font-size:11px;color:#9ca3af;margin-top:5px">Utilizzeremo questa email solamente per rispondere al tuo feedback. <a href="#" style="color:#0D5F75;text-decoration:none">Informativa sulla privacy</a></div>
+                </div>
+                <div style="display:flex;gap:8px;margin-top:16px">
+                    <button id="isi-feedback-send" class="btn-update" style="margin-left:0;padding:9px 20px">Invia feedback</button>
+                    <button onclick="document.getElementById('isi-feedback-overlay').style.display='none'" class="btn-back" style="margin-bottom:0;padding:9px 16px">Annulla</button>
+                </div>
+                <div id="isi-feedback-result" style="display:none;margin-top:10px;font-size:13px;font-weight:600"></div>
             </div>
         </div>
     </div>
@@ -878,7 +908,10 @@
         el.innerHTML = `
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
                 <button class="btn-back" id="btn-back-detail">← Torna alle installazioni</button>
-                <button onclick="document.getElementById('guida-overlay').style.display='flex'" class="btn-back" style="margin-bottom:0;line-height:1">📖 Guida</button>
+                <div style="display:flex;gap:8px">
+                    <button onclick="document.getElementById('isi-feedback-overlay').style.display='flex'" class="btn-back" style="margin-bottom:0;line-height:1">📢 Feedback</button>
+                    <button onclick="document.getElementById('guida-overlay').style.display='flex'" class="btn-back" style="margin-bottom:0;line-height:1">📖 Guida</button>
+                </div>
             </div>
             <!-- LAYOUT: sidebar sinistra persistente + contenuto destra -->
             <div style="display:grid;grid-template-columns:260px 1fr;gap:20px;align-items:start">
@@ -3057,6 +3090,8 @@
 
     // ─── MAPPA QUERY MANAGEMENT ──────────────────────────────────────────────────
     let _mappaInited = false;
+
+    // Query di default per categoria (testo invariato — compatibile con qmap storage esistente)
     const MAPPA_DEFAULTS = {
         'famiglie_con_bambini':   ['hotel con piscina per bambini','hotel con camere comunicanti','hotel con lettino per neonato','hotel adatto famiglie con bambini piccoli','hotel con animazione bambini','attività per bambini in hotel','hotel con seggioloni e lettini disponibili','hotel family con spiaggia'],
         'coppie_romantici':       ['hotel romantico sul mare','suite luna di miele','camera con vista panoramica','pacchetti romantici hotel','cena romantica in camera','hotel con vasca idromassaggio','hotel per anniversario','camera con terrazza privata'],
@@ -3076,6 +3111,62 @@
         'prenotazione_prezzi':    ['tariffe hotel per notte','cancellazione gratuita hotel','offerte last minute hotel','prezzo minimo garantito hotel','caparra prenotazione hotel','sconto prenotazione diretta hotel','hotel bambini gratis','pacchetti tutto incluso hotel'],
     };
 
+    // Estrae feature rilevanti dai dati Schema.org dell'hotel
+    function buildHotelFeatures(site) {
+        const sc  = site.schema_data   || {};
+        const hp  = site.hotel_profile || {};
+        const am  = Array.isArray(sc.amenities) ? sc.amenities.map(a => a.toLowerCase()).join(' ') : '';
+        const kw  = (sc.keywords     || '').toLowerCase();
+        const des = (sc.description  || '').toLowerCase();
+        const txt = am + ' ' + kw + ' ' + des;
+        return {
+            hasPiscina:   /piscin/.test(txt),
+            hasSpa:       /\bspa\b|benessere|sauna|hammam|bagno turco|centro benessere/.test(txt),
+            hasPets:      sc.pets_allowed === true || sc.pets_allowed === 'true' || /animali|pet friendly|cani/.test(txt),
+            hasFamily:    /family|famil|bambini|animazione bambini/.test(txt),
+            hasMare:      /spiaggia|mare|beach|lungomare|riviera/.test(txt),
+            hasMontagna:  /montagna|alpi|dolomiti|\bsci\b|neve |trekking/.test(txt),
+            hasRistorante:/ristorante|cucina|dining/.test(txt),
+            hasColazione: /colazione|breakfast/.test(txt),
+            hasParcheggio:/parcheggio|parking|garage/.test(txt),
+            hasAccessibility:/accessib|disabil|barriere architetton/.test(txt),
+            hasBusiness:  /business|sala meeting|sala conferenz|coworking|centro congressi/.test(txt),
+            hasSports:    /palestra|biciclette|sport|fitness|escursion/.test(txt),
+            hasMarriages: /matrimon|wedding|riceviment|cerimoni|banchett/.test(txt),
+            hasWellness:  /\bspa\b|benessere|wellness|sauna|massagg/.test(txt),
+            hasRomantic:  /romantic|luna di miele|honeymoon|suite/.test(txt),
+        };
+    }
+
+    // Priorità degli intenti per categoria basata sulle feature dell'hotel
+    // 'alta' | 'media' | 'bassa' | 'non_rilevante'
+    const INTENT_PRIORITIES = {
+        'famiglie_con_bambini':   f => (f.hasFamily || f.hasPiscina) ? 'alta' : f.hasMare ? 'media' : 'non_rilevante',
+        'coppie_romantici':       f => f.hasRomantic ? 'alta' : 'media',
+        'business_lavoro':        f => f.hasBusiness ? 'alta' : 'non_rilevante',
+        'animali_domestici':      f => f.hasPets ? 'alta' : 'non_rilevante',
+        'accessibilita_disabili': f => f.hasAccessibility ? 'alta' : 'media',
+        'terza_eta_anziani':      f => 'media',
+        'sport_avventura':        f => (f.hasSports || f.hasMontagna) ? (f.hasMontagna ? 'alta' : 'media') : 'bassa',
+        'benessere_spa':          f => (f.hasSpa || f.hasWellness) ? 'alta' : 'non_rilevante',
+        'matrimoni_eventi':       f => (f.hasMarriages || f.hasBusiness) ? 'alta' : 'non_rilevante',
+        'parcheggio':             f => f.hasParcheggio ? 'alta' : 'media',
+        'colazione':              f => f.hasColazione ? 'alta' : 'media',
+        'ristorante':             f => f.hasRistorante ? 'alta' : 'bassa',
+        'spiaggia_mare':          f => f.hasMare ? 'alta' : 'non_rilevante',
+        'trasporti_arrivo':       f => 'media',
+        'check_in_out':           f => 'media',
+        'prenotazione_prezzi':    f => 'alta',
+    };
+
+    const PRIORITY_ORDER = { 'alta':0, 'media':1, 'bassa':2, 'non_rilevante':3 };
+    const PRIORITY_BADGE = {
+        'alta':         '<span style="font-size:10px;font-weight:700;color:#0D5F75;background:#e8f4f7;border:1px solid #C1CBE8;border-radius:20px;padding:2px 8px;white-space:nowrap">ALTA PRIORITÀ</span>',
+        'media':        '<span style="font-size:10px;font-weight:700;color:#666b84;background:#f4f4f8;border:1px solid #e4e4ec;border-radius:20px;padding:2px 8px;white-space:nowrap">MEDIA PRIORITÀ</span>',
+        'bassa':        '<span style="font-size:10px;font-weight:700;color:#9ca3af;background:#fafafa;border:1px solid #e4e4ec;border-radius:20px;padding:2px 8px;white-space:nowrap">BASSA PRIORITÀ</span>',
+        'non_rilevante':'<span style="font-size:10px;font-weight:700;color:#c4c4c4;background:#fafafa;border:1px solid #f0f0f0;border-radius:20px;padding:2px 8px;white-space:nowrap">NON RILEVANTE</span>',
+    };
+
     async function initMappaQueryMgmt(site, pseData) {
         if (_mappaInited) return; _mappaInited = true;
         const cont = document.getElementById('mappa-query-mgmt');
@@ -3085,8 +3176,13 @@
         // Indice domande FAQ esistenti per rilevare copertura automatica
         const faqQuestions = new Set((faqData.items || []).map(f => (f.question || '').toLowerCase().trim()));
 
-        // Calcola copertura per singola query
-        const cats = Object.keys(MAPPA_DEFAULTS);
+        // Calcola priorità intenti per questo hotel
+        const hotelFeatures = buildHotelFeatures(site);
+
+        // Calcola copertura per singola query (ordina per priorità)
+        const cats = Object.keys(MAPPA_DEFAULTS).sort((a,b) =>
+            PRIORITY_ORDER[INTENT_PRIORITIES[a]?.(hotelFeatures)||'media'] -
+            PRIORITY_ORDER[INTENT_PRIORITIES[b]?.(hotelFeatures)||'media']);
         let totalQ = 0, coveredQ = 0;
         cats.forEach(cat => {
             const qs = MAPPA_DEFAULTS[cat];
@@ -3248,18 +3344,24 @@
             }
         }
 
-        cont.innerHTML = cats.map(cat => {
+        // Separa rilevanti da non rilevanti
+        const relevantCats = cats.filter(c => (INTENT_PRIORITIES[c]?.(hotelFeatures)||'media') !== 'non_rilevante');
+        const irrelevantCats = cats.filter(c => (INTENT_PRIORITIES[c]?.(hotelFeatures)||'media') === 'non_rilevante');
+
+        const renderCat = cat => {
             const label = cat.replace(/_/g,' ').replace(/\b\w/g, c => c.toUpperCase());
+            const prio = INTENT_PRIORITIES[cat]?.(hotelFeatures) || 'media';
             const qs = MAPPA_DEFAULTS[cat];
             const entry = qmap[cat] || {};
             const coveredSet = new Set([...(Array.isArray(entry.covered_queries) ? entry.covered_queries : (entry.covered ? qs : [])), ...qs.filter(q => faqQuestions.has(q.toLowerCase().trim()))]);
             const covQ = qs.filter(q => coveredSet.has(q) || coveredSet.has(q.toLowerCase())).length;
-            return `<div class="card" style="margin-bottom:12px;border:1px solid #e4e4ec;box-shadow:none">
+            const dotColor = prio === 'alta' ? '#0D5F75' : prio === 'media' ? '#666b84' : '#9ca3af';
+            return `<div class="card" style="margin-bottom:12px;border:1px solid #e4e4ec;box-shadow:none${prio==='non_rilevante'?';opacity:.45':''}">
                 <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
-                    <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><div style="font-size:12px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">${escHtml(label)}</div></div>
+                    <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:${dotColor};display:inline-block;flex-shrink:0"></span><div style="font-size:12px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">${escHtml(label)}</div>${PRIORITY_BADGE[prio]}</div>
                     <span style="background:white;border:1px solid #e4e4ec;border-radius:20px;font-size:10px;font-weight:700;color:#666b84;padding:3px 10px;white-space:nowrap">${covQ}/${qs.length} COPERTE</span>
                 </div>
-                ${qs.map((q, qi) => {
+                ${qs.map((q) => {
                     const isCov = coveredSet.has(q) || coveredSet.has(q.toLowerCase());
                     return `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 20px;border-top:1px solid #f4f4f8">
                         <div style="display:flex;align-items:center;gap:10px;min-width:0">
@@ -3274,7 +3376,20 @@
                     </div>`;
                 }).join('')}
             </div>`;
-        }).join('');
+        };
+
+        cont.innerHTML = relevantCats.map(renderCat).join('') +
+            (irrelevantCats.length ? `
+            <div id="irrel-toggle" style="margin-bottom:12px">
+                <button class="btn-back" style="margin-bottom:0;font-size:12px" onclick="
+                    var s=document.getElementById('irrel-cats');
+                    var shown=s.style.display!=='none';
+                    s.style.display=shown?'none':'block';
+                    this.textContent=shown?'▸ Mostra ${irrelevantCats.length} categorie non rilevanti per questo hotel':'▴ Nascondi categorie non rilevanti';
+                ">▸ Mostra ${irrelevantCats.length} categorie non rilevanti per questo hotel</button>
+            </div>
+            <div id="irrel-cats" style="display:none">${irrelevantCats.map(renderCat).join('')}</div>
+            ` : '');
     }
 
     window.generaRispostaQuery = async function(btn, cat, query, siteId) {
@@ -4117,7 +4232,14 @@ ${rows}
             '<div style="padding:16px 20px">' +
             row('Ultimo sync ISI', cfg.last_isi_sync ? new Date(cfg.last_isi_sync).toLocaleString('it-IT') : '—') +
             row('Stato ultimo sync', cfg.last_isi_sync_status || '—') +
-            '</div><div style="padding:0 20px 14px;display:flex;gap:10px"><button id="btn-force-isi-sync" class="btn-ping">⚡ Sync manuale ISI</button></div></div>';
+            '</div><div style="padding:0 20px 14px;display:flex;gap:10px"><button id="btn-force-isi-sync" class="btn-ping">⚡ Sync manuale ISI</button></div></div>' +
+
+            cardH + chH('#0D5F75','Google Search Console') +
+            '<div style="padding:16px 20px">' +
+            (cfg.sc_detected ? '<div style="padding:9px 12px;background:#e8f4f7;border:1px solid #C1CBE8;border-radius:4px;font-size:13px;color:#0D5F75;margin-bottom:12px">✓ Rilevata possibile configurazione Search Console sul sito</div>' : '<div style="padding:9px 12px;background:#f4f4f8;border:1px solid #e4e4ec;border-radius:4px;font-size:13px;color:#666b84;margin-bottom:12px">○ Search Console non rilevata — inserisci il codice di verifica per attivarla</div>') +
+            inp('sc_code','Codice verifica Google Search Console', cfg.sc_verification_code||'', 'Incolla il codice HTML (es. google1234abcd)') +
+            '<div style="font-size:12px;color:#9ca3af;margin-top:6px;line-height:1.5">Il codice viene salvato e inserito automaticamente nel <code style="background:#f4f4f8;padding:1px 5px;border-radius:3px">&lt;head&gt;</code> del sito tramite plugin. Trovalo in Google Search Console → Impostazioni → Verifica proprietà → Tag HTML.</div>' +
+            '</div><div style="padding:0 20px 14px;display:flex;gap:10px"><button id="btn-save-sc-code" class="btn-update" style="margin-left:0">Salva codice SC</button><span id="sc-code-msg" style="font-size:13px;color:#0D5F75;align-self:center"></span></div></div>';
 
         document.getElementById('btn-copy-script')?.addEventListener('click', function() {
             navigator.clipboard.writeText(_scriptTag).catch(() => {});
@@ -4157,6 +4279,16 @@ ${rows}
         });
         document.getElementById('btn-force-isi-sync')?.addEventListener('click', () => {
             alert('Sync ISI manuale: funzionalità in arrivo con il modulo ISI Monitor nel plugin.');
+        });
+        document.getElementById('btn-save-sc-code')?.addEventListener('click', async () => {
+            const code = (document.getElementById('cfg-sc_code')?.value || '').trim();
+            const msg = document.getElementById('sc-code-msg');
+            const { data: freshSC } = await _SBq.from('isi_sites').select('hotel_profile').eq('site_id', site.site_id).single();
+            const hp3 = freshSC?.hotel_profile || site?.hotel_profile || {};
+            const newCfg3 = { ...(hp3.isi_config || cfg), sc_verification_code: code };
+            const { error } = await _SBq.from('isi_sites').update({ hotel_profile: { ...hp3, isi_config: newCfg3 } }).eq('site_id', site.site_id);
+            if (msg) { msg.textContent = error ? '✗ Errore' : '✓ Codice salvato — il plugin lo inserirà al prossimo sync'; setTimeout(() => { msg.textContent = ''; }, 4000); }
+            if (!error) site.hotel_profile = { ...hp3, isi_config: newCfg3 };
         });
     }
 
@@ -4930,6 +5062,31 @@ ${rows}
     });
     document.addEventListener('mouseout', e => {
         if (e.target.closest('.tip-q')) _tipEl.style.display = 'none';
+    });
+
+    // ─── FEEDBACK ────────────────────────────────────────────────────────────────
+    document.addEventListener('click', async e => {
+        if (e.target.id !== 'isi-feedback-send') return;
+        const btn = e.target;
+        const msg = (document.getElementById('isi-feedback-msg')?.value || '').trim();
+        const email = (document.getElementById('isi-feedback-email')?.value || '').trim();
+        const resultEl = document.getElementById('isi-feedback-result');
+        if (!msg) { resultEl.textContent = 'Scrivi un messaggio prima di inviare.'; resultEl.style.color = '#b00020'; resultEl.style.display = 'block'; return; }
+        btn.disabled = true; btn.textContent = '...';
+        try {
+            const res = await fetch('https://yyauvoqjdzrbmebeafit.supabase.co/functions/v1/isi-feedback', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: msg, reply_to: email || null }),
+            });
+            const d = await res.json();
+            if (res.ok && d.ok) {
+                resultEl.textContent = '✓ Grazie! Feedback inviato.'; resultEl.style.color = '#0D5F75'; resultEl.style.display = 'block';
+                document.getElementById('isi-feedback-msg').value = '';
+                document.getElementById('isi-feedback-email').value = '';
+                setTimeout(() => { document.getElementById('isi-feedback-overlay').style.display = 'none'; resultEl.style.display = 'none'; }, 2000);
+            } else { throw new Error(d.error || 'Errore'); }
+        } catch(ex) { resultEl.textContent = 'Errore: ' + ex.message; resultEl.style.color = '#b00020'; resultEl.style.display = 'block'; }
+        btn.disabled = false; btn.textContent = 'Invia feedback';
     });
     </script>
 
