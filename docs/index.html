@@ -5041,7 +5041,7 @@ ${rows}
                     resolve(resp.access_token);
                 }
             });
-            tc.requestAccessToken({ prompt: '' }); // silent — nessun popup
+            tc.requestAccessToken({ prompt: 'none' }); // silent puro — nessun popup, nessuna pagina
         });
     }
 
@@ -5407,13 +5407,51 @@ ${rows}
                     '</table>';
             }
 
+            async function _gscReconnect() {
+                const clientId = localStorage.getItem('isi_gsc_client_id');
+                if (!clientId || !window.google?.accounts?.oauth2) return;
+                const btn = document.getElementById('btn-gsc-reconnect');
+                if (btn) { btn.textContent = 'Connessione in corso…'; btn.disabled = true; }
+                try {
+                    await new Promise((resolve, reject) => {
+                        const timeout = setTimeout(() => reject(new Error('timeout')), 30000);
+                        const tc = window.google.accounts.oauth2.initTokenClient({
+                            client_id: clientId,
+                            scope: 'https://www.googleapis.com/auth/webmasters.readonly',
+                            callback: async (resp) => {
+                                clearTimeout(timeout);
+                                if (resp.error) { reject(new Error(resp.error)); return; }
+                                try {
+                                    const { data: fresh } = await _SBq.from('isi_sites').select('hotel_profile').eq('site_id', site.site_id).single();
+                                    const hp = fresh?.hotel_profile || site?.hotel_profile || {};
+                                    const newCfg = { ...(hp.isi_config || {}), gsc_token: resp.access_token };
+                                    await _SBq.from('isi_sites').update({ hotel_profile: { ...hp, isi_config: newCfg } }).eq('site_id', site.site_id);
+                                    if (site?.hotel_profile?.isi_config) site.hotel_profile.isi_config.gsc_token = resp.access_token;
+                                } catch { /* salvataggio fallito, usiamo il token in memoria */ }
+                                resolve(resp.access_token);
+                            }
+                        });
+                        tc.requestAccessToken({ prompt: 'select_account' });
+                    }).then(newToken => _fetchAndRenderGsc(newToken));
+                } catch {
+                    if (btn) { btn.textContent = 'Riprova'; btn.disabled = false; }
+                }
+            }
+
             _fetchAndRenderGsc(cfg.gsc_token).catch(async () => {
-                // Token scaduto: prova rinnovo silenzioso (nessun popup)
                 try {
                     const newToken = await _refreshGscTokenSilently(site.site_id, site);
                     await _fetchAndRenderGsc(newToken);
                 } catch {
-                    if (datiGscCont) datiGscCont.innerHTML = '<div style="font-size:13px;color:#9ca3af">Sessione Google scaduta. Riaprendo la sezione Dati Sito il token verrà rinnovato automaticamente. Se il problema persiste, vai in Configurazione → Disconnetti → Collega con Google.</div>';
+                    if (datiGscCont) {
+                        await _loadGisScript().catch(() => {});
+                        datiGscCont.innerHTML =
+                            '<div style="display:flex;align-items:center;gap:12px;padding:4px 0">' +
+                            '<span style="font-size:13px;color:#666b84">Sessione Google scaduta.</span>' +
+                            '<button id="btn-gsc-reconnect" style="background:#0D5F75;color:white;border:none;border-radius:6px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font)">Riconnetti Google</button>' +
+                            '</div>';
+                        document.getElementById('btn-gsc-reconnect')?.addEventListener('click', _gscReconnect);
+                    }
                 }
             });
         }
