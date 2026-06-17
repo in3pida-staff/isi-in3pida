@@ -2906,9 +2906,9 @@
                 g.addColorStop(0,`rgba(${r},${gr},${b},0.20)`); g.addColorStop(1,`rgba(${r},${gr},${b},0.00)`); return g;
             }
             const datasets = [
-                { label:'GEO Score',    data:data.map(h=>h.geo??null),        borderColor:'#0D5F75', backgroundColor:'transparent', fill:false, tension:0.1, pointRadius:0, pointHoverRadius:3.5, pointBackgroundColor:'#0D5F75', pointBorderColor:'#0D5F75', borderWidth:2.5, spanGaps:true },
-                { label:'Completezza',  data:data.map(h=>h.completeness??null),borderColor:'#5c6ac4', backgroundColor:'transparent', fill:false, tension:0.1, pointRadius:0, pointHoverRadius:3.5, pointBackgroundColor:'#5c6ac4', pointBorderColor:'#5c6ac4', borderWidth:2.5, spanGaps:true },
-                { label:'Coverage FAQ', data:data.map(h=>h.coverage??null),   borderColor:'#a29bfe', backgroundColor:'transparent', fill:false, tension:0.1, pointRadius:0, pointHoverRadius:3.5, pointBackgroundColor:'#a29bfe', pointBorderColor:'#a29bfe', borderWidth:2.5, spanGaps:true },
+                { label:'GEO Score',    data:data.map(h=>h.geo??null),        borderColor:'#0D5F75', backgroundColor:'transparent', fill:false, tension:0, pointRadius:0, pointHoverRadius:3.5, pointBackgroundColor:'#0D5F75', pointBorderColor:'#0D5F75', borderWidth:2.5, spanGaps:true },
+                { label:'Completezza',  data:data.map(h=>h.completeness??null),borderColor:'#5c6ac4', backgroundColor:'transparent', fill:false, tension:0, pointRadius:0, pointHoverRadius:3.5, pointBackgroundColor:'#5c6ac4', pointBorderColor:'#5c6ac4', borderWidth:2.5, spanGaps:true },
+                { label:'Coverage FAQ', data:data.map(h=>h.coverage??null),   borderColor:'#a29bfe', backgroundColor:'transparent', fill:false, tension:0, pointRadius:0, pointHoverRadius:3.5, pointBackgroundColor:'#a29bfe', pointBorderColor:'#a29bfe', borderWidth:2.5, spanGaps:true },
             ];
             if (_geoMiniChartInst) _geoMiniChartInst.destroy();
             _geoMiniChartInst = new Chart(canvas, {
