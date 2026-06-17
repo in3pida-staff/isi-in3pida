@@ -940,11 +940,17 @@
                                     const progDeg=s!==null?tDeg*(s/100):0;
                                     const tPath=donutArc(sDeg,sDeg+tDeg);
                                     const pPath=progDeg>0?donutArc(sDeg,sDeg+progDeg):'';
-                                    return `<div style="padding:0"><svg viewBox="0 0 200 125" style="width:100%;height:auto;display:block"><defs><radialGradient id="gg" cx="${cx}" cy="${cy}" r="${rI}" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#e8f4fa"/><stop offset="100%" stop-color="#b8dff0"/></radialGradient></defs><circle cx="${cx}" cy="${cy}" r="${rI}" fill="url(#gg)"/><path d="${tPath}" fill="#b5d0e8"/>${pPath?`<path d="${pPath}" fill="${col}"/>`:''}
-<text x="${cx}" y="72" text-anchor="middle" dominant-baseline="middle"><tspan font-size="28" font-weight="800" fill="${col}" font-family="Inter,system-ui,sans-serif">${s!==null?s:'—'}</tspan><tspan font-size="11" font-weight="600" fill="${col}" font-family="Inter,system-ui,sans-serif" dy="-2"> /100</tspan></text><text x="${cx}" y="98" text-anchor="middle" dominant-baseline="middle" font-size="17" font-weight="800" fill="#171b33" font-family="Inter,system-ui,sans-serif">${lbl}</text></svg><div style="background:#dff1f9;padding:8px 12px 12px;font-size:11px;color:#4a6e7a;text-align:center;line-height:1.4">${desc}</div></div>`;
+                                    let marker='';
+                                    if(s!==null&&progDeg>0){
+                                        const pEnd=sDeg+progDeg;
+                                        const mx=(cx+rI*Math.cos(toRad(pEnd))).toFixed(2);
+                                        const my=(cy+rI*Math.sin(toRad(pEnd))).toFixed(2);
+                                        marker=`<path d="M 0 0 L 10 20 Q 0 28 -10 20 Z" fill="${col}" transform="translate(${mx},${my}) rotate(${(pEnd-90).toFixed(1)})"/>`;
+                                    }
+                                    return `<div style="padding:0;background:#dff1f9"><svg viewBox="0 0 200 125" style="width:100%;height:auto;display:block"><path d="${tPath}" fill="#9fc5d8"/>${pPath?`<path d="${pPath}" fill="${col}"/>`:''}${marker}<circle cx="${cx}" cy="${cy}" r="76" fill="url(#gg-${s})"/><defs><radialGradient id="gg-${s}" cx="${cx}" cy="${cy}" r="76" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#eaf6fc"/><stop offset="85%" stop-color="#c8e8f4"/><stop offset="100%" stop-color="#b8dff0"/></radialGradient></defs><text x="${cx}" y="72" text-anchor="middle" dominant-baseline="middle"><tspan font-size="28" font-weight="800" fill="${col}" font-family="Inter,system-ui,sans-serif">${s!==null?s:'—'}</tspan><tspan font-size="11" font-weight="600" fill="${col}" font-family="Inter,system-ui,sans-serif" dy="-2"> /100</tspan></text><text x="${cx}" y="98" text-anchor="middle" dominant-baseline="middle" font-size="17" font-weight="800" fill="#171b33" font-family="Inter,system-ui,sans-serif">${lbl}</text></svg><div style="padding:8px 12px 12px;font-size:11px;color:#4a6e7a;text-align:center;line-height:1.4">${desc}</div></div>`;
                                 })()}
                             </div>
-                            <div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:12px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;align-items:start">
+                            <div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:12px;display:flex;flex-direction:column;gap:12px"><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;align-items:start">
                                 <div style="border:1px solid #e4e4ec;border-radius:4px;padding:14px 16px">
                                     <div style="font-size:12px;font-weight:500;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;display:flex;align-items:center;gap:4px">COMPLETEZZA AI <span class='tip-q' data-tip='Quanto è completo il profilo AI dell hotel: nome, indirizzo, descrizione, contatti, FAQ ecc. ≥80 ottimizzato.'>?</span></div>
                                     <div style="font-size:32px;font-weight:800;line-height:1;color:${cs!==null?'#171b33':'#C1CBE8'}">${cs!==null?cs:'—'}</div>
@@ -960,6 +966,8 @@
                                     <div style="font-size:32px;font-weight:800;line-height:1;color:${qMapPct!==null?'#171b33':'#C1CBE8'}">${qMapPct!==null?qMapPct+'%':'—'}</div>
                                     <div style="font-size:14px;font-weight:600;color:${qMapPct!==null?'#0D5F75':'#C1CBE8'};margin-top:6px">${qMapPct!==null?qMapPct+'% coperto':'nessun dato'}</div>
                                 </div>
+                            </div>
+                            <div style="position:relative;height:140px;background:#C1CBE8;border-radius:4px;overflow:hidden"><canvas id="chart-geo-score-mini"></canvas></div>
                             </div>
                         </div>
                     </div>
@@ -1066,7 +1074,7 @@
                     </div>
                 </div>
                 <!-- chart -->
-                <div style="position:relative;height:200px"><canvas id="chart-score-history"></canvas></div>
+                <div style="position:relative;height:200px;background:#C1CBE8;border-radius:4px;overflow:hidden"><canvas id="chart-score-history"></canvas></div>
                 </div>
             </div>
             ${cs !== null ? `<div class="card" style="margin-bottom:20px;border:1px solid #e4e4ec;box-shadow:none">
@@ -1561,6 +1569,7 @@
         // ── overview PSE chart (rendered on default view)
         initOverviewPseChart(pseData, siteId, site?.hotel_profile || {});
         initScoreHistoryChart(site, geoAvg, cs, covPct);
+        initGeoScoreMiniChart(site);
 
         // ── existing inits
         window._detailSiteData = site;
@@ -2790,6 +2799,41 @@
                     _scoreChartInstance.update();
                 }
             });
+        });
+    }
+
+    let _geoMiniChartInst = null;
+    function initGeoScoreMiniChart(site) {
+        const canvas = document.getElementById('chart-geo-score-mini');
+        if (!canvas) return;
+        const faqData = site.faq_data || {};
+        const history = Array.isArray(faqData.score_history) ? [...faqData.score_history] : [];
+        history.sort((a, b) => a.date.localeCompare(b.date));
+        if (history.length === 0) { canvas.parentElement.style.display = 'none'; return; }
+        const last30 = (() => { const cut = new Date(); cut.setDate(cut.getDate()-30); const cs = cut.toISOString().slice(0,10); return history.filter(h=>h.date>=cs); })();
+        const data = last30.length ? last30 : history;
+        const labels = data.map(h => { const dt = new Date(h.date+'T00:00:00'); return dt.toLocaleDateString('it-IT',{day:'2-digit',month:'short'}); });
+        const datasets = [
+            { label:'GEO Score', data:data.map(h=>h.geo??null), borderColor:'#0D5F75', backgroundColor:'rgba(13,95,117,0.15)', fill:true, tension:0.4, pointRadius:data.length<20?3:1, borderWidth:2, spanGaps:true },
+            { label:'Completezza', data:data.map(h=>h.completeness??null), borderColor:'#4a6e8a', backgroundColor:'transparent', fill:false, tension:0.4, pointRadius:data.length<20?3:1, borderWidth:2, spanGaps:true },
+            { label:'Coverage FAQ', data:data.map(h=>h.coverage??null), borderColor:'#8aa8bc', backgroundColor:'transparent', fill:false, tension:0.4, pointRadius:data.length<20?3:1, borderWidth:2, spanGaps:true },
+        ];
+        if (_geoMiniChartInst) _geoMiniChartInst.destroy();
+        _geoMiniChartInst = new Chart(canvas, {
+            type: 'line',
+            data: { labels, datasets },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                interaction: { mode:'index', intersect:false },
+                plugins: {
+                    legend: { display:false },
+                    tooltip: { backgroundColor:'white', titleColor:'#171b33', bodyColor:'#4b4d68', borderColor:'#e4e4ec', borderWidth:1, padding:8, callbacks:{ label: ctx => ' '+ctx.dataset.label+': '+(ctx.parsed.y??'—') } }
+                },
+                scales: {
+                    x: { grid:{ color:'rgba(255,255,255,0.3)' }, ticks:{ font:{size:10}, color:'rgba(255,255,255,0.8)', maxTicksLimit:6 } },
+                    y: { min:0, max:100, grid:{ color:'rgba(255,255,255,0.3)' }, ticks:{ font:{size:10}, color:'rgba(255,255,255,0.8)', stepSize:25 } }
+                }
+            }
         });
     }
 
