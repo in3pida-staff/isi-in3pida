@@ -2799,8 +2799,26 @@
             g.addColorStop(0,`rgba(${r},${gr},${b},0.18)`); g.addColorStop(1,`rgba(${r},${gr},${b},0.00)`); return g;
         }
 
+        function aggregateWeekly(data) {
+            if (data.length <= 8) return data;
+            const weeks = {};
+            data.forEach(h => {
+                const d = new Date(h.date + 'T00:00:00');
+                const mon = new Date(d); mon.setDate(d.getDate() - d.getDay() + 1);
+                const key = mon.toISOString().slice(0, 10);
+                if (!weeks[key]) weeks[key] = { date: key, _items: [] };
+                weeks[key]._items.push(h);
+            });
+            return Object.values(weeks).map(w => {
+                const items = w._items;
+                const avg = k => { const vs = items.map(i => i[k]).filter(v => v != null); return vs.length ? Math.round(vs.reduce((a,b)=>a+b,0)/vs.length) : null; };
+                return { date: w.date, geo: avg('geo'), completeness: avg('completeness'), coverage: avg('coverage'), ai_readiness: avg('ai_readiness'), answer_extraction: avg('answer_extraction'), quality_safety: avg('quality_safety'), ai_visibility: avg('ai_visibility') };
+            }).sort((a,b) => a.date.localeCompare(b.date));
+        }
+
         function render(days) {
-            const data = filtered(days);
+            const raw = filtered(days);
+            const data = aggregateWeekly(raw);
             const labels = data.map(h => fmtDate(h.date));
             updateSummary(data);
             const datasets = KEYS.map((k, i) => ({
@@ -2890,8 +2908,26 @@
             return history.filter(h => h.date >= cutStr);
         }
 
+        function aggregateMiniWeekly(data) {
+            if (data.length <= 8) return data;
+            const weeks = {};
+            data.forEach(h => {
+                const d = new Date(h.date + 'T00:00:00');
+                const mon = new Date(d); mon.setDate(d.getDate() - d.getDay() + 1);
+                const key = mon.toISOString().slice(0, 10);
+                if (!weeks[key]) weeks[key] = { date: key, _items: [] };
+                weeks[key]._items.push(h);
+            });
+            return Object.values(weeks).map(w => {
+                const items = w._items;
+                const avg = k => { const vs = items.map(i => i[k]).filter(v => v != null); return vs.length ? Math.round(vs.reduce((a,b)=>a+b,0)/vs.length) : null; };
+                return { date: w.date, geo: avg('geo'), completeness: avg('completeness'), coverage: avg('coverage') };
+            }).sort((a,b) => a.date.localeCompare(b.date));
+        }
+
         function renderMini(days) {
-            const data = filteredMini(days).length ? filteredMini(days) : history;
+            const raw = filteredMini(days).length ? filteredMini(days) : history;
+            const data = aggregateMiniWeekly(raw);
             const labels = data.map(h => { const dt = new Date(h.date+'T00:00:00'); return dt.toLocaleDateString('it-IT',{day:'2-digit',month:'short'}); });
             function grad(ctx, hex) {
                 const g = ctx.createLinearGradient(0,0,0,130);
