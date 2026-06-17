@@ -3103,15 +3103,20 @@
         const hp  = site.hotel_profile || {};
         const am  = Array.isArray(sc.amenities) ? sc.amenities.map(a => a.toLowerCase()).join(' ') : '';
         const kw  = (sc.keywords     || '').toLowerCase();
-        const des = (sc.description  || '').toLowerCase();
-        const txt = am + ' ' + kw + ' ' + des;
+        const des = (sc.description  || hp.descrizione || '').toLowerCase();
+        const hpSrv = (hp.servizi      || '').toLowerCase();
+        const hpTgt = (hp.target_clientela || '').toLowerCase();
+        const hpKnw = Array.isArray(hp.knowsabout) ? hp.knowsabout.join(' ').toLowerCase() : (hp.knowsabout || '').toLowerCase();
+        const txt = am + ' ' + kw + ' ' + des + ' ' + hpSrv + ' ' + hpTgt + ' ' + hpKnw;
+        const city = (sc.city || sc.address?.addressLocality || hp.citta || hp.comune || '').toLowerCase();
+        const beachCity = /cattolica|rimini|riccione|cesenatico|bellaria|igea|misano|cervia|milano marittima|pescara|jesolo|bibione|lignano|viareggio|forte dei marmi|marina di|lido di/i;
         return {
             city:           sc.city || sc.address?.addressLocality || hp.citta || hp.comune || '',
             hasPiscina:     /piscin/.test(txt),
             hasSpa:         /\bspa\b|benessere|sauna|hammam|bagno turco|centro benessere/.test(txt),
-            hasPets:        sc.pets_allowed === true || sc.pets_allowed === 'true' || /animali|pet friendly|cani/.test(txt),
+            hasPets:        /^s[iì]$/i.test(String(sc.pets_allowed||'')) || sc.pets_allowed === true || sc.pets_allowed === 'true' || /animali|pet friendly|cani/.test(txt),
             hasFamily:      /family|famil|bambini|animazione bambini/.test(txt),
-            hasMare:        /spiaggia|mare|beach|lungomare|riviera/.test(txt),
+            hasMare:        /spiaggia|mare|beach|lungomare|riviera/.test(txt) || beachCity.test(city),
             hasMontagna:    /montagna|alpi|dolomiti|\bsci\b|neve |trekking/.test(txt),
             hasRistorante:  /ristorante|cucina|dining/.test(txt),
             hasColazione:   /colazione|breakfast/.test(txt),
@@ -3121,7 +3126,7 @@
             hasSports:      /palestra|biciclette|sport|fitness|escursion/.test(txt),
             hasMarriages:   /matrimon|wedding|riceviment|cerimoni|banchett/.test(txt),
             hasWellness:    /\bspa\b|benessere|wellness|sauna|massagg/.test(txt),
-            hasRomantic:    /romantic|luna di miele|honeymoon|suite/.test(txt),
+            hasRomantic:    /romantic|luna di miele|honeymoon|suite/.test(txt) || /coppi|romantico/i.test(hpTgt),
         };
     }
 
@@ -3329,7 +3334,6 @@
         const isSeason = month >= 3 && month <= 9;
         const result = {};
         INTENT_LIBRARY.forEach(intent => {
-            if (!intent.appliesWhen(features)) return;
             const queries = [...intent.templates(dest)];
             if (isSeason && intent.seasonalTemplates) {
                 const seasonal = intent.seasonalTemplates(dest, year);
@@ -3348,23 +3352,17 @@
      */
     function getPriorityForCategory(category, features, hotelQueries) {
         const alwaysMedia = ['prenotazione_prezzi', 'check_in_out', 'trasporti_arrivo'];
-        // Somma priorityScore degli intenti applicabili di questa categoria
         const score = INTENT_LIBRARY
-            .filter(i => i.category === category && i.appliesWhen(features))
+            .filter(i => i.category === category)
             .reduce((sum, i) => sum + i.priorityScore(features), 0);
 
         let prio;
         if (score >= 15) prio = 'alta';
         else if (score >= 8) prio = 'media';
         else if (score >= 3) prio = 'bassa';
+        else if (hotelQueries[category]?.length) prio = 'bassa';
         else prio = 'non_rilevante';
 
-        // Se la categoria non ha query generate (hotel non la supporta), è non_rilevante
-        if (!hotelQueries[category] || !hotelQueries[category].length) {
-            if (!alwaysMedia.includes(category)) return 'non_rilevante';
-        }
-
-        // Garantisce minimo 'media' per le categorie sempre rilevanti
         if (alwaysMedia.includes(category) && (prio === 'bassa' || prio === 'non_rilevante')) {
             return 'media';
         }
@@ -3585,24 +3583,34 @@
                 rgBtn.addEventListener('click', async () => {
                     rgBtn.disabled = true;
                     rgBtn.textContent = '⏳ Analisi in corso...';
+                    const ctrl = new AbortController();
+                    const timer = setTimeout(() => ctrl.abort(), 90000);
                     try {
                         const { data: { session } } = await _SB.auth.getSession();
                         if (!session) throw new Error('Sessione scaduta');
                         const res = await fetch(`${SUPABASE_URL}/functions/v1/reason-gap`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
-                            body: JSON.stringify({ site_id: site.site_id, queries: uncovered.slice(0, 50) })
+                            body: JSON.stringify({ site_id: site.site_id, queries: uncovered.slice(0, 25) }),
+                            signal: ctrl.signal
                         });
+                        clearTimeout(timer);
                         const json = await res.json();
-                        if (!res.ok) throw new Error(json.error || 'Errore analisi');
+                        if (!res.ok) {
+                            if (json.error === 'rate_limit') {
+                                const d = new Date(json.next_allowed_at);
+                                throw new Error('Analisi già eseguita. Prossima disponibile: ' + d.toLocaleDateString('it-IT'));
+                            }
+                            throw new Error(json.error || 'Errore analisi');
+                        }
                         localStorage.setItem(rgKey, Date.now().toString());
-                        // Ricarica sezione
                         _mappaInited = false;
                         initMappaQueryMgmt(site, pseData);
                     } catch(e) {
+                        clearTimeout(timer);
                         rgBtn.disabled = false;
                         rgBtn.textContent = btnLabel;
-                        alert('Errore: ' + e.message);
+                        alert('Errore: ' + (e.name === 'AbortError' ? 'Timeout — riprova tra poco' : e.message));
                     }
                 });
             }

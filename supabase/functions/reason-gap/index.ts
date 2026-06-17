@@ -83,9 +83,10 @@ Per ciascuna ricerca, indica in modo semplice (max 2 righe) cosa manca nel profi
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${GROQ_API_KEY}` },
       body: JSON.stringify({
         model: 'llama-3.1-8b-instant',
-        max_tokens: 1500,
+        max_tokens: 4000,
+        temperature: 0.2,
         messages: [
-          { role: 'system', content: 'Sei un esperto GEO per hotel italiani. Rispondi SOLO con JSON valido, nessun testo extra.' },
+          { role: 'system', content: 'Sei un esperto GEO per hotel italiani. Rispondi SOLO con JSON valido, nessun testo extra prima o dopo il JSON.' },
           { role: 'user', content: prompt }
         ]
       })
