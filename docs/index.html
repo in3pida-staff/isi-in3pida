@@ -3116,7 +3116,7 @@
             hasRistorante:  /ristorante|cucina|dining/.test(txt),
             hasColazione:   /colazione|breakfast/.test(txt),
             hasParcheggio:  /parcheggio|parking|garage/.test(txt),
-            hasAccessibility:/accessib|disabil|barriere architetton/.test(txt) || (hp.servizi_accessibilita||'').trim().length > 0,
+            hasAccessibility:/accessib|disabil|barriere architetton/.test(txt) || String(hp.servizi_accessibilita||'').trim().length > 0,
             hasBusiness:    /business|sala meeting|sala conferenz|coworking|centro congressi/.test(txt),
             hasSports:      /palestra|biciclette|sport|fitness|escursion/.test(txt),
             hasMarriages:   /matrimon|wedding|riceviment|cerimoni|banchett/.test(txt),
@@ -3411,6 +3411,9 @@
         if (_mappaInited) return; _mappaInited = true;
         const cont = document.getElementById('mappa-query-mgmt');
         if (!cont) return;
+        try { await _initMappaQueryMgmtInner(site, pseData, cont); } catch(e) { _mappaInited = false; cont.innerHTML = `<div style="padding:20px;color:#b00020;font-size:14px">Errore caricamento mappa: ${e.message}</div>`; }
+    }
+    async function _initMappaQueryMgmtInner(site, pseData, cont) {
         const faqData = site?.faq_data || {};
         const qmap = faqData.query_map || faqData.mappa_query || {};
         // Indice domande FAQ esistenti per rilevare copertura automatica
