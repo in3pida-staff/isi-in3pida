@@ -2082,6 +2082,10 @@
             sec('RECENSIONI') +
             '<div style="background:#e8ecf7;border-radius:4px;padding:10px 14px;margin-bottom:14px;font-size:13px;font-weight:600;color:#b00020">Usa solo dati reali e visibili anche nella pagina del sito. Il dato inserito nello Schema.org deve corrispondere a recensioni realmente mostrate agli utenti.</div>' +
             '<div style="background:#f4f4f8;border-radius:4px;padding:10px 14px;margin-bottom:14px;font-size:13px;color:#4b4d68"><strong>Rating medio nello Schema.org:</strong> è il punteggio aggregato pubblico che vuoi dichiarare. Se hai fonti diverse, compila Google, Tripadvisor e Booking; poi scegli quale valore usare come rating principale oppure inserisci un aggregato reale visibile sul sito.</div>' +
+            '<div style="margin-bottom:14px;display:flex;align-items:center;gap:10px">' +
+            '<button type="button" id="btn-detect-ratings" onclick="_detectRatings()" style="background:none;border:1px solid #0D5F75;border-radius:6px;padding:7px 14px;font-size:13px;font-weight:700;color:#0D5F75;cursor:pointer;font-family:var(--font)">Rileva automaticamente</button>' +
+            '<span id="detect-ratings-status" style="font-size:12px;color:#666b84"></span>' +
+            '</div>' +
             '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">' +
             inp('fonte_rating','Fonte rating principale', p.fonte_rating,'Google, Tripadvisor, Booking, oppure Aggregato sito') +
             inp('rating_medio','Rating medio principale', p.rating_medio,'9.2') + '</div>' +
@@ -2402,6 +2406,59 @@
         }
         btn.disabled = false;
         btn.textContent = 'Rileva stile dal sito';
+    }
+
+    async function _detectRatings() {
+        const btn = document.getElementById('btn-detect-ratings');
+        const status = document.getElementById('detect-ratings-status');
+        const g = id => (document.getElementById('pf-' + id)?.value || '').trim();
+        const s = (text, color) => { if (status) { status.textContent = text; status.style.color = color || '#666b84'; } };
+
+        const taUrl   = g('tripadvisor_url');
+        const gUrl    = g('google_business_url');
+        const bkUrl   = g('url_recensioni');
+
+        if (!taUrl && !gUrl && !bkUrl) { s('Nessun URL trovato — inserisci prima i link nei Social e Profili esterni', '#b00020'); return; }
+
+        const { data: { session } } = await _SB.auth.getSession();
+        if (!session) { s('Sessione scaduta — ricarica la pagina', '#b00020'); return; }
+
+        btn.disabled = true; btn.textContent = 'Rilevamento...';
+        s('Contatto i portali...', '#0D5F75');
+
+        const call = async (url, source) => {
+            if (!url) return null;
+            try {
+                const r = await fetch(`${SUPABASE_URL}/functions/v1/fetch-rating`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
+                    body: JSON.stringify({ url, source }),
+                });
+                return await r.json();
+            } catch { return null; }
+        };
+
+        const [ta, goog, bk] = await Promise.all([
+            call(taUrl, 'tripadvisor'),
+            call(gUrl, 'google'),
+            call(bkUrl, 'booking'),
+        ]);
+
+        const fill = (id, val) => { const el = document.getElementById('pf-' + id); if (el && val) el.value = val; };
+
+        let found = 0;
+        if (ta?.rating)        { fill('tripadvisor_rating', ta.rating); found++; }
+        if (ta?.n_recensioni)  { fill('tripadvisor_n_recensioni', ta.n_recensioni); found++; }
+        if (goog?.rating)      { fill('google_rating', goog.rating); found++; }
+        if (goog?.n_recensioni){ fill('google_n_recensioni', goog.n_recensioni); found++; }
+        if (bk?.rating)        { fill('booking_rating', bk.rating); found++; }
+        if (bk?.n_recensioni)  { fill('booking_n_recensioni', bk.n_recensioni); found++; }
+
+        const errors = [ta, goog, bk].filter(r => r?.error).length;
+        btn.disabled = false; btn.textContent = 'Rileva automaticamente';
+        if (found === 0) s('Nessun dato rilevato — verifica gli URL o inserisci manualmente', '#b00020');
+        else if (errors) s(`Rilevati ${found} valori (${errors} portale non raggiunto)`, '#0D5F75');
+        else s(`Rilevati ${found} valori — verifica e salva`, '#0D5F75');
     }
 
     async function saveHotelProfile(siteId) {
