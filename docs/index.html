@@ -5387,6 +5387,32 @@ ${rows}
                 '<div style="padding:16px 20px" id="dati-gsc-container"><div style="font-size:13px;color:#666b84">Caricamento dati GSC...</div></div></div>';
         }
 
+        const gscSignals = site?.gsc_signals;
+        if (gscSignals && typeof gscSignals === 'object' && Object.keys(gscSignals).length) {
+            const labelMap = {
+                gsc_verified:   { l: 'Google Site Verification', d: 'Meta tag di verifica GSC presente nel sito' },
+                site_kit:       { l: 'Google Site Kit', d: 'Plugin Google Site Kit attivo' },
+                site_kit_gsc:   { l: 'Site Kit → GSC connessa', d: 'Search Console collegata tramite Site Kit' },
+                yoast:          { l: 'Yoast SEO', d: 'Plugin Yoast SEO attivo' },
+                yoast_gsc:      { l: 'Yoast → verifica Google', d: 'Codice verifica GSC configurato in Yoast' },
+                rank_math:      { l: 'RankMath SEO', d: 'Plugin RankMath attivo' },
+                seopress:       { l: 'SEOPress', d: 'Plugin SEOPress attivo' },
+                aioseo:         { l: 'All in One SEO', d: 'Plugin AIOSEO attivo' },
+                gtm:            { l: 'Google Tag Manager', d: 'GTM rilevato nel sito' },
+                ga:             { l: 'Google Analytics', d: 'GA4 o Universal Analytics rilevato' },
+                google_ads:     { l: 'Google Ads', d: 'Tag Google Ads rilevato' },
+                monsterinsights:{ l: 'MonsterInsights', d: 'Plugin MonsterInsights (GA) attivo' },
+            };
+            const rows = Object.keys(gscSignals).map(k => {
+                const info = labelMap[k] || { l: k, d: '' };
+                return `<tr style="border-bottom:1px solid #f4f4f8"><td style="padding:6px 8px 6px 0"><span style="color:#0D5F75;font-size:13px">✓</span></td><td style="padding:6px 8px 6px 0;color:#171b33;font-size:13px;font-weight:600">${escHtml(info.l)}</td><td style="padding:6px 0;color:#666b84;font-size:12px">${escHtml(info.d)}</td></tr>`;
+            }).join('');
+            html += cardH('#0D5F75', 'Segnali rilevati sul sito') +
+                '<div style="padding:16px 20px"><table style="width:100%;border-collapse:collapse">' +
+                '<tr style="color:#9ca3af;border-bottom:1px solid #f0f0f5"><td style="padding:4px 8px 4px 0;font-size:11px"></td><td style="padding:4px 8px 4px 0;font-size:11px;text-transform:uppercase;letter-spacing:.05em">Segnale</td><td style="padding:4px 0;font-size:11px;text-transform:uppercase;letter-spacing:.05em">Dettaglio</td></tr>' +
+                rows + '</table></div></div>';
+        }
+
         const signals = site?.hotel_profile?.pse_signals;
         if (Array.isArray(signals) && signals.length) {
             // Raggruppa per page_url + event_type, top 10

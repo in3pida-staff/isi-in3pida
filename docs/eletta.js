@@ -59,11 +59,42 @@
     return { completeness_score: completeness_score, coverage_pct: coverage_pct, has_ai_profile: has_ai_profile, ai_readiness: ai_readiness };
   }
 
+  function detectGscSignals() {
+    var s = {};
+    // google-site-verification meta tag
+    if (document.querySelector('meta[name="google-site-verification"]')) s.gsc_verified = true;
+    // Google Site Kit
+    if (document.querySelector('[id*="googlesitekit"]') ||
+        document.querySelector('script[src*="googlesitekit"]') ||
+        window.googlesitekit) s.site_kit = true;
+    // Yoast SEO
+    if (document.querySelector('meta[name="generator"][content*="Yoast"]') ||
+        document.querySelector('#yoast-schema-graph') ||
+        document.querySelector('#yoast-schema-graph-tag')) s.yoast = true;
+    // RankMath
+    if (document.querySelector('meta[name="generator"][content*="Rank Math"]') ||
+        document.querySelector('#rank-math-schema')) s.rank_math = true;
+    // SEOPress
+    if (document.querySelector('script[src*="seopress"]')) s.seopress = true;
+    // Google Tag Manager
+    if (document.querySelector('script[src*="googletagmanager.com/gtm"]') ||
+        window.google_tag_manager) s.gtm = true;
+    // Google Analytics (GA4 / Universal)
+    if (document.querySelector('script[src*="googletagmanager.com/gtag"]') ||
+        document.querySelector('script[src*="google-analytics.com"]') ||
+        typeof window.gtag === 'function' || typeof window.ga === 'function') s.ga = true;
+    // Google Ads
+    if (document.querySelector('script[src*="googleadservices.com"]')) s.google_ads = true;
+    return Object.keys(s).length ? s : null;
+  }
+
   async function sendHeartbeat(siteId, siteName, site) {
     var now = new Date().toISOString();
     var scores = site ? computeGeoScores(site) : null;
     var patch = { last_heartbeat: now, site_url: location.origin };
     if (scores) patch.geo_scores = scores;
+    var gscSignals = detectGscSignals();
+    if (gscSignals) patch.gsc_signals = gscSignals;
     await fetch(`${SUPABASE_URL}/rest/v1/isi_sites?site_id=eq.${encodeURIComponent(siteId)}`, {
       method: 'PATCH',
       headers: {
