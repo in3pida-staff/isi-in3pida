@@ -935,10 +935,10 @@
                 </div>
             </div>
             <!-- LAYOUT: sidebar sinistra persistente + contenuto destra -->
-            <div style="display:grid;grid-template-columns:260px 1fr;gap:20px;align-items:start">
+            <div id="detail-layout-grid" style="display:grid;grid-template-columns:260px 1fr;gap:20px;align-items:start">
 
                 <!-- SIDEBAR SINISTRA PERSISTENTE: Stato contenuti -->
-                <div style="position:sticky;top:80px;background:white;border-radius:4px;overflow:hidden;border:1px solid #e2e2e2;box-shadow:none">
+                <div id="detail-sidebar" style="position:sticky;top:80px;background:white;border-radius:4px;overflow:hidden;border:1px solid #e2e2e2;box-shadow:none">
                     <div style="padding:14px 20px;border-bottom:1px solid #e2e2e2">
                         <div style="font-size:18px;font-weight:600;color:#0D5F75;letter-spacing:-.01em">Stato contenuti</div>
                     </div>
@@ -1597,6 +1597,15 @@
             allSecs.forEach(s => { const p = document.getElementById('scontent-'+s); if(p) p.style.display='none'; });
             const _gkb = document.getElementById('geo-kpi-banner');
             if (_gkb) _gkb.style.display = sec === 'overview' ? 'block' : 'none';
+            const _lg = document.getElementById('detail-layout-grid');
+            const _sb = document.getElementById('detail-sidebar');
+            if (sec === 'schema') {
+                if (_lg) _lg.style.gridTemplateColumns = '1fr';
+                if (_sb) _sb.style.display = 'none';
+            } else {
+                if (_lg) _lg.style.gridTemplateColumns = '260px 1fr';
+                if (_sb) _sb.style.display = '';
+            }
             const pane = document.getElementById('scontent-'+sec);
             if (pane) pane.style.display = 'block';
             el.querySelectorAll('.stato-sezione-row').forEach(r => {
