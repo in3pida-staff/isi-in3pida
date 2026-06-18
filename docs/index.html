@@ -968,7 +968,7 @@
                 </div>
 
                 <!-- COLONNA DESTRA: KPI + content pane (cambia in base alla selezione sidebar) -->
-                <div style="min-width:0">
+                <div style="min-width:0;overflow:hidden">
                 <div id="geo-kpi-banner" class="card" style="margin-bottom:20px;border:1px solid #e4e4ec;box-shadow:none">
                     <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
                         <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><div style="font-size:12px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">PANORAMICA GEO SCORE</div></div>
@@ -2352,7 +2352,7 @@
         const el = document.getElementById('json-preview-content');
         if (!el) return;
         const json = JSON.stringify(buildSchemaJsonLd(p||{}), null, 2);
-        el.innerHTML = `<pre style="background:#f8f8fc;border:1px solid #e4e4ec;border-radius:6px;padding:14px;font-size:12px;overflow:auto;max-height:280px;color:#35364f;line-height:1.5;margin:0">${escHtml(json)}</pre>`;
+        el.innerHTML = `<pre style="background:#f8f8fc;border:1px solid #e4e4ec;border-radius:6px;padding:14px;font-size:12px;overflow:auto;max-height:280px;max-width:100%;color:#35364f;line-height:1.5;margin:0">${escHtml(json)}</pre>`;
     }
 
     function copyJsonLd() {
