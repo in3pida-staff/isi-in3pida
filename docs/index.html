@@ -1564,7 +1564,13 @@
                     const patch = { geo_scores: mergedGeo, last_heartbeat: now };
                     if (data.plugin_version) patch.plugin_version = data.plugin_version;
                     if (data.faq_data)       patch.faq_data       = { ...(site?.faq_data || {}), ...data.faq_data, score_history: site?.faq_data?.score_history || [] };
-                    if (data.schema_data)    patch.schema_data    = data.schema_data;
+                    if (data.schema_data) {
+                        // ISI comanda: i dati ISI non vengono mai sovrascritti da valori vuoti del plugin
+                        const existingSd = site?.schema_data || {};
+                        const mergedSd = { ...existingSd };
+                        Object.entries(data.schema_data).forEach(([k, v]) => { if (v !== null && v !== undefined && v !== '') mergedSd[k] = v; });
+                        patch.schema_data = mergedSd;
+                    }
                     if (data.pse_signals && Array.isArray(data.pse_signals)) {
                         const existing = Array.isArray(site?.hotel_profile?.pse_signals) ? site.hotel_profile.pse_signals : [];
                         const merged = [...existing, ...data.pse_signals].slice(-500);
