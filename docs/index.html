@@ -5624,6 +5624,7 @@ ${rows}
                     window.google.accounts.oauth2.initTokenClient({
                         client_id: clientId,
                         scope: 'https://www.googleapis.com/auth/webmasters.readonly',
+                        hint: cfg.gsc_email || '',
                         callback: async function(resp) {
                             clearTimeout(t);
                             if (resp.error) { reject(new Error(resp.error)); return; }
@@ -5631,6 +5632,25 @@ ${rows}
                             resolve(resp.access_token);
                         }
                     }).requestAccessToken({ prompt: 'none' });
+                });
+            }
+
+            function _autoReconnect() {
+                const clientId = localStorage.getItem('isi_gsc_client_id');
+                if (!clientId || !window.google?.accounts?.oauth2) return Promise.reject(new Error('no_gis'));
+                return new Promise((resolve, reject) => {
+                    const t = setTimeout(() => reject(new Error('timeout')), 20000);
+                    window.google.accounts.oauth2.initTokenClient({
+                        client_id: clientId,
+                        scope: 'https://www.googleapis.com/auth/webmasters.readonly',
+                        hint: cfg.gsc_email || '',
+                        callback: async function(resp) {
+                            clearTimeout(t);
+                            if (resp.error) { reject(new Error(resp.error)); return; }
+                            await _saveToken(resp.access_token);
+                            resolve(resp.access_token);
+                        }
+                    }).requestAccessToken({ prompt: '' });
                 });
             }
 
@@ -5663,7 +5683,6 @@ ${rows}
             async function _loadGscData() {
                 if (datiGscCont) datiGscCont.innerHTML = '<div style="padding:16px 20px;font-size:13px;color:#666b84">Caricamento...</div>';
                 let token = _activeToken;
-                // Se il token è vecchio o mancante, prova silent refresh prima di mostrare l'errore
                 if (tokenAgeSec >= 3000) {
                     try { token = await _silentRefresh(); } catch { /* usa token esistente */ }
                 }
@@ -5672,8 +5691,12 @@ ${rows}
                     _renderGscFull(data);
                 } catch(e) {
                     if (e.message?.includes('token_expired')) {
-                        // Ultima chance: silent refresh anche se token sembrava fresco
+                        // 1° tentativo: silent refresh (prompt:none)
                         try { token = await _silentRefresh(); const data = await _fetchGscData(token, _gscActiveDays); _renderGscFull(data); return; } catch {}
+                        // 2° tentativo: auto-reconnect con popup minimo (prompt:'')
+                        if (datiGscCont) datiGscCont.innerHTML = '<div style="padding:16px 20px;font-size:13px;color:#666b84">Aggiornamento sessione Google...</div>';
+                        try { token = await _autoReconnect(); const data = await _fetchGscData(token, _gscActiveDays); _renderGscFull(data); return; } catch {}
+                        // Solo se tutto fallisce: mostra il pulsante manuale
                         _showReconnectBtn();
                     }
                     else if (datiGscCont) datiGscCont.innerHTML = '<div style="padding:16px 20px;font-size:13px;color:#666b84">Errore nel caricamento dati GSC.</div>';
