@@ -191,6 +191,7 @@
                 <p>I dati strutturati aiutano le AI a comprendere e descrivere correttamente il tuo hotel. Completa le informazioni sulla struttura, le camere, i servizi, i contatti e la posizione. Più il profilo è completo, più aumentano le probabilità che le AI utilizzino dati corretti nelle loro risposte.</p>
                 <div style="font-size:12px;font-weight:700;color:var(--grey);letter-spacing:.06em;text-transform:uppercase;margin:16px 0 10px;padding-bottom:6px;border-bottom:2px solid #e8ecf7">Mappa Query</div>
                 <p>La Mappa Query identifica e aggiorna continuamente le domande che gli utenti rivolgono alle AI quando cercano un hotel. Sulla base delle informazioni inserite nei dati strutturati Schema.org, Eletta genera automaticamente le risposte più rilevanti per ogni categoria di ricerca. In questo modo il tuo hotel amplia progressivamente la copertura delle query e aumenta le probabilità di essere citato nelle risposte di ChatGPT, Gemini, Perplexity e delle principali intelligenze artificiali.</p>
+                <p>Per ogni query puoi scegliere di generare una risposta automatica (<strong>✦ Genera risposta</strong>), scriverla manualmente (<strong>✎ Scrivi</strong>) oppure segnalarla come non pertinente per quell'hotel (<strong>✕ Non rilevante</strong>). Le query segnalate non compaiono più tra quelle da coprire e vengono conteggiate separatamente nel contatore <strong>NON RILEVANTI</strong>. Puoi recuperarle in qualsiasi momento aprendo la sezione collassabile <em>Mostra non rilevanti</em> in fondo a ogni categoria e cliccando <strong>↩ Ripristina</strong>.</p>
                 <div style="font-size:12px;font-weight:700;color:var(--grey);letter-spacing:.06em;text-transform:uppercase;margin:16px 0 10px;padding-bottom:6px;border-bottom:2px solid #e8ecf7">Coerenza Contenuti</div>
                 <p>Le intelligenze artificiali confrontano le informazioni presenti su più fonti prima di formulare una risposta. Eletta verifica che dati, servizi e descrizioni siano coerenti tra sito web, OTA, Google e altri canali. Una maggiore coerenza aumenta l'affidabilità percepita del tuo hotel.</p>
                 <div style="font-size:12px;font-weight:700;color:var(--grey);letter-spacing:.06em;text-transform:uppercase;margin:16px 0 10px;padding-bottom:6px;border-bottom:2px solid #e8ecf7">AI Layer</div>
@@ -205,6 +206,8 @@
                 <div style="font-size:12px;font-weight:700;color:var(--grey);letter-spacing:.06em;text-transform:uppercase;margin:16px 0 10px;padding-bottom:6px;border-bottom:2px solid #e8ecf7">Mappa Query — Intenti intelligenti</div>
                 <p>La Mappa Query non è più una lista fissa uguale per tutti: Eletta analizza i dati Schema.org del profilo hotel (servizi, caratteristiche, tipo di struttura) e assegna automaticamente una <strong>priorità</strong> a ciascuna categoria di query.</p>
                 <p>Le categorie vengono classificate come <strong>Alta priorità</strong> (il servizio è presente e rilevante), <strong>Media priorità</strong> (generalmente utile), <strong>Bassa priorità</strong> (marginale) o <strong>Non rilevante</strong> (il servizio non è presente — le categorie non rilevanti sono nascoste di default). In questo modo il lavoro di ottimizzazione si concentra dove ha più impatto per quell'hotel specifico.</p>
+                <div style="font-size:12px;font-weight:700;color:var(--grey);letter-spacing:.06em;text-transform:uppercase;margin:16px 0 10px;padding-bottom:6px;border-bottom:2px solid #e8ecf7">Mappa Query — Query Mancanti e Opportunità</div>
+                <p>La sezione <strong>Query Mancanti e Opportunità</strong> analizza le query ancora scoperte e spiega, per ciascuna, cosa manca nel profilo hotel per farla apparire nelle risposte AI. Il bottone di analisi è disponibile una volta a settimana (ogni 7 giorni) per non sovraccaricare il sistema. I risultati mostrano le lacune specifiche da colmare — informazioni mancanti su Schema.org, servizi non descritti, dati non strutturati — in modo da intervenire dove ha più impatto.</p>
                 <div style="font-size:12px;font-weight:700;color:var(--grey);letter-spacing:.06em;text-transform:uppercase;margin:16px 0 10px;padding-bottom:6px;border-bottom:2px solid #e8ecf7">Google Search Console</div>
                 <p>Dal tab <strong>CONFIGURAZIONE</strong> puoi inserire il codice di verifica Google Search Console dell'hotel. Una volta salvato, il plugin lo inserisce automaticamente nel <code style="background:#f4f4f8;padding:1px 6px;border-radius:4px;font-size:13px">&lt;head&gt;</code> del sito come <code style="background:#f4f4f8;padding:1px 6px;border-radius:4px;font-size:13px">&lt;meta name="google-site-verification"&gt;</code>, senza toccare manualmente il codice del sito.</p>
                 <p>Il codice si trova in Google Search Console → Impostazioni → Verifica proprietà → seleziona <strong>Tag HTML</strong> → copia il valore del campo <code>content</code>.</p>
@@ -1412,10 +1415,11 @@
                     <div style="background:#e4e4ec;border-radius:4px;height:6px;margin-bottom:16px;overflow:hidden"><div id="mc-bar" style="height:100%;background:#0D5F75;border-radius:4px;width:0%;transition:width .4s"></div></div>
                     <div style="display:flex;align-items:center;gap:16px">
                         <div style="font-size:40px;font-weight:800;color:#0D5F75;line-height:1" id="mc-score">—</div>
-                        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;flex:1">
+                        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;flex:1">
                             <div style="border:1.5px solid #0D5F75;border-radius:4px;padding:12px 14px;text-align:center"><div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">QUERY TOTALI</div><div style="font-size:24px;font-weight:800;color:#171b33;line-height:1" id="mc-total">—</div></div>
                             <div style="border:1px solid #e4e4ec;border-radius:4px;padding:12px 14px;text-align:center"><div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">COPERTE</div><div style="font-size:24px;font-weight:800;color:#0D5F75;line-height:1" id="mc-covered">—</div></div>
-                            <div style="border:1px solid #e4e4ec;border-radius:4px;padding:12px 14px;text-align:center"><div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">SCOPERTE</div><div style="font-size:24px;font-weight:800;color:#C1CBE8;line-height:1" id="mc-missing">—</div></div>
+                            <div style="border:1px solid #e4e4ec;border-radius:4px;padding:12px 14px;text-align:center"><div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">DA COPRIRE</div><div style="font-size:24px;font-weight:800;color:#C1CBE8;line-height:1" id="mc-missing">—</div></div>
+                            <div style="border:1px solid #e4e4ec;border-radius:4px;padding:12px 14px;text-align:center"><div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">NON RILEVANTI</div><div style="font-size:24px;font-weight:800;color:#9ca3af;line-height:1" id="mc-dismissed">—</div></div>
                         </div>
                     </div>
                 </div>
@@ -3247,6 +3251,8 @@
 
     // ─── MAPPA QUERY MANAGEMENT ──────────────────────────────────────────────────
     let _mappaInited = false;
+    let _mappaCurrentSite = null;
+    let _mappaCurrentPseData = null;
 
     // ── Intent Library — ~35 intent objects con query dinamiche per destinazione ──
 
@@ -3944,6 +3950,8 @@
         try { await _initMappaQueryMgmtInner(site, pseData, cont); } catch(e) { _mappaInited = false; cont.innerHTML = `<div style="padding:20px;color:#b00020;font-size:14px">Errore caricamento mappa: ${e.message}</div>`; }
     }
     async function _initMappaQueryMgmtInner(site, pseData, cont) {
+        _mappaCurrentSite = site;
+        _mappaCurrentPseData = pseData;
         const faqData = site?.faq_data || {};
         const qmap = faqData.query_map || faqData.mappa_query || {};
         // Indice domande FAQ esistenti per rilevare copertura automatica
@@ -3977,26 +3985,31 @@
             PRIORITY_ORDER[getPriorityForCategory(b, hotelFeatures, hotelQueries)]);
 
         // Calcola copertura complessiva
-        let totalQ = 0, coveredQ = 0;
+        let totalQ = 0, coveredQ = 0, dismissedQ = 0;
         cats.forEach(cat => {
             const qs = hotelQueries[cat] || [];
             const entry = qmap[cat] || {};
+            const dismissed = Array.isArray(entry.dismissed_queries) ? entry.dismissed_queries : [];
+            const activeQs = qs.filter(q => !dismissed.includes(q));
             const _storedCov = Array.isArray(entry.covered_queries) ? entry.covered_queries.filter(q => q.trim().endsWith('?')) : (entry.covered ? qs : []); const coveredSet = new Set([..._storedCov, ...qs.filter(q => faqQuestions.has(q.toLowerCase().trim()))]);
-            totalQ += qs.length;
-            coveredQ += qs.filter(q => coveredSet.has(q) || coveredSet.has(q.toLowerCase())).length;
+            totalQ += activeQs.length;
+            coveredQ += activeQs.filter(q => coveredSet.has(q) || coveredSet.has(q.toLowerCase())).length;
+            dismissedQ += dismissed.filter(q => qs.includes(q)).length;
         });
         const pct = totalQ > 0 ? Math.round(coveredQ / totalQ * 100) : 0;
 
-        const totalEl   = document.getElementById('mc-total');
-        const coveredEl = document.getElementById('mc-covered');
-        const missingEl = document.getElementById('mc-missing');
-        const scoreEl   = document.getElementById('mc-score');
-        const barEl     = document.getElementById('mc-bar');
-        if (totalEl)   totalEl.textContent   = totalQ;
-        if (coveredEl) coveredEl.textContent  = coveredQ;
-        if (missingEl) missingEl.textContent  = totalQ - coveredQ;
-        if (scoreEl)   scoreEl.textContent    = pct + '/100';
-        if (barEl)     barEl.style.width      = pct + '%';
+        const totalEl     = document.getElementById('mc-total');
+        const coveredEl   = document.getElementById('mc-covered');
+        const missingEl   = document.getElementById('mc-missing');
+        const dismissedEl = document.getElementById('mc-dismissed');
+        const scoreEl     = document.getElementById('mc-score');
+        const barEl       = document.getElementById('mc-bar');
+        if (totalEl)     totalEl.textContent     = totalQ;
+        if (coveredEl)   coveredEl.textContent   = coveredQ;
+        if (missingEl)   missingEl.textContent   = totalQ - coveredQ;
+        if (dismissedEl) dismissedEl.textContent = dismissedQ;
+        if (scoreEl)     scoreEl.textContent     = pct + '/100';
+        if (barEl)       barEl.style.width       = pct + '%';
 
         // ── Share of Voice ──────────────────────────────────────────────────────
         const sovEl = document.getElementById('sov-card');
@@ -4046,16 +4059,17 @@
             sovEl.style.display = 'block';
         }
 
-        // ── Reason Gap ──────────────────────────────────────────────────────────
+        // ── Query Mancanti e Opportunità ────────────────────────────────────────
         const rgEl = document.getElementById('reason-gap-card');
         if (rgEl) {
-            // Calcola query scoperte per il bottone
+            // Calcola query scoperte (escluse le non rilevanti) per il bottone
             const uncovered = [];
             cats.forEach(cat => {
                 const qs = hotelQueries[cat] || [];
                 const entry = qmap[cat] || {};
+                const dismissedInCat = Array.isArray(entry.dismissed_queries) ? entry.dismissed_queries : [];
                 const _storedCov = Array.isArray(entry.covered_queries) ? entry.covered_queries.filter(q => q.trim().endsWith('?')) : (entry.covered ? qs : []); const coveredSet = new Set([..._storedCov, ...qs.filter(q => faqQuestions.has(q.toLowerCase().trim()))]);
-                qs.forEach(q => { if (!coveredSet.has(q) && !coveredSet.has(q.toLowerCase())) uncovered.push({query: q, cat}); });
+                qs.forEach(q => { if (!dismissedInCat.includes(q) && !coveredSet.has(q) && !coveredSet.has(q.toLowerCase())) uncovered.push({query: q, cat}); });
             });
 
             // Controlla rate limit locale (1x settimana)
@@ -4096,7 +4110,7 @@
 
             rgEl.innerHTML = `<div class="card" style="border:1px solid #e4e4ec;box-shadow:none">
                 <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
-                    <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><div style="font-size:12px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Reason Gap</div><span class="tip-q" data-tip="Per ogni query scoperta, spiega cosa manca nel profilo per farla apparire nelle risposte AI." style="background:transparent;border:1px solid #aaa;color:#aaa;box-shadow:none">?</span></div>
+                    <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><div style="font-size:12px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Query Mancanti e Opportunità</div><span class="tip-q" data-tip="Per ogni query scoperta, spiega cosa manca nel profilo per farla apparire nelle risposte AI." style="background:transparent;border:1px solid #aaa;color:#aaa;box-shadow:none">?</span></div>
                     <div style="display:flex;align-items:center;gap:10px">
                         ${lastRunDate ? `<span style="font-size:12px;color:#666b84;font-family:var(--font)">Ultimo aggiornamento: ${lastRunDate}</span>` : ''}
                         ${hasResults ? `<button id="btn-rg-toggle" style="background:none;border:none;cursor:pointer;font-size:12px;color:#666b84;padding:0;font-family:var(--font)">▼ Nascondi</button>` : ''}
@@ -4190,6 +4204,9 @@
         const intentQueriesMap = generateIntentQueriesForHotel(site);
 
         const renderQueryRow = (q, cat, isCov, site) => {
+            const qEsc = escHtml(q).replace(/'/g,"\\'");
+            const catEsc = escHtml(cat);
+            const sidEsc = escHtml(site.site_id);
             return `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 20px;border-top:1px solid #f4f4f8">
                         <div style="display:flex;align-items:center;gap:10px;min-width:0">
                             <span style="font-size:15px;color:${isCov?'#0D5F75':'#C1CBE8'};font-weight:800;flex-shrink:0">${isCov?'✓':'✗'}</span>
@@ -4197,8 +4214,9 @@
                         </div>
                         <div style="display:flex;align-items:center;gap:6px;margin-left:12px;flex-shrink:0">
                             ${isCov ? `<span style="font-size:12px;color:#0D5F75;font-weight:700;white-space:nowrap">Coperta ✓</span>` : ''}
-                            <button class="btn-update" style="padding:5px 12px;font-size:12px" onclick="generaRispostaQuery(this,'${escHtml(cat)}','${escHtml(q).replace(/'/g,"\\'")}','${escHtml(site.site_id)}')">✦ Genera risposta</button>
-                            <button class="btn-ping" style="padding:5px 10px;font-size:12px" onclick="apriModaleFaqManuale('${escHtml(q).replace(/'/g,"\\'")}')">✎ Scrivi</button>
+                            <button class="btn-update" style="padding:5px 12px;font-size:12px" onclick="generaRispostaQuery(this,'${catEsc}','${qEsc}','${sidEsc}')">✦ Genera risposta</button>
+                            <button class="btn-ping" style="padding:5px 10px;font-size:12px" onclick="apriModaleFaqManuale('${qEsc}')">✎ Scrivi</button>
+                            <button style="padding:5px 10px;font-size:11px;font-weight:600;background:white;border:1px solid #e4e4ec;border-radius:8px;cursor:pointer;color:#9ca3af;font-family:var(--font);white-space:nowrap" onclick="dismissQuery(this,'${catEsc}','${qEsc}','${sidEsc}')">✕ Non rilevante</button>
                         </div>
                     </div>`;
         };
@@ -4208,8 +4226,11 @@
             const prio  = getPriorityForCategory(cat, hotelFeatures, hotelQueries);
             const qs    = hotelQueries[cat] || [];
             const entry = qmap[cat] || {};
+            const dismissedArr = Array.isArray(entry.dismissed_queries) ? entry.dismissed_queries : [];
+            const dismissedSet = new Set(dismissedArr);
+            const activeQs = qs.filter(q => !dismissedSet.has(q));
             const _storedCov = Array.isArray(entry.covered_queries) ? entry.covered_queries.filter(q => q.trim().endsWith('?')) : (entry.covered ? qs : []); const coveredSet = new Set([..._storedCov, ...qs.filter(q => faqQuestions.has(q.toLowerCase().trim()))]);
-            const covQ = qs.filter(q => coveredSet.has(q) || coveredSet.has(q.toLowerCase())).length;
+            const covQ = activeQs.filter(q => coveredSet.has(q) || coveredSet.has(q.toLowerCase())).length;
             const dotColor = prio === 'alta' ? '#0D5F75' : prio === 'media' ? '#666b84' : '#9ca3af';
 
             const catIntents = intentQueriesMap[cat] || [];
@@ -4217,8 +4238,10 @@
 
             if (catIntents.length > 0) {
                 catIntents.forEach((item, idx) => {
+                    const activeIntentQs = item.queries.filter(q => !dismissedSet.has(q));
+                    if (!activeIntentQs.length) return;
                     const subHeader = `<div style="font-size:11px;font-weight:700;color:#666b84;text-transform:uppercase;padding:8px 20px 4px${idx > 0 ? ';border-top:1px solid #ececf2' : ''}">` + escHtml(item.intent.label) + '</div>';
-                    const rows = item.queries.map(q => {
+                    const rows = activeIntentQs.map(q => {
                         const isCov = coveredSet.has(q) || coveredSet.has(q.toLowerCase());
                         return renderQueryRow(q, cat, isCov, site);
                     }).join('');
@@ -4226,7 +4249,7 @@
                 });
                 // Query in hotelQueries[cat] non coperte dagli intenti (fallback)
                 const intentQs = new Set(catIntents.flatMap(i => i.queries));
-                const extraQs = qs.filter(q => !intentQs.has(q));
+                const extraQs = activeQs.filter(q => !intentQs.has(q));
                 if (extraQs.length) {
                     bodyHtml += extraQs.map(q => {
                         const isCov = coveredSet.has(q) || coveredSet.has(q.toLowerCase());
@@ -4234,18 +4257,40 @@
                     }).join('');
                 }
             } else {
-                bodyHtml = qs.map(q => {
+                bodyHtml = activeQs.map(q => {
                     const isCov = coveredSet.has(q) || coveredSet.has(q.toLowerCase());
                     return renderQueryRow(q, cat, isCov, site);
                 }).join('');
             }
 
+            // Sezione "Non rilevanti" collassabile in fondo alla categoria
+            let dismissedHtml = '';
+            if (dismissedArr.length > 0) {
+                const dismissedId = 'dism-' + cat.replace(/[^a-z0-9]/gi, '_');
+                const dismissedRows = dismissedArr.map(q => {
+                    const qEsc = escHtml(q).replace(/'/g,"\\'");
+                    const catEsc = escHtml(cat);
+                    const sidEsc = escHtml(site.site_id);
+                    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 20px;border-top:1px solid #f4f4f8">
+                        <div style="display:flex;align-items:center;gap:10px;min-width:0">
+                            <span style="font-size:13px;color:#9ca3af;font-weight:700;flex-shrink:0">—</span>
+                            <span style="font-size:13px;color:#9ca3af;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-decoration:line-through">${escHtml(q)}</span>
+                        </div>
+                        <button style="padding:5px 10px;font-size:11px;font-weight:600;background:white;border:1px solid #e4e4ec;border-radius:8px;cursor:pointer;color:#0D5F75;font-family:var(--font);white-space:nowrap;flex-shrink:0;margin-left:12px" onclick="restoreQuery(this,'${catEsc}','${qEsc}','${sidEsc}')">↩ Ripristina</button>
+                    </div>`;
+                }).join('');
+                dismissedHtml = `<div style="border-top:1px solid #ececf2">
+                    <button onclick="var c=document.getElementById('${dismissedId}');var open=c.style.display!=='none';c.style.display=open?'none':'block';this.textContent=open?'▸ Mostra ${dismissedArr.length} non rilevant${dismissedArr.length===1?'e':'i'}':'▴ Nascondi non rilevanti';" style="width:100%;text-align:left;background:#fafafa;border:none;padding:8px 20px;font-size:11px;font-weight:600;color:#9ca3af;cursor:pointer;font-family:var(--font)">▸ Mostra ${dismissedArr.length} non rilevant${dismissedArr.length===1?'e':'i'}</button>
+                    <div id="${dismissedId}" style="display:none">${dismissedRows}</div>
+                </div>`;
+            }
+
             return `<div class="card" style="margin-bottom:12px;border:1px solid #e4e4ec;box-shadow:none${prio==='non_rilevante'?';opacity:.45':''}">
                 <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
                     <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:${dotColor};display:inline-block;flex-shrink:0"></span><div style="font-size:12px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">${escHtml(label)}</div>${PRIORITY_BADGE[prio]}</div>
-                    <span style="background:white;border:1px solid #e4e4ec;border-radius:20px;font-size:10px;font-weight:700;color:#666b84;padding:3px 10px;white-space:nowrap">${covQ}/${qs.length} COPERTE</span>
+                    <span style="background:white;border:1px solid #e4e4ec;border-radius:20px;font-size:10px;font-weight:700;color:#666b84;padding:3px 10px;white-space:nowrap">${covQ}/${activeQs.length} COPERTE</span>
                 </div>
-                ${bodyHtml}
+                ${bodyHtml}${dismissedHtml}
             </div>`;
         };
 
@@ -4394,6 +4439,41 @@
                 : '⚠️ Generazione AI non riuscita (' + e.message + '). Scrivi la risposta manualmente.';
             apriModaleFaqManuale(query, aiAnswer, errMsg);
         }
+    };
+
+    window.dismissQuery = async function(btn, cat, query, siteId) {
+        btn.disabled = true;
+        btn.textContent = '...';
+        try {
+            const { data: fresh } = await _SBq.from('isi_sites').select('faq_data').eq('site_id', siteId).single();
+            const faq = fresh?.faq_data || _mappaCurrentSite?.faq_data || {};
+            const qm = faq.query_map || {};
+            const entry = qm[cat] || {};
+            const dismissed = Array.isArray(entry.dismissed_queries) ? [...entry.dismissed_queries] : [];
+            if (!dismissed.includes(query)) dismissed.push(query);
+            const newFaq = { ...faq, query_map: { ...qm, [cat]: { ...entry, dismissed_queries: dismissed } } };
+            await _SBq.from('isi_sites').update({ faq_data: newFaq }).eq('site_id', siteId);
+            if (_mappaCurrentSite) _mappaCurrentSite.faq_data = newFaq;
+            _mappaInited = false;
+            if (_mappaCurrentSite) await initMappaQueryMgmt(_mappaCurrentSite, _mappaCurrentPseData);
+        } catch(e) { btn.textContent = '✕ Non rilevante'; btn.disabled = false; }
+    };
+
+    window.restoreQuery = async function(btn, cat, query, siteId) {
+        btn.disabled = true;
+        btn.textContent = '...';
+        try {
+            const { data: fresh } = await _SBq.from('isi_sites').select('faq_data').eq('site_id', siteId).single();
+            const faq = fresh?.faq_data || _mappaCurrentSite?.faq_data || {};
+            const qm = faq.query_map || {};
+            const entry = qm[cat] || {};
+            const dismissed = (Array.isArray(entry.dismissed_queries) ? entry.dismissed_queries : []).filter(q => q !== query);
+            const newFaq = { ...faq, query_map: { ...qm, [cat]: { ...entry, dismissed_queries: dismissed } } };
+            await _SBq.from('isi_sites').update({ faq_data: newFaq }).eq('site_id', siteId);
+            if (_mappaCurrentSite) _mappaCurrentSite.faq_data = newFaq;
+            _mappaInited = false;
+            if (_mappaCurrentSite) await initMappaQueryMgmt(_mappaCurrentSite, _mappaCurrentPseData);
+        } catch(e) { btn.textContent = '↩ Ripristina'; btn.disabled = false; }
     };
 
     window.apriModaleFaqManuale = function(query, prefillAnswer, errorMsg) {
