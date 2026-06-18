@@ -1597,15 +1597,6 @@
             allSecs.forEach(s => { const p = document.getElementById('scontent-'+s); if(p) p.style.display='none'; });
             const _gkb = document.getElementById('geo-kpi-banner');
             if (_gkb) _gkb.style.display = sec === 'overview' ? 'block' : 'none';
-            const _lg = document.getElementById('detail-layout-grid');
-            const _sb = document.getElementById('detail-sidebar');
-            if (sec === 'schema') {
-                if (_lg) _lg.style.gridTemplateColumns = '1fr';
-                if (_sb) _sb.style.display = 'none';
-            } else {
-                if (_lg) _lg.style.gridTemplateColumns = '260px 1fr';
-                if (_sb) _sb.style.display = '';
-            }
             const pane = document.getElementById('scontent-'+sec);
             if (pane) pane.style.display = 'block';
             el.querySelectorAll('.stato-sezione-row').forEach(r => {
