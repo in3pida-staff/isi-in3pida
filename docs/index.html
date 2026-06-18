@@ -198,8 +198,8 @@
                 <p>L'AI Layer raccoglie e organizza le informazioni del tuo hotel in un formato facilmente interpretabile dalle AI. È il punto di accesso che consente ai modelli di comprendere rapidamente contenuti, servizi e caratteristiche della struttura. Mantenerlo attivo è fondamentale per una corretta visibilità nelle intelligenze artificiali.</p>
                 <div style="font-size:12px;font-weight:700;color:var(--grey);letter-spacing:.06em;text-transform:uppercase;margin:16px 0 10px;padding-bottom:6px;border-bottom:2px solid #e8ecf7">Configurazione</div>
                 <p>La configurazione collega il sito del tuo hotel alla piattaforma Eletta. Una volta completata, permette di attivare il monitoraggio, aggiornare i dati e raccogliere informazioni utili per migliorare la presenza nelle AI.</p>
-                <div style="font-size:12px;font-weight:700;color:var(--grey);letter-spacing:.06em;text-transform:uppercase;margin:16px 0 10px;padding-bottom:6px;border-bottom:2px solid #e8ecf7">Statistiche PSE</div>
-                <p>Le statistiche (PSE: prompt search engine) mostrano come evolve la visibilità del tuo hotel nelle intelligenze artificiali nel tempo. Puoi monitorare citazioni, copertura delle query e andamento delle ottimizzazioni, verificando l'efficacia delle attività svolte sulla piattaforma.</p>
+                <div style="font-size:12px;font-weight:700;color:var(--grey);letter-spacing:.06em;text-transform:uppercase;margin:16px 0 10px;padding-bottom:6px;border-bottom:2px solid #e8ecf7">Simulatore</div>
+                <p>Il Simulatore permette di testare come le intelligenze artificiali rispondono a domande specifiche sull'hotel. Inserisci una domanda come la farebbe un utente e il sistema verifica se il tuo hotel viene citato nella risposta. Usa questo strumento per capire la visibilità AI del tuo hotel su query specifiche e identificare aree di miglioramento.</p>
                 <div style="font-size:12px;font-weight:700;color:var(--grey);letter-spacing:.06em;text-transform:uppercase;margin:16px 0 10px;padding-bottom:6px;border-bottom:2px solid #e8ecf7">Installazione — Script JS</div>
                 <p>Se il sito non è WordPress, puoi usare lo <strong>Script JS</strong> al posto del plugin. Dalla Panoramica clicca <strong>+ Aggiungi sito</strong>, inserisci il nome dell'hotel e l'URL, poi clicca <strong>Crea sito</strong>. Trovi lo script nella scheda hotel → tab <strong>CONFIGURAZIONE</strong>.</p>
                 <p>Incolla lo script nel <code style="background:#f4f4f8;padding:1px 6px;border-radius:4px;font-size:13px">&lt;head&gt;</code> di ogni pagina del sito, prima del tag <code style="background:#f4f4f8;padding:1px 6px;border-radius:4px;font-size:13px">&lt;/head&gt;</code>. Una volta inserito, lo script si connette automaticamente a Eletta e invia il primo segnale entro pochi secondi. La card <strong>Stato Connessione</strong> diventerà verde.</p>
@@ -875,8 +875,24 @@
         const geo = site?.geo_scores || {};
         const rawFallbackD = [geo.chunk_avg, geo.citation_avg].filter(s=>s!=null && s>0);
         const geoAvg = geo.ai_readiness != null ? geo.ai_readiness : (geo.completeness_score != null ? geo.completeness_score : (rawFallbackD.length ? Math.round(rawFallbackD.reduce((a,b)=>a+b,0)/rawFallbackD.length) : null));
-        const cs = geo.completeness_score ?? null;
-        const checklist = geo.checklist || [];
+        const _sd = site?.schema_data || {};
+        const _hp = site?.hotel_profile || {};
+        const _profileChecks = [
+            ['Nome hotel',     _sd.name || _hp.nome_hotel || _hp.nome],
+            ['Descrizione',    _sd.description || _hp.descrizione],
+            ['Telefono',       _sd.telephone || _hp.telefono],
+            ['Email',          _sd.email || _hp.email],
+            ['Città',          _sd.city || _hp.citta || _hp.localita || _hp.destinazione],
+            ['Indirizzo',      _sd.street || _hp.indirizzo || _hp.via],
+            ['Stelle',         _sd.official_rating || _hp.stelle],
+            ['Check-in',       _sd.checkin_time || _hp.checkin_dalle],
+            ['Check-out',      _sd.checkout_time || _hp.checkout_dalle],
+            ['Coordinate GPS', (_sd.latitude || _hp.latitudine) ? 'ok' : null],
+            ['Tipo struttura', _sd.type || _hp.tipo_struttura || _hp.tipo],
+            ['FAQ pubblicate', ((_hp.faq_data?.items || site?.faq_data?.items || []).filter(i => i.status === 'publish' || i.status === 'published').length > 0) ? 'ok' : null],
+        ];
+        const checklist = _profileChecks.filter(([,v]) => !v).map(([k]) => k);
+        const cs = Math.round(_profileChecks.filter(([,v]) => !!v).length / _profileChecks.length * 100);
         const covPct = geo.coverage_pct ?? null;
         const missingAnswers = geo.missing_answers ?? null;
         const missingQueries = geo.missing_queries || [];
@@ -931,12 +947,12 @@
                         ${[
                             {k:'overview', l:'PANORAMICA',         v:'Semafori e punteggi'},
                             {k:'faq',      l:'FAQ',                v: covPct!==null?(covPct+'% coperto'):'1 pubblicata'},
-                            {k:'schema',   l:'SCHEMA.ORG',         v: daysSchema===null?'Non aggiornato':(daysSchema+' giorni fa')},
+                            {k:'schema',   l:'SCHEMA.ORG',         v: (Object.keys(site?.schema_data||{}).filter(k=>site.schema_data[k]).length ? (daysSchema!==null?daysSchema+' giorni fa':'Dati inseriti') : 'Non aggiornato')},
                             {k:'mappa',    l:'MAPPA QUERY',        v: qMapPct!==null?(qMapPct+'% coperto'):'Nessun dato'},
                             {k:'coerenza', l:'COERENZA',           v:'Confronta canali'},
                             {k:'ai_layer', l:'AI LAYER',           v: geo.has_ai_profile===true?'Attivo':'Non attivo'},
-                            {k:'pse',      l:'STATISTICHE PSE',    v:(pseData?.length||0)+' query registrate'},
-                            {k:'dati_sito', l:'DATI SITO',          v: (site?.hotel_profile?.isi_config?.gsc_email ? 'GSC collegata' : 'Segnali sito')},
+                            {k:'pse',      l:'SIMULATORE',         v:(pseData?.length||0)+' query registrate'},
+                            {k:'dati_sito', l:'ANALISI SEO GOOGLE', v: (site?.hotel_profile?.isi_config?.gsc_email ? 'GSC collegata' : 'Segnali sito')},
                             {k:'config',   l:'CONFIGURAZIONE',     v:'Chiavi e abilitazioni'},
                         ].map(({k,l,v},i)=>{
                             const isAct=i===0;
@@ -953,12 +969,12 @@
 
                 <!-- COLONNA DESTRA: KPI + content pane (cambia in base alla selezione sidebar) -->
                 <div>
-                <div class="card" style="margin-bottom:20px;border:1px solid #e4e4ec;box-shadow:none">
+                <div id="geo-kpi-banner" class="card" style="margin-bottom:20px;border:1px solid #e4e4ec;box-shadow:none">
                     <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
                         <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><div style="font-size:12px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">PANORAMICA GEO SCORE</div></div>
                     </div>
                     <div style="padding:16px 20px">
-                        <div style="display:grid;grid-template-columns:1fr 3fr;gap:12px">
+                        <div style="display:grid;grid-template-columns:minmax(160px,1fr) minmax(0,3fr);gap:12px">
                             <div style="background:white;border:1px solid #e4e4ec;border-radius:4px;overflow:hidden">
                                 <div style="padding:12px 14px 2px;display:flex;align-items:center;gap:4px;font-size:12px;font-weight:600;color:#4a4a6a;text-transform:uppercase;letter-spacing:.05em">GEO SCORE <span class='tip-q' data-tip='Punteggio complessivo di ottimizzazione per AI. ≥70 ottimizzato, 40–69 da migliorare, &lt;40 critico.'>?</span></div>
                                 ${(()=>{
@@ -1476,7 +1492,7 @@
             <div class="card" style="border:1px solid #e4e4ec;box-shadow:none;margin:0;margin-bottom:20px">
                 <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><div style="font-size:12px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Simula una query PSE</div></div></div>
                 <div style="padding:20px 24px">
-                    <div style="font-size:13px;color:#666b84;margin-bottom:14px;line-height:1.5">Inserisci una domanda come la farebbe un utente a ChatGPT o Google AI. Il sistema analizza se questo hotel verrebbe citato nella risposta, usando sia Groq che Gemini.</div>
+                    <div style="font-size:13px;color:#666b84;margin-bottom:14px;line-height:1.5">Inserisci una domanda come la farebbe un utente a ChatGPT o Google AI. Il sistema analizza se il tuo hotel viene citato nella risposta.</div>
                     <div style="display:flex;gap:10px">
                         <input type="text" id="pse-query-input" placeholder='es. "migliore hotel con piscina a Roma"' style="flex:1;border:1px solid #d1d5db;border-radius:6px;padding:9px 12px;font-size:14px;color:#171b33;font-family:var(--font);outline:none">
                         <button id="pse-run-btn" class="btn-update" style="white-space:nowrap;padding:9px 20px">✦ Analizza</button>
@@ -1573,6 +1589,8 @@
             if (!row) return;
             const sec = row.getAttribute('data-sec');
             allSecs.forEach(s => { const p = document.getElementById('scontent-'+s); if(p) p.style.display='none'; });
+            const _gkb = document.getElementById('geo-kpi-banner');
+            if (_gkb) _gkb.style.display = sec === 'overview' ? 'block' : 'none';
             const pane = document.getElementById('scontent-'+sec);
             if (pane) pane.style.display = 'block';
             el.querySelectorAll('.stato-sezione-row').forEach(r => {
@@ -5463,8 +5481,8 @@ ${rows}
         let html = '';
 
         if (cfg.gsc_email && cfg.gsc_site && cfg.gsc_token) {
-            html += cardH('#0D5F75', 'Google Search Console') +
-                '<div style="padding:16px 20px" id="dati-gsc-container"><div style="font-size:13px;color:#666b84">Caricamento dati GSC...</div></div></div>';
+            html += cardH('#0D5F75', 'Analisi SEO Google') +
+                '<div id="dati-gsc-container" style="padding:0"><div style="padding:16px 20px;font-size:13px;color:#666b84">Caricamento dati GSC...</div></div></div>';
         }
 
         const gscSignals = site?.gsc_signals;
@@ -5521,43 +5539,75 @@ ${rows}
 
         if (cfg.gsc_email && cfg.gsc_site && cfg.gsc_token) {
             const datiGscCont = document.getElementById('dati-gsc-container');
-            const endDate = new Date().toISOString().slice(0,10);
-            const startDate = new Date(Date.now() - 28*86400000).toISOString().slice(0,10);
-            const tokenAgeSec = cfg.gsc_token_ts ? (Date.now() - cfg.gsc_token_ts) / 1000 : Infinity;
+            // Leggi token da localStorage se più recente di quello in DB (fallback se Supabase UPDATE fallisce)
+            let _activeToken = cfg.gsc_token;
+            let _activeTokenTs = cfg.gsc_token_ts || 0;
+            try {
+                const _ls = JSON.parse(localStorage.getItem('isi_gsc_tok_' + site.site_id) || 'null');
+                if (_ls && _ls.ts && _ls.ts > _activeTokenTs) { _activeToken = _ls.token; _activeTokenTs = _ls.ts; }
+            } catch {}
+            const tokenAgeSec = _activeTokenTs ? (Date.now() - _activeTokenTs) / 1000 : Infinity;
+            let _gscActiveDays = 28;
 
-            function _renderGscRows(rows) {
-                if (!datiGscCont) return;
-                if (!rows.length) { datiGscCont.innerHTML = '<div style="font-size:13px;color:#9ca3af">Nessun dato disponibile negli ultimi 28 giorni.</div>'; return; }
-                datiGscCont.innerHTML =
-                    `<div style="font-size:12px;font-weight:700;color:#666b84;margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em">Top query (ultimi 28 gg)</div>` +
-                    `<table style="width:100%;border-collapse:collapse;font-size:12px">` +
-                    `<tr style="color:#9ca3af;border-bottom:1px solid #f0f0f5"><td style="padding:4px 8px 4px 0">Query</td><td style="padding:4px 8px;text-align:right">Click</td><td style="padding:4px 8px;text-align:right">Impr.</td><td style="padding:4px 8px;text-align:right">CTR</td><td style="padding:4px 0;text-align:right">Pos.</td></tr>` +
-                    rows.map(row => `<tr style="border-bottom:1px solid #f4f4f8"><td style="padding:5px 8px 5px 0;color:#171b33;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(row.keys[0])}</td><td style="padding:5px 8px;text-align:right;color:#0D5F75;font-weight:600">${row.clicks}</td><td style="padding:5px 8px;text-align:right;color:#666b84">${row.impressions}</td><td style="padding:5px 8px;text-align:right;color:#666b84">${(row.ctr*100).toFixed(1)}%</td><td style="padding:5px 0;text-align:right;color:#666b84">${row.position.toFixed(1)}</td></tr>`).join('') +
-                    '</table>';
+            function _gscDateRange(days) {
+                const end = new Date();
+                const start = days >= 9999 ? new Date(end.getTime() - 16*30*86400000) : new Date(end.getTime() - days*86400000);
+                return { startDate: start.toISOString().slice(0,10), endDate: end.toISOString().slice(0,10) };
             }
 
-            async function _fetchGscRows(token) {
-                const r = await fetch(`https://searchconsole.googleapis.com/webmasters/v3/sites/${encodeURIComponent(cfg.gsc_site)}/searchAnalytics/query`, {
-                    method: 'POST',
-                    headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ startDate, endDate, dimensions: ['query'], rowLimit: 10, startRow: 0 })
+            async function _fetchGscData(token, days) {
+                const { startDate, endDate } = _gscDateRange(days);
+                const base = `https://searchconsole.googleapis.com/webmasters/v3/sites/${encodeURIComponent(cfg.gsc_site)}/searchAnalytics/query`;
+                const headers = { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' };
+                const [qRes, pRes, totRes] = await Promise.all([
+                    fetch(base, { method:'POST', headers, body: JSON.stringify({ startDate, endDate, dimensions:['query'], rowLimit:10 }) }),
+                    fetch(base, { method:'POST', headers, body: JSON.stringify({ startDate, endDate, dimensions:['page'], rowLimit:10 }) }),
+                    fetch(base, { method:'POST', headers, body: JSON.stringify({ startDate, endDate, dimensions:[], rowLimit:1 }) }),
+                ]);
+                if (!qRes.ok) throw new Error('token_expired_' + qRes.status);
+                const [qj, pj, tj] = await Promise.all([qRes.json(), pRes.json(), totRes.json()]);
+                const totRow = tj.rows?.[0] || {};
+                return {
+                    queries: qj.rows || [],
+                    pages: pj.rows || [],
+                    totals: { clicks: totRow.clicks||0, impressions: totRow.impressions||0, ctr: totRow.ctr||0, position: totRow.position||0 }
+                };
+            }
+
+            function _renderGscFull(data) {
+                if (!datiGscCont) return;
+                const { queries: qRows = [], pages: pRows = [], totals = {} } = data;
+                const fmt = n => n >= 1000 ? (n/1000).toFixed(1)+'K' : String(n);
+                const bx = (label, value, sub) => `<div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:14px 16px;text-align:center"><div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">${label}</div><div style="font-size:28px;font-weight:800;color:#171b33;line-height:1">${value}</div><div style="font-size:11px;color:#666b84;margin-top:4px">${sub}</div></div>`;
+                const tbl = (rows, col1) => `<table style="width:100%;border-collapse:collapse;font-size:12px"><tr style="color:#9ca3af;border-bottom:1px solid #f0f0f5"><td style="padding:4px 8px 4px 0">${col1}</td><td style="padding:4px 8px;text-align:right">Click</td><td style="padding:4px 8px;text-align:right">Impr.</td><td style="padding:4px 8px;text-align:right">CTR</td><td style="padding:4px 0;text-align:right">Pos.</td></tr>${rows.map(r=>`<tr style="border-bottom:1px solid #f4f4f8"><td style="padding:5px 8px 5px 0;color:#171b33;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(r.keys[0])}</td><td style="padding:5px 8px;text-align:right;color:#0D5F75;font-weight:600">${r.clicks}</td><td style="padding:5px 8px;text-align:right;color:#666b84">${r.impressions}</td><td style="padding:5px 8px;text-align:right;color:#666b84">${(r.ctr*100).toFixed(1)}%</td><td style="padding:5px 0;text-align:right;color:#666b84">${r.position.toFixed(1)}</td></tr>`).join('')}</table>`;
+                const rangeLabel = _gscActiveDays===28?'ultimi 28 gg':_gscActiveDays===180?'ultimi 6 mesi':'tutti i dati';
+                datiGscCont.innerHTML =
+                    `<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px 8px;border-bottom:1px solid #f4f4f8">` +
+                    `<div style="font-size:11px;color:#666b84">Dati GSC — ${rangeLabel}</div>` +
+                    `<div style="display:flex;gap:14px">${[{d:28,l:'1M'},{d:180,l:'6M'},{d:9999,l:'Sempre'}].map(r=>`<span class="gsc-range-btn" data-days="${r.d}" style="font-size:12px;font-weight:700;cursor:pointer;${_gscActiveDays===r.d?'color:#0D5F75;border-bottom:2px solid #0D5F75;padding-bottom:2px':'color:#9ca3af'}">${r.l}</span>`).join('')}</div>` +
+                    `</div>` +
+                    `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:14px 20px">${bx('CLICK TOTALI',fmt(totals.clicks||0),'clic organici')}${bx('IMPRESSION TOTALI',fmt(totals.impressions||0),'visualizzazioni')}${bx('CTR MEDIO',totals.impressions?((totals.ctr||0)*100).toFixed(1)+'%':'—','click-through rate')}${bx('POSIZIONE MEDIA',totals.impressions?(totals.position||0).toFixed(1):'—','posizione media SERP')}</div>` +
+                    (qRows.length ? `<div style="padding:0 20px 14px"><div style="font-size:11px;font-weight:700;color:#666b84;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">TOP QUERY</div>${tbl(qRows,'Query')}</div>` : '') +
+                    (pRows.length ? `<div style="padding:0 20px 14px;border-top:1px solid #f4f4f8"><div style="font-size:11px;font-weight:700;color:#666b84;text-transform:uppercase;letter-spacing:.05em;margin:14px 0 8px">TOP PAGINE</div>${tbl(pRows,'Pagina')}</div>` : '');
+                datiGscCont.querySelectorAll('.gsc-range-btn').forEach(btn => {
+                    btn.addEventListener('click', () => { _gscActiveDays = parseInt(btn.dataset.days); _loadGscData(); });
                 });
-                if (!r.ok) throw new Error('token_expired_' + r.status);
-                return (await r.json()).rows || [];
             }
 
             async function _saveToken(token) {
+                const now = Date.now();
+                _activeToken = token; _activeTokenTs = now;
+                // Salva sempre in localStorage — funziona anche se Supabase fallisce
+                try { localStorage.setItem('isi_gsc_tok_' + site.site_id, JSON.stringify({ token, ts: now })); } catch {}
                 try {
                     const { data: fresh } = await _SBq.from('isi_sites').select('hotel_profile').eq('site_id', site.site_id).single();
                     const hp = fresh?.hotel_profile || site?.hotel_profile || {};
-                    const nc = { ...(hp.isi_config || {}), gsc_token: token, gsc_token_ts: Date.now() };
+                    const nc = { ...(hp.isi_config || {}), gsc_token: token, gsc_token_ts: now };
                     await _SBq.from('isi_sites').update({ hotel_profile: { ...hp, isi_config: nc } }).eq('site_id', site.site_id);
-                    if (site?.hotel_profile?.isi_config) { site.hotel_profile.isi_config.gsc_token = token; site.hotel_profile.isi_config.gsc_token_ts = Date.now(); }
-                } catch { /* salvataggio fallito — ok, token in memoria */ }
+                    if (site?.hotel_profile?.isi_config) { site.hotel_profile.isi_config.gsc_token = token; site.hotel_profile.isi_config.gsc_token_ts = now; }
+                } catch { /* Supabase fallito — token già in localStorage */ }
             }
 
-            // Rinnovo silenzioso — nessuna UI, nessuna pagina che cambia
-            // Funziona se la sessione Google nel browser è ancora attiva (di solito giorni/settimane)
             function _silentRefresh() {
                 const clientId = localStorage.getItem('isi_gsc_client_id');
                 if (!clientId || !window.google?.accounts?.oauth2) return Promise.reject(new Error('no_gis'));
@@ -5572,7 +5622,7 @@ ${rows}
                             await _saveToken(resp.access_token);
                             resolve(resp.access_token);
                         }
-                    }).requestAccessToken({ prompt: 'none' }); // nessuna UI garantita
+                    }).requestAccessToken({ prompt: 'none' });
                 });
             }
 
@@ -5580,7 +5630,7 @@ ${rows}
                 if (!datiGscCont) return;
                 const clientId = localStorage.getItem('isi_gsc_client_id');
                 datiGscCont.innerHTML =
-                    '<div style="display:flex;align-items:center;gap:12px;padding:4px 0">' +
+                    '<div style="display:flex;align-items:center;gap:12px;padding:16px 20px">' +
                     '<span style="font-size:13px;color:#666b84">Aggiorna la sessione Google per vedere i dati.</span>' +
                     '<button id="btn-gsc-reconnect" style="background:#0D5F75;color:white;border:none;border-radius:6px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font)">Riconnetti Google</button>' +
                     '</div>';
@@ -5595,7 +5645,7 @@ ${rows}
                         callback: async function(resp) {
                             if (resp.error) { btn.textContent = 'Riprova'; btn.disabled = false; return; }
                             await _saveToken(resp.access_token);
-                            _fetchGscRows(resp.access_token).then(_renderGscRows).catch(() => { btn.textContent = 'Riprova'; btn.disabled = false; });
+                            _loadGscData();
                         }
                     }).requestAccessToken({ prompt: 'select_account' });
                     setTimeout(() => { if (btn.disabled) { btn.textContent = 'Riprova'; btn.disabled = false; } }, 20000);
@@ -5603,21 +5653,26 @@ ${rows}
             }
 
             async function _loadGscData() {
-                if (tokenAgeSec < 3000) {
-                    // Token fresco (< 50 min): usa direttamente, sicuro al 100%
-                    return await _fetchGscRows(cfg.gsc_token);
+                if (datiGscCont) datiGscCont.innerHTML = '<div style="padding:16px 20px;font-size:13px;color:#666b84">Caricamento...</div>';
+                let token = _activeToken;
+                // Se il token è vecchio o mancante, prova silent refresh prima di mostrare l'errore
+                if (tokenAgeSec >= 3000) {
+                    try { token = await _silentRefresh(); } catch { /* usa token esistente */ }
                 }
-                // Token vecchio o senza timestamp: prova rinnovo silenzioso prima
                 try {
-                    const freshToken = await _silentRefresh();
-                    return await _fetchGscRows(freshToken);
-                } catch {
-                    // Silent fallito (sessione Google scaduta): prova comunque il token esistente
-                    return await _fetchGscRows(cfg.gsc_token);
+                    const data = await _fetchGscData(token, _gscActiveDays);
+                    _renderGscFull(data);
+                } catch(e) {
+                    if (e.message?.includes('token_expired')) {
+                        // Ultima chance: silent refresh anche se token sembrava fresco
+                        try { token = await _silentRefresh(); const data = await _fetchGscData(token, _gscActiveDays); _renderGscFull(data); return; } catch {}
+                        _showReconnectBtn();
+                    }
+                    else if (datiGscCont) datiGscCont.innerHTML = '<div style="padding:16px 20px;font-size:13px;color:#666b84">Errore nel caricamento dati GSC.</div>';
                 }
             }
 
-            _loadGscData().then(_renderGscRows).catch(_showReconnectBtn);
+            _loadGscData();
         }
     }
 
