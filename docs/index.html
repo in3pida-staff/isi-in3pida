@@ -1726,6 +1726,7 @@
                   .map(a => '<span style="background:#e8ecf7;border:1px solid #C1CBE8;color:#0D5F75;font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px">' + escHtml(a) + '</span>').join('') + '</div></div>'
             : '';
         document.getElementById('hotel-profile-view').innerHTML =
+            '<div style="padding:12px 20px">' +
             '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px">' +
             f('Nome', s.name) + f('Tipo struttura', s.type) + f('Stelle', s.official_rating ? s.official_rating + ' ★' : null) + '</div>' +
             (s.description ? '<div style="margin-bottom:14px;padding:12px 14px;background:#e8ecf7;border-radius:4px"><div style="font-size:10px;color:var(--grey);font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px">DESCRIZIONE</div><div style="font-size:14px;color:#35364f;line-height:1.6">' + escHtml(s.description) + '</div></div>' : '') +
@@ -1737,7 +1738,8 @@
             f('Prezzo', s.price_range) + f('Lingue', s.languages) + f('Latitudine', s.latitude) + f('Longitudine', s.longitude) + '</div>' +
             (s.keywords ? '<div style="margin-top:10px">' + f('Keywords SEO', s.keywords) + '</div>' : '') +
             (s.nearby_attractions ? '<div style="margin-top:10px">' + f('Attrazioni vicine', s.nearby_attractions) + '</div>' : '') +
-            amenitiesHtml;
+            amenitiesHtml +
+            '</div>';
     }
 
     function buildSchemaEditForm(s) {
@@ -1812,7 +1814,7 @@
             el.innerHTML = '<div style="padding:20px;color:var(--grey);font-size:14px">Nessun dato. Clicca ✏️ Modifica per inserire il profilo hotel.</div>';
             return;
         }
-        const secH = t => `<div style="background:#f4f4f8;padding:9px 20px;border-top:1px solid #e4e4ec;border-bottom:1px solid #e4e4ec;font-size:10px;font-weight:700;color:#4a4a6a;letter-spacing:.07em;text-transform:uppercase">${t}</div>`;
+        const secH = t => `<div style="padding:10px 20px 4px;font-size:10px;font-weight:700;color:#9ca3af;letter-spacing:.07em;text-transform:uppercase;border-top:1px solid #f0f0f5;margin-top:4px">${t}</div>`;
         const fld = (l,v) => !v ? '' : `<div><div style="font-size:10px;font-weight:400;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">${l}</div><div style="font-size:14px;font-weight:400;color:#171b33">${escHtml(String(v))}</div></div>`;
         const grd = (cols,...items) => `<div style="display:grid;grid-template-columns:${cols};gap:14px;padding:12px 20px">${items.join('')}</div>`;
         const tag = v => `<span style="background:white;border:1px solid #e4e4ec;color:#35364f;font-size:12px;font-weight:400;padding:3px 10px;border-radius:20px">${escHtml(v)}</span>`;
