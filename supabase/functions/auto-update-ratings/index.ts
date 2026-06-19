@@ -61,7 +61,8 @@ Deno.serve(async (req) => {
         if (r.n_recensioni) patch.booking_n_recensioni = r.n_recensioni
       }
 
-      if (Object.keys(patch).length === 0) { skipped++; continue }
+      // Salva sempre il timestamp dell'ultimo controllo
+      patch.ratings_last_check = new Date().toISOString()
 
       // Aggiorna hotel_profile con i nuovi valori
       const current = { ...hp, ...patch }

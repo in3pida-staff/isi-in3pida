@@ -2099,10 +2099,11 @@
             inp('booking_rating','Rating Booking', p.booking_rating,'') +
             inp('booking_n_recensioni','N° recensioni', p.booking_n_recensioni,'') + '</div>' +
 
-            '<div style="margin-bottom:16px;display:flex;align-items:center;gap:10px">' +
+            '<div style="margin-bottom:8px;display:flex;align-items:center;gap:10px">' +
             '<button type="button" id="btn-detect-ratings" onclick="_detectRatings()" style="background:none;border:1px solid #0D5F75;border-radius:6px;padding:7px 14px;font-size:13px;font-weight:700;color:#0D5F75;cursor:pointer;font-family:var(--font)">Rileva automaticamente</button>' +
             '<span id="detect-ratings-status" style="font-size:12px;color:#666b84"></span>' +
             '</div>' +
+            '<div id="ratings-last-check-label" style="font-size:11px;color:#666b84;margin-bottom:16px">' + (p.ratings_last_check ? 'Ultimo controllo: ' + new Date(p.ratings_last_check).toLocaleDateString('it-IT',{day:'2-digit',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '') + '</div>' +
 
             sec('SOCIAL E PROFILI ESTERNI') +
             '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">' +
@@ -2454,26 +2455,50 @@
             call(bkUrl, 'booking'),
         ]);
 
-        const fill = (id, val) => { const el = document.getElementById('pf-' + id); if (el && val) el.value = val; };
+        // Evidenzia in verde i campi aggiornati per 4 secondi
+        const fill = (id, val) => {
+            const el = document.getElementById('pf-' + id);
+            if (el && val) {
+                el.value = val;
+                el.style.border = '2px solid #0D5F75';
+                el.style.background = '#eaf4f7';
+                setTimeout(() => { el.style.border = ''; el.style.background = ''; }, 4000);
+            }
+        };
 
         let found = 0;
-        if (ta?.rating)        { fill('tripadvisor_rating', ta.rating); found++; }
-        if (ta?.n_recensioni)  { fill('tripadvisor_n_recensioni', ta.n_recensioni); found++; }
-        if (goog?.rating)      { fill('google_rating', goog.rating); found++; }
-        if (goog?.n_recensioni){ fill('google_n_recensioni', goog.n_recensioni); found++; }
-        if (bk?.rating)        { fill('booking_rating', bk.rating); found++; }
-        if (bk?.n_recensioni)  { fill('booking_n_recensioni', bk.n_recensioni); found++; }
+        const portaliAggiornati = [];
+        if (ta?.rating || ta?.n_recensioni) {
+            if (ta.rating)       { fill('tripadvisor_rating', ta.rating); found++; }
+            if (ta.n_recensioni) { fill('tripadvisor_n_recensioni', ta.n_recensioni); found++; }
+            portaliAggiornati.push('TripAdvisor');
+        }
+        if (goog?.rating || goog?.n_recensioni) {
+            if (goog.rating)       { fill('google_rating', goog.rating); found++; }
+            if (goog.n_recensioni) { fill('google_n_recensioni', goog.n_recensioni); found++; }
+            portaliAggiornati.push('Google');
+        }
+        if (bk?.rating || bk?.n_recensioni) {
+            if (bk.rating)       { fill('booking_rating', bk.rating); found++; }
+            if (bk.n_recensioni) { fill('booking_n_recensioni', bk.n_recensioni); found++; }
+            portaliAggiornati.push('Booking');
+        }
 
         const attempted = [taUrl && ta, gUrl && goog, bkUrl && bk].filter(Boolean);
-        const blocked = attempted.filter(r => r?.error === 'blocked' || r?.error === 'fetch_failed').length;
-        const noData  = attempted.filter(r => r?.ok && !r.rating).length;
 
         btn.disabled = false; btn.textContent = 'Rileva automaticamente';
-        if (found > 0 && blocked === 0) s(`Rilevati ${found} valori — verifica e salva`, '#0D5F75');
-        else if (found > 0) s(`Rilevati ${found} valori (${blocked} portale non raggiunto)`, '#0D5F75');
-        else if (blocked > 0) s('I portali bloccano il rilevamento automatico — inserisci i valori manualmente', '#b00020');
-        else if (noData > 0) s('Pagine raggiunte ma dati non estratti — inserisci manualmente', '#b00020');
-        else s('Nessun URL compilato — inserisci TripAdvisor e Google Business in "Social e Profili Esterni"', '#b00020');
+
+        // Salva timestamp — controllo avvenuto se almeno un URL era compilato
+        if (attempted.length > 0) {
+            const now = new Date().toISOString();
+            fill('ratings_last_check', now);
+            const tsEl = document.getElementById('ratings-last-check-label');
+            if (tsEl) tsEl.textContent = 'Ultimo controllo: ' + new Date(now).toLocaleDateString('it-IT',{day:'2-digit',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});
+        }
+
+        if (found > 0) s('Aggiornati: ' + portaliAggiornati.join(', ') + ' — salva per confermare', '#0D5F75');
+        else if (attempted.length > 0) s('Controllo effettuato — nessun aggiornamento', '#666b84');
+        else s('', '');
     }
 
     async function saveHotelProfile(siteId) {
