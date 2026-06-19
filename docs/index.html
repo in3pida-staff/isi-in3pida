@@ -1705,10 +1705,18 @@
         const btnRevert = document.getElementById('btn-revert-plugin-profile');
         if (btnToggle) btnToggle.addEventListener('click', () => toggleHotelProfileEdit());
         if (btnCancel) btnCancel.addEventListener('click', () => { setupHotelProfileForm(_schemaProfile); toggleHotelProfileEdit(false); });
-        if (btnSave)   btnSave.addEventListener('click', () => saveHotelProfile(site.site_id));
+        if (btnSave)   { btnSave.dataset.siteId = site.site_id; btnSave.addEventListener('click', () => saveHotelProfile(site.site_id)); }
         if (btnRevert) btnRevert.addEventListener('click', () => revertToPluginProfile(site));
         const btnRileva = document.getElementById('btn-rileva-stile');
         if (btnRileva) btnRileva.addEventListener('click', () => rilevaStiloSito(site.site_id));
+
+        // Aggiornamento automatico rating se l'ultimo controllo è più vecchio di 7 giorni
+        const lastCheck = p.ratings_last_check ? new Date(p.ratings_last_check) : null;
+        const gg7 = 7 * 24 * 60 * 60 * 1000;
+        const haUrls = p.tripadvisor_url || p.google_business_url || p.url_recensioni;
+        if (haUrls && (!lastCheck || (Date.now() - lastCheck.getTime()) > gg7)) {
+            setTimeout(() => _detectRatings(true), 2000);
+        }
     }
 
     function renderSchemaView(s) {
@@ -2419,11 +2427,11 @@
         btn.textContent = 'Rileva stile dal sito';
     }
 
-    async function _detectRatings() {
+    async function _detectRatings(silent = false) {
         const btn = document.getElementById('btn-detect-ratings');
         const status = document.getElementById('detect-ratings-status');
         const g = id => (document.getElementById('pf-' + id)?.value || '').trim();
-        const s = (text, color) => { if (status) { status.textContent = text; status.style.color = color || '#666b84'; } };
+        const s = (text, color) => { if (!silent && status) { status.textContent = text; status.style.color = color || '#666b84'; } };
 
         const taUrl   = g('tripadvisor_url');
         const gUrl    = g('google_business_url');
@@ -2432,9 +2440,9 @@
         if (!taUrl && !gUrl && !bkUrl) { s('Nessun URL trovato — inserisci prima i link nei Social e Profili esterni', '#b00020'); return; }
 
         const { data: { session } } = await _SB.auth.getSession();
-        if (!session) { s('Sessione scaduta — ricarica la pagina', '#b00020'); return; }
+        if (!session) return;
 
-        btn.disabled = true; btn.textContent = 'Rilevamento...';
+        if (!silent) { btn.disabled = true; btn.textContent = 'Rilevamento...'; }
         s('Contatto i portali...', '#0D5F75');
 
         const call = async (url, source) => {
@@ -2486,7 +2494,7 @@
 
         const attempted = [taUrl && ta, gUrl && goog, bkUrl && bk].filter(Boolean);
 
-        btn.disabled = false; btn.textContent = 'Rileva automaticamente';
+        if (!silent) { btn.disabled = false; btn.textContent = 'Rileva automaticamente'; }
 
         // Salva timestamp — controllo avvenuto se almeno un URL era compilato
         if (attempted.length > 0) {
@@ -2496,8 +2504,17 @@
             if (tsEl) tsEl.textContent = 'Ultimo controllo: ' + new Date(now).toLocaleDateString('it-IT',{day:'2-digit',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});
         }
 
-        if (found > 0) s('Aggiornati: ' + portaliAggiornati.join(', ') + ' — salva per confermare', '#0D5F75');
-        else if (attempted.length > 0) s('Controllo effettuato — nessun aggiornamento', '#666b84');
+        if (found > 0) {
+            s('Aggiornati: ' + portaliAggiornati.join(', ') + ' — salva per confermare', '#0D5F75');
+            // In modalità silent (aggiornamento automatico) salva subito senza intervento utente
+            if (silent) {
+                const siteEl = document.getElementById('btn-save-hotel-profile');
+                if (siteEl) {
+                    const siteId = siteEl.dataset.siteId || window._currentSiteId;
+                    if (siteId) saveHotelProfile(siteId);
+                }
+            }
+        } else if (attempted.length > 0) s('Controllo effettuato — nessun aggiornamento', '#666b84');
         else s('', '');
     }
 
