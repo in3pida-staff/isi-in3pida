@@ -2080,34 +2080,42 @@
             '<button type="button" onclick="addOfferta()" style="margin-top:8px;background:none;border:1px solid #0D5F75;border-radius:6px;padding:7px 14px;font-size:13px;font-weight:700;color:#0D5F75;cursor:pointer;font-family:var(--font)">+ Aggiungi offerta</button>' +
 
             sec('RECENSIONI') +
-            '<div style="background:#e8ecf7;border-radius:4px;padding:10px 14px;margin-bottom:14px;font-size:13px;font-weight:600;color:#b00020">Usa solo dati reali e visibili anche nella pagina del sito. Il dato inserito nello Schema.org deve corrispondere a recensioni realmente mostrate agli utenti.</div>' +
-            '<div style="background:#f4f4f8;border-radius:4px;padding:10px 14px;margin-bottom:14px;font-size:13px;color:#4b4d68"><strong>Rating medio nello Schema.org:</strong> è il punteggio aggregato pubblico che vuoi dichiarare. Se hai fonti diverse, compila Google, Tripadvisor e Booking; poi scegli quale valore usare come rating principale oppure inserisci un aggregato reale visibile sul sito.</div>' +
-            '<div style="margin-bottom:14px;display:flex;align-items:center;gap:10px">' +
+            '<div style="background:#e8ecf7;border-radius:4px;padding:10px 14px;margin-bottom:16px;font-size:13px;font-weight:600;color:#b00020">Usa solo dati reali e visibili anche nella pagina del sito.</div>' +
+
+            '<div style="font-size:10px;font-weight:700;color:#4a4a6a;margin:0 0 6px;text-transform:uppercase;letter-spacing:.05em">Google Business</div>' +
+            '<div style="margin-bottom:6px">' + inp('google_business_url','URL Google Business', p.google_business_url,'https://g.page/hotel','url') + '</div>' +
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">' +
+            inp('google_rating','Rating Google', p.google_rating,'4.5') +
+            inp('google_n_recensioni','N° recensioni', p.google_n_recensioni,'') + '</div>' +
+
+            '<div style="font-size:10px;font-weight:700;color:#4a4a6a;margin:0 0 6px;text-transform:uppercase;letter-spacing:.05em">TripAdvisor</div>' +
+            '<div style="margin-bottom:6px">' + inp('tripadvisor_url','URL TripAdvisor', p.tripadvisor_url,'https://tripadvisor.com/Hotel_Review-...','url') + '</div>' +
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">' +
+            inp('tripadvisor_rating','Rating TripAdvisor', p.tripadvisor_rating,'') +
+            inp('tripadvisor_n_recensioni','N° recensioni', p.tripadvisor_n_recensioni,'') + '</div>' +
+
+            '<div style="font-size:10px;font-weight:700;color:#4a4a6a;margin:0 0 6px;text-transform:uppercase;letter-spacing:.05em">Booking.com</div>' +
+            '<div style="margin-bottom:6px">' + inp('url_recensioni','URL Booking', p.url_recensioni,'https://www.booking.com/hotel/it/xxx.html','url') + '</div>' +
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">' +
+            inp('booking_rating','Rating Booking', p.booking_rating,'') +
+            inp('booking_n_recensioni','N° recensioni', p.booking_n_recensioni,'') + '</div>' +
+
+            '<div style="margin-bottom:16px;display:flex;align-items:center;gap:10px">' +
             '<button type="button" id="btn-detect-ratings" onclick="_detectRatings()" style="background:none;border:1px solid #0D5F75;border-radius:6px;padding:7px 14px;font-size:13px;font-weight:700;color:#0D5F75;cursor:pointer;font-family:var(--font)">Rileva automaticamente</button>' +
             '<span id="detect-ratings-status" style="font-size:12px;color:#666b84"></span>' +
             '</div>' +
-            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">' +
-            inp('fonte_rating','Fonte rating principale', p.fonte_rating,'Google, Tripadvisor, Booking, oppure Aggregato sito') +
-            inp('rating_medio','Rating medio principale', p.rating_medio,'9.2') + '</div>' +
-            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">' +
-            inp('n_recensioni','Numero recensioni principale', p.n_recensioni,'843') +
-            inp('google_rating','Google rating', p.google_rating,'') + '</div>' +
-            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">' +
-            inp('google_n_recensioni','Google numero recensioni', p.google_n_recensioni,'') +
-            inp('tripadvisor_rating','Tripadvisor rating', p.tripadvisor_rating,'') + '</div>' +
-            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">' +
-            inp('tripadvisor_n_recensioni','Tripadvisor numero recensioni', p.tripadvisor_n_recensioni,'') +
-            inp('booking_rating','Booking rating', p.booking_rating,'') + '</div>' +
-            '<div style="margin-bottom:12px">' + inp('booking_n_recensioni','Booking numero recensioni', p.booking_n_recensioni,'') + '</div>' +
-            inp('url_recensioni','URL pagina recensioni', p.url_recensioni,'https://www.booking.com/hotel/it/xxx.html','url') +
+
+            '<div style="font-size:10px;font-weight:700;color:#4a4a6a;margin:0 0 6px;text-transform:uppercase;letter-spacing:.05em">Punteggio principale (Schema.org)</div>' +
+            '<div style="background:#f4f4f8;border-radius:4px;padding:10px 14px;margin-bottom:10px;font-size:12px;color:#4b4d68">Il punteggio che Google mostra nei risultati di ricerca. Scegli uno dei portali sopra come fonte.</div>' +
+            '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:4px">' +
+            inp('fonte_rating','Fonte', p.fonte_rating,'es. Booking.com') +
+            inp('rating_medio','Punteggio', p.rating_medio,'9.2') +
+            inp('n_recensioni','N° recensioni', p.n_recensioni,'843') + '</div>' +
 
             sec('SOCIAL E PROFILI ESTERNI') +
             '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">' +
             inp('facebook_url','Facebook', p.facebook_url,'https://facebook.com/hotel','url') +
             inp('instagram_url','Instagram', p.instagram_url,'https://instagram.com/hotel','url') + '</div>' +
-            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">' +
-            inp('tripadvisor_url','TripAdvisor', p.tripadvisor_url,'https://tripadvisor.com/Hotel_Review-...','url') +
-            inp('google_business_url','Google Business', p.google_business_url,'https://g.page/hotel','url') + '</div>' +
             '<div style="font-size:10px;font-weight:700;color:#4a4a6a;margin:4px 0 4px;text-transform:uppercase;letter-spacing:.05em">Link social personalizzati</div>' +
             '<div id="schema-social-custom-list"></div>' +
             '<div style="display:grid;grid-template-columns:1fr 2fr auto;gap:8px;margin-top:8px;align-items:center">' +
