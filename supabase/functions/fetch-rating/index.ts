@@ -52,15 +52,28 @@ async function fetchDirect(url: string): Promise<{ html: string; text: string } 
   return null
 }
 
-async function fetchJina(url: string): Promise<string | null> {
+async function fetchJinaText(url: string): Promise<string | null> {
   try {
     const res = await fetch(`https://r.jina.ai/${url}`, {
-      headers: { 'Accept': 'text/plain', 'X-Return-Format': 'text', 'X-Timeout': '20' },
-      signal: AbortSignal.timeout(25000),
+      headers: { 'Accept': 'text/plain', 'X-Return-Format': 'text', 'X-Timeout': '25', 'X-No-Cache': 'true' },
+      signal: AbortSignal.timeout(30000),
     })
     if (!res.ok) return null
     const text = (await res.text()).slice(0, 15000)
     if (text.length > 300) return text
+  } catch { /* fallback */ }
+  return null
+}
+
+async function fetchJinaHtml(url: string): Promise<string | null> {
+  try {
+    const res = await fetch(`https://r.jina.ai/${url}`, {
+      headers: { 'Accept': 'text/html', 'X-Return-Format': 'html', 'X-Timeout': '25', 'X-No-Cache': 'true' },
+      signal: AbortSignal.timeout(30000),
+    })
+    if (!res.ok) return null
+    const html = (await res.text()).slice(0, 60000)
+    if (html.length > 300) return html
   } catch { /* fallback */ }
   return null
 }
@@ -159,11 +172,34 @@ Deno.serve(async (req) => {
       }
     }
 
-    // 2. Fallback Jina.ai (pagine JS-rendered)
-    const jinaText = await fetchJina(url)
+    // 2. Fallback Jina.ai text (JS-rendered, testo pulito)
+    const jinaText = await fetchJinaText(url)
     if (jinaText) {
       const fromJina = extractFromText(jinaText, source)
-      return new Response(JSON.stringify({ ok: true, ...fromJina, method: 'jina' }), {
+      if (fromJina.rating) {
+        return new Response(JSON.stringify({ ok: true, ...fromJina, method: 'jina-text' }), {
+          headers: { ...cors, 'Content-Type': 'application/json' },
+        })
+      }
+    }
+
+    // 3. Fallback Jina.ai HTML renderizzato (include JSON-LD post-JS)
+    const jinaHtml = await fetchJinaHtml(url)
+    if (jinaHtml) {
+      const fromLd = extractFromJsonLd(jinaHtml)
+      if (fromLd.rating) {
+        return new Response(JSON.stringify({ ok: true, ...fromLd, method: 'jina-html-ld' }), {
+          headers: { ...cors, 'Content-Type': 'application/json' },
+        })
+      }
+      const fromText = extractFromText(stripHtml(jinaHtml), source)
+      if (fromText.rating) {
+        return new Response(JSON.stringify({ ok: true, ...fromText, method: 'jina-html-text' }), {
+          headers: { ...cors, 'Content-Type': 'application/json' },
+        })
+      }
+      // Jina ha raggiunto la pagina ma non ha trovato dati
+      return new Response(JSON.stringify({ ok: true, rating: null, n_recensioni: null, method: 'jina-html-nodata' }), {
         headers: { ...cors, 'Content-Type': 'application/json' },
       })
     }

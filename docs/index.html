@@ -2444,11 +2444,6 @@
             call(bkUrl, 'booking'),
         ]);
 
-        // Log snippet for debugging
-        if (ta)   console.log('[fetch-rating] TripAdvisor:', ta.error || ta.method, ta.snippet || ta.message || '');
-        if (goog) console.log('[fetch-rating] Google:', goog.error || goog.method, goog.snippet || goog.message || '');
-        if (bk)   console.log('[fetch-rating] Booking:', bk.error || bk.method, bk.snippet || bk.message || '');
-
         const fill = (id, val) => { const el = document.getElementById('pf-' + id); if (el && val) el.value = val; };
 
         let found = 0;
@@ -2465,9 +2460,9 @@
 
         btn.disabled = false; btn.textContent = 'Rileva automaticamente';
         if (found > 0 && blocked === 0) s(`Rilevati ${found} valori — verifica e salva`, '#0D5F75');
-        else if (found > 0) s(`Rilevati ${found} valori (${blocked} portale non raggiunto — apri DevTools per dettagli)`, '#0D5F75');
-        else if (blocked > 0) s(`Portali non raggiungibili (protezione anti-bot) — apri DevTools Console per dettagli`, '#b00020');
-        else if (noData > 0) s('Pagine raggiunte ma dati non trovati — apri DevTools Console per vedere il contenuto', '#b00020');
+        else if (found > 0) s(`Rilevati ${found} valori (${blocked} portale non raggiunto)`, '#0D5F75');
+        else if (blocked > 0) s('I portali bloccano il rilevamento automatico — inserisci i valori manualmente', '#b00020');
+        else if (noData > 0) s('Pagine raggiunte ma dati non estratti — inserisci manualmente', '#b00020');
         else s('Nessun URL compilato — inserisci TripAdvisor e Google Business in "Social e Profili Esterni"', '#b00020');
     }
 
