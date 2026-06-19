@@ -2105,13 +2105,6 @@
             '<span id="detect-ratings-status" style="font-size:12px;color:#666b84"></span>' +
             '</div>' +
 
-            '<div style="font-size:10px;font-weight:700;color:#4a4a6a;margin:0 0 6px;text-transform:uppercase;letter-spacing:.05em">Punteggio principale (Schema.org)</div>' +
-            '<div style="background:#f4f4f8;border-radius:4px;padding:10px 14px;margin-bottom:10px;font-size:12px;color:#4b4d68">Il punteggio che Google mostra nei risultati di ricerca. Scegli uno dei portali sopra come fonte.</div>' +
-            '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:4px">' +
-            inp('fonte_rating','Fonte', p.fonte_rating,'es. Booking.com') +
-            inp('rating_medio','Punteggio', p.rating_medio,'9.2') +
-            inp('n_recensioni','N° recensioni', p.n_recensioni,'843') + '</div>' +
-
             sec('SOCIAL E PROFILI ESTERNI') +
             '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">' +
             inp('facebook_url','Facebook', p.facebook_url,'https://facebook.com/hotel','url') +
@@ -2348,7 +2341,17 @@
             'checkoutTime': p.checkout_dalle||undefined,
             'priceRange': p.prezzo_medio||undefined,
             'numberOfRooms': p.n_camere?parseInt(p.n_camere):undefined,
-            'aggregateRating': p.rating_medio ? {'@type':'AggregateRating','ratingValue':parseFloat(p.rating_medio),'bestRating':parseFloat(p.rating_scala||10),'reviewCount':parseInt(p.n_recensioni||0)} : undefined,
+            'aggregateRating': (function(){
+                // Sceglie automaticamente il portale con il punteggio più alto (normalizzato su 10)
+                const candidates = [
+                    {src:'Booking.com',    v:parseFloat(p.booking_rating),      scale:10, n:parseInt(p.booking_n_recensioni||0)},
+                    {src:'Google',         v:parseFloat(p.google_rating),       scale:5,  n:parseInt(p.google_n_recensioni||0)},
+                    {src:'TripAdvisor',    v:parseFloat(p.tripadvisor_rating),  scale:5,  n:parseInt(p.tripadvisor_n_recensioni||0)},
+                ].filter(c=>!isNaN(c.v)&&c.v>0);
+                if(!candidates.length) return undefined;
+                const best = candidates.reduce((a,b)=>(a.v/a.scale>=b.v/b.scale?a:b));
+                return {'@type':'AggregateRating','ratingValue':best.v,'bestRating':best.scale,'reviewCount':best.n,'description':best.src};
+            })(),
             'sameAs': [p.facebook_url,p.instagram_url,p.tripadvisor_url,p.google_business_url,...(p.social_custom||[]).map(s=>s.url)].filter(Boolean)||undefined,
             'amenityFeature': p.servizi ? p.servizi.split(',').map(s=>s.trim()).filter(Boolean).map(s=>({'@type':'LocationFeatureSpecification','name':s,'value':true})) : undefined,
         };
@@ -2507,8 +2510,6 @@
             prezzo_min: g('prezzo_min'), prezzo_max: g('prezzo_max'), caparra: g('caparra'),
             politica_cancellazione: g('politica_cancellazione'),
             offerte: _offerteTmp.filter(o=>o.nome),
-            fonte_rating: g('fonte_rating'), rating_medio: g('rating_medio'),
-            n_recensioni: g('n_recensioni'),
             google_rating: g('google_rating'), google_n_recensioni: g('google_n_recensioni'),
             tripadvisor_rating: g('tripadvisor_rating'), tripadvisor_n_recensioni: g('tripadvisor_n_recensioni'),
             booking_rating: g('booking_rating'), booking_n_recensioni: g('booking_n_recensioni'),
