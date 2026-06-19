@@ -34,36 +34,33 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(150deg, #f5f6fb 0%, #dce1f2 55%, #C1CBE8 100%);
+            background: linear-gradient(160deg, #f0f2fb 0%, #d8ddf0 50%, #C1CBE8 100%);
             overflow: hidden;
             padding: 60px 48px;
         }
 
-        /* Rettangolo posteriore */
-        .login-left::before {
-            content: '';
+        .geo-back {
             position: absolute;
-            top: -200px;
-            right: -160px;
-            width: 65%;
-            height: 80%;
-            background: #b8c3de;
-            transform: rotate(18deg);
-            border-radius: 4px;
-            opacity: 0.7;
+            top: -15%;
+            right: -8%;
+            width: 62%;
+            height: 90%;
+            background: #bcc8e0;
+            transform: skewY(-12deg);
+            transform-origin: top right;
+            border-radius: 6px;
         }
-        /* Rettangolo anteriore — più piccolo e più scuro */
-        .login-left::after {
-            content: '';
+
+        .geo-front {
             position: absolute;
-            top: -110px;
-            right: -90px;
-            width: 50%;
-            height: 65%;
-            background: #a9b6d4;
-            transform: rotate(18deg);
-            border-radius: 4px;
-            opacity: 0.65;
+            top: -8%;
+            right: -4%;
+            width: 48%;
+            height: 78%;
+            background: #a8b8d6;
+            transform: skewY(-12deg);
+            transform-origin: top right;
+            border-radius: 6px;
         }
 
         .login-left-content {
@@ -325,6 +322,8 @@
 
         <!-- LEFT -->
         <div class="login-left">
+            <div class="geo-back"></div>
+            <div class="geo-front"></div>
             <div class="login-left-content">
                 <span class="logo-eletta-text">eletta</span>
                 <div class="logo-tagline">posiziona il tuo sito nelle ricerche ai</div>
