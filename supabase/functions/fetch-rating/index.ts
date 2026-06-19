@@ -30,66 +30,80 @@ async function fetchPage(url: string): Promise<{ text: string; method: string }>
     if (text.length > 400) return { text, method: `direct ${res.status}` }
   } catch (_) { /* fallback */ }
 
-  const jinaRes = await fetch(`https://r.jina.ai/${url}`, {
-    headers: { 'Accept': 'text/plain', 'X-Return-Format': 'text', 'X-Timeout': '15' },
-    signal: AbortSignal.timeout(20000),
-  })
-  if (!jinaRes.ok) throw new Error(`Jina HTTP ${jinaRes.status}`)
-  const text = (await jinaRes.text()).slice(0, 15000)
-  if (text.length < 200) throw new Error(`Contenuto troppo breve`)
-  return { text, method: 'jina' }
+  // Jina.ai with both text and markdown modes
+  for (const fmt of ['text', 'markdown']) {
+    try {
+      const jinaRes = await fetch(`https://r.jina.ai/${url}`, {
+        headers: { 'Accept': 'text/plain', 'X-Return-Format': fmt, 'X-Timeout': '20' },
+        signal: AbortSignal.timeout(25000),
+      })
+      if (!jinaRes.ok) continue
+      const text = (await jinaRes.text()).slice(0, 15000)
+      if (text.length > 300) return { text, method: `jina-${fmt}` }
+    } catch (_) { /* try next */ }
+  }
+
+  throw new Error('Pagina non raggiungibile')
 }
 
 function cleanNum(s: string): string {
-  // "1.234" IT thousands → "1234", "1,234" EN thousands → "1234"
-  // but "4,5" IT decimal → "4.5"
   if (/^\d{1,3}([.,]\d{3})+$/.test(s)) return s.replace(/[.,]/g, '')
   return s.replace(',', '.')
 }
+
+// rating: integer OR decimal (4 or 4,5 or 4.5)
+const INT_OR_DEC = '(\\d(?:[,.]\\d)?)'
+const INT_OR_DEC_1_5 = '([1-5](?:[,.]\\d)?)'
+const INT_OR_DEC_BOOKING = '([6-9](?:[,.]\\d)?|10(?:[,.]0)?)'
 
 function extractRating(text: string, source: string) {
   let rating: string | null = null
   let nRec: string | null = null
 
   if (source === 'tripadvisor') {
-    // Score X.X su 5 / di 5 / of 5 / out of 5
-    const m1 = text.match(/\b([1-5][,.]\d)\s*(?:di|su|of|out\s+of)\s*5/i)
-    // "Eccellente 4,5" or "Molto buono 3,5"
-    const m2 = text.match(/(?:Eccellente|Molto buono|Buono|Discreto|Pessimo|Excellent|Very Good|Average|Poor|Terrible)\D{0,5}([1-5][,.]\d)/i)
-    // Fallback: first X.X near "bolle" or "bubbles"
-    const m3 = text.match(/([1-5][,.]\d)\s*(?:bolle|bubbles)/i)
-    const raw = (m1?.[1] || m2?.[1] || m3?.[1] || null)
+    // "4,5 di 5" / "4 di 5" / "4.5 su 5" / "4 of 5" / "4 out of 5"
+    const m1 = text.match(new RegExp(`${INT_OR_DEC_1_5}\\s*(?:di|su|of|out\\s+of)\\s*5`, 'i'))
+    // "4,5 bolle" / "4 bubbles" / "4,0 stelle"
+    const m2 = text.match(new RegExp(`${INT_OR_DEC_1_5}\\s*(?:bolle|bubbles|stelle|stars?)`, 'i'))
+    // "Eccellente" / quality word near a number
+    const m3 = text.match(/(?:Eccellente|Molto buono|Buono|Discreto|Pessimo|Excellent|Very Good|Average|Poor|Terrible)\D{0,8}([1-5](?:[,.]\d)?)/i)
+    const m3b = text.match(/([1-5](?:[,.]\d)?)\D{0,8}(?:Eccellente|Molto buono|Buono|Discreto|Eccezionale|Excellent|Very Good)/i)
+    // Structured patterns from meta / og tags in stripped HTML
+    const m4 = text.match(/ratingValue[^\d]*([1-5](?:[,.]\d)?)/i)
+    // Last resort: any X,X or X.X between 1–5 near "rating" keyword
+    const m5 = text.match(/rating[^\d]{0,20}([1-5][,.]\d)/i)
+    const raw = m1?.[1] ?? m2?.[1] ?? m3?.[1] ?? m3b?.[1] ?? m4?.[1] ?? m5?.[1] ?? null
     rating = raw ? cleanNum(raw) : null
 
-    const mn = text.match(/([\d.,]+)\s*(?:recensioni|reviews|opinioni|valutazioni)/i)
-    nRec = mn ? cleanNum(mn[1]).replace(/\D/g, '') : null
+    const mn = text.match(/([\d.]+\.?\d*)\s*(?:recensioni|reviews|opinioni|valutazioni)/i)
+    nRec = mn ? mn[1].replace(/\./g, '') : null
 
   } else if (source === 'booking') {
-    // Score 6–10 near quality word (IT or EN)
-    const qualWord = '(?:Eccellente|Fantastico|Superbo|Molto buono|Buono|Sufficiente|Scarso|Outstanding|Fabulous|Superb|Very Good|Good|Pleasant|Fair|Poor)'
-    const m1 = text.match(new RegExp(`\\b([6-9]\\d?[,.]\\d|10(?:[,.]0)?)\\b[\\s\\S]{0,40}${qualWord}`, 'i'))
-    const m2 = text.match(new RegExp(`${qualWord}[\\s\\S]{0,40}\\b([6-9]\\d?[,.]\\d|10(?:[,.]0)?)\\b`, 'i'))
-    // Punteggio X.X / Valutazione X.X
-    const m3 = text.match(/(?:Punteggio|Valutazione|Score)[^\d]{0,10}([6-9]\d?[,.]\d|10(?:[,.]0)?)/i)
-    // Final fallback: any 8.X or 9.X
-    const m4 = text.match(/\b([89][,.]\d)\b/)
-    const raw = m1?.[1] ?? m2?.[1] ?? m3?.[1] ?? m4?.[1] ?? null
+    const qualWord = '(?:Eccellente|Fantastico|Superbo|Molto buono|Buono|Sufficiente|Scarso|Meraviglioso|Eccezionale|Outstanding|Fabulous|Superb|Very Good|Good|Pleasant|Fair|Poor|Wonderful)'
+    const m1 = text.match(new RegExp(`${INT_OR_DEC_BOOKING}\\s*[^\\d]{0,30}${qualWord}`, 'i'))
+    const m2 = text.match(new RegExp(`${qualWord}\\s*[^\\d]{0,30}${INT_OR_DEC_BOOKING}`, 'i'))
+    const m3 = text.match(/(?:Punteggio|Valutazione|Score|Voto)[^\d]{0,15}([6-9](?:[,.]\d)?|10(?:[,.]\d)?)/i)
+    const m4 = text.match(/ratingValue[^\d]*([6-9](?:[,.]\d)?|10(?:[,.]\d)?)/i)
+    // Fallback: any X.X or X,X in range 7–10
+    const m5 = text.match(/\b([789][,.]\d|10[,.]0)\b/)
+    const raw = m1?.[1] ?? m2?.[1] ?? m3?.[1] ?? m4?.[1] ?? m5?.[1] ?? null
     rating = raw ? cleanNum(raw) : null
 
-    const mn = text.match(/([\d.,]+)\s*(?:recensioni|commenti|reviews|valutazioni)/i)
-    nRec = mn ? mn[1].replace(/\./g, '').replace(',', '') : null
+    const mn = text.match(/([\d.]+\.?\d*)\s*(?:recensioni|commenti|reviews|valutazioni)/i)
+    nRec = mn ? mn[1].replace(/\./g, '') : null
 
   } else if (source === 'google') {
-    // Google score X.X / (X reviews)
-    const m1 = text.match(/\b([1-5][,.]\d)\b[\s\S]{0,60}(?:recensioni|reviews|valutazioni)/i)
-    const m2 = text.match(/(?:recensioni|reviews|valutazioni)[\s\S]{0,60}\b([1-5][,.]\d)\b/i)
-    // "4.5 (1,234 reviews)"
-    const m3 = text.match(/([1-5][,.]\d)\s*\(\s*([\d.,]+)\s*(?:recensioni|reviews)/i)
+    // "4,5 (1.234 recensioni)" / "4.5 (1,234 reviews)"
+    const m1 = text.match(/([1-5][,.]\d)\s*\(\s*([\d.]+)\s*(?:recensioni|reviews|valutazioni)/i)
+    // "rating: 4.5" / "ratingValue: 4.5"
+    const m2 = text.match(/rating[^\d]{0,15}([1-5][,.]\d)/i)
+    // any X.X near review count
+    const m3 = text.match(/([1-5][,.]\d)[\s\S]{0,80}([\d.]+)\s*(?:recensioni|reviews)/i)
     const raw = m1?.[1] ?? m2?.[1] ?? m3?.[1] ?? null
     rating = raw ? cleanNum(raw) : null
 
-    const mn = m3 ? m3[2] : text.match(/([\d.,]+)\s*(?:recensioni|reviews|valutazioni)/i)?.[1]
-    nRec = mn ? mn.replace(/\./g, '').replace(',', '') : null
+    const nRaw = m1?.[2] ?? (m3?.[2]) ?? text.match(/([\d.]+)\s*(?:recensioni|reviews)/i)?.[1] ?? null
+    nRec = nRaw ? nRaw.replace(/\./g, '') : null
   }
 
   return { rating, n_recensioni: nRec }
@@ -113,15 +127,17 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: 'fetch_failed', message: (e as Error).message }), { headers: cors })
     }
 
-    // Anti-bot detection
     const lower = text.toLowerCase()
-    if (text.length < 600 && (lower.includes('captcha') || lower.includes('verify you are human') || lower.includes('access denied'))) {
-      return new Response(JSON.stringify({ error: 'blocked', message: 'Portale ha bloccato la scansione' }), { headers: cors })
+    if (text.length < 400 && (lower.includes('captcha') || lower.includes('verify you are human') || lower.includes('access denied') || lower.includes('cloudflare'))) {
+      return new Response(JSON.stringify({ error: 'blocked', snippet: text.slice(0, 200) }), { headers: cors })
     }
 
     const { rating, n_recensioni } = extractRating(text, source)
 
-    return new Response(JSON.stringify({ ok: true, rating, n_recensioni, method }), {
+    // snippet for client-side console debug
+    const snippet = text.slice(0, 400)
+
+    return new Response(JSON.stringify({ ok: true, rating, n_recensioni, method, snippet }), {
       headers: { ...cors, 'Content-Type': 'application/json' },
     })
   } catch (e) {

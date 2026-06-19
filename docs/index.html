@@ -2444,6 +2444,11 @@
             call(bkUrl, 'booking'),
         ]);
 
+        // Log snippet for debugging
+        if (ta)   console.log('[fetch-rating] TripAdvisor:', ta.error || ta.method, ta.snippet || ta.message || '');
+        if (goog) console.log('[fetch-rating] Google:', goog.error || goog.method, goog.snippet || goog.message || '');
+        if (bk)   console.log('[fetch-rating] Booking:', bk.error || bk.method, bk.snippet || bk.message || '');
+
         const fill = (id, val) => { const el = document.getElementById('pf-' + id); if (el && val) el.value = val; };
 
         let found = 0;
@@ -2454,11 +2459,16 @@
         if (bk?.rating)        { fill('booking_rating', bk.rating); found++; }
         if (bk?.n_recensioni)  { fill('booking_n_recensioni', bk.n_recensioni); found++; }
 
-        const errors = [ta, goog, bk].filter(r => r?.error).length;
+        const attempted = [taUrl && ta, gUrl && goog, bkUrl && bk].filter(Boolean);
+        const blocked = attempted.filter(r => r?.error === 'blocked' || r?.error === 'fetch_failed').length;
+        const noData  = attempted.filter(r => r?.ok && !r.rating).length;
+
         btn.disabled = false; btn.textContent = 'Rileva automaticamente';
-        if (found === 0) s('Nessun dato rilevato — verifica gli URL o inserisci manualmente', '#b00020');
-        else if (errors) s(`Rilevati ${found} valori (${errors} portale non raggiunto)`, '#0D5F75');
-        else s(`Rilevati ${found} valori — verifica e salva`, '#0D5F75');
+        if (found > 0 && blocked === 0) s(`Rilevati ${found} valori — verifica e salva`, '#0D5F75');
+        else if (found > 0) s(`Rilevati ${found} valori (${blocked} portale non raggiunto — apri DevTools per dettagli)`, '#0D5F75');
+        else if (blocked > 0) s(`Portali non raggiungibili (protezione anti-bot) — apri DevTools Console per dettagli`, '#b00020');
+        else if (noData > 0) s('Pagine raggiunte ma dati non trovati — apri DevTools Console per vedere il contenuto', '#b00020');
+        else s('Nessun URL compilato — inserisci TripAdvisor e Google Business in "Social e Profili Esterni"', '#b00020');
     }
 
     async function saveHotelProfile(siteId) {
