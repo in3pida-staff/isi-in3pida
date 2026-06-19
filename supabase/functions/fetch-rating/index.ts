@@ -35,20 +35,24 @@ function stripHtml(html: string): string {
 }
 
 async function fetchDirect(url: string): Promise<{ html: string; text: string } | null> {
-  try {
-    const res = await fetch(url, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
-        'Accept': 'text/html,application/xhtml+xml,*/*;q=0.8',
-        'Accept-Language': 'it-IT,it;q=0.9,en;q=0.8',
-      },
-      redirect: 'follow',
-      signal: AbortSignal.timeout(12000),
-    })
-    const html = await res.text()
-    const text = stripHtml(html)
-    if (text.length > 300) return { html, text }
-  } catch { /* fallback */ }
+  // Deno/1.40.0 bypassa la protezione anti-bot di TripAdvisor e altri portali
+  for (const ua of ['Deno/1.40.0', 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)']) {
+    try {
+      const res = await fetch(url, {
+        headers: {
+          'User-Agent': ua,
+          'Accept': 'text/html,application/xhtml+xml,*/*;q=0.8',
+          'Accept-Language': 'it-IT,it;q=0.9,en;q=0.8',
+        },
+        redirect: 'follow',
+        signal: AbortSignal.timeout(12000),
+      })
+      if (!res.ok) continue
+      const html = await res.text()
+      const text = stripHtml(html)
+      if (text.length > 300) return { html, text }
+    } catch { /* prova prossimo */ }
+  }
   return null
 }
 
