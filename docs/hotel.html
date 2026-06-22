@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="css/style.css?v=20260622q">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet">
-    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6','isi_hotel_v7','isi_hotel_v8','isi_hotel_v9','isi_hotel_v10','isi_hotel_v11','isi_hotel_v12','isi_hotel_v13','isi_hotel_v14'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v20')){sessionStorage.setItem('isi_hotel_v20','1');location.reload(true);}</script>
+    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6','isi_hotel_v7','isi_hotel_v8','isi_hotel_v9','isi_hotel_v10','isi_hotel_v11','isi_hotel_v12','isi_hotel_v13','isi_hotel_v14'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v21')){sessionStorage.setItem('isi_hotel_v21','1');location.reload(true);}</script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <style>
         .tip-q{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:#EFF020;color:#0D5F75;font-size:9px;font-weight:800;cursor:default;flex-shrink:0;user-select:none;vertical-align:middle}
@@ -23,15 +23,16 @@
         /* ═══ SIDEBAR ═══ */
         .h-sidebar{width:70px;min-height:100vh;background:#EDEEF5;display:flex;flex-direction:column;align-items:center;position:fixed;left:0;top:0;z-index:200;padding:10px 0;}
         .h-sidebar-brand{margin-bottom:14px;display:flex;align-items:center;justify-content:center;width:100%;}
-        .h-sidebar-nav{display:flex;flex-direction:column;align-items:center;gap:0;flex:1;width:100%;padding:100px 6px 0;}
+        .h-sidebar-nav{display:flex;flex-direction:column;align-items:center;gap:7px;flex:1;width:100%;padding:100px 6px 0;}
         .h-nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;width:100%;padding:7px 4px;background:none;border:none;cursor:pointer;color:rgba(13,95,117,0.55);font-family:'Commissioner',sans-serif;font-size:9px;font-weight:700;letter-spacing:.01em;transition:all .15s;text-align:center;line-height:1.1;border-radius:10px;}
         .h-nav-item:hover{color:#0D5F75;}
         .h-nav-item.active{color:#0D5F75;}
-        .h-nav-icon{width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:50%;flex-shrink:0;opacity:0.65;transition:opacity .15s;}
+        .h-nav-icon{width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:50%;flex-shrink:0;opacity:0.65;transition:opacity .15s;}
+        .h-nav-icon svg{width:100%;height:100%;}
         .h-nav-item:hover .h-nav-icon{opacity:0.85;}
         .h-nav-item.active .h-nav-icon{opacity:1;}
-        .h-nav-item.active .h-nav-icon svg circle{fill:#ffffff!important;}
-        .h-nav-item.active .h-nav-icon svg path,.h-nav-item.active .h-nav-icon svg rect,.h-nav-item.active .h-nav-icon svg polyline,.h-nav-item.active .h-nav-icon svg line,.h-nav-item.active .h-nav-icon svg polygon{fill:#0D5F75!important;stroke:#0D5F75!important;}
+        .h-nav-item.active .h-nav-icon svg circle{fill:#0D5F75!important;}
+        .h-nav-item.active .h-nav-icon svg path,.h-nav-item.active .h-nav-icon svg rect,.h-nav-item.active .h-nav-icon svg polyline,.h-nav-item.active .h-nav-icon svg line,.h-nav-item.active .h-nav-icon svg polygon{fill:#fff!important;stroke:#fff!important;}
         .h-sidebar-sep{width:40px;height:1px;background:rgba(255,255,255,0.5);margin:8px 0;}
         .h-sidebar-bottom{width:100%;display:flex;flex-direction:column;align-items:center;padding:0 6px;}
 
@@ -51,7 +52,7 @@
         .h-bell-dot{position:absolute;top:6px;right:5px;width:7px;height:7px;border-radius:50%;background:#ff6b2b;border:1.5px solid white;}
 
         /* ═══ HERO ═══ */
-        .h-hero{background:#C1CBE8;padding:33px 28px 32px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;border-radius:16px;border-top-left-radius:180px 40px;box-shadow:0 0 0 3px #C1CBE8;margin:10px 20px 16px 20px;}
+        .h-hero{background:#C1CBE8;padding:33px 28px 32px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;border-radius:16px;border-top-left-radius:180px 40px;box-shadow:0 0 0 3px #C1CBE8;margin:10px 20px 16px 20px;position:relative;overflow:visible;}
         .h-hero-name{font-family:'Commissioner',sans-serif;font-size:26px;font-weight:300;color:#fff;flex-shrink:0;}
         .h-hero-chips{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
         .h-chip{background:#fff;border:none;border-radius:24px;padding:5px 13px;font-size:10px;color:#0D5F75;display:flex;align-items:center;gap:5px;white-space:nowrap;font-family:'Source Code Pro',monospace;font-weight:400;}
@@ -249,6 +250,9 @@
 
     <!-- HERO -->
     <div class="h-hero">
+      <svg style="position:absolute;left:0;top:0;height:100%;width:40px;overflow:visible;pointer-events:none;z-index:2" viewBox="0 0 40 100" fill="none" preserveAspectRatio="none">
+        <path d="M1.5 0 L1.5 58 Q1.5 90 -30 90" stroke="#0D5F75" stroke-width="3" stroke-linecap="round"/>
+      </svg>
       <div class="h-hero-name" id="hero-hotel-name">—</div>
       <div class="h-hero-chips">
         <div class="h-chip"><span class="h-chip-lbl">Url del sito</span><span id="hero-url">—</span></div>
