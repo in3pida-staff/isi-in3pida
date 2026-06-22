@@ -8,8 +8,8 @@
     <meta http-equiv="Expires" content="0">
     <title>Eletta — Posiziona il tuo sito nelle ricerche AI</title>
     <link rel="icon" type="image/png" href="images/favicon.png?v=2">
-    <link rel="stylesheet" href="css/style.css?v=20260622i">
-    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v7')){sessionStorage.setItem('isi_hotel_v7','1');location.reload(true);}</script>
+    <link rel="stylesheet" href="css/style.css?v=20260622j">
+    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6','isi_hotel_v7'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v8')){sessionStorage.setItem('isi_hotel_v8','1');location.reload(true);}</script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <style>
         .tip-q{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:#0D5F75;color:white;font-size:9px;font-weight:800;cursor:default;flex-shrink:0;user-select:none;vertical-align:middle}
@@ -19,15 +19,17 @@
         .h-layout{display:flex;min-height:100vh;}
 
         /* ═══ SIDEBAR ═══ */
-        .h-sidebar{width:70px;min-height:100vh;background:#C1CBE8;border-right:1px solid #a8b6d4;display:flex;flex-direction:column;align-items:center;position:fixed;left:0;top:0;z-index:200;padding:10px 0;}
+        .h-sidebar{width:70px;min-height:100vh;background:#C1CBE8;display:flex;flex-direction:column;align-items:center;position:fixed;left:0;top:0;z-index:200;padding:10px 0;}
         .h-sidebar-brand{margin-bottom:14px;display:flex;align-items:center;justify-content:center;width:100%;}
         .h-sidebar-nav{display:flex;flex-direction:column;align-items:center;gap:0;flex:1;width:100%;padding:0 6px;}
-        .h-nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;width:100%;padding:7px 4px;background:none;border:none;cursor:pointer;color:rgba(13,95,117,0.5);font-family:'Sarabun',sans-serif;font-size:9px;font-weight:700;letter-spacing:.01em;transition:all .15s;text-align:center;line-height:1.1;border-radius:10px;}
-        .h-nav-item:hover{color:#0D5F75;background:rgba(13,95,117,0.06);}
+        .h-nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;width:100%;padding:7px 4px;background:none;border:none;cursor:pointer;color:rgba(13,95,117,0.55);font-family:'Sarabun',sans-serif;font-size:9px;font-weight:700;letter-spacing:.01em;transition:all .15s;text-align:center;line-height:1.1;border-radius:10px;}
+        .h-nav-item:hover{color:#0D5F75;}
         .h-nav-item.active{color:#0D5F75;}
-        .h-nav-icon{width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:50%;flex-shrink:0;opacity:0.5;transition:opacity .15s;}
-        .h-nav-item:hover .h-nav-icon{opacity:0.8;}
+        .h-nav-icon{width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:50%;flex-shrink:0;opacity:0.65;transition:opacity .15s;}
+        .h-nav-item:hover .h-nav-icon{opacity:0.85;}
         .h-nav-item.active .h-nav-icon{opacity:1;}
+        .h-nav-item.active .h-nav-icon svg circle{fill:#0D5F75!important;}
+        .h-nav-item.active .h-nav-icon svg path,.h-nav-item.active .h-nav-icon svg rect,.h-nav-item.active .h-nav-icon svg polyline,.h-nav-item.active .h-nav-icon svg line,.h-nav-item.active .h-nav-icon svg polygon{fill:#fff!important;stroke:#fff!important;}
         .h-sidebar-sep{width:40px;height:1px;background:rgba(13,95,117,0.15);margin:5px 0;}
         .h-sidebar-bottom{width:100%;display:flex;flex-direction:column;align-items:center;padding:0 6px;}
 
