@@ -9,20 +9,20 @@
     <title>Eletta — Posiziona il tuo sito nelle ricerche AI</title>
     <link rel="icon" type="image/png" href="images/favicon.png?v=2">
     <link rel="stylesheet" href="css/style.css?v=20260622q">
-    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6','isi_hotel_v7','isi_hotel_v8','isi_hotel_v9','isi_hotel_v10','isi_hotel_v11','isi_hotel_v12','isi_hotel_v13','isi_hotel_v14'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v16')){sessionStorage.setItem('isi_hotel_v16','1');location.reload(true);}</script>
+    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6','isi_hotel_v7','isi_hotel_v8','isi_hotel_v9','isi_hotel_v10','isi_hotel_v11','isi_hotel_v12','isi_hotel_v13','isi_hotel_v14'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v17')){sessionStorage.setItem('isi_hotel_v17','1');location.reload(true);}</script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <style>
         .tip-q{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:#EFF020;color:#0D5F75;font-size:9px;font-weight:800;cursor:default;flex-shrink:0;user-select:none;vertical-align:middle}
 
         /* ═══ LAYOUT PRINCIPALE ═══ */
-        body{margin:0;padding:0;background:#FFFBF8;font-family:'Sarabun',sans-serif;}
+        body{margin:0;padding:0;background:#EDEEF5;font-family:'Commissioner',sans-serif;}
         .h-layout{display:flex;min-height:100vh;}
 
         /* ═══ SIDEBAR ═══ */
-        .h-sidebar{width:70px;min-height:100vh;background:#FFFBF8;display:flex;flex-direction:column;align-items:center;position:fixed;left:0;top:0;z-index:200;padding:10px 0;}
+        .h-sidebar{width:70px;min-height:100vh;background:#EDEEF5;display:flex;flex-direction:column;align-items:center;position:fixed;left:0;top:0;z-index:200;padding:10px 0;}
         .h-sidebar-brand{margin-bottom:14px;display:flex;align-items:center;justify-content:center;width:100%;}
         .h-sidebar-nav{display:flex;flex-direction:column;align-items:center;gap:0;flex:1;width:100%;padding:0 6px;}
-        .h-nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;width:100%;padding:7px 4px;background:none;border:none;cursor:pointer;color:rgba(13,95,117,0.55);font-family:'Sarabun',sans-serif;font-size:9px;font-weight:700;letter-spacing:.01em;transition:all .15s;text-align:center;line-height:1.1;border-radius:10px;}
+        .h-nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;width:100%;padding:7px 4px;background:none;border:none;cursor:pointer;color:rgba(13,95,117,0.55);font-family:'Commissioner',sans-serif;font-size:9px;font-weight:700;letter-spacing:.01em;transition:all .15s;text-align:center;line-height:1.1;border-radius:10px;}
         .h-nav-item:hover{color:#0D5F75;}
         .h-nav-item.active{color:#0D5F75;}
         .h-nav-icon{width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:50%;flex-shrink:0;opacity:0.65;transition:opacity .15s;}
@@ -57,7 +57,7 @@
         .h-chip-geo{font-weight:700;font-size:11px;}
 
         /* ═══ CONTENT ═══ */
-        .h-content{background:#FFFBF8;flex:1;padding:18px 18px 40px;}
+        .h-content{background:#EDEEF5;flex:1;padding:18px 18px 40px;}
 
         /* ═══ DASHBOARD HEADING ═══ */
         .h-dash-title{font-family:'Commissioner',sans-serif;font-size:26px;font-weight:700;color:#171b33;margin:0 0 14px;}
@@ -65,9 +65,9 @@
         /* ═══ KPI ROW ═══ */
         .h-kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px;}
         .h-kpi{background:white;border-radius:16px;box-shadow:0 2px 14px rgba(0,0,0,.06);padding:16px 18px;position:relative;overflow:hidden;}
-        .h-kpi-ttl{font-size:11px;font-weight:600;color:#888;letter-spacing:.01em;margin-bottom:7px;display:flex;align-items:center;gap:4px;}
-        .h-kpi-val{font-size:44px;font-weight:700;line-height:1;color:#171b33;}
-        .h-kpi-sub{font-size:11px;font-weight:600;color:#9ca3af;margin-top:5px;}
+        .h-kpi-ttl{font-size:11px;font-weight:600;color:#888;letter-spacing:.01em;margin-bottom:7px;display:flex;align-items:center;gap:4px;font-family:'Commissioner',sans-serif;}
+        .h-kpi-val{font-size:44px;font-weight:700;line-height:1;color:#171b33;font-family:'Commissioner',sans-serif;}
+        .h-kpi-sub{font-size:11px;font-weight:600;color:#9ca3af;margin-top:5px;font-family:'Commissioner',sans-serif;}
         .h-kpi-sub-nd{color:#C1CBE8;}
         .h-kpi-deco{position:absolute;bottom:-6px;right:8px;opacity:0.13;pointer-events:none;}
 
@@ -77,7 +77,7 @@
         /* ═══ CARD UNIVERSALE ═══ */
         .h-card{background:white;border-radius:16px;box-shadow:0 2px 14px rgba(0,0,0,.06);overflow:hidden;margin-bottom:12px;}
         .h-card-hdr{padding:12px 16px;border-bottom:1px solid #f0f0f6;display:flex;align-items:center;justify-content:space-between;}
-        .h-card-hdr-t{font-size:12px;font-weight:700;color:#171b33;display:flex;align-items:center;gap:6px;}
+        .h-card-hdr-t{font-size:12px;font-weight:700;color:#171b33;display:flex;align-items:center;gap:6px;font-family:'Commissioner',sans-serif;}
         .h-card-body{padding:14px 16px;}
         .h-dot-ok{background:#0D5F75;} .h-dot-warn{background:var(--magenta);} .h-dot-err{background:var(--red);} .h-dot-nd{background:#ccc;}
         .h-dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex-shrink:0;}
@@ -451,7 +451,7 @@ function renderContent(site, pseData, now) {
 
     // ── GEO SCORE SVG donut (360°, stroke-dasharray)
     const geoDonut = (()=>{
-        const s=geoAvg; const cx=90,cy=90,r=63,sw=16;
+        const s=geoAvg; const cx=100,cy=100,r=78,sw=22;
         const circ=+(2*Math.PI*r).toFixed(2);
         const col=s===null?'rgba(13,95,117,0.3)':'#0D5F75';
         const lbl=s!==null?(s>=70?'ottimizzato':s>=40?'da migliorare':'critico'):'nessun dato';
@@ -459,12 +459,12 @@ function renderContent(site, pseData, now) {
         const dFill=+(pct*circ).toFixed(2);
         const dGap=+(circ-dFill+0.01).toFixed(2);
         const arc=pct>0?`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${col}" stroke-width="${sw}" stroke-dasharray="${dFill} ${dGap}" stroke-linecap="round" transform="rotate(-90 ${cx} ${cy})"/>`:'';
-        return `<svg viewBox="0 0 180 180" style="width:100%;max-width:188px;display:block;margin:0 auto">
-        <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#d8e6ec" stroke-width="${sw}"/>
+        return `<svg viewBox="0 0 200 200" style="width:100%;display:block;margin:0 auto">
+        <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#ffffff" stroke-width="${sw}"/>
         ${arc}
-        <text x="87" y="99" text-anchor="end" font-family="Commissioner,sans-serif" font-size="38" font-weight="700" fill="${col}">${s!==null?s:'—'}</text>
-        <text x="89" y="88" text-anchor="start" font-family="Commissioner,sans-serif" font-size="12" font-weight="400" fill="#aaa">/100</text>
-        <text x="${cx}" y="116" text-anchor="middle" font-family="Commissioner,sans-serif" font-size="10" font-weight="600" fill="#aaa">${lbl}</text></svg>`;
+        <text x="${cx-2}" y="${cy+22}" text-anchor="end" font-family="Commissioner,sans-serif" font-size="58" font-weight="700" fill="${col}">${s!==null?s:'—'}</text>
+        <text x="${cx}" y="${cy-2}" text-anchor="start" font-family="Commissioner,sans-serif" font-size="15" font-weight="400" fill="#aaa">/100</text>
+        <text x="${cx}" y="${cy+42}" text-anchor="middle" font-family="Commissioner,sans-serif" font-size="11" font-weight="600" fill="#aaa">${lbl}</text></svg>`;
     })();
 
     const el = document.getElementById('hotel-content');
@@ -481,19 +481,19 @@ function renderContent(site, pseData, now) {
                   <div class="h-kpi-ttl">Completezza Profilo AI <span class='tip-q' data-tip='Completezza del profilo AI: nome, indirizzo, descrizione, contatti, FAQ ecc.'>?</span></div>
                   <div class="h-kpi-val" style="color:${cs!==null?'#171b33':'#C1CBE8'}">${cs!==null?cs:'—'}</div>
                   <div class="h-kpi-sub ${cs===null?'h-kpi-sub-nd':''}">${cs!==null?(cs>=70?'ottimizzato':cs>=40?'da migliorare':'critico'):'nessun dato'}</div>
-                  <div class="h-kpi-deco"><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>
+                  <div class="h-kpi-deco"><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
               </div>
               <div class="h-kpi">
                   <div class="h-kpi-ttl">Risultati FAQ <span class='tip-q' data-tip='Percentuale di domande degli ospiti coperta dalle FAQ. ≥80% buona copertura.'>?</span></div>
                   <div class="h-kpi-val" style="color:${covPct!==null?'#171b33':'#C1CBE8'}">${covPct!==null?covPct+'%':'—'}</div>
                   <div class="h-kpi-sub ${covPct===null?'h-kpi-sub-nd':''}">${covPct!==null?covPct+'% coperto':'nessun dato'}</div>
-                  <div class="h-kpi-deco"><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
+                  <div class="h-kpi-deco"><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M3 10h7"/><path d="M3 14h5"/></svg></div>
               </div>
               <div class="h-kpi">
                   <div class="h-kpi-ttl">Mappa di Ricerca <span class='tip-q' data-tip='Percentuale di query conversazionali coperte. ≥70% buona copertura.'>?</span></div>
                   <div class="h-kpi-val" style="color:${qMapPct!==null?'#171b33':'#C1CBE8'}">${qMapPct!==null?qMapPct+'%':'—'}</div>
                   <div class="h-kpi-sub ${qMapPct===null?'h-kpi-sub-nd':''}">${qMapPct!==null?qMapPct+'% coperto':'nessun dato'}</div>
-                  <div class="h-kpi-deco"><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+                  <div class="h-kpi-deco"><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
               </div>
           </div>
 
