@@ -8,85 +8,10 @@
     <meta http-equiv="Expires" content="0">
     <title>Eletta — Posiziona il tuo sito nelle ricerche AI</title>
     <link rel="icon" type="image/png" href="images/favicon.png?v=2">
-    <link rel="stylesheet" href="css/style.css?v=20260622">
-    <script>if(!sessionStorage.getItem('isi_reload_v2')){sessionStorage.setItem('isi_reload_v2','1');location.reload(true);}</script>
+    <link rel="stylesheet" href="css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <style>
         .tip-q{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:#0D5F75;color:white;font-size:9px;font-weight:800;cursor:default;flex-shrink:0;user-select:none;vertical-align:middle}
-
-        /* ─── LAYOUT ─── */
-        body{margin:0;padding:0;background:#eef1f8;}
-        .eletta-layout{display:flex;min-height:100vh;}
-
-        /* ─── SIDEBAR ─── */
-        .eletta-sidebar{width:68px;min-height:100vh;background:#1e2140;display:flex;flex-direction:column;align-items:center;position:fixed;top:0;left:0;z-index:200;padding:14px 0;}
-        .sidebar-brand{width:44px;height:44px;display:flex;align-items:center;justify-content:center;margin-bottom:20px;cursor:pointer;}
-        .sidebar-nav{display:flex;flex-direction:column;align-items:center;gap:2px;flex:1;width:100%;}
-        .sidebar-item{display:flex;flex-direction:column;align-items:center;gap:3px;width:100%;padding:9px 4px;background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.45);font-family:'Sarabun',sans-serif;font-size:9px;font-weight:600;letter-spacing:.01em;transition:all .15s;text-align:center;line-height:1.2;}
-        .sidebar-item:hover{color:rgba(255,255,255,0.8);background:rgba(255,255,255,0.06);}
-        .sidebar-item.active{color:white;background:rgba(255,255,255,0.1);}
-        .sidebar-icon{width:20px;height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-        .sidebar-sep{width:36px;height:1px;background:rgba(255,255,255,0.1);margin:6px 0;}
-        .sidebar-bottom{width:100%;display:flex;flex-direction:column;align-items:center;}
-
-        /* ─── RIGHT AREA ─── */
-        .eletta-right-area{margin-left:68px;flex:1;display:flex;flex-direction:column;min-height:100vh;}
-
-        /* ─── HEADER ─── */
-        .eletta-header{background:white;height:60px;display:flex;align-items:center;padding:0 24px;position:sticky;top:0;z-index:100;box-shadow:0 1px 0 #e8e8f0;gap:16px;}
-        .eletta-header-logo{display:flex;align-items:center;flex-shrink:0;}
-        .eletta-header-logo img{height:26px;width:auto;}
-        .btn-sincronizza{background:#EFEF14;color:#0D5F75;border:none;border-radius:24px;padding:8px 22px;font-family:'Commissioner',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:opacity .15s;flex-shrink:0;}
-        .btn-sincronizza:hover{opacity:.88;}
-        .btn-sincronizza:disabled{opacity:.5;cursor:not-allowed;}
-        .eletta-header-right{display:flex;align-items:center;gap:10px;margin-left:auto;}
-        .header-bell{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:none;border:none;cursor:pointer;color:#666b84;position:relative;transition:background .15s;}
-        .header-bell:hover{background:#f4f4f8;}
-        .header-bell-dot{position:absolute;top:7px;right:7px;width:8px;height:8px;border-radius:50%;background:#ff6b2b;border:2px solid white;}
-
-        /* ─── HERO ─── */
-        .eletta-hero{background:linear-gradient(135deg,#0D5F75 0%,#0a4d60 100%);padding:18px 32px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;}
-        .eletta-hero-name{font-family:'Commissioner',sans-serif;font-size:24px;font-weight:700;color:white;flex-shrink:0;}
-        .eletta-hero-chips{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
-        .hero-chip{background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.3);border-radius:24px;padding:5px 14px;font-size:12px;color:white;display:flex;align-items:center;gap:6px;white-space:nowrap;}
-        .hero-chip-label{font-size:10px;opacity:.65;font-weight:600;}
-        .hero-chip-solid{background:rgba(255,255,255,0.88);color:#0D5F75;border-color:transparent;font-weight:700;}
-
-        /* ─── CONTENT ─── */
-        .eletta-content{background:#eef1f8;flex:1;padding:24px 28px;}
-        .dash-heading{font-family:'Commissioner',sans-serif;font-size:24px;font-weight:700;color:#171b33;margin-bottom:20px;}
-
-        /* ─── KPI CARDS ─── */
-        .kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:16px;}
-        .kpi-card{background:white;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,.06);padding:20px 22px;position:relative;}
-        .kpi-card-title{font-size:12px;font-weight:600;color:#666b84;margin-bottom:8px;display:flex;align-items:center;gap:4px;}
-        .kpi-card-value{font-size:42px;font-weight:800;line-height:1;color:#171b33;margin-bottom:6px;}
-        .kpi-card-sub{font-size:12px;font-weight:500;color:#888;}
-        .kpi-card-icon{position:absolute;top:18px;right:18px;}
-
-        /* ─── ELETTA CARD (right float) ─── */
-        .eletta-info-card{background:white;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,.06);padding:20px;margin-bottom:16px;}
-        .eletta-info-title{font-family:'Commissioner',sans-serif;font-size:18px;font-weight:700;color:#0D5F75;margin-bottom:16px;line-height:1.3;}
-        .eletta-info-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f0f0f6;font-size:13px;color:#4b4d68;}
-        .eletta-info-row:last-of-type{border-bottom:none;}
-        .eletta-info-icon{width:28px;height:28px;border-radius:50%;background:#eef1f8;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-
-        /* ─── SECTION HEADING ─── */
-        .section-heading{display:flex;align-items:center;gap:10px;margin:20px 0 14px;}
-        .section-heading-icon{width:30px;height:30px;border-radius:50%;background:#0D5F75;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-        .section-heading h2{font-size:19px;font-weight:700;color:#171b33;line-height:1;margin:0;}
-        .section-heading p{font-size:12px;color:#666b84;margin:2px 0 0;}
-
-        /* ─── ELETTA CARD (pannello) ─── */
-        .h-card{background:white;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,.06);overflow:hidden;margin-bottom:16px;}
-        .h-card-header{padding:14px 20px;border-bottom:1px solid #f0f0f6;display:flex;align-items:center;justify-content:space-between;}
-        .h-card-title{font-size:13px;font-weight:700;color:#171b33;display:flex;align-items:center;gap:6px;}
-        .h-card-body{padding:16px 20px;}
-
-        /* ─── OVERRIDE GLOBAL CARD STYLE ─── */
-        .card{border-radius:14px!important;box-shadow:0 2px 12px rgba(0,0,0,.06)!important;border:none!important;background:white;}
-        .card-header{border-radius:14px 14px 0 0!important;background:white!important;border-bottom:1px solid #f0f0f6!important;}
-        .card-header .card-title,.card-header div{color:#171b33;}
     </style>
 </head>
 <body>
@@ -121,115 +46,53 @@
     </div>
 </div>
 
-<div class="eletta-layout">
-
-    <!-- ─── SIDEBAR ─── -->
-    <div class="eletta-sidebar">
-        <div class="sidebar-brand">
-            <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><rect width="28" height="28" rx="6" fill="rgba(255,255,255,0.12)"/><text x="14" y="20" text-anchor="middle" font-family="Commissioner,sans-serif" font-size="14" font-weight="700" fill="white">E</text></svg>
+<!-- NAVBAR -->
+<nav class="navbar">
+    <div class="navbar-inner">
+        <div class="navbar-left">
+            <div class="navbar-logo"><img src="images/logo.png" alt="in3pida"></div>
+            <span class="navbar-badge">iSI</span>
         </div>
-        <nav class="sidebar-nav">
-            <button class="sidebar-item active" data-htab="panoramica">
-                <span class="sidebar-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span>
-                Panoramica
-            </button>
-            <button class="sidebar-item" data-htab="faq">
-                <span class="sidebar-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></span>
-                FAQ
-            </button>
-            <button class="sidebar-item" data-htab="schema">
-                <span class="sidebar-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></span>
-                Schema.org
-            </button>
-            <button class="sidebar-item" data-htab="mappa">
-                <span class="sidebar-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
-                Mappa
-            </button>
-            <button class="sidebar-item" data-htab="coerenza">
-                <span class="sidebar-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>
-                AI
-            </button>
-            <button class="sidebar-item" data-htab="pse">
-                <span class="sidebar-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
-                Statistiche
-            </button>
-            <button class="sidebar-item" data-htab="config">
-                <span class="sidebar-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg></span>
-                Config.
-            </button>
-        </nav>
-        <div class="sidebar-bottom">
-            <div class="sidebar-sep"></div>
-            <button class="sidebar-item" id="dd-logout">
-                <span class="sidebar-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg></span>
-                Esci
-            </button>
+        <div class="navbar-center">
+            <span id="nav-site-name" style="font-size:13px;font-weight:600;color:var(--grey)"></span>
+        </div>
+        <div class="navbar-right">
+            <button id="btn-feedback" onclick="document.getElementById('feedback-overlay').style.display='flex'" style="background:none;border:1px solid #C1CBE8;border-radius:20px;padding:6px 14px;font-size:13px;font-weight:600;color:#0D5F75;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:var(--font)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Invia feedback</button>
+            <div class="navbar-user-pill" id="user-pill" style="cursor:pointer">
+                <div class="navbar-avatar" id="nav-avatar">H</div>
+                <div class="navbar-user-text">
+                    <div class="navbar-user-name" id="nav-name">Hotel</div>
+                    <div class="navbar-user-sub">Pannello Hotel</div>
+                </div>
+            </div>
+            <div class="user-dropdown" id="user-dropdown" style="display:none">
+                <div class="user-dropdown-header">
+                    <div class="user-dropdown-avatar" id="dd-avatar">H</div>
+                    <div>
+                        <div class="user-dropdown-name" id="dd-name">Hotel</div>
+                        <div class="user-dropdown-email" id="dd-email"></div>
+                    </div>
+                </div>
+                <div class="user-dropdown-divider"></div>
+                <button class="user-dropdown-item logout" id="dd-logout">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+                    Esci
+                </button>
+            </div>
         </div>
     </div>
+</nav>
 
-    <!-- ─── RIGHT AREA ─── -->
-    <div class="eletta-right-area">
+<!-- HERO -->
+<div class="hero">
+    <div class="hero-label" id="hero-greeting">Eletta</div>
+    <div class="hero-title" id="hero-hotel-name">—</div>
+</div>
 
-        <!-- HEADER -->
-        <header class="eletta-header">
-            <div class="eletta-header-logo">
-                <img src="images/logo-eletta.png" alt="Eletta">
-            </div>
-            <button class="btn-sincronizza" id="btn-header-sync">Sincronizza</button>
-            <div class="eletta-header-right">
-                <button id="btn-feedback" onclick="document.getElementById('feedback-overlay').style.display='flex'" style="background:none;border:1px solid #C1CBE8;border-radius:20px;padding:6px 14px;font-size:12px;font-weight:600;color:#0D5F75;cursor:pointer;display:flex;align-items:center;gap:5px;font-family:'Sarabun',sans-serif"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Feedback</button>
-                <div class="navbar-user-pill" id="user-pill" style="cursor:pointer">
-                    <div class="navbar-avatar" id="nav-avatar">H</div>
-                    <div class="navbar-user-text">
-                        <div class="navbar-user-name" id="nav-name">Hotel</div>
-                        <div class="navbar-user-sub">Pannello Hotel</div>
-                    </div>
-                </div>
-                <button class="header-bell" id="btn-bell">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
-                    <span class="header-bell-dot" id="bell-dot" style="display:none"></span>
-                </button>
-                <div class="user-dropdown" id="user-dropdown" style="display:none;position:absolute;top:70px;right:24px;">
-                    <div class="user-dropdown-header">
-                        <div class="user-dropdown-avatar" id="dd-avatar">H</div>
-                        <div>
-                            <div class="user-dropdown-name" id="dd-name">Hotel</div>
-                            <div class="user-dropdown-email" id="dd-email"></div>
-                        </div>
-                    </div>
-                    <div class="user-dropdown-divider"></div>
-                    <button class="user-dropdown-item logout" id="dd-logout-inner">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
-                        Esci
-                    </button>
-                </div>
-            </div>
-        </header>
-
-        <!-- HERO -->
-        <div class="eletta-hero">
-            <div class="eletta-hero-name" id="hero-hotel-name">—</div>
-            <div class="eletta-hero-chips">
-                <div class="hero-chip">
-                    <span class="hero-chip-label">Url del sito</span>
-                    <span id="hero-url">—</span>
-                </div>
-                <div class="hero-chip hero-chip-solid">
-                    Punteggio GEO <span id="hero-geo-score">—</span>/10
-                </div>
-                <div class="hero-chip">
-                    Rinnovo servizio: <span id="hero-rinnovo">—</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- MAIN CONTENT -->
-        <div class="eletta-content">
-            <div id="hotel-content"><div class="loading"><div class="spinner"></div> Caricamento...</div></div>
-        </div>
-
-    </div><!-- /eletta-right-area -->
-</div><!-- /eletta-layout -->
+<!-- MAIN -->
+<div class="main">
+    <div id="hotel-content"><div class="loading"><div class="spinner"></div> Caricamento...</div></div>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>
@@ -248,7 +111,7 @@ async function init() {
     if (!session) { window.location.href = 'login.html'; return; }
     await _SBq.auth.setSession({ access_token: session.access_token, refresh_token: session.refresh_token || '' });
     const user = session.user;
-    if (user.user_metadata?.role === 'admin' && !new URLSearchParams(location.search).has('preview')) { window.location.href = 'index.html'; return; }
+    if (user.user_metadata?.role === 'admin') { window.location.href = 'index.html'; return; }
 
     const name = user.user_metadata?.full_name || user.email?.split('@')[0] || 'Hotel';
     const ini  = name.charAt(0).toUpperCase();
@@ -257,6 +120,7 @@ async function init() {
     document.getElementById('dd-name').textContent    = name;
     document.getElementById('dd-email').textContent   = user.email || '';
     document.getElementById('dd-avatar').textContent  = ini;
+    document.getElementById('hero-greeting').textContent = 'Ciao ' + name + '!';
     const fbEmail = document.getElementById('fb-email');
     if (fbEmail) fbEmail.value = user.email || '';
 
@@ -289,65 +153,7 @@ async function init() {
 
     const siteName = site.site_name || site.site_url || '—';
     document.getElementById('hero-hotel-name').textContent = siteName;
-
-    const urlEl = document.getElementById('hero-url');
-    if (urlEl) urlEl.textContent = (site.site_url || '').replace(/^https?:\/\//, '').replace(/\/$/, '') || '—';
-
-    const geoEl = document.getElementById('hero-geo-score');
-    const geo0 = site.geo_scores || {};
-    const geoAvg0 = geo0.completeness_score != null ? geo0.completeness_score : (geo0.ai_readiness != null ? geo0.ai_readiness : null);
-    if (geoEl) geoEl.textContent = geoAvg0 !== null ? Math.round(geoAvg0/10) : '—';
-
-    const rinEl = document.getElementById('hero-rinnovo');
-    if (rinEl) {
-        const ren = site.renewal_date || site.renew_date || null;
-        rinEl.textContent = ren ? new Date(ren).toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'2-digit'}) : '—';
-    }
-
-    // Sidebar navigation
-    document.querySelectorAll('.sidebar-item[data-htab]').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const tab = btn.dataset.htab;
-            document.querySelectorAll('.sidebar-item[data-htab]').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            document.querySelectorAll('[id^="htab-"]').forEach(p => p.style.display = 'none');
-            const pane = document.getElementById('htab-' + tab);
-            if (pane) pane.style.display = '';
-            if (tab === 'faq')      initHotelFaq();
-            if (tab === 'schema')   initHotelSchema(site);
-            if (tab === 'mappa')    initHotelMappa(site);
-            if (tab === 'coerenza') initHotelCoerenza();
-            if (tab === 'config')   initHotelConfig();
-            if (tab === 'pse')      initHotelPse(pseData || [], now);
-        });
-    });
-
-    // Sync button in header
-    const syncHeader = document.getElementById('btn-header-sync');
-    if (syncHeader) {
-        syncHeader.addEventListener('click', () => {
-            const syncBtn = document.getElementById('btn-hotel-sync');
-            if (syncBtn) syncBtn.click(); else syncHeader.textContent = 'Sincronizza...';
-        });
-    }
-
-    // Logout (sidebar + dropdown)
-    const logoutSidebar = document.getElementById('dd-logout');
-    const logoutInner   = document.getElementById('dd-logout-inner');
-    const doLogout = async () => { await _SB.auth.signOut(); window.location.href = 'login.html'; };
-    if (logoutSidebar)  logoutSidebar.addEventListener('click', doLogout);
-    if (logoutInner)    logoutInner.addEventListener('click', doLogout);
-
-    // User pill → dropdown toggle
-    document.getElementById('user-pill')?.addEventListener('click', e => {
-        e.stopPropagation();
-        const d = document.getElementById('user-dropdown');
-        if (d) d.style.display = d.style.display === 'none' ? '' : 'none';
-    });
-    document.addEventListener('click', () => {
-        const d = document.getElementById('user-dropdown');
-        if (d) d.style.display = 'none';
-    });
+    document.getElementById('nav-site-name').textContent   = siteName;
 
     renderContent(site, pseData || [], now);
     applyAppFeatures(_appFeatures, _siteAppPerms);
@@ -357,13 +163,19 @@ async function init() {
 function applyAppFeatures(userF, siteF) {
     const tabMap = { panoramica:'panoramica', faq:'faq', schema_org:'schema', mappa_query:'mappa', coerenza:'coerenza', config:'config', statistiche:'pse' };
     const allowed = key => userF[key] !== false && siteF[key] !== false;
+    let firstVisible = null;
     Object.entries(tabMap).forEach(([key, tab]) => {
         if (!allowed(key)) {
-            document.querySelector(`.sidebar-item[data-htab="${tab}"]`)?.remove();
+            document.querySelector(`.htab-btn[data-tab="${tab}"]`)?.remove();
             const pane = document.getElementById('htab-' + tab);
             if (pane) pane.style.display = 'none';
+        } else if (!firstVisible) {
+            firstVisible = tab;
         }
     });
+    if (firstVisible && !document.querySelector('.htab-btn[data-tab="panoramica"]')) {
+        document.querySelector(`.htab-btn[data-tab="${firstVisible}"]`)?.click();
+    }
 }
 
 // ─── RENDER MAIN CONTENT ───────────────────────────────────────────────────────
@@ -400,26 +212,39 @@ function renderContent(site, pseData, now) {
 
     const el = document.getElementById('hotel-content');
     el.innerHTML = `
-        <!-- KPI 3 CARDS -->
-        <div class="kpi-grid">
-            <div class="kpi-card">
-                <div class="kpi-card-title">Completezza Profilo AI <span class='tip-q' data-tip='Completezza del profilo AI: nome, indirizzo, descrizione, contatti, FAQ ecc.'>?</span></div>
-                <div class="kpi-card-value" style="color:${cs!==null?'#171b33':'#ead0dc'}">${cs!==null?cs:'—'}</div>
-                <div class="kpi-card-sub">${cs!==null?(cs>=70?'ottimizzato':cs>=40?'da migliorare':'critico'):'nessun dato'}</div>
-                <span class="kpi-card-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C1CBE8" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+        <!-- KPI -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px">
+            <div style="background:white;border-radius:8px;box-shadow:0 2px 20px rgba(0,0,0,0.07);border-top:3px solid #0D5F75;padding:20px 22px">
+                <div style="font-size:12px;font-weight:500;color:#4a4a6a;margin-bottom:10px;display:flex;align-items:center;gap:4px">GEO SCORE <span class='tip-q' data-tip='Punteggio complessivo AI. ≥70 ottimizzato, 40–69 da migliorare.'>?</span></div>
+                <div style="font-size:34px;font-weight:800;line-height:1;color:${geoAvg!==null?'#171b33':'#ead0dc'}">${geoAvg!==null?geoAvg:'—'}</div>
+                <div style="font-size:12px;font-weight:500;color:${geoAvg!==null?(geoAvg>=70?'#0D5F75':'#0D5F75'):'#ead0dc'};margin-top:6px">${geoAvg!==null?(geoAvg>=70?'ottimizzato':geoAvg>=40?'da migliorare':'critico'):'nessun dato'}</div>
             </div>
-            <div class="kpi-card">
-                <div class="kpi-card-title">Risultati FAQ <span class='tip-q' data-tip='Percentuale di domande degli ospiti coperta dalle FAQ. ≥80% buona copertura.'>?</span></div>
-                <div class="kpi-card-value" style="color:${covPct!==null?'#171b33':'#ead0dc'}">${covPct!==null?covPct+'%':'—'}</div>
-                <div class="kpi-card-sub">${covPct!==null?covPct+'% coperto':'nessun dato'}</div>
-                <span class="kpi-card-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C1CBE8" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></span>
+            <div style="background:white;border-radius:8px;box-shadow:0 2px 20px rgba(0,0,0,0.07);border-top:3px solid #e4e4ec;padding:20px 22px">
+                <div style="font-size:12px;font-weight:500;color:#4a4a6a;margin-bottom:10px;display:flex;align-items:center;gap:4px">COMPLETEZZA AI <span class='tip-q' data-tip='Completezza del profilo AI: nome, indirizzo, descrizione, contatti, FAQ ecc.'>?</span></div>
+                <div style="font-size:34px;font-weight:800;line-height:1;color:${cs!==null?'#171b33':'#ead0dc'}">${cs!==null?cs:'—'}</div>
+                <div style="font-size:12px;font-weight:500;color:${cs!==null?(cs>=70?'#0D5F75':'#0D5F75'):'#ead0dc'};margin-top:6px">${cs!==null?(cs>=70?'ottimizzato':cs>=40?'da migliorare':'critico'):'nessun dato'}</div>
             </div>
-            <div class="kpi-card">
-                <div class="kpi-card-title">Mappa di Ricerca <span class='tip-q' data-tip='Percentuale di categorie di query conversazionali coperte. ≥70% buona copertura.'>?</span></div>
-                <div class="kpi-card-value" style="color:${qMapPct!==null?'#171b33':'#ead0dc'}">${qMapPct!==null?qMapPct+'%':'—'}</div>
-                <div class="kpi-card-sub">${qMapPct!==null?qMapPct+'% coperto':'nessun dato'}</div>
-                <span class="kpi-card-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C1CBE8" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
+            <div style="background:white;border-radius:8px;box-shadow:0 2px 20px rgba(0,0,0,0.07);border-top:3px solid #e4e4ec;padding:20px 22px">
+                <div style="font-size:12px;font-weight:500;color:#4a4a6a;margin-bottom:10px;display:flex;align-items:center;gap:4px">COVERAGE FAQ <span class='tip-q' data-tip='Percentuale di domande degli ospiti coperta dalle FAQ. ≥80% buona copertura.'>?</span></div>
+                <div style="font-size:34px;font-weight:800;line-height:1;color:${covPct!==null?'#171b33':'#ead0dc'}">${covPct!==null?covPct+'%':'—'}</div>
+                <div style="font-size:12px;font-weight:500;color:${covPct!==null?(covPct>=80?'#0D5F75':'#0D5F75'):'#ead0dc'};margin-top:6px">${covPct!==null?covPct+'% coperto':'nessun dato'}</div>
             </div>
+            <div style="background:white;border-radius:8px;box-shadow:0 2px 20px rgba(0,0,0,0.07);border-top:3px solid #e4e4ec;padding:20px 22px">
+                <div style="font-size:12px;font-weight:500;color:#4a4a6a;margin-bottom:10px;display:flex;align-items:center;gap:4px">MAPPA QUERY <span class='tip-q' data-tip='Percentuale di categorie di query conversazionali coperte. ≥70% buona copertura.'>?</span></div>
+                <div style="font-size:34px;font-weight:800;line-height:1;color:${qMapPct!==null?'#171b33':'#ead0dc'}">${qMapPct!==null?qMapPct+'%':'—'}</div>
+                <div style="font-size:12px;font-weight:500;color:${qMapPct!==null?(qMapPct>=70?'#0D5F75':'#0D5F75'):'#ead0dc'};margin-top:6px">${qMapPct!==null?qMapPct+'% coperto':'nessun dato'}</div>
+            </div>
+        </div>
+
+        <!-- TAB BAR -->
+        <div style="display:flex;border-bottom:2px solid #e4e4ec;margin-bottom:20px;overflow-x:auto;gap:0">
+            <button class="htab-btn" data-tab="panoramica" style="${dtabAct}">PANORAMICA</button>
+            <button class="htab-btn" data-tab="faq" style="${dtabInact}">FAQ</button>
+            <button class="htab-btn" data-tab="schema" style="${dtabInact}">SCHEMA.ORG</button>
+            <button class="htab-btn" data-tab="mappa" style="${dtabInact}">MAPPA QUERY</button>
+            <button class="htab-btn" data-tab="coerenza" style="${dtabInact}">COERENZA</button>
+            <button class="htab-btn" data-tab="config" style="${dtabInact}">CONFIGURAZIONE</button>
+            <button class="htab-btn" data-tab="pse" style="${dtabInact}">STATISTICHE PSE</button>
         </div>
 
         <!-- ═══ TAB: PANORAMICA ═══ -->
@@ -599,11 +424,30 @@ function renderContent(site, pseData, now) {
         </div><!-- /htab-pse -->
     `;
 
-    // ── stato-sezione-row click → switch via sidebar
+    // ── tab switching
+    const allPanes = ['panoramica','faq','schema','mappa','coerenza','config','pse'];
+    el.querySelectorAll('.htab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const tab = btn.dataset.tab;
+            el.querySelectorAll('.htab-btn').forEach(b => { b.style.color='#666b84'; b.style.borderBottom='2px solid transparent'; });
+            btn.style.color = '#0D5F75'; btn.style.borderBottom = '2px solid #0D5F75';
+            allPanes.forEach(p => { const p2=document.getElementById('htab-'+p); if(p2) p2.style.display='none'; });
+            const pane = document.getElementById('htab-'+tab);
+            if (pane) pane.style.display = 'block';
+            if (tab === 'faq') initHotelFaq();
+            if (tab === 'schema') initHotelSchema(site);
+            if (tab === 'mappa') initHotelMappa(site);
+            if (tab === 'coerenza') initHotelCoerenza(site);
+            if (tab === 'config') initHotelConfig(site);
+            if (tab === 'pse') initHotelPseCharts(pseData);
+        });
+    });
+
+    // ── stato-sezione-row click → switch tab
     el.querySelectorAll('.hstato-row[data-tab]').forEach(row => {
         row.addEventListener('click', () => {
-            const sideBtn = document.querySelector('.sidebar-item[data-htab="'+row.dataset.tab+'"]');
-            if (sideBtn) sideBtn.click();
+            const tabBtn = el.querySelector('.htab-btn[data-tab="'+row.dataset.tab+'"]');
+            if (tabBtn) tabBtn.click();
         });
     });
 
@@ -988,7 +832,14 @@ function initHotelPseCharts(pseData) {
     }
 }
 
-// user-pill click and logout are set up in init()
+// ─── USER DROPDOWN ────────────────────────────────────────────────────────────
+document.getElementById('user-pill').addEventListener('click', e => {
+    e.stopPropagation();
+    const dd=document.getElementById('user-dropdown');
+    dd.style.display=dd.style.display==='none'?'block':'none';
+});
+document.addEventListener('click', () => { document.getElementById('user-dropdown').style.display='none'; });
+document.getElementById('dd-logout').addEventListener('click', async () => { await _SB.auth.signOut(); window.location.href='login.html'; });
 
 // ─── UTIL ─────────────────────────────────────────────────────────────────────
 function timeAgo(d) {
