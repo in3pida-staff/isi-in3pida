@@ -248,7 +248,7 @@ async function init() {
     if (!session) { window.location.href = 'login.html'; return; }
     await _SBq.auth.setSession({ access_token: session.access_token, refresh_token: session.refresh_token || '' });
     const user = session.user;
-    if (user.user_metadata?.role === 'admin') { window.location.href = 'index.html'; return; }
+    if (user.user_metadata?.role === 'admin' && !new URLSearchParams(location.search).has('preview')) { window.location.href = 'index.html'; return; }
 
     const name = user.user_metadata?.full_name || user.email?.split('@')[0] || 'Hotel';
     const ini  = name.charAt(0).toUpperCase();
