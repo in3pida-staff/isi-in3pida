@@ -938,8 +938,8 @@
 
         el.querySelectorAll('tr[data-site-id]').forEach(row => {
             row.addEventListener('click', e => {
-                const site = data.find(s => s.site_id === row.dataset.siteId);
-                loadSiteDetail(row.dataset.siteId, site);
+                if (e.target.closest('button')) return;
+                window.location.href = 'hotel.html?site_id=' + encodeURIComponent(row.dataset.siteId);
             });
         });
     }
