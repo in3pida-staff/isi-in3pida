@@ -9,7 +9,7 @@
     <title>Eletta — Posiziona il tuo sito nelle ricerche AI</title>
     <link rel="icon" type="image/png" href="images/favicon.png?v=2">
     <link rel="stylesheet" href="css/style.css?v=20260622h">
-    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v4')){sessionStorage.setItem('isi_hotel_v4','1');location.reload(true);}</script>
+    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v5')){sessionStorage.setItem('isi_hotel_v5','1');location.reload(true);}</script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <style>
         .tip-q{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:#0D5F75;color:white;font-size:9px;font-weight:800;cursor:default;flex-shrink:0;user-select:none;vertical-align:middle}
@@ -19,19 +19,19 @@
         .h-layout{display:flex;min-height:100vh;}
 
         /* ═══ SIDEBAR ═══ */
-        .h-sidebar{width:52px;min-height:100vh;background:#1a1e3a;display:flex;flex-direction:column;align-items:center;position:fixed;left:0;top:0;z-index:200;padding:10px 0;}
-        .h-sidebar-brand{margin-bottom:18px;display:flex;align-items:center;justify-content:center;width:100%;}
-        .h-sidebar-nav{display:flex;flex-direction:column;align-items:center;gap:0;flex:1;width:100%;}
-        .h-nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;width:100%;padding:8px 2px;background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.4);font-family:'Sarabun',sans-serif;font-size:8px;font-weight:600;letter-spacing:.01em;transition:all .15s;text-align:center;line-height:1.1;}
-        .h-nav-item:hover{color:rgba(255,255,255,0.75);background:rgba(255,255,255,0.05);}
-        .h-nav-item.active{color:white;background:rgba(255,255,255,0.08);}
-        .h-nav-icon{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:50%;flex-shrink:0;}
-        .h-nav-item.active .h-nav-icon{background:rgba(13,95,117,0.4);}
-        .h-sidebar-sep{width:34px;height:1px;background:rgba(255,255,255,0.08);margin:5px 0;}
-        .h-sidebar-bottom{width:100%;display:flex;flex-direction:column;align-items:center;}
+        .h-sidebar{width:70px;min-height:100vh;background:#1a1e3a;display:flex;flex-direction:column;align-items:center;position:fixed;left:0;top:0;z-index:200;padding:10px 0;}
+        .h-sidebar-brand{margin-bottom:14px;display:flex;align-items:center;justify-content:center;width:100%;}
+        .h-sidebar-nav{display:flex;flex-direction:column;align-items:center;gap:0;flex:1;width:100%;padding:0 6px;}
+        .h-nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;width:100%;padding:7px 4px;background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.4);font-family:'Sarabun',sans-serif;font-size:9px;font-weight:600;letter-spacing:.01em;transition:all .15s;text-align:center;line-height:1.1;border-radius:10px;}
+        .h-nav-item:hover{color:rgba(255,255,255,0.75);background:rgba(255,255,255,0.06);}
+        .h-nav-item.active{color:white;}
+        .h-nav-icon{width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:10px;flex-shrink:0;}
+        .h-nav-item.active .h-nav-icon{background:rgba(0,0,0,0.35);}
+        .h-sidebar-sep{width:40px;height:1px;background:rgba(255,255,255,0.08);margin:5px 0;}
+        .h-sidebar-bottom{width:100%;display:flex;flex-direction:column;align-items:center;padding:0 6px;}
 
         /* ═══ AREA DESTRA ═══ */
-        .h-right{margin-left:52px;flex:1;display:flex;flex-direction:column;min-height:100vh;}
+        .h-right{margin-left:70px;flex:1;display:flex;flex-direction:column;min-height:100vh;}
 
         /* ═══ HEADER ═══ */
         .h-header{background:white;height:52px;display:flex;align-items:center;padding:0 20px;position:sticky;top:0;z-index:100;box-shadow:0 1px 0 #e8e8f0;gap:14px;}
@@ -46,14 +46,12 @@
         .h-bell-dot{position:absolute;top:6px;right:5px;width:7px;height:7px;border-radius:50%;background:#ff6b2b;border:1.5px solid white;}
 
         /* ═══ HERO ═══ */
-        .h-hero{background:linear-gradient(135deg,#0D5F75 0%,#0a4d60 100%);padding:20px 28px 16px;display:flex;flex-direction:column;gap:8px;position:relative;overflow:hidden;}
-        .h-hero::after{content:'';position:absolute;right:-30px;top:-30px;width:180px;height:180px;border-radius:50%;border:36px solid rgba(255,255,255,0.06);pointer-events:none;}
-        .h-hero::before{content:'';position:absolute;right:80px;top:-50px;width:120px;height:120px;border-radius:50%;border:24px solid rgba(255,255,255,0.04);pointer-events:none;}
-        .h-hero-name{font-family:'Commissioner',sans-serif;font-size:26px;font-weight:700;color:white;}
+        .h-hero{background:linear-gradient(135deg,#8d97c0 0%,#7d88b5 100%);padding:18px 24px 16px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;}
+        .h-hero-name{font-family:'Commissioner',sans-serif;font-size:26px;font-weight:700;color:#171b33;flex-shrink:0;}
         .h-hero-chips{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
-        .h-chip{background:rgba(255,255,255,0.11);border:1.5px solid rgba(255,255,255,0.22);border-radius:24px;padding:4px 11px;font-size:10px;color:white;display:flex;align-items:center;gap:5px;white-space:nowrap;}
-        .h-chip-lbl{font-size:9px;opacity:.6;font-weight:600;}
-        .h-chip-geo{background:rgba(255,255,255,0.88);color:#0D5F75;border-color:transparent;font-weight:700;font-size:11px;}
+        .h-chip{background:rgba(255,255,255,0.82);border:1.5px solid rgba(255,255,255,0.95);border-radius:24px;padding:5px 13px;font-size:10px;color:#1a1e3a;display:flex;align-items:center;gap:5px;white-space:nowrap;}
+        .h-chip-lbl{font-size:9px;opacity:.7;font-weight:600;}
+        .h-chip-geo{background:white;color:#0D5F75;border-color:white;font-weight:700;font-size:11px;}
 
         /* ═══ CONTENT ═══ */
         .h-content{background:#edf0f7;flex:1;padding:18px 18px 40px;}
@@ -75,7 +73,7 @@
         /* ═══ CARD UNIVERSALE ═══ */
         .h-card{background:white;border-radius:16px;box-shadow:0 2px 14px rgba(0,0,0,.06);overflow:hidden;margin-bottom:12px;}
         .h-card-hdr{padding:12px 16px;border-bottom:1px solid #f0f0f6;display:flex;align-items:center;justify-content:space-between;}
-        .h-card-hdr-t{font-size:11px;font-weight:700;color:#171b33;display:flex;align-items:center;gap:6px;text-transform:uppercase;letter-spacing:.04em;}
+        .h-card-hdr-t{font-size:12px;font-weight:700;color:#171b33;display:flex;align-items:center;gap:6px;}
         .h-card-body{padding:14px 16px;}
         .h-dot-ok{background:#0D5F75;} .h-dot-warn{background:var(--magenta);} .h-dot-err{background:var(--red);} .h-dot-nd{background:#ccc;}
         .h-dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex-shrink:0;}
@@ -91,7 +89,7 @@
         .h-sec-sub{font-size:10px;color:#888;margin:0;}
 
         /* ═══ ELETTA CARD (float destra) ═══ */
-        .h-eletta{background:white;border-radius:16px;box-shadow:0 2px 14px rgba(0,0,0,.06);position:sticky;top:66px;padding:16px;}
+        .h-eletta{background:#e8ebf7;border-radius:16px;box-shadow:0 2px 14px rgba(0,0,0,.06);position:sticky;top:66px;padding:16px;}
         .h-eletta-title{font-family:'Commissioner',sans-serif;font-size:18px;font-weight:700;color:#171b33;margin-bottom:12px;line-height:1.35;}
         .h-eletta-row{display:flex;align-items:center;gap:9px;padding:9px 0;border-bottom:1px solid #f0f0f6;font-size:12px;color:#4b4d68;font-weight:500;}
         .h-eletta-row:last-of-type{border-bottom:none;}
@@ -147,38 +145,38 @@
     </div>
     <nav class="h-sidebar-nav">
       <button class="h-nav-item active" data-htab="panoramica">
-        <span class="h-nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span>
+        <span class="h-nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span>
         Panoramica
       </button>
       <button class="h-nav-item" data-htab="faq">
-        <span class="h-nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></span>
+        <span class="h-nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></span>
         FAQ
       </button>
       <button class="h-nav-item" data-htab="schema">
-        <span class="h-nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></span>
+        <span class="h-nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></span>
         Schema.org
       </button>
       <button class="h-nav-item" data-htab="mappa">
-        <span class="h-nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="8" r="5"/><path d="M8.56 13.9C5.18 14.64 3 16.07 3 18c0 2.21 3.58 4 8 4s8-1.79 8-4c0-1.93-2.18-3.36-5.56-4.1"/></svg></span>
+        <span class="h-nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="8" r="5"/><path d="M8.56 13.9C5.18 14.64 3 16.07 3 18c0 2.21 3.58 4 8 4s8-1.79 8-4c0-1.93-2.18-3.36-5.56-4.1"/></svg></span>
         Mappa
       </button>
       <button class="h-nav-item" data-htab="coerenza">
-        <span class="h-nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="19" r="2"/><path d="M12 7v4m0 0l-5.5 6M12 11l5.5 6"/></svg></span>
+        <span class="h-nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="19" r="2"/><path d="M12 7v4m0 0l-5.5 6M12 11l5.5 6"/></svg></span>
         AI
       </button>
       <button class="h-nav-item" data-htab="pse">
-        <span class="h-nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
+        <span class="h-nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
         Statistiche
       </button>
       <button class="h-nav-item" data-htab="config">
-        <span class="h-nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg></span>
+        <span class="h-nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg></span>
         Configurazione
       </button>
     </nav>
     <div class="h-sidebar-bottom">
       <div class="h-sidebar-sep"></div>
       <button class="h-nav-item" id="btn-logout-sidebar">
-        <span class="h-nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg></span>
+        <span class="h-nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg></span>
         Esci
       </button>
     </div>
@@ -201,7 +199,7 @@
           </div>
         </div>
         <button class="h-bell" id="btn-bell">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
         </button>
         <div class="user-dropdown" id="user-dropdown" style="display:none;position:absolute;top:60px;right:16px;z-index:300;">
           <div class="user-dropdown-header">
@@ -218,10 +216,6 @@
 
     <!-- HERO -->
     <div class="h-hero">
-      <div>
-        <div style="font-family:'Commissioner',sans-serif;font-size:17px;font-weight:700;color:rgba(255,255,255,0.9);letter-spacing:.04em;line-height:1">ELETTA</div>
-        <div style="font-size:10px;color:rgba(255,255,255,0.55);letter-spacing:.03em;margin-top:1px">Posiziona il tuo sito nelle ricerche AI</div>
-      </div>
       <div class="h-hero-name" id="hero-hotel-name">—</div>
       <div class="h-hero-chips">
         <div class="h-chip"><span class="h-chip-lbl">Url del sito</span><span id="hero-url">—</span></div>
