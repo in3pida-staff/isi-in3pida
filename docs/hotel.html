@@ -9,17 +9,17 @@
     <title>Eletta — Posiziona il tuo sito nelle ricerche AI</title>
     <link rel="icon" type="image/png" href="images/favicon.png?v=2">
     <link rel="stylesheet" href="css/style.css?v=20260622q">
-    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6','isi_hotel_v7','isi_hotel_v8','isi_hotel_v9','isi_hotel_v10','isi_hotel_v11','isi_hotel_v12','isi_hotel_v13','isi_hotel_v14'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v17')){sessionStorage.setItem('isi_hotel_v17','1');location.reload(true);}</script>
+    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6','isi_hotel_v7','isi_hotel_v8','isi_hotel_v9','isi_hotel_v10','isi_hotel_v11','isi_hotel_v12','isi_hotel_v13','isi_hotel_v14'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v18')){sessionStorage.setItem('isi_hotel_v18','1');location.reload(true);}</script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <style>
         .tip-q{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:#EFF020;color:#0D5F75;font-size:9px;font-weight:800;cursor:default;flex-shrink:0;user-select:none;vertical-align:middle}
 
         /* ═══ LAYOUT PRINCIPALE ═══ */
-        body{margin:0;padding:0;background:#EDEEF5;font-family:'Commissioner',sans-serif;}
+        body{margin:0;padding:0;background:#D6DAF2;font-family:'Commissioner',sans-serif;}
         .h-layout{display:flex;min-height:100vh;}
 
         /* ═══ SIDEBAR ═══ */
-        .h-sidebar{width:70px;min-height:100vh;background:#EDEEF5;display:flex;flex-direction:column;align-items:center;position:fixed;left:0;top:0;z-index:200;padding:10px 0;}
+        .h-sidebar{width:70px;min-height:100vh;background:#D6DAF2;display:flex;flex-direction:column;align-items:center;position:fixed;left:0;top:0;z-index:200;padding:10px 0;}
         .h-sidebar-brand{margin-bottom:14px;display:flex;align-items:center;justify-content:center;width:100%;}
         .h-sidebar-nav{display:flex;flex-direction:column;align-items:center;gap:0;flex:1;width:100%;padding:0 6px;}
         .h-nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;width:100%;padding:7px 4px;background:none;border:none;cursor:pointer;color:rgba(13,95,117,0.55);font-family:'Commissioner',sans-serif;font-size:9px;font-weight:700;letter-spacing:.01em;transition:all .15s;text-align:center;line-height:1.1;border-radius:10px;}
@@ -30,7 +30,7 @@
         .h-nav-item.active .h-nav-icon{opacity:1;}
         .h-nav-item.active .h-nav-icon svg circle{fill:#0D5F75!important;}
         .h-nav-item.active .h-nav-icon svg path,.h-nav-item.active .h-nav-icon svg rect,.h-nav-item.active .h-nav-icon svg polyline,.h-nav-item.active .h-nav-icon svg line,.h-nav-item.active .h-nav-icon svg polygon{fill:#fff!important;stroke:#fff!important;}
-        .h-sidebar-sep{width:40px;height:1px;background:rgba(13,95,117,0.15);margin:5px 0;}
+        .h-sidebar-sep{width:40px;height:1px;background:rgba(255,255,255,0.5);margin:8px 0;}
         .h-sidebar-bottom{width:100%;display:flex;flex-direction:column;align-items:center;padding:0 6px;}
 
         /* ═══ AREA DESTRA ═══ */
@@ -49,7 +49,7 @@
         .h-bell-dot{position:absolute;top:6px;right:5px;width:7px;height:7px;border-radius:50%;background:#ff6b2b;border:1.5px solid white;}
 
         /* ═══ HERO ═══ */
-        .h-hero{background:#C1CBE8;padding:18px 24px 16px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;border-radius:16px;margin-bottom:16px;}
+        .h-hero{background:#C1CBE8;padding:26px 28px 24px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;border-radius:16px;margin-bottom:16px;}
         .h-hero-name{font-family:'Commissioner',sans-serif;font-size:26px;font-weight:400;color:#fff;flex-shrink:0;}
         .h-hero-chips{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
         .h-chip{background:#fff;border:1.5px solid rgba(13,95,117,0.15);border-radius:24px;padding:5px 13px;font-size:10px;color:#0D5F75;display:flex;align-items:center;gap:5px;white-space:nowrap;}
@@ -57,7 +57,7 @@
         .h-chip-geo{font-weight:700;font-size:11px;}
 
         /* ═══ CONTENT ═══ */
-        .h-content{background:#EDEEF5;flex:1;padding:18px 18px 40px;}
+        .h-content{background:#D6DAF2;flex:1;padding:18px 18px 40px;}
 
         /* ═══ DASHBOARD HEADING ═══ */
         .h-dash-title{font-family:'Commissioner',sans-serif;font-size:26px;font-weight:700;color:#171b33;margin:0 0 14px;}
@@ -65,9 +65,9 @@
         /* ═══ KPI ROW ═══ */
         .h-kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px;}
         .h-kpi{background:white;border-radius:16px;box-shadow:0 2px 14px rgba(0,0,0,.06);padding:16px 18px;position:relative;overflow:hidden;}
-        .h-kpi-ttl{font-size:11px;font-weight:600;color:#888;letter-spacing:.01em;margin-bottom:7px;display:flex;align-items:center;gap:4px;font-family:'Commissioner',sans-serif;}
-        .h-kpi-val{font-size:44px;font-weight:700;line-height:1;color:#171b33;font-family:'Commissioner',sans-serif;}
-        .h-kpi-sub{font-size:11px;font-weight:600;color:#9ca3af;margin-top:5px;font-family:'Commissioner',sans-serif;}
+        .h-kpi-ttl{font-size:16px;font-weight:700;color:#0D5F75;letter-spacing:.01em;margin-bottom:10px;display:flex;align-items:center;gap:4px;font-family:'Commissioner',sans-serif;}
+        .h-kpi-val{font-size:52px;font-weight:700;line-height:1;color:#0D5F75;font-family:'Commissioner',sans-serif;}
+        .h-kpi-sub{font-size:14px;font-weight:500;color:#9ca3af;margin-top:6px;font-family:'Commissioner',sans-serif;}
         .h-kpi-sub-nd{color:#C1CBE8;}
         .h-kpi-deco{position:absolute;bottom:-6px;right:8px;opacity:0.13;pointer-events:none;}
 
@@ -83,7 +83,7 @@
         .h-dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex-shrink:0;}
 
         /* ═══ STATS + GEO ROW ═══ */
-        .h-stats-row{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:12px;}
+        .h-stats-row{display:grid;grid-template-columns:7fr 5fr;gap:12px;margin-bottom:12px;}
         .h-range-btn{font-size:10px;font-weight:600;cursor:pointer;color:#aaa;padding:4px 10px;border-radius:20px;border:1.5px solid #e0e0e8;transition:all .15s;font-family:'Commissioner',sans-serif;}
         .h-range-btn.active-range{color:#0D5F75;border-color:#0D5F75;background:white;}
 
@@ -152,11 +152,12 @@
   <!-- ═══ SIDEBAR ═══ -->
   <aside class="h-sidebar">
     <div class="h-sidebar-brand" id="sidebar-brand">
-      <svg width="30" height="36" viewBox="0 0 614.94 825.79" fill="none" style="width:30px;height:auto">
+      <svg width="28" height="34" viewBox="0 0 614.94 825.79" fill="none" style="width:30px;height:auto">
         <rect fill="#0D5F75" width="614.94" height="130.54"/>
         <path fill="#0D5F75" d="M614.94,422.92v-126.92h-215.69C178.75,296,0,474.75,0,695.25H0v130.54h614.94v-130.54H128.49v-272.33h486.44Z"/>
       </svg>
     </div>
+    <div class="h-sidebar-sep"></div>
     <nav class="h-sidebar-nav">
       <button class="h-nav-item active" data-htab="panoramica">
         <span class="h-nav-icon">
@@ -250,7 +251,6 @@
       <div class="h-hero-chips">
         <div class="h-chip"><span class="h-chip-lbl">Url del sito</span><span id="hero-url">—</span></div>
         <div class="h-chip h-chip-geo">Punteggio GEO <span id="hero-geo">—</span>/10</div>
-        <div class="h-chip">Rinnovo servizio: <span id="hero-rinnovo">—</span></div>
       </div>
     </div>
 
@@ -460,7 +460,7 @@ function renderContent(site, pseData, now) {
         const dGap=+(circ-dFill+0.01).toFixed(2);
         const arc=pct>0?`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${col}" stroke-width="${sw}" stroke-dasharray="${dFill} ${dGap}" stroke-linecap="round" transform="rotate(-90 ${cx} ${cy})"/>`:'';
         return `<svg viewBox="0 0 200 200" style="width:100%;display:block;margin:0 auto">
-        <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#ffffff" stroke-width="${sw}"/>
+        <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#C1CBE8" stroke-width="${sw}"/>
         ${arc}
         <text x="${cx-2}" y="${cy+22}" text-anchor="end" font-family="Commissioner,sans-serif" font-size="58" font-weight="700" fill="${col}">${s!==null?s:'—'}</text>
         <text x="${cx}" y="${cy-2}" text-anchor="start" font-family="Commissioner,sans-serif" font-size="15" font-weight="400" fill="#aaa">/100</text>
@@ -479,21 +479,21 @@ function renderContent(site, pseData, now) {
           <div class="h-kpi-row">
               <div class="h-kpi">
                   <div class="h-kpi-ttl">Completezza Profilo AI <span class='tip-q' data-tip='Completezza del profilo AI: nome, indirizzo, descrizione, contatti, FAQ ecc.'>?</span></div>
-                  <div class="h-kpi-val" style="color:${cs!==null?'#171b33':'#C1CBE8'}">${cs!==null?cs:'—'}</div>
+                  <div class="h-kpi-val" style="color:${cs!==null?'#0D5F75':'rgba(193,203,232,0.5)'}">${cs!==null?cs:'—'}</div>
                   <div class="h-kpi-sub ${cs===null?'h-kpi-sub-nd':''}">${cs!==null?(cs>=70?'ottimizzato':cs>=40?'da migliorare':'critico'):'nessun dato'}</div>
-                  <div class="h-kpi-deco"><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+                  <div class="h-kpi-deco"><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>
               </div>
               <div class="h-kpi">
                   <div class="h-kpi-ttl">Risultati FAQ <span class='tip-q' data-tip='Percentuale di domande degli ospiti coperta dalle FAQ. ≥80% buona copertura.'>?</span></div>
-                  <div class="h-kpi-val" style="color:${covPct!==null?'#171b33':'#C1CBE8'}">${covPct!==null?covPct+'%':'—'}</div>
-                  <div class="h-kpi-sub ${covPct===null?'h-kpi-sub-nd':''}">${covPct!==null?covPct+'% coperto':'nessun dato'}</div>
-                  <div class="h-kpi-deco"><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M3 10h7"/><path d="M3 14h5"/></svg></div>
+                  <div class="h-kpi-val" style="color:${covPct!==null?'#0D5F75':'rgba(193,203,232,0.5)'}">${covPct!==null?covPct+'%':'—'}</div>
+                  <div class="h-kpi-sub ${covPct===null?'h-kpi-sub-nd':''}">${covPct!==null?'coperto':'nessun dato'}</div>
+                  <div class="h-kpi-deco"><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9a2 2 0 0 1-2 2H6l-4 4V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2z"/><path d="M18 9h2a2 2 0 0 1 2 2v11l-4-4h-6a2 2 0 0 1-2-2v-1"/></svg></div>
               </div>
               <div class="h-kpi">
                   <div class="h-kpi-ttl">Mappa di Ricerca <span class='tip-q' data-tip='Percentuale di query conversazionali coperte. ≥70% buona copertura.'>?</span></div>
-                  <div class="h-kpi-val" style="color:${qMapPct!==null?'#171b33':'#C1CBE8'}">${qMapPct!==null?qMapPct+'%':'—'}</div>
-                  <div class="h-kpi-sub ${qMapPct===null?'h-kpi-sub-nd':''}">${qMapPct!==null?qMapPct+'% coperto':'nessun dato'}</div>
-                  <div class="h-kpi-deco"><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+                  <div class="h-kpi-val" style="color:${qMapPct!==null?'#0D5F75':'rgba(193,203,232,0.5)'}">${qMapPct!==null?qMapPct+'%':'—'}</div>
+                  <div class="h-kpi-sub ${qMapPct===null?'h-kpi-sub-nd':''}">${qMapPct!==null?'coperto':'nessun dato'}</div>
+                  <div class="h-kpi-deco"><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
               </div>
           </div>
 
@@ -512,7 +512,7 @@ function renderContent(site, pseData, now) {
                           </div>
                       </div>
                       <div class="h-card-body" style="padding:12px 14px">
-                          <canvas id="hchart-stats" style="max-height:150px"></canvas>
+                          <canvas id="hchart-stats" style="max-height:230px"></canvas>
                       </div>
                   </div>
                   <div class="h-card" style="margin-bottom:0;display:flex;flex-direction:column;align-items:center">
