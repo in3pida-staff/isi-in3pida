@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="css/style.css?v=20260622q">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet">
-    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6','isi_hotel_v7','isi_hotel_v8','isi_hotel_v9','isi_hotel_v10','isi_hotel_v11','isi_hotel_v12','isi_hotel_v13','isi_hotel_v14'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v38')){sessionStorage.setItem('isi_hotel_v38','1');location.reload(true);}</script>
+    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6','isi_hotel_v7','isi_hotel_v8','isi_hotel_v9','isi_hotel_v10','isi_hotel_v11','isi_hotel_v12','isi_hotel_v13','isi_hotel_v14'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v39')){sessionStorage.setItem('isi_hotel_v39','1');location.reload(true);}</script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <style>
         .tip-q{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:#EFF020;color:#0D5F75;font-size:9px;font-weight:800;cursor:default;flex-shrink:0;user-select:none;vertical-align:middle}
@@ -67,7 +67,7 @@
 
         /* ═══ KPI ROW ═══ */
         /* ═══ KPI ROW ═══ */
-        .h-kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px;max-width:84%;}
+        .h-kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px;max-width:84%;}
         .h-kpi{background:white;border-radius:16px;box-shadow:0 2px 14px rgba(0,0,0,.06);padding:19px 22px;position:relative;overflow:hidden;}
         .h-kpi-ttl{font-size:16px;font-weight:300;color:#0D5F75;letter-spacing:.01em;margin-bottom:10px;display:flex;align-items:center;gap:4px;font-family:'Commissioner',sans-serif;}
         .h-kpi-val{font-size:34px;font-weight:300;line-height:1;color:#0D5F75;font-family:'Commissioner',sans-serif;}
@@ -87,7 +87,7 @@
         .h-dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex-shrink:0;}
 
         /* ═══ STATS + GEO ROW ═══ */
-        .h-stats-row{display:grid;grid-template-columns:7fr 3.5fr;gap:12px;margin-bottom:12px;}
+        .h-stats-row{display:grid;grid-template-columns:7fr 3.5fr;gap:12px;margin-bottom:12px;margin-right:24px;}
         .h-range-btn{font-size:10px;font-weight:600;cursor:pointer;color:#aaa;padding:4px 10px;border-radius:20px;border:1.5px solid #edeef5;transition:all .15s;font-family:'Commissioner',sans-serif;}
         .h-range-btn.active-range{color:#0D5F75;border-color:#0D5F75;background:white;}
 
@@ -490,7 +490,7 @@ function renderContent(site, pseData, now) {
                   <div class="h-kpi-ttl">Completezza Profilo AI <span class='tip-q' data-tip='Completezza del profilo AI: nome, indirizzo, descrizione, contatti, FAQ ecc.'>?</span></div>
                   <div class="h-kpi-val" style="color:${cs!==null?'#0D5F75':'rgba(193,203,232,0.5)'}">${cs!==null?cs:'—'}</div>
                   <div class="h-kpi-sub ${cs===null?'h-kpi-sub-nd':''}">${cs!==null?(cs>=70?'ottimizzato':cs>=40?'da migliorare':'critico'):'nessun dato'}</div>
-                  <div class="h-kpi-deco"><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 0 0-16 0"/></svg></div>
+                  <div class="h-kpi-deco"><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="18" rx="2"/><polyline points="8 10 5 12 8 14"/><polyline points="16 10 19 12 16 14"/><line x1="12" y1="7" x2="12" y2="17"/></svg></div>
               </div>
               <div class="h-kpi">
                   <div class="h-kpi-ttl">Risultati FAQ <span class='tip-q' data-tip='Percentuale di domande degli ospiti coperta dalle FAQ. ≥80% buona copertura.'>?</span></div>
