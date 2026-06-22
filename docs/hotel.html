@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="css/style.css?v=20260622q">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet">
-    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6','isi_hotel_v7','isi_hotel_v8','isi_hotel_v9','isi_hotel_v10','isi_hotel_v11','isi_hotel_v12','isi_hotel_v13','isi_hotel_v14'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v22')){sessionStorage.setItem('isi_hotel_v22','1');location.reload(true);}</script>
+    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6','isi_hotel_v7','isi_hotel_v8','isi_hotel_v9','isi_hotel_v10','isi_hotel_v11','isi_hotel_v12','isi_hotel_v13','isi_hotel_v14'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v23')){sessionStorage.setItem('isi_hotel_v23','1');location.reload(true);}</script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <style>
         .tip-q{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:#EFF020;color:#0D5F75;font-size:9px;font-weight:800;cursor:default;flex-shrink:0;user-select:none;vertical-align:middle}
@@ -467,10 +467,10 @@ function renderContent(site, pseData, now) {
         const arc=pct>0?`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${col}" stroke-width="${sw}" stroke-dasharray="${dFill} ${dGap}" stroke-linecap="round" transform="rotate(-90 ${cx} ${cy})"/>`:'';
         return `<svg viewBox="0 0 200 200" style="width:100%;display:block;margin:0 auto">
         <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="white" stroke-width="${sw}"/>
-        <circle cx="${cx}" cy="${cy}" r="${r+sw/2}" fill="none" stroke="#0D5F75" stroke-width="2"/>
-        <circle cx="${cx}" cy="${cy}" r="${r-sw/2}" fill="none" stroke="#0D5F75" stroke-width="2"/>
+        <circle cx="${cx}" cy="${cy}" r="${r+sw/2}" fill="none" stroke="#0D5F75" stroke-width="1"/>
+        <circle cx="${cx}" cy="${cy}" r="${r-sw/2}" fill="none" stroke="#0D5F75" stroke-width="1"/>
         ${arc}
-        <text x="${cx-1}" y="${cy+11}" text-anchor="end" font-family="Commissioner,sans-serif" font-size="29" font-weight="700" fill="${col}">${s!==null?s:'—'}</text>
+        <text x="${cx-1}" y="${cy+11}" text-anchor="end" font-family="Commissioner,sans-serif" font-size="29" font-weight="400" fill="${col}">${s!==null?s:'—'}</text>
         <text x="${cx}" y="${cy-2}" text-anchor="start" font-family="Commissioner,sans-serif" font-size="15" font-weight="400" fill="#aaa">/100</text>
         <text x="${cx}" y="${cy+32}" text-anchor="middle" font-family="Commissioner,sans-serif" font-size="11" font-weight="600" fill="#aaa">${lbl}</text></svg>`;
     })();
