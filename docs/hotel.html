@@ -8,8 +8,8 @@
     <meta http-equiv="Expires" content="0">
     <title>Eletta — Posiziona il tuo sito nelle ricerche AI</title>
     <link rel="icon" type="image/png" href="images/favicon.png?v=2">
-    <link rel="stylesheet" href="css/style.css?v=20260622m">
-    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6','isi_hotel_v7'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v11')){sessionStorage.setItem('isi_hotel_v11','1');location.reload(true);}</script>
+    <link rel="stylesheet" href="css/style.css?v=20260622n">
+    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6','isi_hotel_v7'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v12')){sessionStorage.setItem('isi_hotel_v12','1');location.reload(true);}</script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <style>
         .tip-q{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:#EFF020;color:#0D5F75;font-size:9px;font-weight:800;cursor:default;flex-shrink:0;user-select:none;vertical-align:middle}
@@ -446,22 +446,22 @@ function renderContent(site, pseData, now) {
     const suggestCount = (geo.checklist||[]).length + (geo.missing_answers||0);
     const statoOk = hrs<25&&(geoAvg===null||geoAvg>=40)&&geo.has_ai_profile!==false;
 
-    // ── GEO SCORE SVG donut
+    // ── GEO SCORE SVG donut (360°, stroke-dasharray)
     const geoDonut = (()=>{
-        const s=geoAvg; const cx=90,cy=92,rO=72,rI=54;
-        const sDeg=170,tDeg=200;
-        const toRad=d=>d*Math.PI/180;
-        const pt=(r,d)=>[(cx+r*Math.cos(toRad(d))).toFixed(2),(cy+r*Math.sin(toRad(d))).toFixed(2)].join(',');
-        const arc=(a1,a2)=>{const sp=((a2-a1)+720)%360;if(sp<0.01)return'';const la=sp>180?1:0;return`M${pt(rO,a1)}A${rO},${rO},0,${la},1,${pt(rO,a2)}L${pt(rI,a2)}A${rI},${rI},0,${la},0,${pt(rI,a1)}Z`;};
-        const col=s===null?'rgba(13,95,117,0.25)':'#0D5F75';
+        const s=geoAvg; const cx=90,cy=90,r=63,sw=16;
+        const circ=+(2*Math.PI*r).toFixed(2);
+        const col=s===null?'rgba(13,95,117,0.3)':'#0D5F75';
         const lbl=s!==null?(s>=70?'ottimizzato':s>=40?'da migliorare':'critico'):'nessun dato';
-        const pDeg=s!==null?tDeg*(s/100):0;
-        const tPath=arc(sDeg,sDeg+tDeg); const pPath=pDeg>0?arc(sDeg,sDeg+pDeg):'';
-        return `<svg viewBox="0 0 180 115" style="width:100%;max-width:188px;display:block;margin:0 auto"><path d="${tPath}" fill="#c8e8f4"/>${pPath?`<path d="${pPath}" fill="${col}"/>`:''}
-        <circle cx="${cx}" cy="${cy}" r="55" fill="white"/>
-        <text x="${cx}" y="82" text-anchor="middle" font-family="Commissioner,sans-serif" font-size="28" font-weight="700" fill="${col}">${s!==null?s:'—'}</text>
-        <text x="${cx}" y="95" text-anchor="middle" font-family="Commissioner,sans-serif" font-size="8" font-weight="400" fill="${col}">/100</text>
-        <text x="${cx}" y="110" text-anchor="middle" font-family="Commissioner,sans-serif" font-size="10" font-weight="700" fill="#171b33">${lbl}</text></svg>`;
+        const pct=s!==null?s/100:0;
+        const dFill=+(pct*circ).toFixed(2);
+        const dGap=+(circ-dFill+0.01).toFixed(2);
+        const arc=pct>0?`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${col}" stroke-width="${sw}" stroke-dasharray="${dFill} ${dGap}" stroke-linecap="round" transform="rotate(-90 ${cx} ${cy})"/>`:'';
+        return `<svg viewBox="0 0 180 180" style="width:100%;max-width:188px;display:block;margin:0 auto">
+        <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#d8e6ec" stroke-width="${sw}"/>
+        ${arc}
+        <text x="87" y="99" text-anchor="end" font-family="Commissioner,sans-serif" font-size="38" font-weight="700" fill="${col}">${s!==null?s:'—'}</text>
+        <text x="89" y="88" text-anchor="start" font-family="Commissioner,sans-serif" font-size="12" font-weight="400" fill="#aaa">/100</text>
+        <text x="${cx}" y="116" text-anchor="middle" font-family="Commissioner,sans-serif" font-size="10" font-weight="600" fill="#aaa">${lbl}</text></svg>`;
     })();
 
     const el = document.getElementById('hotel-content');
@@ -505,8 +505,8 @@ function renderContent(site, pseData, now) {
                               Panoramica statistiche
                           </span>
                           <div style="display:flex;gap:10px">
-                              <span class="h-range-btn active-range" data-days="30" style="font-size:10px;font-weight:700;cursor:pointer;color:#0D5F75;border-bottom:2px solid #0D5F75;padding-bottom:1px">1M</span>
-                              <span class="h-range-btn" data-days="180" style="font-size:10px;font-weight:700;cursor:pointer;color:#aaa">6M</span>
+                              <span class="h-range-btn active-range" data-days="30" style="font-size:10px;font-weight:700;cursor:pointer;color:#0D5F75;border-bottom:2px solid #0D5F75;padding-bottom:1px">1 mese</span>
+                              <span class="h-range-btn" data-days="180" style="font-size:10px;font-weight:700;cursor:pointer;color:#aaa">6 mesi</span>
                               <span class="h-range-btn" data-days="9999" style="font-size:10px;font-weight:700;cursor:pointer;color:#aaa">Sempre</span>
                           </div>
                       </div>
@@ -515,8 +515,9 @@ function renderContent(site, pseData, now) {
                       </div>
                   </div>
                   <div class="h-card" style="margin-bottom:0;display:flex;flex-direction:column;align-items:center">
-                      <div class="h-card-hdr" style="width:100%">
+                      <div class="h-card-hdr" style="width:100%;flex-direction:column;align-items:flex-start;gap:2px">
                           <span class="h-card-hdr-t">GEO SCORE <span class='tip-q' data-tip='Punteggio complessivo AI. ≥70 ottimizzato, 40–69 da migliorare.'>?</span></span>
+                          <span style="font-size:9px;font-weight:500;color:#aaa">ottimizzato per motori di ricerca AI</span>
                       </div>
                       <div class="h-card-body" style="display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:10px 14px">
                           ${geoDonut}
