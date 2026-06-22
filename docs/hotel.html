@@ -8,8 +8,8 @@
     <meta http-equiv="Expires" content="0">
     <title>Eletta — Posiziona il tuo sito nelle ricerche AI</title>
     <link rel="icon" type="image/png" href="images/favicon.png?v=2">
-    <link rel="stylesheet" href="css/style.css?v=20260622p">
-    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6','isi_hotel_v7','isi_hotel_v8','isi_hotel_v9','isi_hotel_v10','isi_hotel_v11','isi_hotel_v12','isi_hotel_v13','isi_hotel_v14'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v15')){sessionStorage.setItem('isi_hotel_v15','1');location.reload(true);}</script>
+    <link rel="stylesheet" href="css/style.css?v=20260622q">
+    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6','isi_hotel_v7','isi_hotel_v8','isi_hotel_v9','isi_hotel_v10','isi_hotel_v11','isi_hotel_v12','isi_hotel_v13','isi_hotel_v14'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v16')){sessionStorage.setItem('isi_hotel_v16','1');location.reload(true);}</script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <style>
         .tip-q{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:#EFF020;color:#0D5F75;font-size:9px;font-weight:800;cursor:default;flex-shrink:0;user-select:none;vertical-align:middle}
@@ -72,7 +72,7 @@
         .h-kpi-deco{position:absolute;bottom:-6px;right:8px;opacity:0.13;pointer-events:none;}
 
         /* ═══ MAIN GRID: sinistra + destra ═══ */
-        .h-main-grid{display:grid;grid-template-columns:1fr 248px;gap:12px;align-items:stretch;}
+        .h-main-grid{display:grid;grid-template-columns:1fr 248px;gap:12px;align-items:start;}
 
         /* ═══ CARD UNIVERSALE ═══ */
         .h-card{background:white;border-radius:16px;box-shadow:0 2px 14px rgba(0,0,0,.06);overflow:hidden;margin-bottom:12px;}
@@ -83,7 +83,9 @@
         .h-dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex-shrink:0;}
 
         /* ═══ STATS + GEO ROW ═══ */
-        .h-stats-row{display:grid;grid-template-columns:1fr 188px;gap:12px;margin-bottom:12px;}
+        .h-stats-row{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:12px;}
+        .h-range-btn{font-size:10px;font-weight:600;cursor:pointer;color:#aaa;padding:4px 10px;border-radius:20px;border:1.5px solid #e0e0e8;transition:all .15s;font-family:'Commissioner',sans-serif;}
+        .h-range-btn.active-range{color:#0D5F75;border-color:#0D5F75;background:white;}
 
         /* ═══ SECTION HEADING ═══ */
         .h-sec-hdr{display:flex;align-items:center;gap:10px;margin:18px 0 10px;}
@@ -95,12 +97,12 @@
         /* ═══ ELETTA CARD (float destra) ═══ */
         .h-eletta{background:#C1CBE8;border-radius:16px;padding:22px 16px 20px;display:flex;flex-direction:column;}
         .h-eletta-title{font-family:'Commissioner',sans-serif;font-size:28px;font-weight:700;color:#fff;margin-bottom:20px;line-height:1.2;}
-        .h-eletta-row{display:flex;align-items:center;gap:10px;padding:11px 14px;background:rgba(255,255,255,0.72);border-radius:50px;margin-bottom:10px;font-size:14px;color:#0D5F75;font-weight:600;border:none;}
-        .h-eletta-ico{width:32px;height:32px;border-radius:50%;border:1.5px solid rgba(13,95,117,0.25);background:white;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-        .h-eletta-chevron{margin-left:auto;width:18px;height:18px;border-radius:50%;background:rgba(13,95,117,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+        .h-eletta-row{display:flex;align-items:center;gap:10px;padding:13px 14px;background:#fff;border-radius:50px;margin-bottom:10px;font-size:15px;font-family:'Commissioner',sans-serif;color:#0D5F75;font-weight:700;border:none;}
+        .h-eletta-ico{width:34px;height:34px;border-radius:50%;border:1.5px solid rgba(13,95,117,0.2);background:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+        .h-eletta-chevron{margin-left:auto;width:20px;height:20px;border-radius:50%;background:rgba(13,95,117,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
         .h-eletta-badge{display:none;}
         .h-eletta-badge-warn{display:none;}
-        .h-eletta-stato-block{background:rgba(255,255,255,0.72);border-radius:14px;padding:12px 14px;margin-bottom:10px;font-size:12px;color:#0D5F75;}
+        .h-eletta-stato-block{background:#fff;border-radius:14px;padding:14px 16px;margin-bottom:10px;font-size:13px;font-family:'Commissioner',sans-serif;color:#0D5F75;}
         .h-eletta-stato-row{display:flex;flex-direction:column;padding:6px 0;border-bottom:1px solid rgba(13,95,117,0.1);}
         .h-eletta-stato-row:last-child{border-bottom:none;padding-bottom:0;}
         .h-eletta-stato-lbl{font-weight:600;color:#0D5F75;margin-bottom:2px;}
@@ -504,9 +506,9 @@ function renderContent(site, pseData, now) {
                               Panoramica statistiche
                           </span>
                           <div style="display:flex;gap:10px">
-                              <span class="h-range-btn active-range" data-days="30" style="font-size:10px;font-weight:700;cursor:pointer;color:#0D5F75;border-bottom:2px solid #0D5F75;padding-bottom:1px">1 mese</span>
-                              <span class="h-range-btn" data-days="180" style="font-size:10px;font-weight:700;cursor:pointer;color:#aaa">6 mesi</span>
-                              <span class="h-range-btn" data-days="9999" style="font-size:10px;font-weight:700;cursor:pointer;color:#aaa">Sempre</span>
+                              <span class="h-range-btn active-range" data-days="30">1 mese</span>
+                              <span class="h-range-btn" data-days="180">6 mesi</span>
+                              <span class="h-range-btn" data-days="9999">Sempre</span>
                           </div>
                       </div>
                       <div class="h-card-body" style="padding:12px 14px">
@@ -741,29 +743,29 @@ function renderContent(site, pseData, now) {
             return Array.from({length:n}, (_,i) => Math.min(100, Math.max(0, Math.round(val - (n-1-i)*2.5 + (Math.random()-0.5)*8))));
         };
         const buildDatasets = (n) => [
-            { label:'GEO Score',    data:trnd(geoAvg, n), backgroundColor:'#0D5F75',  borderRadius:4, barPercentage:.75 },
-            { label:'FAQ',          data:trnd(covPct, n), backgroundColor:'#8faebb',  borderRadius:4, barPercentage:.75 },
-            { label:'Completezza',  data:trnd(cs, n),     backgroundColor:'#c8d8e0',  borderRadius:4, barPercentage:.75 },
+            { label:'GEO SCORE',         data:trnd(geoAvg, n), backgroundColor:'#0D5F75', borderRadius:8, borderSkipped:false, barPercentage:1.0, categoryPercentage:0.72 },
+            { label:'FAQ',               data:trnd(covPct, n), backgroundColor:'#9aadd4', borderRadius:8, borderSkipped:false, barPercentage:1.0, categoryPercentage:0.72 },
+            { label:'COMPLETEZZA PROFILO',data:trnd(cs, n),    backgroundColor:'#b8c4cc', borderRadius:8, borderSkipped:false, barPercentage:1.0, categoryPercentage:0.72 },
         ];
-        const mkLabels = (n) => Array.from({length:n}, (_,i) => (i+1)+'°');
+        const mkLabels = (n) => {
+            const mo=['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];
+            const now = new Date();
+            return Array.from({length:n}, (_,i) => { const d=new Date(now); d.setDate(d.getDate()-(n-1-i)); return d.getDate()+' '+mo[d.getMonth()]; });
+        };
         let curN = 6;
         const ctx = canvas.getContext('2d');
         const statsChart = new window.Chart(ctx, {
             type:'bar',
             data:{ labels:mkLabels(curN), datasets:buildDatasets(curN) },
             options:{
+                responsive:true, maintainAspectRatio:true,
                 plugins:{
-                    legend:{ display:false },
-                    tooltip:{
-                        mode:'index', intersect:false,
-                        backgroundColor:'#1a2533',
-                        titleColor:'#fff', bodyColor:'#cdd5de',
-                        callbacks:{ label: c => ` ${c.dataset.label}: ${c.parsed.y??'—'}` }
-                    }
+                    legend:{ display:true, position:'bottom', labels:{ usePointStyle:true, pointStyle:'circle', font:{family:"'Commissioner',sans-serif",size:9}, color:'#888', padding:14, boxWidth:8 } },
+                    tooltip:{ mode:'index', intersect:false, backgroundColor:'#1a2533', titleColor:'#fff', bodyColor:'#cdd5de', callbacks:{ label: c => ` ${c.dataset.label}: ${c.parsed.y??'—'}` } }
                 },
                 scales:{
-                    x:{ grid:{display:false}, ticks:{font:{size:9},color:'#aaa'} },
-                    y:{ min:0, max:100, grid:{color:'#f0f0f6'}, ticks:{font:{size:9},color:'#aaa',stepSize:25} }
+                    x:{ grid:{display:false}, ticks:{font:{family:"'Commissioner',sans-serif",size:9},color:'#aaa'} },
+                    y:{ min:0, max:100, grid:{color:'rgba(0,0,0,0.06)',borderDash:[4,4]}, ticks:{font:{family:"'Commissioner',sans-serif",size:9},color:'#aaa',stepSize:25} }
                 }
             }
         });
@@ -771,8 +773,8 @@ function renderContent(site, pseData, now) {
         // ── Range selector
         document.querySelectorAll('.h-range-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                document.querySelectorAll('.h-range-btn').forEach(b => { b.style.color='#aaa'; b.style.borderBottom='none'; });
-                btn.style.color='#0D5F75'; btn.style.borderBottom='2px solid #0D5F75';
+                document.querySelectorAll('.h-range-btn').forEach(b => { b.classList.remove('active-range'); });
+                btn.classList.add('active-range');
                 const days = +btn.dataset.days;
                 curN = days >= 9999 ? 12 : days >= 180 ? 9 : 6;
                 statsChart.data.labels = mkLabels(curN);
