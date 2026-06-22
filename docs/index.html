@@ -8,8 +8,8 @@
     <meta http-equiv="Expires" content="0">
     <title>Eletta — Posiziona il tuo sito nelle ricerche AI</title>
     <link rel="icon" type="image/png" href="images/favicon.png?v=2">
-    <link rel="stylesheet" href="css/style.css?v=20260622b">
-    <script>if(!sessionStorage.getItem('isi_idx_v3')){sessionStorage.setItem('isi_idx_v3','1');location.reload(true);}</script>
+    <link rel="stylesheet" href="css/style.css?v=20260622h">
+    <script>if(!sessionStorage.getItem('isi_idx_v4')){sessionStorage.setItem('isi_idx_v4','1');location.reload(true);}</script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <style>
         /* ─── HOTEL DETAIL: card moderne ─── */
@@ -41,55 +41,109 @@
         #btn-stato-sync-all {
             border-radius: 10px !important;
         }
+
+        /* ─── NUOVO LAYOUT ELETTA ─── */
+        body { overflow-x: hidden; }
+        .eletta-layout { display:flex; min-height:100vh; }
+
+        /* Sidebar */
+        .eletta-sidebar { width:52px; min-height:100vh; background:#1a1e3a; display:flex; flex-direction:column; align-items:center; position:fixed; left:0; top:0; z-index:500; padding:10px 0; }
+        .eletta-sidebar-brand { margin-bottom:16px; display:flex; align-items:center; justify-content:center; }
+        .eletta-sidebar-nav { display:flex; flex-direction:column; align-items:center; gap:0; flex:1; width:100%; }
+        .eletta-nav-item { display:flex; flex-direction:column; align-items:center; gap:2px; width:100%; padding:8px 2px; background:none; border:none; cursor:pointer; color:rgba(255,255,255,0.4); font-family:'Sarabun',sans-serif; font-size:8px; font-weight:600; letter-spacing:.01em; transition:all .15s; text-align:center; line-height:1.1; }
+        .eletta-nav-item:hover { color:rgba(255,255,255,0.75); background:rgba(255,255,255,0.05); }
+        .eletta-nav-item.active { color:white; background:rgba(255,255,255,0.08); }
+        .eletta-nav-icon { width:28px; height:28px; display:flex; align-items:center; justify-content:center; border-radius:50%; flex-shrink:0; }
+        .eletta-nav-item.active .eletta-nav-icon { background:rgba(13,95,117,0.4); }
+        .eletta-sidebar-sep { width:34px; height:1px; background:rgba(255,255,255,0.08); margin:5px 0; }
+        .eletta-sidebar-bottom { width:100%; display:flex; flex-direction:column; align-items:center; }
+
+        /* Right area */
+        .eletta-right { margin-left:52px; flex:1; display:flex; flex-direction:column; min-height:100vh; }
+
+        /* Header */
+        .eletta-header { background:white; height:52px; display:flex; align-items:center; padding:0 20px; position:sticky; top:0; z-index:100; box-shadow:0 1px 0 #e8e8f0; gap:14px; }
+        .eletta-header-logo img { height:20px; width:auto; }
+        .eletta-header-right { display:flex; align-items:center; gap:10px; margin-left:auto; }
+
+        /* Override main per nuovo layout */
+        .eletta-right .main { padding-top:16px; }
+        .eletta-right .navbar { display:none !important; }
+        .eletta-right .hero { border-radius:0; }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
+<div class="eletta-layout">
 
-    <!-- NAVBAR -->
-    <nav class="navbar">
-      <div class="navbar-inner">
-        <div class="navbar-left">
-            <div class="navbar-logo" id="nav-home"><img src="images/logo-eletta.png" alt="Eletta" style="height:29px;width:auto;display:block"></div>
-        </div>
-        <div class="navbar-center">
-            <button class="nav-item active" id="nav-panoramica">Panoramica</button>
-            <button class="nav-item" id="nav-aggiornamenti">Aggiornamenti</button>
+  <!-- ═══ SIDEBAR ═══ -->
+  <aside class="eletta-sidebar">
+    <div class="eletta-sidebar-brand">
+      <svg width="30" height="30" viewBox="0 0 30 30" fill="none"><rect width="30" height="30" rx="6" fill="rgba(255,255,255,0.08)"/><text x="15" y="21" text-anchor="middle" font-family="Commissioner,sans-serif" font-size="15" font-weight="700" fill="rgba(255,255,255,0.7)">E</text></svg>
+    </div>
+    <nav class="eletta-sidebar-nav">
+      <button class="eletta-nav-item active" id="nav-panoramica">
+        <span class="eletta-nav-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span>
+        Hotels
+      </button>
+      <button class="eletta-nav-item" id="nav-aggiornamenti">
+        <span class="eletta-nav-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg></span>
+        Update
+      </button>
+      <button class="eletta-nav-item" id="nav-utenti">
+        <span class="eletta-nav-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></span>
+        Utenti
+      </button>
+      <button class="eletta-nav-item" id="nav-legenda">
+        <span class="eletta-nav-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span>
+        Legenda
+      </button>
+    </nav>
+    <div class="eletta-sidebar-bottom">
+      <div class="eletta-sidebar-sep"></div>
+      <button class="eletta-nav-item" id="dd-logout">
+        <span class="eletta-nav-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg></span>
+        Esci
+      </button>
+    </div>
+  </aside>
 
-            <button class="nav-item" id="nav-utenti">Utenti</button>
-            <button class="nav-item" id="nav-legenda">Legenda</button>
+  <!-- ═══ AREA DESTRA ═══ -->
+  <div class="eletta-right">
+
+    <!-- HEADER -->
+    <header class="eletta-header">
+      <div class="eletta-header-logo"><img src="images/logo-eletta.png" alt="Eletta"></div>
+      <div class="eletta-header-right">
+        <div class="navbar-user-pill" id="user-pill" style="cursor:pointer">
+          <div class="navbar-avatar" id="nav-avatar">U</div>
+          <div class="navbar-user-text">
+            <div class="navbar-user-name" id="nav-name">Utente</div>
+            <div class="navbar-user-sub">Admin</div>
+          </div>
         </div>
-        <div class="navbar-right">
-            <div class="navbar-user-pill" id="user-pill">
-                <div class="navbar-avatar" id="nav-avatar">U</div>
-                <div class="navbar-user-text">
-                    <div class="navbar-user-name" id="nav-name">Utente</div>
-                    <div class="navbar-user-sub">Admin</div>
-                </div>
+        <div class="user-dropdown" id="user-dropdown" style="display:none;position:absolute;top:58px;right:16px;z-index:600">
+          <div class="user-dropdown-header">
+            <div class="user-dropdown-avatar" id="dd-avatar">U</div>
+            <div>
+              <div class="user-dropdown-name" id="dd-name">Utente</div>
+              <div class="user-dropdown-email" id="dd-email"></div>
             </div>
-            <div class="user-dropdown" id="user-dropdown" style="display:none">
-                <div class="user-dropdown-header">
-                    <div class="user-dropdown-avatar" id="dd-avatar">U</div>
-                    <div>
-                        <div class="user-dropdown-name" id="dd-name">Utente</div>
-                        <div class="user-dropdown-email" id="dd-email"></div>
-                    </div>
-                </div>
-                <div class="user-dropdown-divider"></div>
-                <button class="user-dropdown-item" id="dd-profile">
-                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-                    Modifica profilo
-                </button>
-                <div class="user-dropdown-divider"></div>
-                <button class="user-dropdown-item logout" id="dd-logout">
-                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
-                    Esci
-                </button>
-            </div>
+          </div>
+          <div class="user-dropdown-divider"></div>
+          <button class="user-dropdown-item" id="dd-profile">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            Modifica profilo
+          </button>
+          <div class="user-dropdown-divider"></div>
+          <button class="user-dropdown-item logout" id="dd-logout-pill">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+            Esci
+          </button>
         </div>
       </div>
-    </nav>
+    </header>
 
     <!-- MODAL PROFILO -->
     <div id="profile-overlay" class="info-overlay" style="display:none">
@@ -570,9 +624,9 @@
         if (!e.target.closest('#user-pill') && !e.target.closest('#user-dropdown'))
             document.getElementById('user-dropdown').style.display = 'none';
     });
-    document.getElementById('dd-logout').addEventListener('click', async () => {
-        await _SB.auth.signOut(); window.location.href = 'login.html';
-    });
+    const _doLogout = async () => { await _SB.auth.signOut(); window.location.href = 'login.html'; };
+    document.getElementById('dd-logout').addEventListener('click', _doLogout);
+    document.getElementById('dd-logout-pill')?.addEventListener('click', _doLogout);
 
     // ─── PROFILO ─────────────────────────────────────────────────────────────────
     document.getElementById('dd-profile').addEventListener('click', () => {
@@ -653,8 +707,7 @@
     }
 
     // ─── NAVIGAZIONE ─────────────────────────────────────────────────────────────
-    NAV_TABS.forEach(t => document.getElementById('nav-'+t).addEventListener('click', () => loadTab(t)));
-    document.getElementById('nav-home').addEventListener('click', () => loadTab('panoramica'));
+    NAV_TABS.forEach(t => document.getElementById('nav-'+t)?.addEventListener('click', () => loadTab(t)));
 
     function showView(view) {
         ALL_VIEWS.forEach(v => {
@@ -6760,6 +6813,9 @@ ${rows}
     <div id="modal-report-body" style="padding:24px 28px"></div>
   </div>
 </div>
+
+  </div><!-- /eletta-right -->
+</div><!-- /eletta-layout -->
 
 </body>
 </html>
