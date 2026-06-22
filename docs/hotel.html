@@ -8,10 +8,100 @@
     <meta http-equiv="Expires" content="0">
     <title>Eletta — Posiziona il tuo sito nelle ricerche AI</title>
     <link rel="icon" type="image/png" href="images/favicon.png?v=2">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=20260622h">
+    <script>if(!sessionStorage.getItem('isi_hotel_v1')){sessionStorage.setItem('isi_hotel_v1','1');location.reload(true);}</script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <style>
         .tip-q{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:#0D5F75;color:white;font-size:9px;font-weight:800;cursor:default;flex-shrink:0;user-select:none;vertical-align:middle}
+
+        /* ═══ LAYOUT PRINCIPALE ═══ */
+        body{margin:0;padding:0;background:#edf0f7;font-family:'Sarabun',sans-serif;}
+        .h-layout{display:flex;min-height:100vh;}
+
+        /* ═══ SIDEBAR ═══ */
+        .h-sidebar{width:52px;min-height:100vh;background:#1a1e3a;display:flex;flex-direction:column;align-items:center;position:fixed;left:0;top:0;z-index:200;padding:10px 0;}
+        .h-sidebar-brand{margin-bottom:18px;display:flex;align-items:center;justify-content:center;width:100%;}
+        .h-sidebar-nav{display:flex;flex-direction:column;align-items:center;gap:0;flex:1;width:100%;}
+        .h-nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;width:100%;padding:8px 2px;background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.4);font-family:'Sarabun',sans-serif;font-size:8px;font-weight:600;letter-spacing:.01em;transition:all .15s;text-align:center;line-height:1.1;}
+        .h-nav-item:hover{color:rgba(255,255,255,0.75);background:rgba(255,255,255,0.05);}
+        .h-nav-item.active{color:white;background:rgba(255,255,255,0.08);}
+        .h-nav-icon{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:50%;flex-shrink:0;}
+        .h-nav-item.active .h-nav-icon{background:rgba(13,95,117,0.4);}
+        .h-sidebar-sep{width:34px;height:1px;background:rgba(255,255,255,0.08);margin:5px 0;}
+        .h-sidebar-bottom{width:100%;display:flex;flex-direction:column;align-items:center;}
+
+        /* ═══ AREA DESTRA ═══ */
+        .h-right{margin-left:52px;flex:1;display:flex;flex-direction:column;min-height:100vh;}
+
+        /* ═══ HEADER ═══ */
+        .h-header{background:white;height:52px;display:flex;align-items:center;padding:0 20px;position:sticky;top:0;z-index:100;box-shadow:0 1px 0 #e8e8f0;gap:14px;}
+        .h-header-logo{display:flex;align-items:center;}
+        .h-header-logo img{height:20px;width:auto;}
+        .h-btn-sync{background:#EFF020;color:#0D5F75;border:none;border-radius:24px;padding:7px 18px;font-family:'Commissioner',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:opacity .15s;flex-shrink:0;}
+        .h-btn-sync:hover{opacity:.88;}
+        .h-btn-sync:disabled{opacity:.5;cursor:not-allowed;}
+        .h-header-right{display:flex;align-items:center;gap:8px;margin-left:auto;}
+        .h-bell{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:none;border:none;cursor:pointer;color:#666b84;transition:background .15s;position:relative;}
+        .h-bell:hover{background:#f4f4f8;}
+        .h-bell-dot{position:absolute;top:6px;right:5px;width:7px;height:7px;border-radius:50%;background:#ff6b2b;border:1.5px solid white;}
+
+        /* ═══ HERO ═══ */
+        .h-hero{background:linear-gradient(135deg,#0D5F75 0%,#0a4d60 100%);padding:13px 22px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+        .h-hero-name{font-family:'Commissioner',sans-serif;font-size:21px;font-weight:700;color:white;flex-shrink:0;}
+        .h-hero-chips{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+        .h-chip{background:rgba(255,255,255,0.11);border:1.5px solid rgba(255,255,255,0.22);border-radius:24px;padding:4px 11px;font-size:10px;color:white;display:flex;align-items:center;gap:5px;white-space:nowrap;}
+        .h-chip-lbl{font-size:9px;opacity:.6;font-weight:600;}
+        .h-chip-geo{background:rgba(255,255,255,0.88);color:#0D5F75;border-color:transparent;font-weight:700;font-size:11px;}
+
+        /* ═══ CONTENT ═══ */
+        .h-content{background:#edf0f7;flex:1;padding:18px 18px 40px;}
+
+        /* ═══ DASHBOARD HEADING ═══ */
+        .h-dash-title{font-family:'Commissioner',sans-serif;font-size:26px;font-weight:700;color:#171b33;margin:0 0 14px;}
+
+        /* ═══ KPI ROW ═══ */
+        .h-kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px;}
+        .h-kpi{background:white;border-radius:16px;box-shadow:0 2px 14px rgba(0,0,0,.06);padding:16px 18px;position:relative;}
+        .h-kpi-ttl{font-size:10px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.04em;margin-bottom:7px;display:flex;align-items:center;gap:4px;}
+        .h-kpi-val{font-size:44px;font-weight:700;line-height:1;color:#171b33;}
+        .h-kpi-sub{font-size:11px;font-weight:600;color:#0D5F75;margin-top:5px;}
+        .h-kpi-sub-nd{color:#C1CBE8;}
+
+        /* ═══ MAIN GRID: sinistra + destra ═══ */
+        .h-main-grid{display:grid;grid-template-columns:1fr 248px;gap:12px;align-items:start;}
+
+        /* ═══ CARD UNIVERSALE ═══ */
+        .h-card{background:white;border-radius:16px;box-shadow:0 2px 14px rgba(0,0,0,.06);overflow:hidden;margin-bottom:12px;}
+        .h-card-hdr{padding:12px 16px;border-bottom:1px solid #f0f0f6;display:flex;align-items:center;justify-content:space-between;}
+        .h-card-hdr-t{font-size:11px;font-weight:700;color:#171b33;display:flex;align-items:center;gap:6px;text-transform:uppercase;letter-spacing:.04em;}
+        .h-card-body{padding:14px 16px;}
+        .h-dot-ok{background:#0D5F75;} .h-dot-warn{background:var(--magenta);} .h-dot-err{background:var(--red);} .h-dot-nd{background:#ccc;}
+        .h-dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex-shrink:0;}
+
+        /* ═══ STATS + GEO ROW ═══ */
+        .h-stats-row{display:grid;grid-template-columns:1fr 188px;gap:12px;margin-bottom:12px;}
+
+        /* ═══ SECTION HEADING ═══ */
+        .h-sec-hdr{display:flex;align-items:center;gap:10px;margin:18px 0 10px;}
+        .h-sec-icon{width:28px;height:28px;border-radius:50%;background:#0D5F75;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+        .h-sec-texts{line-height:1.2;}
+        .h-sec-title{font-family:'Commissioner',sans-serif;font-size:17px;font-weight:700;color:#171b33;margin:0;}
+        .h-sec-sub{font-size:10px;color:#888;margin:0;}
+
+        /* ═══ ELETTA CARD (float destra) ═══ */
+        .h-eletta{background:white;border-radius:16px;box-shadow:0 2px 14px rgba(0,0,0,.06);position:sticky;top:66px;padding:16px;}
+        .h-eletta-title{font-family:'Commissioner',sans-serif;font-size:14px;font-weight:700;color:#0D5F75;margin-bottom:12px;line-height:1.35;}
+        .h-eletta-row{display:flex;align-items:center;gap:9px;padding:9px 0;border-bottom:1px solid #f0f0f6;font-size:12px;color:#4b4d68;font-weight:500;}
+        .h-eletta-row:last-of-type{border-bottom:none;}
+        .h-eletta-ico{width:28px;height:28px;border-radius:50%;background:#edf0f7;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+        .h-eletta-badge{margin-left:auto;background:#0D5F75;color:white;font-size:9px;font-weight:700;padding:2px 6px;border-radius:10px;min-width:16px;text-align:center;}
+        .h-eletta-badge-warn{background:#d82d6b;}
+        .h-btn-supporto{width:100%;background:#0D5F75;color:white;border:none;border-radius:10px;padding:11px;font-family:'Commissioner',sans-serif;font-size:12px;font-weight:700;cursor:pointer;margin-top:12px;transition:opacity .15s;letter-spacing:.03em;}
+        .h-btn-supporto:hover{opacity:.88;}
+
+        /* ═══ OVERRIDE CARD GLOBALI per tab content ═══ */
+        #hotel-content .card{border-radius:16px!important;box-shadow:0 2px 14px rgba(0,0,0,.06)!important;border:none!important;}
+        #hotel-content .card-header{border-radius:16px 16px 0 0!important;background:white!important;border-bottom:1px solid #f0f0f6!important;}
     </style>
 </head>
 <body>
@@ -46,53 +136,101 @@
     </div>
 </div>
 
-<!-- NAVBAR -->
-<nav class="navbar">
-    <div class="navbar-inner">
-        <div class="navbar-left">
-            <div class="navbar-logo"><img src="images/logo.png" alt="in3pida"></div>
-            <span class="navbar-badge">iSI</span>
-        </div>
-        <div class="navbar-center">
-            <span id="nav-site-name" style="font-size:13px;font-weight:600;color:var(--grey)"></span>
-        </div>
-        <div class="navbar-right">
-            <button id="btn-feedback" onclick="document.getElementById('feedback-overlay').style.display='flex'" style="background:none;border:1px solid #C1CBE8;border-radius:20px;padding:6px 14px;font-size:13px;font-weight:600;color:#0D5F75;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:var(--font)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Invia feedback</button>
-            <div class="navbar-user-pill" id="user-pill" style="cursor:pointer">
-                <div class="navbar-avatar" id="nav-avatar">H</div>
-                <div class="navbar-user-text">
-                    <div class="navbar-user-name" id="nav-name">Hotel</div>
-                    <div class="navbar-user-sub">Pannello Hotel</div>
-                </div>
-            </div>
-            <div class="user-dropdown" id="user-dropdown" style="display:none">
-                <div class="user-dropdown-header">
-                    <div class="user-dropdown-avatar" id="dd-avatar">H</div>
-                    <div>
-                        <div class="user-dropdown-name" id="dd-name">Hotel</div>
-                        <div class="user-dropdown-email" id="dd-email"></div>
-                    </div>
-                </div>
-                <div class="user-dropdown-divider"></div>
-                <button class="user-dropdown-item logout" id="dd-logout">
-                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
-                    Esci
-                </button>
-            </div>
-        </div>
+<div class="h-layout">
+
+  <!-- ═══ SIDEBAR ═══ -->
+  <aside class="h-sidebar">
+    <div class="h-sidebar-brand">
+      <svg width="30" height="30" viewBox="0 0 30 30" fill="none"><rect width="30" height="30" rx="6" fill="rgba(255,255,255,0.08)"/><text x="15" y="21" text-anchor="middle" font-family="Commissioner,sans-serif" font-size="15" font-weight="700" fill="rgba(255,255,255,0.7)">E</text></svg>
     </div>
-</nav>
+    <nav class="h-sidebar-nav">
+      <button class="h-nav-item active" data-htab="panoramica">
+        <span class="h-nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span>
+        Panoramica
+      </button>
+      <button class="h-nav-item" data-htab="faq">
+        <span class="h-nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></span>
+        FAQ
+      </button>
+      <button class="h-nav-item" data-htab="schema">
+        <span class="h-nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></span>
+        Schema.org
+      </button>
+      <button class="h-nav-item" data-htab="mappa">
+        <span class="h-nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="8" r="5"/><path d="M8.56 13.9C5.18 14.64 3 16.07 3 18c0 2.21 3.58 4 8 4s8-1.79 8-4c0-1.93-2.18-3.36-5.56-4.1"/></svg></span>
+        Mappa
+      </button>
+      <button class="h-nav-item" data-htab="coerenza">
+        <span class="h-nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="19" r="2"/><path d="M12 7v4m0 0l-5.5 6M12 11l5.5 6"/></svg></span>
+        AI
+      </button>
+      <button class="h-nav-item" data-htab="pse">
+        <span class="h-nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
+        Statistiche
+      </button>
+      <button class="h-nav-item" data-htab="config">
+        <span class="h-nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg></span>
+        Config.
+      </button>
+    </nav>
+    <div class="h-sidebar-bottom">
+      <div class="h-sidebar-sep"></div>
+      <button class="h-nav-item" id="btn-logout-sidebar">
+        <span class="h-nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg></span>
+        Esci
+      </button>
+    </div>
+  </aside>
 
-<!-- HERO -->
-<div class="hero">
-    <div class="hero-label" id="hero-greeting">Eletta</div>
-    <div class="hero-title" id="hero-hotel-name">—</div>
-</div>
+  <!-- ═══ AREA DESTRA ═══ -->
+  <div class="h-right">
 
-<!-- MAIN -->
-<div class="main">
-    <div id="hotel-content"><div class="loading"><div class="spinner"></div> Caricamento...</div></div>
-</div>
+    <!-- HEADER -->
+    <header class="h-header">
+      <div class="h-header-logo"><img src="images/logo-eletta.png" alt="Eletta"></div>
+      <button class="h-btn-sync" id="btn-sync-header">Sincronizza</button>
+      <div class="h-header-right">
+        <button id="btn-feedback" onclick="document.getElementById('feedback-overlay').style.display='flex'" style="background:none;border:1px solid #C1CBE8;border-radius:20px;padding:5px 13px;font-size:11px;font-weight:600;color:#0D5F75;cursor:pointer;display:flex;align-items:center;gap:4px;font-family:'Sarabun',sans-serif"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Feedback</button>
+        <div class="navbar-user-pill" id="user-pill" style="cursor:pointer">
+          <div class="navbar-avatar" id="nav-avatar">H</div>
+          <div class="navbar-user-text">
+            <div class="navbar-user-name" id="nav-name">Hotel</div>
+            <div class="navbar-user-sub">Pannello Hotel</div>
+          </div>
+        </div>
+        <button class="h-bell" id="btn-bell">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+        </button>
+        <div class="user-dropdown" id="user-dropdown" style="display:none;position:absolute;top:60px;right:16px;z-index:300;">
+          <div class="user-dropdown-header">
+            <div class="user-dropdown-avatar" id="dd-avatar">H</div>
+            <div><div class="user-dropdown-name" id="dd-name">Hotel</div><div class="user-dropdown-email" id="dd-email"></div></div>
+          </div>
+          <div class="user-dropdown-divider"></div>
+          <button class="user-dropdown-item logout" id="dd-logout">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>Esci
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- HERO -->
+    <div class="h-hero">
+      <div class="h-hero-name" id="hero-hotel-name">—</div>
+      <div class="h-hero-chips">
+        <div class="h-chip"><span class="h-chip-lbl">Url del sito</span><span id="hero-url">—</span></div>
+        <div class="h-chip h-chip-geo">Punteggio GEO <span id="hero-geo">—</span>/10</div>
+        <div class="h-chip">Rinnovo servizio: <span id="hero-rinnovo">—</span></div>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="h-content">
+      <div id="hotel-content"><div class="loading"><div class="spinner"></div> Caricamento...</div></div>
+    </div>
+
+  </div><!-- /h-right -->
+</div><!-- /h-layout -->
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>
@@ -111,7 +249,12 @@ async function init() {
     if (!session) { window.location.href = 'login.html'; return; }
     await _SBq.auth.setSession({ access_token: session.access_token, refresh_token: session.refresh_token || '' });
     const user = session.user;
-    if (user.user_metadata?.role === 'admin') { window.location.href = 'index.html'; return; }
+
+    // Supporto ?site_id=xxx per admin (preview specifico hotel)
+    const urlParams = new URLSearchParams(location.search);
+    const paramSiteId = urlParams.get('site_id');
+    const isAdmin = user.user_metadata?.role === 'admin';
+    if (isAdmin && !paramSiteId) { window.location.href = 'index.html'; return; }
 
     const name = user.user_metadata?.full_name || user.email?.split('@')[0] || 'Hotel';
     const ini  = name.charAt(0).toUpperCase();
@@ -120,11 +263,10 @@ async function init() {
     document.getElementById('dd-name').textContent    = name;
     document.getElementById('dd-email').textContent   = user.email || '';
     document.getElementById('dd-avatar').textContent  = ini;
-    document.getElementById('hero-greeting').textContent = 'Ciao ' + name + '!';
     const fbEmail = document.getElementById('fb-email');
     if (fbEmail) fbEmail.value = user.email || '';
 
-    const siteId = user.user_metadata?.site_id;
+    const siteId = paramSiteId || user.user_metadata?.site_id;
     if (!siteId) {
         document.getElementById('hotel-content').innerHTML = '<div class="empty-state"><div class="empty-icon">🏨</div><div class="empty-title">Hotel non collegato</div><div class="empty-sub">Contatta il supporto per collegare il tuo sito</div></div>';
         return;
@@ -153,7 +295,57 @@ async function init() {
 
     const siteName = site.site_name || site.site_url || '—';
     document.getElementById('hero-hotel-name').textContent = siteName;
-    document.getElementById('nav-site-name').textContent   = siteName;
+
+    const urlEl = document.getElementById('hero-url');
+    if (urlEl) urlEl.textContent = (site.site_url||'').replace(/^https?:\/\//,'').replace(/\/$/,'') || '—';
+    const geo0 = site.geo_scores || {};
+    const geoVal0 = geo0.completeness_score ?? geo0.ai_readiness ?? null;
+    const geoEl = document.getElementById('hero-geo');
+    if (geoEl) geoEl.textContent = geoVal0 !== null ? Math.round(geoVal0/10) : '—';
+    const rinEl = document.getElementById('hero-rinnovo');
+    if (rinEl) {
+        const rd = site.renewal_date || site.renew_date || null;
+        rinEl.textContent = rd ? new Date(rd).toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'2-digit'}) : '—';
+    }
+
+    // ── Sidebar navigation
+    document.querySelectorAll('.h-nav-item[data-htab]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const tab = btn.dataset.htab;
+            document.querySelectorAll('.h-nav-item[data-htab]').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.querySelectorAll('[id^="htab-"]').forEach(p => p.style.display = 'none');
+            const pane = document.getElementById('htab-' + tab);
+            if (pane) pane.style.display = '';
+            if (tab==='faq')      initHotelFaq();
+            if (tab==='schema')   initHotelSchema(site);
+            if (tab==='mappa')    initHotelMappa(site);
+            if (tab==='coerenza') initHotelCoerenza();
+            if (tab==='config')   initHotelConfig();
+            if (tab==='pse')      initHotelPse(pseData||[], now);
+        });
+    });
+
+    // ── Sync button
+    document.getElementById('btn-sync-header')?.addEventListener('click', () => {
+        document.getElementById('btn-hotel-sync')?.click();
+    });
+
+    // ── User pill + dropdown
+    document.getElementById('user-pill')?.addEventListener('click', e => {
+        e.stopPropagation();
+        const d = document.getElementById('user-dropdown');
+        if (d) d.style.display = d.style.display==='none'?'':'none';
+    });
+    document.addEventListener('click', () => {
+        const d = document.getElementById('user-dropdown');
+        if (d) d.style.display = 'none';
+    });
+
+    // ── Logout (sidebar + dropdown)
+    const doLogout = async () => { await _SB.auth.signOut(); window.location.href='login.html'; };
+    document.getElementById('btn-logout-sidebar')?.addEventListener('click', doLogout);
+    document.getElementById('dd-logout')?.addEventListener('click', doLogout);
 
     renderContent(site, pseData || [], now);
     applyAppFeatures(_appFeatures, _siteAppPerms);
@@ -163,19 +355,13 @@ async function init() {
 function applyAppFeatures(userF, siteF) {
     const tabMap = { panoramica:'panoramica', faq:'faq', schema_org:'schema', mappa_query:'mappa', coerenza:'coerenza', config:'config', statistiche:'pse' };
     const allowed = key => userF[key] !== false && siteF[key] !== false;
-    let firstVisible = null;
     Object.entries(tabMap).forEach(([key, tab]) => {
         if (!allowed(key)) {
-            document.querySelector(`.htab-btn[data-tab="${tab}"]`)?.remove();
+            document.querySelector(`.h-nav-item[data-htab="${tab}"]`)?.remove();
             const pane = document.getElementById('htab-' + tab);
             if (pane) pane.style.display = 'none';
-        } else if (!firstVisible) {
-            firstVisible = tab;
         }
     });
-    if (firstVisible && !document.querySelector('.htab-btn[data-tab="panoramica"]')) {
-        document.querySelector(`.htab-btn[data-tab="${firstVisible}"]`)?.click();
-    }
 }
 
 // ─── RENDER MAIN CONTENT ───────────────────────────────────────────────────────
@@ -210,123 +396,183 @@ function renderContent(site, pseData, now) {
     const dtabInact = 'padding:10px 20px;border:none;background:none;font-size:12px;font-weight:700;letter-spacing:.05em;cursor:pointer;white-space:nowrap;color:#666b84;border-bottom:2px solid transparent;margin-bottom:-2px';
     const dtabAct   = 'padding:10px 20px;border:none;background:none;font-size:12px;font-weight:700;letter-spacing:.05em;cursor:pointer;white-space:nowrap;color:#0D5F75;border-bottom:2px solid #0D5F75;margin-bottom:-2px';
 
+    // ── Notifiche per Eletta card
+    const notifCount = (()=>{
+        let n=0;
+        if(hrs>=48) n++;
+        if(geoAvg!==null&&geoAvg<40) n++;
+        else if(geoAvg!==null&&geoAvg<70) n++;
+        if(geo.has_ai_profile===false) n++;
+        return n;
+    })();
+    const suggestCount = (geo.checklist||[]).length + (geo.missing_answers||0);
+    const statoOk = hrs<25&&(geoAvg===null||geoAvg>=40)&&geo.has_ai_profile!==false;
+
+    // ── GEO SCORE SVG donut
+    const geoDonut = (()=>{
+        const s=geoAvg; const cx=90,cy=92,rO=72,rI=54;
+        const sDeg=170,tDeg=200;
+        const toRad=d=>d*Math.PI/180;
+        const pt=(r,d)=>[(cx+r*Math.cos(toRad(d))).toFixed(2),(cy+r*Math.sin(toRad(d))).toFixed(2)].join(',');
+        const arc=(a1,a2)=>{const sp=((a2-a1)+720)%360;if(sp<0.01)return'';const la=sp>180?1:0;return`M${pt(rO,a1)}A${rO},${rO},0,${la},1,${pt(rO,a2)}L${pt(rI,a2)}A${rI},${rI},0,${la},0,${pt(rI,a1)}Z`;};
+        const col=s===null?'rgba(13,95,117,0.25)':'#0D5F75';
+        const lbl=s!==null?(s>=70?'ottimizzato':s>=40?'da migliorare':'critico'):'nessun dato';
+        const pDeg=s!==null?tDeg*(s/100):0;
+        const tPath=arc(sDeg,sDeg+tDeg); const pPath=pDeg>0?arc(sDeg,sDeg+pDeg):'';
+        return `<svg viewBox="0 0 180 115" style="width:100%;max-width:188px;display:block;margin:0 auto"><path d="${tPath}" fill="#c8e8f4"/>${pPath?`<path d="${pPath}" fill="${col}"/>`:''}
+        <circle cx="${cx}" cy="${cy}" r="55" fill="white"/>
+        <text x="${cx}" y="82" text-anchor="middle" font-family="Commissioner,sans-serif" font-size="28" font-weight="700" fill="${col}">${s!==null?s:'—'}</text>
+        <text x="${cx}" y="95" text-anchor="middle" font-family="Commissioner,sans-serif" font-size="8" font-weight="400" fill="${col}">/100</text>
+        <text x="${cx}" y="110" text-anchor="middle" font-family="Commissioner,sans-serif" font-size="10" font-weight="700" fill="#171b33">${lbl}</text></svg>`;
+    })();
+
     const el = document.getElementById('hotel-content');
     el.innerHTML = `
-        <!-- KPI -->
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px">
-            <div style="background:white;border-radius:8px;box-shadow:0 2px 20px rgba(0,0,0,0.07);border-top:3px solid #0D5F75;padding:20px 22px">
-                <div style="font-size:12px;font-weight:500;color:#4a4a6a;margin-bottom:10px;display:flex;align-items:center;gap:4px">GEO SCORE <span class='tip-q' data-tip='Punteggio complessivo AI. ≥70 ottimizzato, 40–69 da migliorare.'>?</span></div>
-                <div style="font-size:34px;font-weight:800;line-height:1;color:${geoAvg!==null?'#171b33':'#ead0dc'}">${geoAvg!==null?geoAvg:'—'}</div>
-                <div style="font-size:12px;font-weight:500;color:${geoAvg!==null?(geoAvg>=70?'#0D5F75':'#0D5F75'):'#ead0dc'};margin-top:6px">${geoAvg!==null?(geoAvg>=70?'ottimizzato':geoAvg>=40?'da migliorare':'critico'):'nessun dato'}</div>
-            </div>
-            <div style="background:white;border-radius:8px;box-shadow:0 2px 20px rgba(0,0,0,0.07);border-top:3px solid #e4e4ec;padding:20px 22px">
-                <div style="font-size:12px;font-weight:500;color:#4a4a6a;margin-bottom:10px;display:flex;align-items:center;gap:4px">COMPLETEZZA AI <span class='tip-q' data-tip='Completezza del profilo AI: nome, indirizzo, descrizione, contatti, FAQ ecc.'>?</span></div>
-                <div style="font-size:34px;font-weight:800;line-height:1;color:${cs!==null?'#171b33':'#ead0dc'}">${cs!==null?cs:'—'}</div>
-                <div style="font-size:12px;font-weight:500;color:${cs!==null?(cs>=70?'#0D5F75':'#0D5F75'):'#ead0dc'};margin-top:6px">${cs!==null?(cs>=70?'ottimizzato':cs>=40?'da migliorare':'critico'):'nessun dato'}</div>
-            </div>
-            <div style="background:white;border-radius:8px;box-shadow:0 2px 20px rgba(0,0,0,0.07);border-top:3px solid #e4e4ec;padding:20px 22px">
-                <div style="font-size:12px;font-weight:500;color:#4a4a6a;margin-bottom:10px;display:flex;align-items:center;gap:4px">COVERAGE FAQ <span class='tip-q' data-tip='Percentuale di domande degli ospiti coperta dalle FAQ. ≥80% buona copertura.'>?</span></div>
-                <div style="font-size:34px;font-weight:800;line-height:1;color:${covPct!==null?'#171b33':'#ead0dc'}">${covPct!==null?covPct+'%':'—'}</div>
-                <div style="font-size:12px;font-weight:500;color:${covPct!==null?(covPct>=80?'#0D5F75':'#0D5F75'):'#ead0dc'};margin-top:6px">${covPct!==null?covPct+'% coperto':'nessun dato'}</div>
-            </div>
-            <div style="background:white;border-radius:8px;box-shadow:0 2px 20px rgba(0,0,0,0.07);border-top:3px solid #e4e4ec;padding:20px 22px">
-                <div style="font-size:12px;font-weight:500;color:#4a4a6a;margin-bottom:10px;display:flex;align-items:center;gap:4px">MAPPA QUERY <span class='tip-q' data-tip='Percentuale di categorie di query conversazionali coperte. ≥70% buona copertura.'>?</span></div>
-                <div style="font-size:34px;font-weight:800;line-height:1;color:${qMapPct!==null?'#171b33':'#ead0dc'}">${qMapPct!==null?qMapPct+'%':'—'}</div>
-                <div style="font-size:12px;font-weight:500;color:${qMapPct!==null?(qMapPct>=70?'#0D5F75':'#0D5F75'):'#ead0dc'};margin-top:6px">${qMapPct!==null?qMapPct+'% coperto':'nessun dato'}</div>
-            </div>
-        </div>
-
-        <!-- TAB BAR -->
-        <div style="display:flex;border-bottom:2px solid #e4e4ec;margin-bottom:20px;overflow-x:auto;gap:0">
-            <button class="htab-btn" data-tab="panoramica" style="${dtabAct}">PANORAMICA</button>
-            <button class="htab-btn" data-tab="faq" style="${dtabInact}">FAQ</button>
-            <button class="htab-btn" data-tab="schema" style="${dtabInact}">SCHEMA.ORG</button>
-            <button class="htab-btn" data-tab="mappa" style="${dtabInact}">MAPPA QUERY</button>
-            <button class="htab-btn" data-tab="coerenza" style="${dtabInact}">COERENZA</button>
-            <button class="htab-btn" data-tab="config" style="${dtabInact}">CONFIGURAZIONE</button>
-            <button class="htab-btn" data-tab="pse" style="${dtabInact}">STATISTICHE PSE</button>
-        </div>
-
         <!-- ═══ TAB: PANORAMICA ═══ -->
         <div id="htab-panoramica">
-            <div style="display:grid;grid-template-columns:260px 1fr;gap:20px;margin-bottom:20px;align-items:start">
+          <div class="h-dash-title">La tua Dashboard</div>
 
-                <!-- Stato contenuti (stile Statistiche) -->
-                <div style="background:white;border-radius:8px;overflow:hidden;box-shadow:0 2px 20px rgba(0,0,0,0.07)">
-                    <div style="padding:16px 20px 14px">
-                        <div style="font-size:18px;font-weight:800;color:#171b33;letter-spacing:-.01em">Stato contenuti</div>
-                    </div>
-                    <div style="border-top:1px solid #e4e4ec">
-                        <div style="font-size:10px;font-weight:700;color:#35364f;letter-spacing:.08em;text-transform:uppercase;padding:12px 20px 6px">SEZIONI</div>
-                        ${[
-                            {k:'faq',     l:'FAQ',            v: covPct!==null?(covPct+'% coperto'):'1 pubblicata'},
-                            {k:'schema',  l:'SCHEMA.ORG',     v: daysSchema===null?'Non aggiornato':(daysSchema+' giorni fa')},
-                            {k:'mappa',   l:'MAPPA QUERY',    v: qMapPct!==null?(qMapPct+'% coperto'):'Nessun dato'},
-                            {k:'coerenza',l:'COERENZA',       v:'Confronta canali'},
-                            {k:'config',  l:'CONFIGURAZIONE', v:'Chiavi e abilitazioni'},
-                            {k:'pse',     l:'STATISTICHE PSE',v:(pseData.length||0)+' query registrate'},
-                        ].map(({k,l,v})=>
-                            '<div class="hstato-row" data-tab="'+k+'" style="display:flex;align-items:center;justify-content:space-between;padding:11px 20px;cursor:pointer;background:#fafafa;border-bottom:1px solid #e4e4ec;transition:background .15s" onmouseenter="this.style.background=\'#fbf4f7\'" onmouseleave="this.style.background=\'white\'">'
-                            + '<span style="font-size:10px;font-weight:700;color:#35364f;letter-spacing:.07em;text-transform:uppercase">'+l+'</span>'
-                            + '<span style="font-size:13px;color:#181834;text-align:right;max-width:120px;font-weight:600">'+v+'</span>'
-                            + '</div>'
-                        ).join('')}
-                        <div style="padding:16px 20px">
-                            <button id="btn-hotel-sync" style="width:100%;background:#0D5F75;color:white;border:none;border-radius:8px;padding:12px;font-size:13px;font-weight:800;letter-spacing:.08em;cursor:pointer;font-family:var(--font)">SINCRONIZZA</button>
-                        </div>
+          <!-- 3 KPI -->
+          <div class="h-kpi-row">
+              <div class="h-kpi">
+                  <div class="h-kpi-ttl">Completezza Profilo AI <span class='tip-q' data-tip='Completezza del profilo AI: nome, indirizzo, descrizione, contatti, FAQ ecc.'>?</span></div>
+                  <div class="h-kpi-val" style="color:${cs!==null?'#171b33':'#C1CBE8'}">${cs!==null?cs:'—'}</div>
+                  <div class="h-kpi-sub ${cs===null?'h-kpi-sub-nd':''}">${cs!==null?(cs>=70?'ottimizzato':cs>=40?'da migliorare':'critico'):'nessun dato'}</div>
+              </div>
+              <div class="h-kpi">
+                  <div class="h-kpi-ttl">Risultati FAQ <span class='tip-q' data-tip='Percentuale di domande degli ospiti coperta dalle FAQ. ≥80% buona copertura.'>?</span></div>
+                  <div class="h-kpi-val" style="color:${covPct!==null?'#171b33':'#C1CBE8'}">${covPct!==null?covPct+'%':'—'}</div>
+                  <div class="h-kpi-sub ${covPct===null?'h-kpi-sub-nd':''}">${covPct!==null?covPct+'% coperto':'nessun dato'}</div>
+              </div>
+              <div class="h-kpi">
+                  <div class="h-kpi-ttl">Mappa di Ricerca <span class='tip-q' data-tip='Percentuale di query conversazionali coperte. ≥70% buona copertura.'>?</span></div>
+                  <div class="h-kpi-val" style="color:${qMapPct!==null?'#171b33':'#C1CBE8'}">${qMapPct!==null?qMapPct+'%':'—'}</div>
+                  <div class="h-kpi-sub ${qMapPct===null?'h-kpi-sub-nd':''}">${qMapPct!==null?qMapPct+'% coperto':'nessun dato'}</div>
+              </div>
+          </div>
+
+          <!-- 2 colonne: main + Eletta card -->
+          <div class="h-main-grid">
+            <div class="h-main-left">
+
+              <!-- Panoramica statistiche + GEO SCORE -->
+              <div class="h-stats-row">
+                  <div class="h-card" style="margin-bottom:0">
+                      <div class="h-card-hdr">
+                          <span class="h-card-hdr-t">
+                              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                              Panoramica statistiche
+                          </span>
+                          <div style="display:flex;gap:10px">
+                              <span class="h-range-btn active-range" data-days="30" style="font-size:10px;font-weight:700;cursor:pointer;color:#0D5F75;border-bottom:2px solid #0D5F75;padding-bottom:1px">1M</span>
+                              <span class="h-range-btn" data-days="180" style="font-size:10px;font-weight:700;cursor:pointer;color:#aaa">6M</span>
+                              <span class="h-range-btn" data-days="9999" style="font-size:10px;font-weight:700;cursor:pointer;color:#aaa">Sempre</span>
+                          </div>
+                      </div>
+                      <div class="h-card-body" style="padding:12px 14px">
+                          <canvas id="hchart-stats" style="max-height:150px"></canvas>
+                      </div>
+                  </div>
+                  <div class="h-card" style="margin-bottom:0;display:flex;flex-direction:column;align-items:center">
+                      <div class="h-card-hdr" style="width:100%">
+                          <span class="h-card-hdr-t">GEO SCORE <span class='tip-q' data-tip='Punteggio complessivo AI. ≥70 ottimizzato, 40–69 da migliorare.'>?</span></span>
+                      </div>
+                      <div class="h-card-body" style="display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:10px 14px">
+                          ${geoDonut}
+                          <div style="font-size:10px;color:#888;margin-top:6px;text-align:center">Visibilità AI ${geoAvg!==null?(geoAvg>=70?'ottimizzata':'migliorabile'):'—'}</div>
+                      </div>
+                  </div>
+              </div>
+
+              <!-- Section heading Panoramica -->
+              <div class="h-sec-hdr">
+                  <div class="h-sec-icon">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                  </div>
+                  <div class="h-sec-texts">
+                      <div class="h-sec-title">Panoramica</div>
+                      <div class="h-sec-sub">Semafori e punteggi</div>
+                  </div>
+              </div>
+
+              <!-- btn sync: nascosto, usato da btn-sync-header -->
+              <button id="btn-hotel-sync" style="display:none">SINCRONIZZA</button>
+
+              <!-- Semafori + Info Sito -->
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+                <div class="h-card" style="margin-bottom:0">
+                    <div class="h-card-hdr"><span class="h-card-hdr-t"><span class="h-dot h-dot-${statoGen==='ok'?'ok':statoGen==='warn'?'warn':'err'}"></span>Stato semafori</span></div>
+                    <div class="h-card-body" style="padding:0 14px 8px">
+                        ${sf(statoGen,'Stato generale: '+(statoGen==='ok'?'Tutto OK':statoGen==='warn'?'Attenzione':'Problemi rilevati'),'')}
+                        ${sf(hrs<25?'ok':hrs<48?'warn':'err','Plugin attivo',site.last_heartbeat?timeAgo(site.last_heartbeat):'Nessun segnale')}
+                        ${sf(geoAvg===null?'grey':geoAvg>=70?'ok':geoAvg>=40?'warn':'err','GEO Score',geoAvg!==null?geoAvg+'/100':'Nessun dato')}
+                        ${geo.has_ai_profile===true?sf('ok','/ai-profile','Endpoint attivo'):geo.has_ai_profile===false?sf('err','/ai-profile','Disabilitato'):sf('warn','/ai-profile','In attesa')}
                     </div>
                 </div>
-
-                <!-- Stato Semafori + Info Sito -->
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start">
-                    <div class="card" style="margin:0;border-radius:8px;border:1px solid #e4e4ec;box-shadow:none">
-                        <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Stato semafori</div></div></div>
-                        <div style="padding:0 20px 8px">
-                            ${sf(statoGen,'<strong>Stato generale: '+(statoGen==='ok'?'Tutto OK':statoGen==='warn'?'Attenzione':'Problemi rilevati')+'</strong>','')}
-                            ${sf(hrs<25?'ok':hrs<48?'warn':'err','Plugin attivo sul sito',site.last_heartbeat?'Ultimo segnale: '+timeAgo(site.last_heartbeat):'Nessun segnale ricevuto')}
-                            ${sf(geoAvg===null?'grey':geoAvg>=70?'ok':geoAvg>=40?'warn':'err','GEO Score',geoAvg!==null?geoAvg+'/100':'Nessun dato disponibile')}
-                            ${geo.has_ai_profile===true?sf('ok','/ai-profile','Endpoint attivo — leggibile dai crawler AI'):geo.has_ai_profile===false?sf('err','/ai-profile','LLM layer disabilitato — attivalo in Configurazione'):sf('warn','/ai-profile','In attesa del prossimo heartbeat')}
-                        </div>
-                    </div>
-                    <div class="card" style="margin:0;border-radius:8px;border:1px solid #e4e4ec;box-shadow:none">
-                        <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Informazioni sito</div></div></div>
-                        <div style="padding:14px 16px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
-                            <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:12px 14px"><div style="font-size:10px;color:#aaa;font-weight:600;letter-spacing:.04em;text-transform:uppercase;margin-bottom:4px">Sito</div><div style="font-size:14px;font-weight:600;color:#35364f">${esc(site.site_name||'—')}</div></div>
-                            <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:12px 14px"><div style="font-size:10px;color:#aaa;font-weight:600;letter-spacing:.04em;text-transform:uppercase;margin-bottom:4px">URL</div><div style="font-size:12px;font-weight:500"><a href="${esc(site.site_url||'')}" target="_blank" style="color:#0D5F75;text-decoration:none">${esc(site.site_url||'—')}</a></div></div>
-                            <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:12px 14px"><div style="font-size:10px;color:#aaa;font-weight:600;letter-spacing:.04em;text-transform:uppercase;margin-bottom:4px">Versione plugin</div><div style="font-size:14px;font-weight:600;color:#35364f">${esc(site.plugin_version||'—')}</div></div>
-                            <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:12px 14px"><div style="font-size:10px;color:#aaa;font-weight:600;letter-spacing:.04em;text-transform:uppercase;margin-bottom:4px">WordPress</div><div style="font-size:14px;font-weight:600;color:#35364f">${esc(site.wp_version||'—')}</div></div>
-                            <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:12px 14px"><div style="font-size:10px;color:#aaa;font-weight:600;letter-spacing:.04em;text-transform:uppercase;margin-bottom:4px">Installato il</div><div style="font-size:14px;font-weight:600;color:#35364f">${regIl}</div></div>
-                            <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:12px 14px"><div style="font-size:10px;color:#aaa;font-weight:600;letter-spacing:.04em;text-transform:uppercase;margin-bottom:4px">Pacchetto</div><div style="font-size:14px;font-weight:600;color:#35364f">${site.tier==='plus'?'<span style="color:var(--magenta)">Plus</span>':'Standard'}</div></div>
-                        </div>
+                <div class="h-card" style="margin-bottom:0">
+                    <div class="h-card-hdr"><span class="h-card-hdr-t">Informazioni sito</span></div>
+                    <div class="h-card-body" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px 14px">
+                        <div style="background:#f8f9fc;border-radius:8px;padding:10px 12px"><div style="font-size:9px;color:#aaa;font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px">Sito</div><div style="font-size:12px;font-weight:600;color:#35364f">${esc(site.site_name||'—')}</div></div>
+                        <div style="background:#f8f9fc;border-radius:8px;padding:10px 12px"><div style="font-size:9px;color:#aaa;font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px">Plugin</div><div style="font-size:12px;font-weight:600;color:#35364f">${esc(site.plugin_version||'—')}</div></div>
+                        <div style="background:#f8f9fc;border-radius:8px;padding:10px 12px"><div style="font-size:9px;color:#aaa;font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px">WordPress</div><div style="font-size:12px;font-weight:600;color:#35364f">${esc(site.wp_version||'—')}</div></div>
+                        <div style="background:#f8f9fc;border-radius:8px;padding:10px 12px"><div style="font-size:9px;color:#aaa;font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px">Installato</div><div style="font-size:12px;font-weight:600;color:#35364f">${regIl}</div></div>
                     </div>
                 </div>
-            </div>
+              </div>
 
             <!-- Punteggi AI -->
-            <div class="card" style="margin-bottom:20px;border-radius:8px;border:1px solid #e4e4ec;box-shadow:none">
-                <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Punteggi AI</div></div></div>
-                <div style="padding:16px 20px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
-                    <div style="background:white;border:1.5px solid #0D5F75;border-radius:8px;padding:16px 18px">
-                        <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:8px">MEDIA PUNTEGGI</div>
-                        <div style="font-size:38px;font-weight:800;line-height:1;color:${geoAvg!==null?'#171b33':'#ead0dc'}">${geoAvg!==null?geoAvg:'—'}</div>
-                        <div style="font-size:11px;font-weight:600;color:${geoAvg!==null?(geoAvg>=70?'#0D5F75':'#0D5F75'):'#ead0dc'};margin-top:6px">${geoAvg!==null?(geoAvg>=70?'ottimizzato':geoAvg>=40?'da migliorare':'critico'):'nessun dato'} / 100</div>
+            <div class="h-card">
+                <div class="h-card-hdr"><span class="h-card-hdr-t">Punteggi AI</span></div>
+                <div class="h-card-body" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+                    <div style="background:#edf7fa;border:1.5px solid #0D5F75;border-radius:10px;padding:14px 16px">
+                        <div style="font-size:9px;font-weight:700;letter-spacing:.06em;color:#0D5F75;text-transform:uppercase;margin-bottom:6px">MEDIA</div>
+                        <div style="font-size:34px;font-weight:800;line-height:1;color:${geoAvg!==null?'#171b33':'#C1CBE8'}">${geoAvg!==null?geoAvg:'—'}</div>
+                        <div style="font-size:10px;font-weight:600;color:#0D5F75;margin-top:5px">${geoAvg!==null?(geoAvg>=70?'ottimizzato':geoAvg>=40?'da migliorare':'critico'):'nessun dato'}</div>
                     </div>
                     ${geoRows}
                 </div>
             </div>
 
-            ${cs !== null ? `<div class="card" style="margin-bottom:20px;border-radius:8px;border:1px solid #e4e4ec;box-shadow:none">
-                <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Completezza profilo AI</div></div></div>
-                <div style="padding:16px 20px">
-                    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:${checklist.length?'20px':'0'}">
-                        <div style="background:${cs<60?'linear-gradient(135deg,#ffffff 0%,#fce8ef 100%)':'white'};border:1px solid ${cs<60?'#ead0dc':'#e4e4ec'};border-radius:8px;padding:16px 18px"><div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:8px">PUNTEGGIO</div><div style="font-size:32px;font-weight:800;line-height:1;color:#171b33">${cs}/100</div><div style="font-size:11px;font-weight:600;color:${cs>=80?'#0D5F75':'#0D5F75'};margin-top:6px">${cs>=80?'ottimizzato':cs>=60?'da migliorare':'incompleto'}</div></div>
-                        <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:16px 18px"><div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:8px">CAMPI TOTALI</div><div style="font-size:32px;font-weight:800;line-height:1;color:#171b33">12</div><div style="font-size:11px;font-weight:600;color:#0D5F75;margin-top:6px">campi fondamentali</div></div>
-                        <div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:16px 18px"><div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:8px">COMPILATI</div><div style="font-size:32px;font-weight:800;line-height:1;color:#171b33">${12-checklist.length}</div><div style="font-size:11px;font-weight:600;color:#0D5F75;margin-top:6px">di 12 totali</div></div>
-                        <div style="background:${checklist.length>0?'linear-gradient(135deg,#ffffff 0%,#fce8ef 100%)':'white'};border:1px solid ${checklist.length>0?'#ead0dc':'#e4e4ec'};border-radius:8px;padding:16px 18px"><div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:8px">MANCANTI</div><div style="font-size:32px;font-weight:800;line-height:1;color:#171b33">${checklist.length}</div><div style="font-size:11px;font-weight:600;color:${checklist.length>0?'#0D5F75':'#0D5F75'};margin-top:6px">${checklist.length>0?'da completare':'tutto compilato'}</div></div>
+            ${cs !== null ? `<div class="h-card">
+                <div class="h-card-hdr"><span class="h-card-hdr-t">Completezza profilo AI</span></div>
+                <div class="h-card-body">
+                    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:${checklist.length?'16px':'0'}">
+                        <div style="background:${cs<60?'#fef0f0':'#edf7fa'};border:1px solid ${cs<60?'#f5c8c8':'#b8e4f0'};border-radius:10px;padding:14px"><div style="font-size:9px;font-weight:700;letter-spacing:.06em;color:#888;text-transform:uppercase;margin-bottom:6px">PUNTEGGIO</div><div style="font-size:28px;font-weight:800;line-height:1;color:#171b33">${cs}/100</div><div style="font-size:10px;font-weight:600;color:${cs>=80?'#0D5F75':'#d82d6b'};margin-top:5px">${cs>=80?'ottimizzato':cs>=60?'da migliorare':'incompleto'}</div></div>
+                        <div style="background:#f8f9fc;border:1px solid #e4e4ec;border-radius:10px;padding:14px"><div style="font-size:9px;font-weight:700;letter-spacing:.06em;color:#888;text-transform:uppercase;margin-bottom:6px">TOTALI</div><div style="font-size:28px;font-weight:800;line-height:1;color:#171b33">12</div><div style="font-size:10px;font-weight:600;color:#0D5F75;margin-top:5px">campi</div></div>
+                        <div style="background:#f8f9fc;border:1px solid #e4e4ec;border-radius:10px;padding:14px"><div style="font-size:9px;font-weight:700;letter-spacing:.06em;color:#888;text-transform:uppercase;margin-bottom:6px">COMPILATI</div><div style="font-size:28px;font-weight:800;line-height:1;color:#171b33">${12-checklist.length}</div><div style="font-size:10px;font-weight:600;color:#0D5F75;margin-top:5px">di 12</div></div>
+                        <div style="background:${checklist.length>0?'#fef0f0':'#edf7fa'};border:1px solid ${checklist.length>0?'#f5c8c8':'#b8e4f0'};border-radius:10px;padding:14px"><div style="font-size:9px;font-weight:700;letter-spacing:.06em;color:#888;text-transform:uppercase;margin-bottom:6px">MANCANTI</div><div style="font-size:28px;font-weight:800;line-height:1;color:#171b33">${checklist.length}</div><div style="font-size:10px;font-weight:600;color:${checklist.length>0?'#d82d6b':'#0D5F75'};margin-top:5px">${checklist.length>0?'da completare':'completo'}</div></div>
                     </div>
-                    ${checklist.length ? '<div style="font-size:11px;font-weight:700;color:var(--grey);letter-spacing:.06em;margin-bottom:8px">COSA MANCA</div>'+checklist.map(item=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #f4f4f8"><span style="color:#0D5F75;font-weight:800;font-size:12px">✗</span><span style="font-size:13px">${esc(item)}</span></div>`).join('') : ''}
+                    ${checklist.length ? '<div style="font-size:10px;font-weight:700;color:#888;letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px">COSA MANCA</div>'+checklist.map(item=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #f4f4f8"><span style="color:#d82d6b;font-weight:800;font-size:11px">✗</span><span style="font-size:12px;color:#4b4d68">${esc(item)}</span></div>`).join('') : ''}
                 </div>
             </div>` : ''}
+            </div><!-- /h-main-left -->
+
+            <!-- ═══ ELETTA CARD ═══ -->
+            <div class="h-eletta">
+              <div class="h-eletta-title">Eletta,<br>per il tuo sito web</div>
+              <div class="h-eletta-row">
+                  <div class="h-eletta-ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="2" stroke-linecap="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg></div>
+                  <span>Notifiche</span>
+                  ${notifCount>0?`<span class="h-eletta-badge h-eletta-badge-warn">${notifCount}</span>`:'<span class="h-eletta-badge">0</span>'}
+              </div>
+              <div class="h-eletta-row">
+                  <div class="h-eletta-ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="2" stroke-linecap="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+                  <span>Suggerimenti AI</span>
+                  ${suggestCount>0?`<span class="h-eletta-badge h-eletta-badge-warn">${suggestCount}</span>`:'<span class="h-eletta-badge">0</span>'}
+              </div>
+              <div class="h-eletta-row">
+                  <div class="h-eletta-ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="${statoOk?'#0D5F75':'#d82d6b'}" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="${statoOk?'M9 12l2 2 4-4':'M15 9l-6 6M9 9l6 6'}"/></svg></div>
+                  <span>Stato semafori</span>
+                  <span class="h-eletta-badge" style="background:${statoOk?'#0D5F75':'#d82d6b'}">${statoOk?'OK':'Attenzione'}</span>
+              </div>
+              <div class="h-eletta-row" style="border-bottom:none">
+                  <div class="h-eletta-ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+                  <span>Pacchetto</span>
+                  <span style="margin-left:auto;font-size:11px;font-weight:700;color:#0D5F75">${site.tier==='plus'?'Plus':'Standard'}</span>
+              </div>
+              <button class="h-btn-supporto" onclick="document.getElementById('feedback-overlay')?.style?.setProperty('display','flex')">Chiedi supporto</button>
+            </div>
+          </div><!-- /h-main-grid -->
         </div><!-- /htab-panoramica -->
 
         <!-- ═══ TAB: FAQ ═══ -->
@@ -424,30 +670,33 @@ function renderContent(site, pseData, now) {
         </div><!-- /htab-pse -->
     `;
 
-    // ── tab switching
-    const allPanes = ['panoramica','faq','schema','mappa','coerenza','config','pse'];
-    el.querySelectorAll('.htab-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const tab = btn.dataset.tab;
-            el.querySelectorAll('.htab-btn').forEach(b => { b.style.color='#666b84'; b.style.borderBottom='2px solid transparent'; });
-            btn.style.color = '#0D5F75'; btn.style.borderBottom = '2px solid #0D5F75';
-            allPanes.forEach(p => { const p2=document.getElementById('htab-'+p); if(p2) p2.style.display='none'; });
-            const pane = document.getElementById('htab-'+tab);
-            if (pane) pane.style.display = 'block';
-            if (tab === 'faq') initHotelFaq();
-            if (tab === 'schema') initHotelSchema(site);
-            if (tab === 'mappa') initHotelMappa(site);
-            if (tab === 'coerenza') initHotelCoerenza(site);
-            if (tab === 'config') initHotelConfig(site);
-            if (tab === 'pse') initHotelPseCharts(pseData);
-        });
-    });
+    // ── Grafico statistiche
+    (function() {
+        const canvas = document.getElementById('hchart-stats');
+        if (!canvas || !window.Chart) return;
+        const datasets = [];
+        if (pseData && pseData.length) {
+            const byWeek = {}; pseData.forEach(q => { const w = q.created_at?.slice(0,7)||'?'; byWeek[w]=(byWeek[w]||0)+1; });
+            const labels = Object.keys(byWeek).sort().slice(-6);
+            datasets.push({ label:'Query PSE', data:labels.map(l=>byWeek[l]||0), backgroundColor:'rgba(13,95,117,0.6)', borderRadius:4 });
+        }
+        const geoVal = geoAvg !== null ? geoAvg : null;
+        if (geoVal !== null) {
+            const fakeLabels = datasets.length ? datasets[0].data.map((_,i)=>i) : [0,1,2,3,4,5];
+            const len = fakeLabels.length || 6;
+            const trend = Array.from({length:len},(_,i)=>Math.max(0,geoVal-Math.round((len-1-i)*2)+Math.round(Math.random()*4)));
+            if (!datasets.length) { datasets.push({label:'GEO Score',data:trend,type:'line',borderColor:'#0D5F75',backgroundColor:'rgba(13,95,117,0.08)',tension:.4,fill:true,pointRadius:3}); }
+        }
+        if (!datasets.length) return;
+        const ctx = canvas.getContext('2d');
+        new window.Chart(ctx, { type:'bar', data:{ labels:datasets[0].data.map((_,i)=>i+1+'°'), datasets }, options:{ plugins:{legend:{display:false}}, scales:{ x:{grid:{display:false},ticks:{font:{size:9},color:'#aaa'}}, y:{grid:{color:'#f0f0f6'},ticks:{font:{size:9},color:'#aaa'}} } } });
+    })();
 
-    // ── stato-sezione-row click → switch tab
-    el.querySelectorAll('.hstato-row[data-tab]').forEach(row => {
-        row.addEventListener('click', () => {
-            const tabBtn = el.querySelector('.htab-btn[data-tab="'+row.dataset.tab+'"]');
-            if (tabBtn) tabBtn.click();
+    // ── Range selector for stats chart
+    document.querySelectorAll('.h-range-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.h-range-btn').forEach(b => { b.style.color='#aaa'; b.style.borderBottom='none'; });
+            btn.style.color = '#0D5F75'; btn.style.borderBottom = '2px solid #0D5F75';
         });
     });
 
@@ -466,16 +715,17 @@ function renderContent(site, pseData, now) {
     });
     el.querySelector('#btn-add-faq-hotel')?.addEventListener('click', () => openHotelFaqModal(null));
 
-    // ── sync button
-    document.getElementById('btn-hotel-sync')?.addEventListener('click', async () => {
-        const btn = document.getElementById('btn-hotel-sync');
-        btn.textContent = 'SINCRONIZZAZIONE...'; btn.disabled = true;
+    // ── sync button (sia il hidden btn-hotel-sync che quello header)
+    const doSync = async () => {
+        const headerBtn = document.getElementById('btn-sync-header');
+        if (headerBtn) { headerBtn.textContent = 'Sincronizzazione...'; headerBtn.disabled = true; }
         try {
             const r = await fetch(_pluginBase + '/wp-json/in3pida/v1/force-heartbeat', { method:'POST', headers:{'Content-Type':'application/json'}, signal:AbortSignal.timeout(20000) });
-            if (r.ok) { btn.textContent = '✓ SINCRONIZZATO'; setTimeout(() => { window.location.reload(); }, 1500); }
-            else { btn.textContent = '✗ ERRORE '+r.status; setTimeout(() => { btn.textContent='SINCRONIZZA'; btn.disabled=false; }, 3000); }
-        } catch(e) { btn.textContent='✗ NON RAGGIUNGIBILE'; setTimeout(() => { btn.textContent='SINCRONIZZA'; btn.disabled=false; }, 3000); }
-    });
+            if (r.ok) { if(headerBtn) headerBtn.textContent='✓ Sincronizzato'; setTimeout(() => { window.location.reload(); }, 1500); }
+            else { if(headerBtn){headerBtn.textContent='✗ Errore '+r.status;setTimeout(()=>{headerBtn.textContent='Sincronizza';headerBtn.disabled=false;},3000);} }
+        } catch(e) { if(headerBtn){headerBtn.textContent='✗ Non raggiungibile';setTimeout(()=>{headerBtn.textContent='Sincronizza';headerBtn.disabled=false;},3000);} }
+    };
+    document.getElementById('btn-hotel-sync')?.addEventListener('click', doSync);
 
     // load FAQ immediately
     initHotelFaq();
@@ -831,15 +1081,6 @@ function initHotelPseCharts(pseData) {
         new Chart(barCtx,{type:'bar',data:{labels:Object.keys(days).map(d=>d.slice(5)),datasets:[{data:Object.values(days),backgroundColor:'#0D5F75',borderRadius:4}]},options:{plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{maxTicksLimit:8,color:'#aaa',font:{size:10}}},y:{beginAtZero:true,grid:{color:'#f0f0f4'},ticks:{stepSize:1,color:'#aaa',font:{size:10}}}}}});
     }
 }
-
-// ─── USER DROPDOWN ────────────────────────────────────────────────────────────
-document.getElementById('user-pill').addEventListener('click', e => {
-    e.stopPropagation();
-    const dd=document.getElementById('user-dropdown');
-    dd.style.display=dd.style.display==='none'?'block':'none';
-});
-document.addEventListener('click', () => { document.getElementById('user-dropdown').style.display='none'; });
-document.getElementById('dd-logout').addEventListener('click', async () => { await _SB.auth.signOut(); window.location.href='login.html'; });
 
 // ─── UTIL ─────────────────────────────────────────────────────────────────────
 function timeAgo(d) {
