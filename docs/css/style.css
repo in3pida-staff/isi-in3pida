@@ -104,8 +104,8 @@ body {
 
 /* utente pill destra */
 .navbar-user-pill {
-    display: flex; align-items: center; gap: 10px;
-    cursor: pointer; padding: 5px 10px 5px 5px;
+    display: flex; align-items: center; gap: 9px;
+    cursor: pointer; padding: 4px 9px 4px 4px;
     border-radius: 40px; transition: background .15s;
     user-select: none;
     background: #fff; border: 1.5px solid #e4e8f0;
@@ -114,17 +114,17 @@ body {
 .navbar-user-pill:hover { background: #f9fafc; }
 
 .navbar-avatar {
-    width: 38px; height: 38px; border-radius: 50%;
+    width: 34px; height: 34px; border-radius: 50%;
     background: #C1CBE8; color: white;
     display: flex; align-items: center; justify-content: center;
-    font-size: 14px; font-weight: 700; flex-shrink: 0;
+    font-size: 13px; font-weight: 700; flex-shrink: 0;
     overflow: hidden;
 }
 .navbar-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
 
 .navbar-user-text  { display: flex; flex-direction: column; }
-.navbar-user-name  { font-size: 13px; font-weight: 400; color: #0D5F75; line-height: 1.2; }
-.navbar-user-sub   { font-size: 11px; color: #C1CBE8; font-weight: 400; }
+.navbar-user-name  { font-size: 12px; font-weight: 400; color: #0D5F75; line-height: 1.2; }
+.navbar-user-sub   { font-size: 10px; color: #C1CBE8; font-weight: 400; }
 
 /* dropdown utente */
 .user-dropdown {
@@ -139,7 +139,7 @@ body {
 }
 .user-dropdown-avatar {
     width: 44px; height: 44px; border-radius: 50%;
-    background: var(--magenta); color: white;
+    background: #C1CBE8; color: white;
     display: flex; align-items: center; justify-content: center;
     font-size: 16px; font-weight: 700; flex-shrink: 0; overflow: hidden;
 }
