@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="css/style.css?v=20260622q">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet">
-    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6','isi_hotel_v7','isi_hotel_v8','isi_hotel_v9','isi_hotel_v10','isi_hotel_v11','isi_hotel_v12','isi_hotel_v13','isi_hotel_v14'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v112')){sessionStorage.setItem('isi_hotel_v112','1');location.reload(true);}</script>
+    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6','isi_hotel_v7','isi_hotel_v8','isi_hotel_v9','isi_hotel_v10','isi_hotel_v11','isi_hotel_v12','isi_hotel_v13','isi_hotel_v14'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v113')){sessionStorage.setItem('isi_hotel_v113','1');location.reload(true);}</script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <style>
         .tip-q{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:#EFF020;color:#0D5F75;font-size:9px;font-weight:800;cursor:default;flex-shrink:0;user-select:none;vertical-align:middle}
@@ -434,7 +434,16 @@ async function init() {
         const p = document.getElementById('bell-panel');
         const d = document.getElementById('user-dropdown');
         if (d) d.style.display = 'none';
-        if (p) p.style.display = p.style.display === 'none' ? '' : 'none';
+        if (p) {
+            const opening = p.style.display === 'none';
+            p.style.display = opening ? '' : 'none';
+            if (opening) {
+                // segna notifiche come lette
+                const dot = document.getElementById('bell-dot');
+                if (dot) dot.style.display = 'none';
+                localStorage.setItem('isi_bell_seen', document.getElementById('bell-list')?.dataset.sig || '');
+            }
+        }
     });
 
     document.addEventListener('click', () => {
@@ -946,11 +955,14 @@ function renderContent(site, pseData, now) {
         const list = document.getElementById('bell-list');
         const dot  = document.getElementById('bell-dot');
         if (!list) return;
+        const sig = items.map(i=>i.text).join('|');
+        list.dataset.sig = sig;
         if (items.length === 0) {
             list.innerHTML = '<div style="padding:12px 18px;font-size:12px;color:#aaa">Nessuna notifica</div>';
         } else {
             list.innerHTML = items.map(i => `<div style="display:flex;align-items:flex-start;gap:10px;padding:10px 18px;border-bottom:1px solid #f4f4f8"><span style="width:8px;height:8px;border-radius:50%;background:${i.color};flex-shrink:0;margin-top:3px"></span><span style="font-size:12px;color:#0D5F75;line-height:1.5">${i.text}</span></div>`).join('');
-            if (dot) { dot.style.display = ''; }
+            const seen = localStorage.getItem('isi_bell_seen');
+            if (dot && seen !== sig) dot.style.display = '';
         }
     })();
 }
