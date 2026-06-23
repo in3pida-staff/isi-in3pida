@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="css/style.css?v=20260622q">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet">
-    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6','isi_hotel_v7','isi_hotel_v8','isi_hotel_v9','isi_hotel_v10','isi_hotel_v11','isi_hotel_v12','isi_hotel_v13','isi_hotel_v14'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v103')){sessionStorage.setItem('isi_hotel_v103','1');location.reload(true);}</script>
+    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6','isi_hotel_v7','isi_hotel_v8','isi_hotel_v9','isi_hotel_v10','isi_hotel_v11','isi_hotel_v12','isi_hotel_v13','isi_hotel_v14'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v104')){sessionStorage.setItem('isi_hotel_v104','1');location.reload(true);}</script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <style>
         .tip-q{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:#EFF020;color:#0D5F75;font-size:9px;font-weight:800;cursor:default;flex-shrink:0;user-select:none;vertical-align:middle}
@@ -48,8 +48,8 @@
         .h-btn-sync:hover{opacity:.88;}
         .h-btn-sync:disabled{opacity:.5;cursor:not-allowed;}
         .h-header-right{display:flex;align-items:center;gap:8px;margin-left:auto;}
-        .h-bell{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:none;border:none;cursor:pointer;color:#666b84;transition:background .15s;position:relative;}
-        .h-bell:hover{background:#f4f4f8;}
+        .h-bell{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#fff;border:1.5px solid #e4e8f0;box-shadow:0 1px 4px rgba(0,0,0,.06);cursor:pointer;color:#0D5F75;transition:background .15s;position:relative;}
+        .h-bell:hover{background:#f9fafc;}
         .h-bell-dot{position:absolute;top:6px;right:5px;width:7px;height:7px;border-radius:50%;background:#ff6b2b;border:1.5px solid white;}
 
         /* ═══ HERO ═══ */
@@ -233,8 +233,9 @@
           <div class="navbar-avatar" id="nav-avatar">H</div>
           <div class="navbar-user-text">
             <div class="navbar-user-name" id="nav-name">Hotel</div>
-            <div class="navbar-user-sub">Pannello Hotel</div>
+            <div class="navbar-user-sub" id="nav-role">Pannello Hotel</div>
           </div>
+          <div style="width:22px;height:22px;border-radius:50%;background:#C1CBE8;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
         </div>
         <button class="h-bell" id="btn-bell">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
