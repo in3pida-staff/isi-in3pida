@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="css/style.css?v=20260622q">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet">
-    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6','isi_hotel_v7','isi_hotel_v8','isi_hotel_v9','isi_hotel_v10','isi_hotel_v11','isi_hotel_v12','isi_hotel_v13','isi_hotel_v14'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v43')){sessionStorage.setItem('isi_hotel_v43','1');location.reload(true);}</script>
+    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6','isi_hotel_v7','isi_hotel_v8','isi_hotel_v9','isi_hotel_v10','isi_hotel_v11','isi_hotel_v12','isi_hotel_v13','isi_hotel_v14'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v44')){sessionStorage.setItem('isi_hotel_v44','1');location.reload(true);}</script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <style>
         .tip-q{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:#EFF020;color:#0D5F75;font-size:9px;font-weight:800;cursor:default;flex-shrink:0;user-select:none;vertical-align:middle}
@@ -87,9 +87,9 @@
         .h-dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex-shrink:0;}
 
         /* ═══ STATS + GEO ROW ═══ */
-        .h-stats-row{display:grid;grid-template-columns:7fr 3.5fr;gap:12px;margin-bottom:12px;margin-right:24px;}
+        .h-stats-row{display:grid;grid-template-columns:7fr 3.5fr;gap:24px;margin-bottom:12px;margin-right:24px;}
         .h-range-btn{font-size:10px;font-weight:600;cursor:pointer;color:#aaa;padding:4px 10px;border-radius:20px;border:1.5px solid #edeef5;transition:all .15s;font-family:'Commissioner',sans-serif;}
-        .h-range-btn.active-range{color:#0D5F75;border-color:#0D5F75;background:white;}
+        .h-range-btn.active-range{color:#0D5F75;border:1.5px solid #0D5F75;background:white;}
 
         /* ═══ SECTION HEADING ═══ */
         .h-sec-hdr{display:flex;align-items:center;gap:10px;margin:18px 0 10px;}
@@ -761,9 +761,20 @@ function renderContent(site, pseData, now) {
         };
         let curN = 4; let curGran = 'week';
         const ctx = canvas.getContext('2d');
+        const dashedGridPlugin = {
+          id:'dashedGrid',
+          beforeDraw(chart){
+            const {ctx:c,scales:{y},chartArea:ca}=chart;
+            if(!y||!ca)return;
+            c.save();c.setLineDash([6,4]);c.strokeStyle='#0D5F75';c.lineWidth=2;
+            y.ticks.forEach((_,i)=>{const yp=y.getPixelForTick(i);c.beginPath();c.moveTo(ca.left,yp);c.lineTo(ca.right,yp);c.stroke();});
+            c.restore();
+          }
+        };
         const statsChart = new window.Chart(ctx, {
             type:'bar',
             data:{ labels:mkLabels(curN, curGran), datasets:buildDatasets(curN) },
+            plugins:[dashedGridPlugin],
             options:{
                 responsive:true, maintainAspectRatio:true,
                 plugins:{
@@ -772,7 +783,7 @@ function renderContent(site, pseData, now) {
                 },
                 scales:{
                     x:{ grid:{display:false}, ticks:{font:{family:"'Commissioner',sans-serif",size:13},color:'#0D5F75'} },
-                    y:{ min:0, max:100, grid:{color:'#0D5F75',borderDash:[6,4],lineWidth:2}, ticks:{font:{family:"'Commissioner',sans-serif",size:13},color:'#0D5F75',stepSize:25} }
+                    y:{ min:0, max:100, grid:{display:false}, ticks:{font:{family:"'Commissioner',sans-serif",size:13},color:'#0D5F75',stepSize:25} }
                 }
             }
         });
