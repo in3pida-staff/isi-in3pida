@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="css/style.css?v=20260622q">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet">
-    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6','isi_hotel_v7','isi_hotel_v8','isi_hotel_v9','isi_hotel_v10','isi_hotel_v11','isi_hotel_v12','isi_hotel_v13','isi_hotel_v14'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v107')){sessionStorage.setItem('isi_hotel_v107','1');location.reload(true);}</script>
+    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6','isi_hotel_v7','isi_hotel_v8','isi_hotel_v9','isi_hotel_v10','isi_hotel_v11','isi_hotel_v12','isi_hotel_v13','isi_hotel_v14'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v108')){sessionStorage.setItem('isi_hotel_v108','1');location.reload(true);}</script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <style>
         .tip-q{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:#EFF020;color:#0D5F75;font-size:9px;font-weight:800;cursor:default;flex-shrink:0;user-select:none;vertical-align:middle}
@@ -334,12 +334,22 @@ async function init() {
     }
 
     const name = user.user_metadata?.full_name || user.email?.split('@')[0] || 'Hotel';
-    const ini  = name.charAt(0).toUpperCase();
+    const ini  = name.split(' ').map(p=>p[0]).slice(0,2).join('').toUpperCase();
     document.getElementById('nav-name').textContent   = name;
-    document.getElementById('nav-avatar').textContent = ini;
     document.getElementById('dd-name').textContent    = name;
     document.getElementById('dd-email').textContent   = user.email || '';
-    document.getElementById('dd-avatar').textContent  = ini;
+    const avatarUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture || null;
+    function setAvatarImg(src) {
+        ['nav-avatar','dd-avatar'].forEach(id => {
+            const el = document.getElementById(id);
+            el.textContent = '';
+            let img = el.querySelector('img');
+            if (!img) { img = document.createElement('img'); el.appendChild(img); }
+            img.src = src; img.style.cssText='width:100%;height:100%;object-fit:cover;border-radius:50%';
+        });
+    }
+    if (avatarUrl) { setAvatarImg(avatarUrl); }
+    else { document.getElementById('nav-avatar').textContent = ini; document.getElementById('dd-avatar').textContent = ini; }
     const fbEmail = document.getElementById('fb-email');
     if (fbEmail) fbEmail.value = user.email || '';
 
@@ -449,21 +459,12 @@ async function init() {
 
     // ── Cambio foto
     const savedPhoto = localStorage.getItem('isi_avatar_photo');
-    function applyPhoto(src) {
-        ['nav-avatar','dd-avatar'].forEach(id => {
-            const el = document.getElementById(id);
-            el.textContent = '';
-            let img = el.querySelector('img');
-            if (!img) { img = document.createElement('img'); el.appendChild(img); }
-            img.src = src;
-        });
-    }
-    if (savedPhoto) applyPhoto(savedPhoto);
+    if (savedPhoto) setAvatarImg(savedPhoto);
     document.getElementById('photo-input').addEventListener('change', e => {
         const file = e.target.files[0];
         if (!file) return;
         const reader = new FileReader();
-        reader.onload = ev => { localStorage.setItem('isi_avatar_photo', ev.target.result); applyPhoto(ev.target.result); };
+        reader.onload = ev => { localStorage.setItem('isi_avatar_photo', ev.target.result); setAvatarImg(ev.target.result); };
         reader.readAsDataURL(file);
         e.target.value = '';
     });
