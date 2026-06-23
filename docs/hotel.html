@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="css/style.css?v=20260622q">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet">
-    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6','isi_hotel_v7','isi_hotel_v8','isi_hotel_v9','isi_hotel_v10','isi_hotel_v11','isi_hotel_v12','isi_hotel_v13','isi_hotel_v14'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v63')){sessionStorage.setItem('isi_hotel_v63','1');location.reload(true);}</script>
+    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6','isi_hotel_v7','isi_hotel_v8','isi_hotel_v9','isi_hotel_v10','isi_hotel_v11','isi_hotel_v12','isi_hotel_v13','isi_hotel_v14'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v64')){sessionStorage.setItem('isi_hotel_v64','1');location.reload(true);}</script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <style>
         .tip-q{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:#EFF020;color:#0D5F75;font-size:9px;font-weight:800;cursor:default;flex-shrink:0;user-select:none;vertical-align:middle}
@@ -41,7 +41,7 @@
 
         /* ═══ HEADER ═══ */
         .h-header{background:transparent;height:52px;display:flex;align-items:center;padding:0 20px 0 40px;position:sticky;top:0;z-index:100;gap:14px;}
-        .h-main-left{padding-left:20px;}
+        .h-main-left{padding-left:40px;}
         .h-header-logo{display:flex;align-items:center;}
         .h-header-logo img{height:22px;width:auto;}
         .h-btn-sync{background:#EFF020;color:#0D5F75;border:0.5px solid #0D5F75;border-radius:24px;padding:8px 21px;font-family:'Commissioner',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:opacity .15s;flex-shrink:0;}
@@ -102,7 +102,9 @@
         /* ═══ ELETTA CARD (float destra) ═══ */
         .h-eletta{background:#C1CBE8;border-radius:16px;padding:22px 16px 20px;display:flex;flex-direction:column;}
         .h-eletta-title{font-family:'Commissioner',sans-serif;font-size:30px;font-weight:300;color:#fff;margin-bottom:20px;line-height:1.2;text-align:center;}
-        .h-eletta-row{display:flex;align-items:center;gap:10px;padding:0 14px 0 0;background:#fff;border-radius:50px;margin-bottom:10px;font-size:15px;font-family:'Commissioner',sans-serif;color:#0D5F75;font-weight:400;border:none;height:35px;width:70%;}
+        .h-eletta-row{display:flex;align-items:center;gap:10px;padding:0 14px 0 0;background:#fff;border-radius:50px;margin-bottom:10px;font-size:15px;font-family:'Commissioner',sans-serif;color:#0D5F75;font-weight:400;border:none;height:35px;width:70%;cursor:pointer;}
+        .h-eletta-chevron{transition:transform .2s;}
+        .h-eletta-row.open .h-eletta-chevron{transform:rotate(180deg);}
         .h-eletta-ico{width:34px;height:34px;border-radius:50%;border:1.5px solid rgba(13,95,117,0.2);background:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
         .h-eletta-chevron{margin-left:auto;width:20px;height:20px;border-radius:50%;background:rgba(13,95,117,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
         .h-eletta-badge{display:none;}
@@ -112,7 +114,7 @@
         .h-eletta-stato-row:last-child{border-bottom:none;padding-bottom:0;}
         .h-eletta-stato-lbl{font-weight:400;color:#0D5F75;margin-bottom:2px;}
         .h-eletta-stato-val{font-weight:400;color:rgba(13,95,117,0.6);font-size:11px;}
-        .h-btn-supporto{width:50%;background:#EFF020;color:#0D5F75;border:none;border-radius:24px;padding:8px 21px;font-family:'Commissioner',sans-serif;font-size:14px;font-weight:400;cursor:pointer;margin-top:10px;transition:opacity .15s;align-self:flex-start;white-space:nowrap;}
+        .h-btn-supporto{width:50%;background:#EFF020;color:#0D5F75;border:none;border-radius:24px;padding:8px 21px;font-family:'Commissioner',sans-serif;font-size:12px;font-weight:400;cursor:pointer;margin-top:10px;transition:opacity .15s;align-self:flex-start;white-space:nowrap;}
         .h-btn-supporto:hover{opacity:.88;}
 
         /* ═══ OVERRIDE CARD GLOBALI per tab content ═══ */
@@ -559,7 +561,7 @@ function renderContent(site, pseData, now) {
                         <div><div style="font-size:9px;color:#aaa;font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px">Profilo AI</div><div style="font-size:12px;font-weight:600;color:${geo.has_ai_profile===true?'#0D5F75':'#d82d6b'}">${geo.has_ai_profile===true?'Attivo':geo.has_ai_profile===false?'Disabilitato':'In attesa'}</div></div>
                     </div>
                 </div>
-                <div class="h-card" style="margin-bottom:0">
+                <div class="h-card" id="h-card-notifiche" style="margin-bottom:0">
                     <div class="h-card-hdr" style="display:flex;align-items:center;gap:8px"><span class="h-card-hdr-t">Notifiche</span>${notifCount>0?`<span style="background:#d82d6b;color:white;border-radius:50%;width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700">${notifCount}</span>`:''}</div>
                     <div class="h-card-body" style="padding:6px 14px 10px">
                         ${hrs>=48?`<div style="display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid #f4f4f8"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;flex-shrink:0;margin-top:3px;display:inline-block"></span><span style="font-size:12px;color:#4b4d68">Plugin non connesso — nessun segnale ricevuto da ${Math.round(hrs)}h</span></div>`:''}
@@ -571,7 +573,7 @@ function renderContent(site, pseData, now) {
               </div>
 
               <!-- Informazioni sito (full width) -->
-              <div class="h-card">
+              <div class="h-card" id="h-card-pacchetto">
                   <div class="h-card-hdr"><span class="h-card-hdr-t">Informazioni sito</span></div>
                   <div class="h-card-body" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:10px 14px">
                       <div style="background:#f8f9fc;border-radius:8px;padding:10px 12px"><div style="font-size:9px;color:#aaa;font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px">Nome sito web</div><div style="font-size:12px;font-weight:600;color:#35364f">${esc(site.site_name||'—')}</div></div>
@@ -598,7 +600,7 @@ function renderContent(site, pseData, now) {
                 </div>
             </div>
 
-            ${cs !== null ? `<div class="h-card">
+            ${cs !== null ? `<div class="h-card" id="h-card-suggerimenti">
                 <div class="h-card-hdr"><span class="h-card-hdr-t">Completezza profilo AI</span></div>
                 <div class="h-card-body">
                     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:${checklist.length?'16px':'0'}">
@@ -615,28 +617,28 @@ function renderContent(site, pseData, now) {
             <!-- ═══ ELETTA CARD ═══ -->
             <div class="h-eletta">
               <div class="h-eletta-title">Eletta,<br>per il tuo sito web</div>
-              <div class="h-eletta-row">
+              <div class="h-eletta-row" id="eletta-btn-notifiche" onclick="elettaClick('notifiche')">
                   <div class="h-eletta-ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="2" stroke-linecap="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg></div>
                   <span>Notifiche</span>
                   <div class="h-eletta-chevron"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></div>
               </div>
-              <div class="h-eletta-row">
+              <div class="h-eletta-row" id="eletta-btn-suggerimenti" onclick="elettaClick('suggerimenti')">
                   <div class="h-eletta-ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="2" stroke-linecap="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
                   <span>Suggerimenti AI</span>
                   <div class="h-eletta-chevron"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></div>
               </div>
-              <div class="h-eletta-row">
+              <div class="h-eletta-row" id="eletta-btn-semafori" onclick="elettaClick('semafori')">
                   <div class="h-eletta-ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="${statoOk?'M9 12l2 2 4-4':'M15 9l-6 6M9 9l6 6'}"/></svg></div>
                   <span>Stato semafori</span>
                   <div class="h-eletta-chevron"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></div>
               </div>
-              <div class="h-eletta-stato-block">
+              <div class="h-eletta-stato-block" style="display:none">
                   <div class="h-eletta-stato-row"><span class="h-eletta-stato-lbl">Stato generale</span><span class="h-eletta-stato-val" style="color:${statoOk?'#0D5F75':'#d82d6b'}">${statoOk?'OK':'Attenzione'}</span></div>
                   <div class="h-eletta-stato-row"><span class="h-eletta-stato-lbl">Plugin attivo sul sito</span><span class="h-eletta-stato-val">${site.last_heartbeat?timeAgo(site.last_heartbeat):'Nessun segnale'}</span></div>
                   <div class="h-eletta-stato-row"><span class="h-eletta-stato-lbl">Versione plugin</span><span class="h-eletta-stato-val">${esc(site.plugin_version||'—')}</span></div>
                   <div class="h-eletta-stato-row"><span class="h-eletta-stato-lbl">Profilo AI</span><span class="h-eletta-stato-val" style="color:${geo.has_ai_profile?'#0D5F75':'#d82d6b'}">${geo.has_ai_profile?'Attivo':'Incompleto'}</span></div>
               </div>
-              <div class="h-eletta-row">
+              <div class="h-eletta-row" id="eletta-btn-pacchetto" onclick="elettaClick('pacchetto')">
                   <div class="h-eletta-ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
                   <span>Pacchetto ${site.tier==='plus'?'Plus':'Standard'}</span>
                   <div class="h-eletta-chevron"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></div>
@@ -840,6 +842,22 @@ function renderContent(site, pseData, now) {
     // load FAQ immediately
     initHotelFaq();
 }
+
+// ─── Eletta panel button click handlers ───────────
+window.elettaClick = function(type) {
+    if (type === 'semafori') {
+        const block = document.querySelector('.h-eletta-stato-block');
+        const btn = document.getElementById('eletta-btn-semafori');
+        if (!block) return;
+        const isOpen = block.style.display !== 'none';
+        block.style.display = isOpen ? 'none' : '';
+        btn?.classList.toggle('open', !isOpen);
+    } else {
+        const ids = {notifiche:'h-card-notifiche', suggerimenti:'h-card-suggerimenti', pacchetto:'h-card-pacchetto'};
+        const target = document.getElementById(ids[type]);
+        if (target) target.scrollIntoView({behavior:'smooth', block:'nearest'});
+    }
+};
 
 // ─── FAQ ──────────────────────────────────────────────────────────────────────
 const _isScriptSite = () => (_site?.hotel_profile?.site_mode === 'script');
