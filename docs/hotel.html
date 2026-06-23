@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="css/style.css?v=20260622q">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet">
-    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6','isi_hotel_v7','isi_hotel_v8','isi_hotel_v9','isi_hotel_v10','isi_hotel_v11','isi_hotel_v12','isi_hotel_v13','isi_hotel_v14'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v95')){sessionStorage.setItem('isi_hotel_v95','1');location.reload(true);}</script>
+    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6','isi_hotel_v7','isi_hotel_v8','isi_hotel_v9','isi_hotel_v10','isi_hotel_v11','isi_hotel_v12','isi_hotel_v13','isi_hotel_v14'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v96')){sessionStorage.setItem('isi_hotel_v96','1');location.reload(true);}</script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <style>
         .tip-q{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:#EFF020;color:#0D5F75;font-size:9px;font-weight:800;cursor:default;flex-shrink:0;user-select:none;vertical-align:middle}
@@ -788,7 +788,7 @@ function renderContent(site, pseData, now) {
             options:{
                 responsive:true, maintainAspectRatio:true,
                 plugins:{
-                    legend:{ display:true, position:'bottom', labels:{ usePointStyle:true, pointStyle:'circle', font:{family:"'Commissioner',sans-serif",size:13,weight:'300'}, color:'#0D5F75', padding:24, boxWidth:16 } },
+                    legend:{ display:true, position:'bottom', labels:{ usePointStyle:true, pointStyle:'circle', font:{family:"'Source Code Pro',monospace",size:13,weight:'400'}, color:'#0D5F75', padding:24, boxWidth:16 } },
                     tooltip:{ mode:'index', intersect:false, backgroundColor:'#0D5F75', titleColor:'#fff', bodyColor:'rgba(255,255,255,0.85)', callbacks:{ label: c => ` ${c.dataset.label}: ${c.parsed.y??'—'}` } }
                 },
                 scales:{
