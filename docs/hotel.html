@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="css/style.css?v=20260622q">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet">
-    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6','isi_hotel_v7','isi_hotel_v8','isi_hotel_v9','isi_hotel_v10','isi_hotel_v11','isi_hotel_v12','isi_hotel_v13','isi_hotel_v14'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v105')){sessionStorage.setItem('isi_hotel_v105','1');location.reload(true);}</script>
+    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6','isi_hotel_v7','isi_hotel_v8','isi_hotel_v9','isi_hotel_v10','isi_hotel_v11','isi_hotel_v12','isi_hotel_v13','isi_hotel_v14'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v106')){sessionStorage.setItem('isi_hotel_v106','1');location.reload(true);}</script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <style>
         .tip-q{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:#EFF020;color:#0D5F75;font-size:9px;font-weight:800;cursor:default;flex-shrink:0;user-select:none;vertical-align:middle}
@@ -246,6 +246,13 @@
             <div><div class="user-dropdown-name" id="dd-name">Hotel</div><div class="user-dropdown-email" id="dd-email"></div></div>
           </div>
           <div class="user-dropdown-divider"></div>
+          <button class="user-dropdown-item" id="dd-change-name" onclick="document.getElementById('user-dropdown').style.display='none';document.getElementById('profile-modal').style.display='flex'">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Cambia nome
+          </button>
+          <button class="user-dropdown-item" id="dd-change-photo" onclick="document.getElementById('user-dropdown').style.display='none';document.getElementById('photo-input').click()">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M20.39 18.39A5 5 0 0018 9h-1.26A8 8 0 103 16.3"/><path d="M16 16l-4-4-4 4"/></svg>Cambia foto
+          </button>
+          <div class="user-dropdown-divider"></div>
           <button class="user-dropdown-item logout" id="dd-logout">
             <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>Esci
           </button>
@@ -270,6 +277,22 @@
 
   </div><!-- /h-right -->
 </div><!-- /h-layout -->
+
+<!-- Modal cambio nome -->
+<div id="profile-modal" style="display:none;position:fixed;inset:0;background:rgba(23,27,51,.45);z-index:99999;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:14px;padding:25px 22px 18px;max-width:324px;width:90%;position:relative;font-family:'Source Code Pro',monospace;color:#0D5F75">
+    <button onclick="document.getElementById('profile-modal').style.display='none'" style="position:absolute;right:12px;top:9px;border:0;background:none;font-size:20px;cursor:pointer;color:#999;line-height:1">×</button>
+    <div style="font-size:15px;font-weight:600;margin-bottom:14px">Cambia nome</div>
+    <input id="profile-name-input" type="text" placeholder="Il tuo nome" style="width:100%;box-sizing:border-box;border:1.5px solid #C1CBE8;border-radius:9px;padding:9px 13px;font-size:13px;font-family:'Source Code Pro',monospace;color:#0D5F75;outline:none;margin-bottom:14px">
+    <div style="display:flex;gap:9px;justify-content:flex-end">
+      <button onclick="document.getElementById('profile-modal').style.display='none'" style="background:none;border:1.5px solid #C1CBE8;border-radius:18px;padding:7px 16px;font-size:12px;cursor:pointer;font-family:'Source Code Pro',monospace;color:#0D5F75">Annulla</button>
+      <button id="profile-save-btn" style="background:#C1CBE8;border:none;border-radius:18px;padding:7px 16px;font-size:12px;font-weight:600;color:#fff;cursor:pointer;font-family:'Source Code Pro',monospace">Salva</button>
+    </div>
+  </div>
+</div>
+
+<!-- Input foto nascosto -->
+<input type="file" id="photo-input" accept="image/*" style="display:none">
 
 <svg id="h-sidebar-divider" style="position:fixed;left:70px;top:0;overflow:visible;pointer-events:none;z-index:150;width:0;height:0">
   <path id="h-divider-path" stroke="#C1CBE8" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
@@ -400,6 +423,50 @@ async function init() {
     const doLogout = async () => { await _SB.auth.signOut(); window.location.href='login.html'; };
     document.getElementById('btn-logout-sidebar')?.addEventListener('click', doLogout);
     document.getElementById('dd-logout')?.addEventListener('click', doLogout);
+
+    // ── Cambio nome
+    const savedName = localStorage.getItem('isi_display_name');
+    if (savedName) {
+        document.getElementById('nav-name').textContent = savedName;
+        document.getElementById('dd-name').textContent = savedName;
+        const si = savedName.split(' ').map(p=>p[0]).slice(0,2).join('').toUpperCase();
+        document.getElementById('nav-avatar').textContent = si;
+        document.getElementById('dd-avatar').textContent = si;
+    }
+    document.getElementById('profile-name-input').value = document.getElementById('nav-name').textContent;
+    document.getElementById('profile-save-btn').addEventListener('click', () => {
+        const n = document.getElementById('profile-name-input').value.trim();
+        if (!n) return;
+        localStorage.setItem('isi_display_name', n);
+        const si = n.split(' ').map(p=>p[0]).slice(0,2).join('').toUpperCase();
+        document.getElementById('nav-name').textContent = n;
+        document.getElementById('dd-name').textContent = n;
+        const av = document.getElementById('nav-avatar');
+        const dav = document.getElementById('dd-avatar');
+        if (!av.querySelector('img')) { av.textContent = si; dav.textContent = si; }
+        document.getElementById('profile-modal').style.display = 'none';
+    });
+
+    // ── Cambio foto
+    const savedPhoto = localStorage.getItem('isi_avatar_photo');
+    function applyPhoto(src) {
+        ['nav-avatar','dd-avatar'].forEach(id => {
+            const el = document.getElementById(id);
+            el.textContent = '';
+            let img = el.querySelector('img');
+            if (!img) { img = document.createElement('img'); el.appendChild(img); }
+            img.src = src;
+        });
+    }
+    if (savedPhoto) applyPhoto(savedPhoto);
+    document.getElementById('photo-input').addEventListener('change', e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = ev => { localStorage.setItem('isi_avatar_photo', ev.target.result); applyPhoto(ev.target.result); };
+        reader.readAsDataURL(file);
+        e.target.value = '';
+    });
 
     renderContent(site, pseData || [], now);
     applyAppFeatures(_appFeatures, _siteAppPerms);
