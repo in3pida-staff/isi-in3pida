@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="css/style.css?v=20260622q">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet">
-    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6','isi_hotel_v7','isi_hotel_v8','isi_hotel_v9','isi_hotel_v10','isi_hotel_v11','isi_hotel_v12','isi_hotel_v13','isi_hotel_v14'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v118')){sessionStorage.setItem('isi_hotel_v118','1');location.reload(true);}</script>
+    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6','isi_hotel_v7','isi_hotel_v8','isi_hotel_v9','isi_hotel_v10','isi_hotel_v11','isi_hotel_v12','isi_hotel_v13','isi_hotel_v14'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v119')){sessionStorage.setItem('isi_hotel_v119','1');location.reload(true);}</script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <style>
         .tip-q{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:#EFF020;color:#0D5F75;font-size:9px;font-weight:800;cursor:default;flex-shrink:0;user-select:none;vertical-align:middle}
@@ -299,7 +299,7 @@
 <!-- Input foto nascosto -->
 <input type="file" id="photo-input" accept="image/*" style="display:none">
 
-<svg id="h-sidebar-divider" style="position:fixed;left:83px;top:0;pointer-events:none;z-index:150;width:25px;height:100vh">
+<svg id="h-sidebar-divider" style="position:fixed;left:50px;top:0;pointer-events:none;z-index:150;width:30px;height:100vh">
   <path id="h-divider-path" stroke="#C1CBE8" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
 </svg>
 
@@ -1417,19 +1417,18 @@ init();
   const path = document.getElementById('h-divider-path');
   if (!path) return;
   const vh = window.innerHeight;
-  const heroY = 62;
+  const heroY = 100; // altezza testo Vibe Hotel dal top
   const tiltX = (Math.tan(10 * Math.PI / 180) * heroY).toFixed(1);
-  // SVG è a left:55px, la linea dritta è a x=15 (55+15=70px dal viewport)
-  // la parte inclinata scende a x=15-tiltX
-  path.setAttribute('d', `M 15 ${vh} L 15 ${heroY} L ${(15 - tiltX).toFixed(1)} 0`);
+  // SVG a left:50px, linea a x=22 → viewport 72px (bordo sidebar)
+  path.setAttribute('d', `M 22 ${vh} L 22 ${heroY} L ${(22 - tiltX).toFixed(1)} 0`);
 })();
 window.addEventListener('resize', function() {
   const path = document.getElementById('h-divider-path');
   if (!path) return;
   const vh = window.innerHeight;
-  const heroY = 62;
+  const heroY = 100;
   const tiltX = (Math.tan(10 * Math.PI / 180) * heroY).toFixed(1);
-  path.setAttribute('d', `M 15 ${vh} L 15 ${heroY} L ${(15 - tiltX).toFixed(1)} 0`);
+  path.setAttribute('d', `M 22 ${vh} L 22 ${heroY} L ${(22 - tiltX).toFixed(1)} 0`);
 });
 </script>
 </body>
