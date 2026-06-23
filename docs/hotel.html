@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="css/style.css?v=20260622q">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet">
-    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6','isi_hotel_v7','isi_hotel_v8','isi_hotel_v9','isi_hotel_v10','isi_hotel_v11','isi_hotel_v12','isi_hotel_v13','isi_hotel_v14'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v97b')){sessionStorage.setItem('isi_hotel_v97b','1');location.reload(true);}</script>
+    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6','isi_hotel_v7','isi_hotel_v8','isi_hotel_v9','isi_hotel_v10','isi_hotel_v11','isi_hotel_v12','isi_hotel_v13','isi_hotel_v14'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v98')){sessionStorage.setItem('isi_hotel_v98','1');location.reload(true);}</script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <style>
         .tip-q{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:#EFF020;color:#0D5F75;font-size:9px;font-weight:800;cursor:default;flex-shrink:0;user-select:none;vertical-align:middle}
@@ -268,6 +268,10 @@
 
   </div><!-- /h-right -->
 </div><!-- /h-layout -->
+
+<svg id="h-sidebar-divider" style="position:fixed;left:70px;top:0;overflow:visible;pointer-events:none;z-index:150;width:0;height:0">
+  <path id="h-divider-path" stroke="#C1CBE8" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+</svg>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>
@@ -1263,6 +1267,24 @@ init();
         btn.disabled = false; btn.textContent = 'Invia feedback';
     });
 })();
+
+// ── Linea divisoria sidebar
+(function drawDivider() {
+  const path = document.getElementById('h-divider-path');
+  if (!path) return;
+  const vh = window.innerHeight;
+  const heroY = 62;
+  const tiltX = (Math.tan(10 * Math.PI / 180) * heroY).toFixed(1);
+  path.setAttribute('d', `M 0 ${vh} L 0 ${heroY} L -${tiltX} 0`);
+})();
+window.addEventListener('resize', function() {
+  const path = document.getElementById('h-divider-path');
+  if (!path) return;
+  const vh = window.innerHeight;
+  const heroY = 62;
+  const tiltX = (Math.tan(10 * Math.PI / 180) * heroY).toFixed(1);
+  path.setAttribute('d', `M 0 ${vh} L 0 ${heroY} L -${tiltX} 0`);
+});
 </script>
 </body>
 </html>
