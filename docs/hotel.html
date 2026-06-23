@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="css/style.css?v=20260622q">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet">
-    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6','isi_hotel_v7','isi_hotel_v8','isi_hotel_v9','isi_hotel_v10','isi_hotel_v11','isi_hotel_v12','isi_hotel_v13','isi_hotel_v14'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v61')){sessionStorage.setItem('isi_hotel_v61','1');location.reload(true);}</script>
+    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6','isi_hotel_v7','isi_hotel_v8','isi_hotel_v9','isi_hotel_v10','isi_hotel_v11','isi_hotel_v12','isi_hotel_v13','isi_hotel_v14'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v62')){sessionStorage.setItem('isi_hotel_v62','1');location.reload(true);}</script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <style>
         .tip-q{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:#EFF020;color:#0D5F75;font-size:9px;font-weight:800;cursor:default;flex-shrink:0;user-select:none;vertical-align:middle}
@@ -101,18 +101,18 @@
 
         /* ═══ ELETTA CARD (float destra) ═══ */
         .h-eletta{background:#C1CBE8;border-radius:16px;padding:22px 16px 20px;display:flex;flex-direction:column;}
-        .h-eletta-title{font-family:'Commissioner',sans-serif;font-size:30px;font-weight:700;color:#fff;margin-bottom:20px;line-height:1.2;text-align:center;}
-        .h-eletta-row{display:flex;align-items:center;gap:10px;padding:0 14px;background:#fff;border-radius:50px;margin-bottom:10px;font-size:15px;font-family:'Commissioner',sans-serif;color:#0D5F75;font-weight:400;border:none;height:38px;}
+        .h-eletta-title{font-family:'Commissioner',sans-serif;font-size:30px;font-weight:300;color:#fff;margin-bottom:20px;line-height:1.2;text-align:center;}
+        .h-eletta-row{display:flex;align-items:center;gap:10px;padding:0 14px 0 0;background:#fff;border-radius:50px;margin-bottom:10px;font-size:15px;font-family:'Commissioner',sans-serif;color:#0D5F75;font-weight:400;border:none;height:38px;}
         .h-eletta-ico{width:34px;height:34px;border-radius:50%;border:1.5px solid rgba(13,95,117,0.2);background:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
         .h-eletta-chevron{margin-left:auto;width:20px;height:20px;border-radius:50%;background:rgba(13,95,117,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
         .h-eletta-badge{display:none;}
         .h-eletta-badge-warn{display:none;}
-        .h-eletta-stato-block{background:rgba(13,95,117,0.07);border-radius:0 0 14px 14px;padding:14px 16px;margin-bottom:10px;font-size:13px;font-family:'Commissioner',sans-serif;color:#0D5F75;}
+        .h-eletta-stato-block{background:rgba(0,0,0,0.06);border-radius:14px;padding:14px 16px;margin-bottom:10px;font-size:13px;font-family:'Commissioner',sans-serif;color:#0D5F75;}
         .h-eletta-stato-row{display:flex;flex-direction:column;padding:6px 0;border-bottom:1px solid rgba(13,95,117,0.1);}
         .h-eletta-stato-row:last-child{border-bottom:none;padding-bottom:0;}
         .h-eletta-stato-lbl{font-weight:400;color:#0D5F75;margin-bottom:2px;}
         .h-eletta-stato-val{font-weight:400;color:rgba(13,95,117,0.6);font-size:11px;}
-        .h-btn-supporto{width:50%;background:#EFF020;color:#0D5F75;border:none;border-radius:24px;padding:8px 21px;font-family:'Commissioner',sans-serif;font-size:14px;font-weight:700;cursor:pointer;margin-top:10px;transition:opacity .15s;align-self:flex-start;}
+        .h-btn-supporto{width:50%;background:#EFF020;color:#0D5F75;border:none;border-radius:24px;padding:8px 21px;font-family:'Commissioner',sans-serif;font-size:14px;font-weight:400;cursor:pointer;margin-top:10px;transition:opacity .15s;align-self:flex-start;white-space:nowrap;}
         .h-btn-supporto:hover{opacity:.88;}
 
         /* ═══ OVERRIDE CARD GLOBALI per tab content ═══ */
@@ -625,7 +625,7 @@ function renderContent(site, pseData, now) {
                   <span>Suggerimenti AI</span>
                   <div class="h-eletta-chevron"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></div>
               </div>
-              <div class="h-eletta-row" style="margin-bottom:0;border-radius:50px 50px 0 0">
+              <div class="h-eletta-row">
                   <div class="h-eletta-ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="${statoOk?'M9 12l2 2 4-4':'M15 9l-6 6M9 9l6 6'}"/></svg></div>
                   <span>Stato semafori</span>
                   <div class="h-eletta-chevron"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></div>
