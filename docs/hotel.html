@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="css/style.css?v=20260622q">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet">
-    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6','isi_hotel_v7','isi_hotel_v8','isi_hotel_v9','isi_hotel_v10','isi_hotel_v11','isi_hotel_v12','isi_hotel_v13','isi_hotel_v14'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v109')){sessionStorage.setItem('isi_hotel_v109','1');location.reload(true);}</script>
+    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6','isi_hotel_v7','isi_hotel_v8','isi_hotel_v9','isi_hotel_v10','isi_hotel_v11','isi_hotel_v12','isi_hotel_v13','isi_hotel_v14'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v110')){sessionStorage.setItem('isi_hotel_v110','1');location.reload(true);}</script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <style>
         .tip-q{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:#EFF020;color:#0D5F75;font-size:9px;font-weight:800;cursor:default;flex-shrink:0;user-select:none;vertical-align:middle}
@@ -53,7 +53,7 @@
         .h-bell-dot{position:absolute;top:6px;right:5px;width:7px;height:7px;border-radius:50%;background:#ff6b2b;border:1.5px solid white;}
 
         /* ═══ HERO ═══ */
-        .h-hero{background:#C1CBE8;padding:33px 28px 32px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;border-radius:16px;box-shadow:0 0 0 3px #C1CBE8;margin:10px 5% 30px 5%;position:relative;overflow:visible;}
+        .h-hero{background:#C1CBE8;padding:33px 28px 32px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;border-radius:16px;box-shadow:0 0 0 3px #C1CBE8;margin:25px 5% 30px 5%;position:relative;overflow:visible;}
         .h-hero-name{font-family:'Source Code Pro',monospace;font-size:35px;font-weight:300;color:#fff;flex-shrink:0;}
         .h-hero-chips{display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
         .h-chip{background:#fff;border:none;border-radius:24px;padding:7px 17px;font-size:13px;color:#0D5F75;display:flex;align-items:center;gap:5px;white-space:nowrap;font-family:'Source Code Pro',monospace;font-weight:400;}
@@ -239,7 +239,12 @@
         </div>
         <button class="h-bell" id="btn-bell">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+          <span class="h-bell-dot" id="bell-dot" style="display:none"></span>
         </button>
+        <div id="bell-panel" style="display:none;position:absolute;top:60px;right:60px;z-index:300;background:#fff;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,.13);border:1px solid #e4e8f0;min-width:280px;max-width:320px;overflow:hidden;font-family:'Source Code Pro',monospace">
+          <div style="padding:14px 18px 10px;font-size:13px;font-weight:600;color:#0D5F75;border-bottom:1px solid #e4e8f0">Notifiche</div>
+          <div id="bell-list" style="padding:8px 0;max-height:320px;overflow-y:auto"></div>
+        </div>
         <div class="user-dropdown" id="user-dropdown" style="display:none;position:absolute;top:60px;right:16px;z-index:300;">
           <div class="user-dropdown-header">
             <div class="user-dropdown-avatar" id="dd-avatar">H</div>
@@ -424,9 +429,19 @@ async function init() {
         const d = document.getElementById('user-dropdown');
         if (d) d.style.display = d.style.display==='none'?'':'none';
     });
+    document.getElementById('btn-bell')?.addEventListener('click', e => {
+        e.stopPropagation();
+        const p = document.getElementById('bell-panel');
+        const d = document.getElementById('user-dropdown');
+        if (d) d.style.display = 'none';
+        if (p) p.style.display = p.style.display === 'none' ? '' : 'none';
+    });
+
     document.addEventListener('click', () => {
         const d = document.getElementById('user-dropdown');
         if (d) d.style.display = 'none';
+        const p = document.getElementById('bell-panel');
+        if (p) p.style.display = 'none';
     });
 
     // ── Logout (sidebar + dropdown)
@@ -916,6 +931,28 @@ function renderContent(site, pseData, now) {
 
     // load FAQ immediately
     initHotelFaq();
+
+    // ── Notifiche campana
+    (function() {
+        const items = [];
+        if (hrs >= 48) items.push({ color:'#d82d6b', text:`Plugin non attivo da ${Math.round(hrs)} ore — verifica la connessione` });
+        else if (hrs >= 25) items.push({ color:'#e8a200', text:`Plugin inattivo da ${Math.round(hrs)} ore` });
+        if (geoAvg !== null && geoAvg < 40) items.push({ color:'#d82d6b', text:`GEO Score critico: ${geoAvg}/100 — ottimizza il profilo hotel` });
+        else if (geoAvg !== null && geoAvg < 70) items.push({ color:'#e8a200', text:`GEO Score basso: ${geoAvg}/100 — margini di miglioramento` });
+        if (geo.has_ai_profile === false) items.push({ color:'#d82d6b', text:'Profilo AI non attivo — abilitalo nel plugin WordPress' });
+        if (daysFaq !== null && daysFaq > 30) items.push({ color:'#e8a200', text:`FAQ non aggiornate da ${daysFaq} giorni` });
+        (geo.freshness_alerts || []).forEach(a => items.push({ color:'#e8a200', text: a }));
+
+        const list = document.getElementById('bell-list');
+        const dot  = document.getElementById('bell-dot');
+        if (!list) return;
+        if (items.length === 0) {
+            list.innerHTML = '<div style="padding:12px 18px;font-size:12px;color:#aaa">Nessuna notifica</div>';
+        } else {
+            list.innerHTML = items.map(i => `<div style="display:flex;align-items:flex-start;gap:10px;padding:10px 18px;border-bottom:1px solid #f4f4f8"><span style="width:8px;height:8px;border-radius:50%;background:${i.color};flex-shrink:0;margin-top:3px"></span><span style="font-size:12px;color:#0D5F75;line-height:1.5">${i.text}</span></div>`).join('');
+            if (dot) { dot.style.display = ''; }
+        }
+    })();
 }
 
 // ─── Eletta panel button click handlers ───────────
