@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="css/style.css?v=20260622q">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet">
-    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6','isi_hotel_v7','isi_hotel_v8','isi_hotel_v9','isi_hotel_v10','isi_hotel_v11','isi_hotel_v12','isi_hotel_v13','isi_hotel_v14'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v48')){sessionStorage.setItem('isi_hotel_v48','1');location.reload(true);}</script>
+    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6','isi_hotel_v7','isi_hotel_v8','isi_hotel_v9','isi_hotel_v10','isi_hotel_v11','isi_hotel_v12','isi_hotel_v13','isi_hotel_v14'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v49')){sessionStorage.setItem('isi_hotel_v49','1');location.reload(true);}</script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <style>
         .tip-q{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:#EFF020;color:#0D5F75;font-size:9px;font-weight:800;cursor:default;flex-shrink:0;user-select:none;vertical-align:middle}
@@ -766,7 +766,7 @@ function renderContent(site, pseData, now) {
           beforeDraw(chart){
             const {ctx:c,scales:{y},chartArea:ca}=chart;
             if(!y||!ca)return;
-            c.save();c.setLineDash([10,5]);c.strokeStyle='#0D5F75';c.lineWidth=1;
+            c.save();c.setLineDash([4,4]);c.strokeStyle='#0D5F75';c.lineWidth=1;
             y.ticks.forEach((_,i)=>{const yp=y.getPixelForTick(i);c.beginPath();c.moveTo(ca.left,yp);c.lineTo(ca.right,yp);c.stroke();});
             c.restore();
           }
