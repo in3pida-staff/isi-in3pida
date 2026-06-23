@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="css/style.css?v=20260622q">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet">
-    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6','isi_hotel_v7','isi_hotel_v8','isi_hotel_v9','isi_hotel_v10','isi_hotel_v11','isi_hotel_v12','isi_hotel_v13','isi_hotel_v14'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v66')){sessionStorage.setItem('isi_hotel_v66','1');location.reload(true);}</script>
+    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6','isi_hotel_v7','isi_hotel_v8','isi_hotel_v9','isi_hotel_v10','isi_hotel_v11','isi_hotel_v12','isi_hotel_v13','isi_hotel_v14'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v67')){sessionStorage.setItem('isi_hotel_v67','1');location.reload(true);}</script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <style>
         .tip-q{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:#EFF020;color:#0D5F75;font-size:9px;font-weight:800;cursor:default;flex-shrink:0;user-select:none;vertical-align:middle}
@@ -71,7 +71,7 @@
         .h-kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-bottom:24px;max-width:84%;}
         .h-kpi{background:white;border-radius:16px;box-shadow:0 2px 14px rgba(0,0,0,.06);padding:19px 22px;position:relative;overflow:hidden;}
         .h-kpi-ttl{font-size:16px;font-weight:300;color:#0D5F75;letter-spacing:.01em;margin-bottom:10px;display:flex;align-items:center;gap:4px;font-family:'Commissioner',sans-serif;}
-        .h-kpi-val{font-size:34px;font-weight:300;line-height:1;color:#0D5F75;font-family:'Commissioner',sans-serif;}
+        .h-kpi-val{font-size:34px;font-weight:700;line-height:1;color:#0D5F75;font-family:'Commissioner',sans-serif;}
         .h-kpi-sub{font-size:18px;font-weight:400;color:#b0b7c2;margin-top:6px;font-family:'Source Code Pro',monospace;}
         .h-kpi-sub-nd{color:#C1CBE8;}
         .h-kpi-deco{position:absolute;bottom:-6px;right:8px;opacity:0.13;pointer-events:none;}
@@ -224,7 +224,7 @@
     <!-- HEADER -->
     <header class="h-header">
       <div class="h-header-logo"><img src="images/logo-eletta.png" alt="Eletta"></div>
-      <button class="h-btn-sync" id="btn-sync-header">Sincronizza</button>
+      <button class="h-btn-sync" id="btn-sync-header" style="margin-left:20px">Sincronizza</button>
       <div class="h-header-right">
         <button id="btn-feedback" onclick="document.getElementById('feedback-overlay').style.display='flex'" style="background:none;border:1px solid #C1CBE8;border-radius:20px;padding:5px 13px;font-size:11px;font-weight:600;color:#0D5F75;cursor:pointer;display:flex;align-items:center;gap:4px;font-family:'Sarabun',sans-serif"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Feedback</button>
         <div class="navbar-user-pill" id="user-pill" style="cursor:pointer">
@@ -491,19 +491,19 @@ function renderContent(site, pseData, now) {
                   <div class="h-kpi-ttl">Completezza Profilo AI <span class='tip-q' data-tip='Completezza del profilo AI: nome, indirizzo, descrizione, contatti, FAQ ecc.'>?</span></div>
                   <div class="h-kpi-val" style="color:${cs!==null?'#0D5F75':'rgba(193,203,232,0.5)'}">${cs!==null?cs:'—'}</div>
                   <div class="h-kpi-sub ${cs===null?'h-kpi-sub-nd':''}">${cs!==null?(cs>=70?'ottimizzato':cs>=40?'da migliorare':'critico'):'nessun dato'}</div>
-                  <div class="h-kpi-deco"><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="18" rx="2"/><polyline points="8 10 5 12 8 14"/><polyline points="16 10 19 12 16 14"/><line x1="12" y1="7" x2="12" y2="17"/></svg></div>
+                  <div class="h-kpi-deco"><svg width="39" height="39" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="18" rx="2"/><polyline points="8 10 5 12 8 14"/><polyline points="16 10 19 12 16 14"/><line x1="12" y1="7" x2="12" y2="17"/></svg></div>
               </div>
               <div class="h-kpi">
                   <div class="h-kpi-ttl">Risultati FAQ <span class='tip-q' data-tip='Percentuale di domande degli ospiti coperta dalle FAQ. ≥80% buona copertura.'>?</span></div>
                   <div class="h-kpi-val" style="color:${covPct!==null?'#0D5F75':'rgba(193,203,232,0.5)'}">${covPct!==null?covPct+'%':'—'}</div>
                   <div class="h-kpi-sub ${covPct===null?'h-kpi-sub-nd':''}">${covPct!==null?'coperto':'nessun dato'}</div>
-                  <div class="h-kpi-deco"><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+                  <div class="h-kpi-deco"><svg width="39" height="39" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8h2a2 2 0 012 2v5a2 2 0 01-2 2h-1v3l-3-3H10"/><path d="M3 4h12a2 2 0 012 2v5a2 2 0 01-2 2H6L2 17V6a2 2 0 012-2z"/></svg></div>
               </div>
               <div class="h-kpi">
                   <div class="h-kpi-ttl">Mappa di Ricerca <span class='tip-q' data-tip='Percentuale di query conversazionali coperte. ≥70% buona copertura.'>?</span></div>
                   <div class="h-kpi-val" style="color:${qMapPct!==null?'#0D5F75':'rgba(193,203,232,0.5)'}">${qMapPct!==null?qMapPct+'%':'—'}</div>
                   <div class="h-kpi-sub ${qMapPct===null?'h-kpi-sub-nd':''}">${qMapPct!==null?'coperto':'nessun dato'}</div>
-                  <div class="h-kpi-deco"><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+                  <div class="h-kpi-deco"><svg width="39" height="39" viewBox="0 0 24 24" fill="#0D5F75" stroke="none"><rect x="1" y="13" width="6" height="8" rx="1"/><rect x="9" y="5" width="6" height="16" rx="1"/><rect x="17" y="9" width="6" height="12" rx="1"/></svg></div>
               </div>
           </div>
 
@@ -511,7 +511,7 @@ function renderContent(site, pseData, now) {
               <div class="h-stats-row">
                   <div class="h-card" style="margin-bottom:0;flex:0 0 52%">
                       <div class="h-card-hdr">
-                          <span class="h-card-hdr-t" style="font-size:22px;margin-top:10px;font-weight:300">Panoramica statistiche</span>
+                          <span class="h-card-hdr-t" style="font-size:21px;margin-top:10px;font-weight:300">Panoramica statistiche</span>
                           <div style="display:flex;gap:10px">
                               <span class="h-range-btn active-range" data-days="30">1 mese</span>
                               <span class="h-range-btn" data-days="180">6 mesi</span>
@@ -524,7 +524,7 @@ function renderContent(site, pseData, now) {
                   </div>
                   <div class="h-card" style="margin-bottom:0;display:flex;flex-direction:column;align-items:center;flex:0 0 30%">
                       <div class="h-card-hdr" style="width:100%;flex-direction:column;align-items:flex-start;gap:2px">
-                          <span class="h-card-hdr-t" style="font-size:22px;margin-top:10px;font-weight:300">GEO SCORE <span class='tip-q' data-tip='Punteggio complessivo AI. ≥70 ottimizzato, 40–69 da migliorare.'>?</span></span>
+                          <span class="h-card-hdr-t" style="font-size:21px;margin-top:10px;font-weight:300">GEO SCORE <span class='tip-q' data-tip='Punteggio complessivo AI. ≥70 ottimizzato, 40–69 da migliorare.'>?</span></span>
                           <span style="font-size:9px;font-weight:500;color:#aaa">ottimizzato per motori di ricerca AI</span>
                       </div>
                       <div class="h-card-body" style="display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:10px 14px">
