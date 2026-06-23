@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="css/style.css?v=20260622q">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet">
-    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6','isi_hotel_v7','isi_hotel_v8','isi_hotel_v9','isi_hotel_v10','isi_hotel_v11','isi_hotel_v12','isi_hotel_v13','isi_hotel_v14'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v101')){sessionStorage.setItem('isi_hotel_v101','1');location.reload(true);}</script>
+    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6','isi_hotel_v7','isi_hotel_v8','isi_hotel_v9','isi_hotel_v10','isi_hotel_v11','isi_hotel_v12','isi_hotel_v13','isi_hotel_v14'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v102')){sessionStorage.setItem('isi_hotel_v102','1');location.reload(true);}</script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <style>
         .tip-q{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:#EFF020;color:#0D5F75;font-size:9px;font-weight:800;cursor:default;flex-shrink:0;user-select:none;vertical-align:middle}
@@ -227,6 +227,7 @@
       <div class="h-header-logo"><img src="images/logo-eletta.png" alt="Eletta"></div>
       <button class="h-btn-sync" id="btn-sync-header" style="margin-left:20px">Sincronizza</button>
       <div class="h-header-right">
+        <button id="btn-guida" onclick="document.getElementById('guida-overlay').style.display='flex'" style="background:#C1CBE8;border:none;border-radius:20px;padding:5px 13px;font-size:11px;font-weight:600;color:#fff;cursor:pointer;display:flex;align-items:center;font-family:'Source Code Pro',monospace">Guida</button>
         <button id="btn-feedback" onclick="document.getElementById('feedback-overlay').style.display='flex'" style="background:none;border:1px solid #C1CBE8;border-radius:20px;padding:5px 13px;font-size:11px;font-weight:600;color:#0D5F75;cursor:pointer;display:flex;align-items:center;gap:4px;font-family:'Sarabun',sans-serif"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Feedback</button>
         <div class="navbar-user-pill" id="user-pill" style="cursor:pointer">
           <div class="navbar-avatar" id="nav-avatar">H</div>
@@ -1219,6 +1220,31 @@ function esc(str) {
 }
 
 init();
+
+// ─── GUIDA ─────────────────────────────────────────────────────────────────────
+(function() {
+    const overlay = document.createElement('div');
+    overlay.id = 'guida-overlay';
+    overlay.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(23,27,51,.45);z-index:99999;align-items:center;justify-content:center';
+    overlay.innerHTML = `
+      <div style="background:#fff;border-radius:16px;padding:32px 28px 24px;max-width:520px;width:90%;position:relative;font-family:'Source Code Pro',monospace;color:#0D5F75">
+        <button onclick="document.getElementById('guida-overlay').style.display='none'" style="position:absolute;right:14px;top:10px;border:0;background:none;font-size:22px;cursor:pointer;color:#999;line-height:1">×</button>
+        <div style="font-size:20px;font-weight:600;margin-bottom:18px;color:#0D5F75">Guida rapida</div>
+        <div style="font-size:13px;line-height:1.7;color:#0D5F75;opacity:.8">
+          <p style="margin:0 0 12px"><strong>Panoramica</strong> — Visualizza le statistiche principali del tuo sito: completezza profilo AI, copertura FAQ e posizionamento sulla mappa di ricerca.</p>
+          <p style="margin:0 0 12px"><strong>FAQ</strong> — Gestisci le domande e risposte che il tuo sito usa per rispondere alle ricerche AI.</p>
+          <p style="margin:0 0 12px"><strong>Schema.org</strong> — Controlla e modifica i dati strutturati del tuo hotel.</p>
+          <p style="margin:0 0 12px"><strong>Mappa</strong> — Verifica come appare il tuo hotel nelle ricerche geografiche.</p>
+          <p style="margin:0 0 12px"><strong>AI</strong> — Analizza la coerenza del tuo profilo AI su tutte le piattaforme.</p>
+          <p style="margin:0"><strong>Sincronizza</strong> — Aggiorna i dati dal plugin WordPress installato sul tuo sito.</p>
+        </div>
+        <div style="margin-top:22px;display:flex;justify-content:flex-end">
+          <button onclick="document.getElementById('guida-overlay').style.display='none'" style="background:#C1CBE8;border:none;border-radius:20px;padding:8px 20px;font-size:13px;font-weight:600;color:#fff;cursor:pointer;font-family:'Source Code Pro',monospace">Chiudi</button>
+        </div>
+      </div>`;
+    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.style.display = 'none'; });
+    document.body.appendChild(overlay);
+})();
 
 // ─── FEEDBACK ──────────────────────────────────────────────────────────────────
 (function() {
