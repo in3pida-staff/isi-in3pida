@@ -423,7 +423,7 @@ async function init() {
             if (tab==='schema')   initHotelSchema(site);
             if (tab==='mappa')    initHotelMappa(site);
             if (tab==='coerenza') { initHotelCoerenza(site); initAiLayerPanel(site); }
-            if (tab==='config')   initHotelConfig(site);
+            if (tab==='config')   { initHotelConfig(site); initDatiSito(site, pseData||[]); }
             if (tab==='pse')      initHotelPseCharts(pseData||[]);
         });
     });
@@ -827,7 +827,10 @@ function renderContent(site, pseData, now) {
                 <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;align-items:center">
                     <button id="btn-save-hschema" class="btn-update" style="margin-left:0">Salva e invia al plugin</button>
                     <button id="btn-cancel-hschema" class="btn-ping">Annulla</button>
+                    <button id="btn-preview-jsonld" class="btn-ping" style="font-size:12px;padding:5px 12px" onclick="renderJsonPreview(_schemaProfile)">Anteprima JSON-LD</button>
+                    <button id="btn-copy-jsonld" class="btn-ping" style="font-size:12px;padding:5px 12px" onclick="copyJsonLd()">📋 Copia JSON-LD</button>
                 </div>
+                <div id="hjson-preview-content" style="margin-top:14px"></div>
                 <div id="hschema-msg" style="margin-top:10px;font-size:13px;display:none"></div>
             </div>
         </div>
@@ -987,6 +990,11 @@ function renderContent(site, pseData, now) {
         });
     })();
 
+    // ── Score History Chart (storico 4 metriche)
+    initScoreHistoryChart(site, geoAvg, cs, covPct);
+    // ── GEO Score Mini Chart (KPI banner)
+    initGeoScoreMiniChart(site);
+
     // ── Andamento nel tempo (line chart)
     (function() {
         var canvas = document.getElementById('hchart-andamento');
@@ -1095,6 +1103,26 @@ async function initHotelFaq() {
             } else {
                 const data = await r.json();
                 _faqItems = data.items || [];
+            }
+        }
+        // Deduplica per domanda: mantieni l'ID più alto, cancella i vecchi in background
+        if (_pluginBase && !_isScriptSite()) {
+            const seen = new Map();
+            const toDelete = [];
+            _faqItems.forEach(f => {
+                const key = (f.question||'').trim().toLowerCase();
+                if (seen.has(key)) {
+                    const prev = seen.get(key);
+                    if ((f.id||0) > (prev.id||0)) { toDelete.push(prev.id); seen.set(key, f); }
+                    else { toDelete.push(f.id); }
+                } else { seen.set(key, f); }
+            });
+            if (toDelete.length) {
+                _faqItems = Array.from(seen.values());
+                toDelete.forEach(id => fetch(_pluginBase + '/wp-json/in3pida/v1/faq', {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({secret: _pluginSecret, action: 'delete', faq: {id}})
+                }).catch(()=>{}));
             }
         }
         const badge = document.getElementById('faq-hotel-count');
@@ -2820,6 +2848,77 @@ async function initHotelConfig(site) {
 }
 
 // ─── PSE CHARTS ───────────────────────────────────────────────────────────────
+function _buildPseWeeklyChart(canvasId, items, rangeDays, chartKey) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    if (window[chartKey]) { try { window[chartKey].destroy(); } catch(e){} }
+    if (!items.length) { canvas.style.display = 'none'; return; }
+    canvas.style.display = '';
+    const now = new Date();
+    const cutoff = rangeDays >= 9999 ? new Date(0) : new Date(now.getTime() - rangeDays * 86400000);
+    const filtered = items.filter(r => r.created_at && new Date(r.created_at) >= cutoff);
+    const wkOf = dt => { const d = new Date(dt); d.setHours(0,0,0,0); const day = d.getDay(); d.setDate(d.getDate() - (day===0?6:day-1)); return d.toISOString().slice(0,10); };
+    const weeks = {};
+    filtered.forEach(r => {
+        const wk = wkOf(r.created_at);
+        if (!weeks[wk]) weeks[wk] = { total:0, cited:0 };
+        weeks[wk].total++;
+        if (r.result?.llm_results?.groq?.cited ?? !!(r.result?.cited||r.result?.found||r.result?.match_found)) weeks[wk].cited++;
+    });
+    const keys = Object.keys(weeks).sort();
+    if (!keys.length) { canvas.style.display = 'none'; return; }
+    const labels = keys.map(w => new Date(w).toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit'}));
+    window[chartKey] = new Chart(canvas, {
+        type: 'bar',
+        data: {
+            labels,
+            datasets: [
+                { label:'Query', data:keys.map(k=>weeks[k].total), backgroundColor:'#C1CBE8', borderRadius:3 },
+                { label:'Citate', data:keys.map(k=>weeks[k].cited), backgroundColor:'#0D5F75', borderRadius:3 }
+            ]
+        },
+        options: {
+            responsive:true, maintainAspectRatio:true,
+            plugins:{ legend:{ position:'top', labels:{ font:{size:11}, color:'#666b84', boxWidth:10 } } },
+            scales:{
+                x:{ ticks:{ font:{size:10}, color:'#aaa', maxTicksLimit:10 }, grid:{ display:false } },
+                y:{ ticks:{ font:{size:11}, color:'#aaa', precision:0 }, grid:{ color:'#f4f4f8' }, beginAtZero:true }
+            }
+        }
+    });
+}
+
+function _renderLlmBars(items, elId) {
+    const el = document.getElementById(elId);
+    if (!el) return;
+    if (!items.length) { el.style.display = 'none'; return; }
+    const groqTotal = items.length;
+    const groqCited = items.filter(r => r.result?.llm_results?.groq?.cited !== undefined ? r.result.llm_results.groq.cited : !!(r.result?.cited||r.result?.found||r.result?.match_found)).length;
+    const groqProbs = items.map(r => r.result?.llm_results?.groq?.probability ?? r.result?.probability).filter(p => p != null);
+    const groqAvgProb = groqProbs.length ? Math.round(groqProbs.reduce((a,b)=>a+b,0)/groqProbs.length) : null;
+    const gemItems = items.filter(r => r.result?.llm_results?.gemini);
+    const gemTotal = gemItems.length;
+    const gemCited = gemItems.filter(r => r.result.llm_results.gemini.cited).length;
+    const gemProbs = gemItems.map(r => r.result.llm_results.gemini.probability).filter(p => p != null);
+    const gemAvgProb = gemProbs.length ? Math.round(gemProbs.reduce((a,b)=>a+b,0)/gemProbs.length) : null;
+    const groqCitedPct = groqTotal > 0 ? Math.round(groqCited/groqTotal*100) : 0;
+    const gemCitedPct  = gemTotal  > 0 ? Math.round(gemCited/gemTotal*100)  : 0;
+    const mkRow = (name, barPct, pctLabel, count) => `<div style="display:flex;align-items:center;gap:12px;margin-bottom:14px"><div style="width:120px;font-size:13px;color:#171b33;font-weight:500;flex-shrink:0">${name}</div><div style="flex:1;background:#f0f0f4;border-radius:3px;height:8px;overflow:hidden"><div style="height:100%;width:${Math.max(0,Math.min(100,barPct))}%;background:#0D5F75;border-radius:3px"></div></div><div style="width:44px;text-align:right;font-size:13px;color:#171b33;font-weight:500">${pctLabel}</div><div style="width:36px;text-align:right;font-size:13px;font-weight:700;color:#0D5F75">${count}</div></div>`;
+    const noGem = '<div style="font-size:12px;color:#C1CBE8;padding:4px 0 2px">Gemini Flash — dati disponibili dopo le prossime query</div>';
+    const citedRows = mkRow('Groq Llama 3.1', groqCitedPct, groqCitedPct+'%', groqCited) + (gemTotal>0 ? mkRow('Gemini Flash', gemCitedPct, gemCitedPct+'%', gemCited) : noGem);
+    const probRows  = mkRow('Groq Llama 3.1', groqAvgProb??0, groqAvgProb!=null?groqAvgProb+'%':'—', groqAvgProb!=null?groqAvgProb+'%':'—') + (gemAvgProb!=null ? mkRow('Gemini Flash', gemAvgProb, gemAvgProb+'%', gemAvgProb+'%') : noGem);
+    el.innerHTML = `<div style="font-size:15px;font-weight:700;color:#171b33;margin-bottom:14px">Distribuzione per LLM</div><div style="display:inline-flex;border:1px solid #e4e4ec;border-radius:6px;overflow:hidden;margin-bottom:18px"><button data-llmtab="cited" style="padding:6px 16px;font-size:13px;background:#e8ecf7;border:none;cursor:pointer;color:#0D5F75;font-weight:600">Citazioni</button><button data-llmtab="prob" style="padding:6px 16px;font-size:13px;background:white;border:none;border-left:1px solid #e4e4ec;cursor:pointer;color:#666b84;font-weight:400">Probabilità media</button></div><div class="llm-tab-pane" data-pane="cited">${citedRows}</div><div class="llm-tab-pane" data-pane="prob" style="display:none">${probRows}</div>`;
+    el.style.display = 'block';
+    el.querySelectorAll('[data-llmtab]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const tab = btn.dataset.llmtab;
+            el.querySelectorAll('[data-llmtab]').forEach(b => { b.style.background='white'; b.style.color='#666b84'; b.style.fontWeight='400'; });
+            btn.style.background='#e8ecf7'; btn.style.color='#0D5F75'; btn.style.fontWeight='600';
+            el.querySelectorAll('.llm-tab-pane').forEach(p => { p.style.display = p.dataset.pane===tab?'block':'none'; });
+        });
+    });
+}
+
 function initHotelPseCharts(pseData) {
     if (_pseChartsInited) return; _pseChartsInited = true;
     const items=pseData||[], cited=items.filter(r=>r.result?.cited||r.result?.found||r.result?.match_found).length, notCited=items.length-cited;
@@ -2830,12 +2929,584 @@ function initHotelPseCharts(pseData) {
     } else if(donutCtx){
         donutCtx.parentElement.innerHTML='<div style="color:#aaa;font-size:13px;text-align:center">Nessuna query PSE registrata.</div>';
     }
-    const barCtx=document.getElementById('hchart-pse-bar');
-    if(barCtx&&items.length>0){
-        const now2=new Date(), days={};
-        for(let i=29;i>=0;i--){const d=new Date(now2);d.setDate(d.getDate()-i);days[d.toISOString().slice(0,10)]=0;}
-        items.forEach(r=>{const k=(r.created_at||'').slice(0,10);if(k in days)days[k]++;});
-        new Chart(barCtx,{type:'bar',data:{labels:Object.keys(days).map(d=>d.slice(5)),datasets:[{data:Object.values(days),backgroundColor:'#0D5F75',borderRadius:4}]},options:{plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{maxTicksLimit:8,color:'#aaa',font:{size:10}}},y:{beginAtZero:true,grid:{color:'#f0f0f4'},ticks:{stepSize:1,color:'#aaa',font:{size:10}}}}}});
+    // Usa _buildPseWeeklyChart per il grafico a barre settimanale
+    _buildPseWeeklyChart('hchart-pse-bar', items, 30, '_hChartPseBar');
+    document.querySelectorAll('.hpse-bar-range').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.hpse-bar-range').forEach(b => { b.style.color='#9ca3af'; b.style.borderBottom='none'; b.style.paddingBottom='0'; });
+            btn.style.color='#0D5F75'; btn.style.borderBottom='2px solid #0D5F75'; btn.style.paddingBottom='1px';
+            _buildPseWeeklyChart('hchart-pse-bar', items, parseInt(btn.dataset.days), '_hChartPseBar');
+        });
+    });
+    // Distribuzione LLM
+    _renderLlmBars(items, 'hpse-llm-bars');
+}
+
+// ─── GAUGE E BAR CHART ────────────────────────────────────────────────────────
+function gaugeHtml(pct, threshold, opts={}) {
+    const cx=90, cy=88, r=68, sw=26;
+    const suffix = opts.suffix ?? '%';
+    const statusFn = opts.statusFn ?? (p => p >= threshold ? 'buona copertura' : 'da migliorare');
+    const fillColor = pct===null ? '#e8ecf7' : '#0D5F75';
+    const bgPath = `M ${cx-r} ${cy} A ${r} ${r} 0 0 1 ${cx+r} ${cy}`;
+    let fillPath = '';
+    if (pct !== null && pct > 0) {
+        const p = Math.min(pct, 99.9);
+        const rad = (180 - p * 1.8) * Math.PI / 180;
+        const ex = (cx + r * Math.cos(rad)).toFixed(1);
+        const ey = (cy - r * Math.sin(rad)).toFixed(1);
+        fillPath = `<path d="M ${cx-r} ${cy} A ${r} ${r} 0 0 1 ${ex} ${ey}" fill="none" stroke="${fillColor}" stroke-width="${sw}" stroke-linecap="round"/>`;
+    }
+    const valText = pct !== null ? pct + suffix : '—';
+    const subText = pct === null ? 'nessun dato' : statusFn(pct);
+    const subColor = pct === null ? '#C1CBE8' : '#0D5F75';
+    if (opts.compact) {
+        const cc=90, yc=64, rc=58, sc=14;
+        const bgC = `M ${cc-rc} ${yc} A ${rc} ${rc} 0 0 1 ${cc+rc} ${yc}`;
+        let fillC = '';
+        if (pct !== null && pct > 0) {
+            const p = Math.min(pct, 99.9);
+            const rad = (180 - p * 1.8) * Math.PI / 180;
+            const ex = (cc + rc * Math.cos(rad)).toFixed(1);
+            const ey = (yc - rc * Math.sin(rad)).toFixed(1);
+            fillC = `<path d="M ${cc-rc} ${yc} A ${rc} ${rc} 0 0 1 ${ex} ${ey}" fill="none" stroke="${fillColor}" stroke-width="${sc}" stroke-linecap="round"/>`;
+        }
+        return `<svg viewBox="0 0 180 86" style="width:100%;max-width:180px;height:auto;display:block;margin:0 auto">` +
+            `<path d="${bgC}" fill="none" stroke="#e8ecf7" stroke-width="${sc}" stroke-linecap="round"/>` +
+            fillC +
+            `<text x="${cc}" y="${yc+4}" text-anchor="middle" dominant-baseline="middle" font-size="20" font-weight="800" fill="${pct!==null?'#171b33':'#C1CBE8'}" font-family="system-ui,sans-serif">${valText}</text>` +
+            `<text x="${cc-rc}" y="${yc+16}" text-anchor="middle" font-size="8" fill="#C1CBE8" font-family="system-ui,sans-serif">0</text>` +
+            `<text x="${cc+rc}" y="${yc+16}" text-anchor="middle" font-size="8" fill="#C1CBE8" font-family="system-ui,sans-serif">100</text>` +
+            `<text x="${cc}" y="83" text-anchor="middle" font-size="11" font-weight="600" fill="${subColor}" font-family="system-ui,sans-serif">${subText}</text>` +
+            `</svg>`;
+    }
+    return `<svg viewBox="0 0 180 122" style="width:100%;height:auto;display:block;margin:0 auto">` +
+        `<path d="${bgPath}" fill="none" stroke="#e8ecf7" stroke-width="${sw}" stroke-linecap="round"/>` +
+        fillPath +
+        `<text x="${cx}" y="${cy+4}" text-anchor="middle" dominant-baseline="middle" font-family="system-ui,-apple-system,sans-serif" font-size="26" font-weight="800" fill="${pct!==null?'#171b33':'#C1CBE8'}">${valText}</text>` +
+        `<text x="${cx-r}" y="116" text-anchor="middle" font-size="9" fill="#C1CBE8" font-family="system-ui,sans-serif">0</text>` +
+        `<text x="${cx+r}" y="116" text-anchor="middle" font-size="9" fill="#C1CBE8" font-family="system-ui,sans-serif">100</text>` +
+        `</svg><div style="font-size:12px;font-weight:600;color:${subColor};text-align:center;margin-top:2px">${subText}</div>`;
+}
+
+function barChartHtml(uncovered, total, covered) {
+    if (total === null) return '<div style="text-align:center;color:#C1CBE8;font-size:14px;padding:28px 0">nessun dato</div>';
+    const vals = [
+        { l1:'SENZA',  l2:'RISPOSTA', v:uncovered??0, tip:'Categorie di domande degli ospiti senza una risposta configurata.' },
+        { l1:'QUERY',  l2:'TOTALI',   v:total,        tip:'Numero totale di categorie di domande degli ospiti monitorate.' },
+        { l1:'QUERY',  l2:'COPERTE',  v:covered??0,   tip:'Categorie di domande con risposta configurata, leggibili dai motori AI.' }
+    ];
+    const maxV = Math.max(...vals.map(x=>x.v), 1);
+    const W=420, H=158, barW=52, padL=38, padR=8, padT=24, padB=52;
+    const areaW = W - padL - padR;
+    const areaH = H - padT - padB;
+    const n = vals.length;
+    const spc = Math.round((areaW - n*barW) / (n+1));
+    let svg = '';
+    const half = Math.round(maxV / 2);
+    [0, half, maxV].forEach((v, ti) => {
+        const gy = (padT + areaH * (1 - v/maxV)).toFixed(1);
+        svg += `<line x1="${padL}" y1="${gy}" x2="${W-padR}" y2="${gy}" stroke="${ti===0?'#dde0ea':'#f0f2f8'}" stroke-width="${ti===0?'1.5':'1'}"/>`;
+        svg += `<text x="${padL-5}" y="${(parseFloat(gy)+3.5).toFixed(1)}" text-anchor="end" font-size="9" fill="#9ca3af" font-family="system-ui,sans-serif">${v}</text>`;
+    });
+    svg += `<line x1="${padL}" y1="${padT-6}" x2="${padL}" y2="${padT+areaH}" stroke="#dde0ea" stroke-width="1.5"/>`;
+    vals.forEach((it, i) => {
+        const x = padL + spc + i*(barW+spc);
+        const xc = x + barW/2;
+        const h = Math.max(Math.round(it.v/maxV*areaH), 2);
+        const y = padT + areaH - h;
+        svg += `<rect x="${x}" y="${y}" width="${barW}" height="${h}" fill="#0D5F75"/>`;
+        svg += `<text x="${xc}" y="${y-6}" text-anchor="middle" font-size="13" font-weight="800" fill="#171b33" font-family="system-ui,sans-serif">${it.v}</text>`;
+        const ly1 = padT + areaH + 13;
+        const ly2 = ly1 + 11;
+        svg += `<text x="${xc}" y="${ly1}" text-anchor="middle" font-size="8.5" font-weight="600" fill="#9ca3af" font-family="system-ui,sans-serif" letter-spacing=".4">${it.l1}</text>`;
+        svg += `<text x="${xc}" y="${ly2}" text-anchor="middle" font-size="8.5" font-weight="600" fill="#9ca3af" font-family="system-ui,sans-serif" letter-spacing=".4">${it.l2}</text>`;
+    });
+    return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;max-width:${W}px;height:auto;display:block;margin:0 auto">${svg}</svg>`;
+}
+
+// ─── SCORE HISTORY CHART ──────────────────────────────────────────────────────
+let _hScoreChartInstance = null;
+async function initScoreHistoryChart(site, geoAvg, cs, covPct) {
+    const canvas = document.getElementById('hchart-score-history');
+    if (!canvas) return;
+
+    const faqData = site.faq_data || {};
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const geoSub = faqData.geo || {};
+
+    let history = Array.isArray(faqData.score_history) ? [...faqData.score_history] : [];
+    try {
+        const { data: fresh } = await _SBq.from('isi_sites').select('faq_data').eq('site_id', site.site_id).single();
+        const dbHistory = Array.isArray(fresh?.faq_data?.score_history) ? fresh.faq_data.score_history : [];
+        if (dbHistory.length > history.length) history = [...dbHistory];
+    } catch(_) {}
+
+    const todayEntry = history.find(h => h.date === todayStr);
+    if (todayEntry) {
+        if (todayEntry.ai_readiness === undefined) {
+            todayEntry.ai_readiness = geoSub.ai_readiness ?? null;
+            todayEntry.answer_extraction = geoSub.answer_extraction ?? null;
+            todayEntry.quality_safety = geoSub.quality_safety ?? null;
+            todayEntry.ai_visibility = geoSub.ai_visibility ?? null;
+            _SBq.from('isi_sites').update({ faq_data: { ...faqData, score_history: history } }).eq('site_id', site.site_id).then(() => {});
+        }
+    } else if (geoAvg !== null || cs !== null || covPct !== null) {
+        history.push({ date: todayStr, geo: geoAvg, completeness: cs, coverage: covPct,
+            ai_readiness: geoSub.ai_readiness ?? null, answer_extraction: geoSub.answer_extraction ?? null,
+            quality_safety: geoSub.quality_safety ?? null, ai_visibility: geoSub.ai_visibility ?? null });
+        _SBq.from('isi_sites').update({ faq_data: { ...faqData, score_history: history } }).eq('site_id', site.site_id).then(() => {});
+    }
+
+    history.sort((a, b) => a.date.localeCompare(b.date));
+    faqData.score_history = history;
+
+    const COLORS  = ['#0D5F75', '#2a8a9e', '#8aa8bc', '#666b84'];
+    const KEYS    = ['ai_readiness', 'answer_extraction', 'quality_safety', 'ai_visibility'];
+    const SUFFIXES = ['', '', '', ''];
+    let currentDays = 30;
+    const visible = [true, true, true, true];
+
+    function filtered(days) {
+        if (days >= 9000) return history;
+        const cut = new Date(); cut.setDate(cut.getDate() - days);
+        const cutStr = cut.toISOString().slice(0, 10);
+        return history.filter(h => h.date >= cutStr);
+    }
+
+    function fmtDate(d) {
+        const dt = new Date(d + 'T00:00:00');
+        return dt.toLocaleDateString('it-IT', { day: '2-digit', month: 'short' });
+    }
+
+    function updateSummary(data) {
+        KEYS.forEach((k, i) => {
+            const vals = data.map(h => h[k]).filter(v => v !== null && v !== undefined);
+            const last = vals.length ? vals[vals.length - 1] : null;
+            const first = vals.length > 1 ? vals[0] : null;
+            const valEl = document.getElementById('hsc-val-' + i);
+            const deltaEl = document.getElementById('hsc-delta-' + i);
+            if (valEl) valEl.textContent = last !== null ? last + SUFFIXES[i] : '—';
+            if (deltaEl && last !== null && first !== null) {
+                const d = last - first;
+                const sign = d > 0 ? '+' : '';
+                deltaEl.textContent = sign + d + SUFFIXES[i] + ' nel periodo';
+                deltaEl.style.color = d > 0 ? '#0D5F75' : d < 0 ? '#b00020' : '#9ca3af';
+            } else if (deltaEl) { deltaEl.textContent = ''; }
+        });
+    }
+
+    function aggregateWeekly(data) {
+        if (data.length <= 8) return data;
+        const weeks = {};
+        data.forEach(h => {
+            const d = new Date(h.date + 'T00:00:00');
+            const mon = new Date(d); mon.setDate(d.getDate() - d.getDay() + 1);
+            const key = mon.toISOString().slice(0, 10);
+            if (!weeks[key]) weeks[key] = { date: key, _items: [] };
+            weeks[key]._items.push(h);
+        });
+        const weekly = Object.values(weeks).map(w => {
+            const items = w._items;
+            const avg = k => { const vs = items.map(i => i[k]).filter(v => v != null); return vs.length ? Math.round(vs.reduce((a,b)=>a+b,0)/vs.length) : null; };
+            return { date: w.date, geo: avg('geo'), completeness: avg('completeness'), coverage: avg('coverage'), ai_readiness: avg('ai_readiness'), answer_extraction: avg('answer_extraction'), quality_safety: avg('quality_safety'), ai_visibility: avg('ai_visibility') };
+        }).sort((a,b) => a.date.localeCompare(b.date));
+        return weekly;
+    }
+
+    function render(days) {
+        const raw = filtered(days);
+        const data = aggregateWeekly(raw);
+        const labels = data.map(h => fmtDate(h.date));
+        updateSummary(data);
+        const datasets = KEYS.map((k, i) => ({
+            label: ['AI Readiness', 'Answer Extraction', 'Quality Safety', 'AI Visibility'][i],
+            data: data.map(h => h[k] ?? null),
+            borderColor: COLORS[i],
+            backgroundColor: 'transparent',
+            fill: false,
+            tension: 0.35,
+            pointRadius: 0,
+            pointHoverRadius: 4.5,
+            pointBackgroundColor: COLORS[i],
+            pointBorderColor: COLORS[i],
+            borderWidth: 2.5,
+            spanGaps: true,
+            hidden: !visible[i],
+        }));
+        if (_hScoreChartInstance) _hScoreChartInstance.destroy();
+        _hScoreChartInstance = new Chart(canvas, {
+            type: 'line',
+            data: { labels, datasets },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'white', titleColor: '#171b33', bodyColor: '#4b4d68',
+                        borderColor: '#e4e4ec', borderWidth: 1, padding: 9,
+                        usePointStyle: true,
+                        bodyFont: { size: 11 }, titleFont: { size: 11 },
+                        callbacks: { label: ctx => ' ' + ctx.dataset.label + ': ' + (ctx.parsed.y ?? '—') }
+                    }
+                },
+                scales: {
+                    x: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#9ca3af', maxTicksLimit: 8 } },
+                    y: { min: 0, max: 100, grid: { color: '#f0f0f5', drawBorder: false }, ticks: { font: { size: 11 }, color: '#9ca3af', stepSize: 25 } }
+                }
+            }
+        });
+    }
+
+    render(currentDays);
+
+    document.querySelectorAll('.hsc-range').forEach(el => {
+        el.addEventListener('click', () => {
+            currentDays = parseInt(el.dataset.days);
+            document.querySelectorAll('.hsc-range').forEach(r => {
+                const active = r === el;
+                r.style.color = active ? '#0D5F75' : '#9ca3af';
+                r.style.borderBottom = active ? '2px solid #0D5F75' : 'none';
+                r.style.paddingBottom = active ? '2px' : '0';
+            });
+            render(currentDays);
+        });
+    });
+
+    document.querySelectorAll('.hsc-metric').forEach(el => {
+        el.addEventListener('click', () => {
+            const idx = parseInt(el.dataset.idx);
+            visible[idx] = !visible[idx];
+            el.style.opacity = visible[idx] ? '1' : '0.35';
+            if (_hScoreChartInstance) {
+                _hScoreChartInstance.data.datasets[idx].hidden = !visible[idx];
+                _hScoreChartInstance.update();
+            }
+        });
+    });
+}
+
+// ─── GEO MINI CHART ───────────────────────────────────────────────────────────
+let _geoMiniChartInst = null;
+function initGeoScoreMiniChart(site) {
+    const canvas = document.getElementById('hchart-geo-score-mini');
+    if (!canvas) return;
+    const faqData = site.faq_data || {};
+    const history = Array.isArray(faqData.score_history) ? [...faqData.score_history] : [];
+    history.sort((a, b) => a.date.localeCompare(b.date));
+    if (history.length === 0) { if (canvas.parentElement?.parentElement) canvas.parentElement.parentElement.style.display = 'none'; return; }
+    let _miniDays = 30;
+
+    function filteredMini(days) {
+        if (days >= 9000) return history;
+        const cut = new Date(); cut.setDate(cut.getDate() - days);
+        const cutStr = cut.toISOString().slice(0, 10);
+        return history.filter(h => h.date >= cutStr);
+    }
+
+    function aggregateMiniWeekly(data) {
+        if (data.length <= 8) return data;
+        const weeks = {};
+        data.forEach(h => {
+            const d = new Date(h.date + 'T00:00:00');
+            const mon = new Date(d); mon.setDate(d.getDate() - d.getDay() + 1);
+            const key = mon.toISOString().slice(0, 10);
+            if (!weeks[key]) weeks[key] = { date: key, _items: [] };
+            weeks[key]._items.push(h);
+        });
+        return Object.values(weeks).map(w => {
+            const items = w._items;
+            const avg = k => { const vs = items.map(i => i[k]).filter(v => v != null); return vs.length ? Math.round(vs.reduce((a,b)=>a+b,0)/vs.length) : null; };
+            return { date: w.date, geo: avg('geo'), completeness: avg('completeness'), coverage: avg('coverage') };
+        }).sort((a,b) => a.date.localeCompare(b.date));
+    }
+
+    function renderMini(days) {
+        const raw = filteredMini(days).length ? filteredMini(days) : history;
+        const data = aggregateMiniWeekly(raw);
+        const labels = data.map(h => { const dt = new Date(h.date+'T00:00:00'); return dt.toLocaleDateString('it-IT',{day:'2-digit',month:'short'}); });
+        const datasets = [
+            { label:'GEO Score',    data:data.map(h=>h.geo??null),        borderColor:'#0D5F75', backgroundColor:'transparent', fill:false, tension:0.35, pointRadius:0, pointHoverRadius:3.5, pointBackgroundColor:'#0D5F75', pointBorderColor:'#0D5F75', borderWidth:2.5, spanGaps:true },
+            { label:'Completezza',  data:data.map(h=>h.completeness??null),borderColor:'#5c6ac4', backgroundColor:'transparent', fill:false, tension:0.35, pointRadius:0, pointHoverRadius:3.5, pointBackgroundColor:'#5c6ac4', pointBorderColor:'#5c6ac4', borderWidth:2.5, spanGaps:true },
+            { label:'Coverage FAQ', data:data.map(h=>h.coverage??null),   borderColor:'#a29bfe', backgroundColor:'transparent', fill:false, tension:0.35, pointRadius:0, pointHoverRadius:3.5, pointBackgroundColor:'#a29bfe', pointBorderColor:'#a29bfe', borderWidth:2.5, spanGaps:true },
+        ];
+        if (_geoMiniChartInst) _geoMiniChartInst.destroy();
+        _geoMiniChartInst = new Chart(canvas, {
+            type: 'line',
+            data: { labels, datasets },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                layout: { padding: { right: 10 } },
+                interaction: { mode:'index', intersect:false },
+                plugins: {
+                    legend: { display:false },
+                    tooltip: { backgroundColor:'white', titleColor:'#171b33', bodyColor:'#4b4d68', borderColor:'#e4e4ec', borderWidth:1, padding:7, usePointStyle:true, bodyFont:{size:11}, titleFont:{size:11}, callbacks:{ label: ctx => ' '+ctx.dataset.label+': '+(ctx.parsed.y??'—') } }
+                },
+                scales: {
+                    x: { grid:{ display:false }, ticks:{ font:{size:10}, color:'#9ca3af', maxTicksLimit:6 } },
+                    y: { min:0, max:100, grid:{ color:'#f0f0f5', drawBorder:false }, ticks:{ font:{size:10}, color:'#9ca3af', stepSize:25 } }
+                }
+            }
+        });
+    }
+
+    renderMini(_miniDays);
+
+    document.querySelectorAll('.hgeo-mini-range').forEach(el => {
+        el.addEventListener('click', () => {
+            _miniDays = parseInt(el.dataset.days);
+            document.querySelectorAll('.hgeo-mini-range').forEach(r => {
+                const active = r === el;
+                r.style.color = active ? '#0D5F75' : '#9ca3af';
+                r.style.borderBottom = active ? '2px solid #0D5F75' : 'none';
+                r.style.paddingBottom = active ? '2px' : '0';
+            });
+            renderMini(_miniDays);
+        });
+    });
+}
+
+// ─── JSON-LD PREVIEW E COPIA ──────────────────────────────────────────────────
+function renderJsonPreview(p) {
+    const el = document.getElementById('hjson-preview-content');
+    if (!el) return;
+    const json = JSON.stringify(buildSchemaJsonLd(p||{}), null, 2);
+    el.innerHTML = `<pre style="background:#f8f8fc;border:1px solid #e4e4ec;border-radius:6px;padding:14px;font-size:12px;overflow:auto;max-height:280px;max-width:100%;color:#35364f;line-height:1.5;margin:0">${esc(json)}</pre>`;
+}
+
+function copyJsonLd() {
+    const p = _schemaProfile||{};
+    const json = JSON.stringify(buildSchemaJsonLd(p),null,2);
+    const tag = `<script type="application/ld+json">\n${json}\n<\/script>`;
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(tag).then(()=>showToast('JSON-LD copiato negli appunti!')).catch(()=>_fbCopyJson(tag));
+    } else { _fbCopyJson(tag); }
+}
+function _fbCopyJson(text) {
+    const ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); showToast('JSON-LD copiato!');
+}
+
+// ─── DATI SITO ────────────────────────────────────────────────────────────────
+async function initDatiSito(site, pseData) {
+    const cont = document.getElementById('hscontent-dati_sito');
+    if (!cont) return;
+    const cfg = site?.hotel_profile?.isi_config || {};
+    const cardStyle = 'border:1px solid #e4e4ec;box-shadow:none;margin-bottom:20px';
+    const cardH = (dot, title) => `<div class="card" style="${cardStyle}"><div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:${dot};display:inline-block;flex-shrink:0"></span><div style="font-size:12px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">${esc(title)}</div></div></div>`;
+
+    let html = '';
+
+    if (cfg.gsc_email && cfg.gsc_site && cfg.gsc_token) {
+        html += cardH('#0D5F75', 'Analisi SEO Google') +
+            '<div id="hdati-gsc-container" style="padding:0"><div style="padding:16px 20px;font-size:13px;color:#666b84">Caricamento dati GSC...</div></div></div>';
+    }
+
+    const gscSignals = site?.gsc_signals;
+    if (gscSignals && typeof gscSignals === 'object' && Object.keys(gscSignals).length) {
+        const labelMap = {
+            gsc_verified:   { l: 'Google Site Verification', d: 'Meta tag di verifica GSC presente nel sito' },
+            site_kit:       { l: 'Google Site Kit', d: 'Plugin Google Site Kit attivo' },
+            site_kit_gsc:   { l: 'Site Kit → GSC connessa', d: 'Search Console collegata tramite Site Kit' },
+            yoast:          { l: 'Yoast SEO', d: 'Plugin Yoast SEO attivo' },
+            yoast_gsc:      { l: 'Yoast → verifica Google', d: 'Codice verifica GSC configurato in Yoast' },
+            rank_math:      { l: 'RankMath SEO', d: 'Plugin RankMath attivo' },
+            seopress:       { l: 'SEOPress', d: 'Plugin SEOPress attivo' },
+            aioseo:         { l: 'All in One SEO', d: 'Plugin AIOSEO attivo' },
+            gtm:            { l: 'Google Tag Manager', d: 'GTM rilevato nel sito' },
+            ga:             { l: 'Google Analytics', d: 'GA4 o Universal Analytics rilevato' },
+            google_ads:     { l: 'Google Ads', d: 'Tag Google Ads rilevato' },
+            monsterinsights:{ l: 'MonsterInsights', d: 'Plugin MonsterInsights (GA) attivo' },
+        };
+        const rows = Object.keys(gscSignals).map(k => {
+            const info = labelMap[k] || { l: k, d: '' };
+            return `<tr style="border-bottom:1px solid #f4f4f8"><td style="padding:6px 8px 6px 0"><span style="color:#0D5F75;font-size:13px">✓</span></td><td style="padding:6px 8px 6px 0;color:#171b33;font-size:13px;font-weight:600">${esc(info.l)}</td><td style="padding:6px 0;color:#666b84;font-size:12px">${esc(info.d)}</td></tr>`;
+        }).join('');
+        html += cardH('#0D5F75', 'Segnali rilevati sul sito') +
+            '<div style="padding:16px 20px"><table style="width:100%;border-collapse:collapse">' +
+            '<tr style="color:#9ca3af;border-bottom:1px solid #f0f0f5"><td style="padding:4px 8px 4px 0;font-size:11px"></td><td style="padding:4px 8px 4px 0;font-size:11px;text-transform:uppercase;letter-spacing:.05em">Segnale</td><td style="padding:4px 0;font-size:11px;text-transform:uppercase;letter-spacing:.05em">Dettaglio</td></tr>' +
+            rows + '</table></div></div>';
+    }
+
+    const signals = site?.hotel_profile?.pse_signals;
+    if (Array.isArray(signals) && signals.length) {
+        const grouped = {};
+        signals.forEach(s => {
+            const key = (s.page_url || '—') + '||' + (s.event_type || '—');
+            grouped[key] = (grouped[key] || 0) + 1;
+        });
+        const sorted = Object.entries(grouped).sort((a, b) => b[1] - a[1]).slice(0, 10);
+        html += cardH('#666b84', 'Segnali Sito') +
+            '<div style="padding:16px 20px">' +
+            '<table style="width:100%;border-collapse:collapse;font-size:13px">' +
+            '<tr style="color:#9ca3af;border-bottom:1px solid #f0f0f5"><td style="padding:4px 8px 4px 0">Pagina</td><td style="padding:4px 8px">Evento</td><td style="padding:4px 0;text-align:right">N.</td></tr>' +
+            sorted.map(([key, count]) => {
+                const [page_url, event_type] = key.split('||');
+                return `<tr style="border-bottom:1px solid #f4f4f8"><td style="padding:5px 8px 5px 0;color:#171b33;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(page_url)}</td><td style="padding:5px 8px;color:#666b84">${esc(event_type)}</td><td style="padding:5px 0;text-align:right;color:#0D5F75;font-weight:600">${count}</td></tr>`;
+            }).join('') +
+            '</table></div></div>';
+    }
+
+    if (!html) {
+        html = `<div class="card" style="${cardStyle}"><div style="padding:20px 24px;font-size:14px;color:#666b84">Nessun dato. Collega Google Search Console dalla sezione Configurazione.</div></div>`;
+    }
+
+    cont.innerHTML = html;
+
+    if (cfg.gsc_email && cfg.gsc_site && cfg.gsc_token) {
+        const datiGscCont = document.getElementById('hdati-gsc-container');
+        let _activeToken = cfg.gsc_token;
+        let _activeTokenTs = cfg.gsc_token_ts || 0;
+        try {
+            const _ls = JSON.parse(localStorage.getItem('isi_gsc_tok_' + site.site_id) || 'null');
+            if (_ls && _ls.ts && _ls.ts > _activeTokenTs) { _activeToken = _ls.token; _activeTokenTs = _ls.ts; }
+        } catch {}
+        const tokenAgeSec = _activeTokenTs ? (Date.now() - _activeTokenTs) / 1000 : Infinity;
+        let _gscActiveDays = 28;
+
+        function _gscDateRange(days) {
+            const end = new Date();
+            const start = days >= 9999 ? new Date(end.getTime() - 16*30*86400000) : new Date(end.getTime() - days*86400000);
+            return { startDate: start.toISOString().slice(0,10), endDate: end.toISOString().slice(0,10) };
+        }
+
+        async function _fetchGscData(token, days) {
+            const { startDate, endDate } = _gscDateRange(days);
+            const base = `https://searchconsole.googleapis.com/webmasters/v3/sites/${encodeURIComponent(cfg.gsc_site)}/searchAnalytics/query`;
+            const headers = { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' };
+            const [qRes, pRes, totRes] = await Promise.all([
+                fetch(base, { method:'POST', headers, body: JSON.stringify({ startDate, endDate, dimensions:['query'], rowLimit:10 }) }),
+                fetch(base, { method:'POST', headers, body: JSON.stringify({ startDate, endDate, dimensions:['page'], rowLimit:10 }) }),
+                fetch(base, { method:'POST', headers, body: JSON.stringify({ startDate, endDate, dimensions:[], rowLimit:1 }) }),
+            ]);
+            if (!qRes.ok) throw new Error('token_expired_' + qRes.status);
+            const [qj, pj, tj] = await Promise.all([qRes.json(), pRes.json(), totRes.json()]);
+            const totRow = tj.rows?.[0] || {};
+            return {
+                queries: qj.rows || [],
+                pages: pj.rows || [],
+                totals: { clicks: totRow.clicks||0, impressions: totRow.impressions||0, ctr: totRow.ctr||0, position: totRow.position||0 }
+            };
+        }
+
+        function _renderGscFull(data) {
+            if (!datiGscCont) return;
+            const { queries: qRows = [], pages: pRows = [], totals = {} } = data;
+            const fmt = n => n >= 1000 ? (n/1000).toFixed(1)+'K' : String(n);
+            const bx = (label, value, sub) => `<div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:14px 16px;text-align:center"><div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">${label}</div><div style="font-size:28px;font-weight:800;color:#171b33;line-height:1">${value}</div><div style="font-size:11px;color:#666b84;margin-top:4px">${sub}</div></div>`;
+            const tbl = (rows, col1) => `<table style="width:100%;border-collapse:collapse;font-size:12px"><tr style="color:#9ca3af;border-bottom:1px solid #f0f0f5"><td style="padding:4px 8px 4px 0">${col1}</td><td style="padding:4px 8px;text-align:right">Click</td><td style="padding:4px 8px;text-align:right">Impr.</td><td style="padding:4px 8px;text-align:right">CTR</td><td style="padding:4px 0;text-align:right">Pos.</td></tr>${rows.map(r=>`<tr style="border-bottom:1px solid #f4f4f8"><td style="padding:5px 8px 5px 0;color:#171b33;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.keys[0])}</td><td style="padding:5px 8px;text-align:right;color:#0D5F75;font-weight:600">${r.clicks}</td><td style="padding:5px 8px;text-align:right;color:#666b84">${r.impressions}</td><td style="padding:5px 8px;text-align:right;color:#666b84">${(r.ctr*100).toFixed(1)}%</td><td style="padding:5px 0;text-align:right;color:#666b84">${r.position.toFixed(1)}</td></tr>`).join('')}</table>`;
+            const rangeLabel = _gscActiveDays===28?'ultimi 28 gg':_gscActiveDays===180?'ultimi 6 mesi':'tutti i dati';
+            datiGscCont.innerHTML =
+                `<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px 8px;border-bottom:1px solid #f4f4f8">` +
+                `<div style="font-size:11px;color:#666b84">Dati GSC — ${rangeLabel}</div>` +
+                `<div style="display:flex;gap:14px">${[{d:28,l:'1M'},{d:180,l:'6M'},{d:9999,l:'Sempre'}].map(r=>`<span class="hgsc-range-btn" data-days="${r.d}" style="font-size:12px;font-weight:700;cursor:pointer;${_gscActiveDays===r.d?'color:#0D5F75;border-bottom:2px solid #0D5F75;padding-bottom:2px':'color:#9ca3af'}">${r.l}</span>`).join('')}</div>` +
+                `</div>` +
+                `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:14px 20px">${bx('CLICK TOTALI',fmt(totals.clicks||0),'clic organici')}${bx('IMPRESSION TOTALI',fmt(totals.impressions||0),'visualizzazioni')}${bx('CTR MEDIO',totals.impressions?((totals.ctr||0)*100).toFixed(1)+'%':'—','click-through rate')}${bx('POSIZIONE MEDIA',totals.impressions?(totals.position||0).toFixed(1):'—','posizione media SERP')}</div>` +
+                (qRows.length ? `<div style="padding:0 20px 14px"><div style="font-size:11px;font-weight:700;color:#666b84;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">TOP QUERY</div>${tbl(qRows,'Query')}</div>` : '') +
+                (pRows.length ? `<div style="padding:0 20px 14px;border-top:1px solid #f4f4f8"><div style="font-size:11px;font-weight:700;color:#666b84;text-transform:uppercase;letter-spacing:.05em;margin:14px 0 8px">TOP PAGINE</div>${tbl(pRows,'Pagina')}</div>` : '');
+            datiGscCont.querySelectorAll('.hgsc-range-btn').forEach(btn => {
+                btn.addEventListener('click', () => { _gscActiveDays = parseInt(btn.dataset.days); _loadGscData(); });
+            });
+        }
+
+        async function _saveToken(token) {
+            const now = Date.now();
+            _activeToken = token; _activeTokenTs = now;
+            try { localStorage.setItem('isi_gsc_tok_' + site.site_id, JSON.stringify({ token, ts: now })); } catch {}
+            try {
+                const { data: fresh } = await _SBq.from('isi_sites').select('hotel_profile').eq('site_id', site.site_id).single();
+                const hp = fresh?.hotel_profile || site?.hotel_profile || {};
+                const nc = { ...(hp.isi_config || {}), gsc_token: token, gsc_token_ts: now };
+                await _SBq.from('isi_sites').update({ hotel_profile: { ...hp, isi_config: nc } }).eq('site_id', site.site_id);
+                if (site?.hotel_profile?.isi_config) { site.hotel_profile.isi_config.gsc_token = token; site.hotel_profile.isi_config.gsc_token_ts = now; }
+            } catch { /* token già in localStorage */ }
+        }
+
+        function _silentRefresh() {
+            const clientId = localStorage.getItem('isi_gsc_client_id');
+            if (!clientId || !window.google?.accounts?.oauth2) return Promise.reject(new Error('no_gis'));
+            return new Promise((resolve, reject) => {
+                const t = setTimeout(() => reject(new Error('timeout')), 6000);
+                window.google.accounts.oauth2.initTokenClient({
+                    client_id: clientId,
+                    scope: 'https://www.googleapis.com/auth/webmasters.readonly',
+                    hint: cfg.gsc_email || '',
+                    callback: async function(resp) {
+                        clearTimeout(t);
+                        if (resp.error) { reject(new Error(resp.error)); return; }
+                        await _saveToken(resp.access_token);
+                        resolve(resp.access_token);
+                    }
+                }).requestAccessToken({ prompt: 'none' });
+            });
+        }
+
+        function _autoReconnect() {
+            const clientId = localStorage.getItem('isi_gsc_client_id');
+            if (!clientId || !window.google?.accounts?.oauth2) return Promise.reject(new Error('no_gis'));
+            return new Promise((resolve, reject) => {
+                const t = setTimeout(() => reject(new Error('timeout')), 20000);
+                window.google.accounts.oauth2.initTokenClient({
+                    client_id: clientId,
+                    scope: 'https://www.googleapis.com/auth/webmasters.readonly',
+                    hint: cfg.gsc_email || '',
+                    callback: async function(resp) {
+                        clearTimeout(t);
+                        if (resp.error) { reject(new Error(resp.error)); return; }
+                        await _saveToken(resp.access_token);
+                        resolve(resp.access_token);
+                    }
+                }).requestAccessToken({ prompt: '' });
+            });
+        }
+
+        function _showReconnectBtn() {
+            if (!datiGscCont) return;
+            const clientId = localStorage.getItem('isi_gsc_client_id');
+            datiGscCont.innerHTML =
+                '<div style="display:flex;align-items:center;gap:12px;padding:16px 20px">' +
+                '<span style="font-size:13px;color:#666b84">Aggiorna la sessione Google per vedere i dati.</span>' +
+                '<button id="hbtn-gsc-reconnect" style="background:#0D5F75;color:white;border:none;border-radius:6px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Riconnetti Google</button>' +
+                '</div>';
+            const btn = document.getElementById('hbtn-gsc-reconnect');
+            if (!btn || !clientId || !window.google?.accounts?.oauth2) return;
+            btn.addEventListener('click', function() {
+                btn.textContent = 'Connessione in corso…';
+                btn.disabled = true;
+                window.google.accounts.oauth2.initTokenClient({
+                    client_id: clientId,
+                    scope: 'https://www.googleapis.com/auth/webmasters.readonly',
+                    callback: async function(resp) {
+                        if (resp.error) { btn.textContent = 'Riprova'; btn.disabled = false; return; }
+                        await _saveToken(resp.access_token);
+                        _loadGscData();
+                    }
+                }).requestAccessToken({ prompt: 'select_account' });
+                setTimeout(() => { if (btn.disabled) { btn.textContent = 'Riprova'; btn.disabled = false; } }, 20000);
+            });
+        }
+
+        async function _loadGscData() {
+            if (datiGscCont) datiGscCont.innerHTML = '<div style="padding:16px 20px;font-size:13px;color:#666b84">Caricamento...</div>';
+            let token = _activeToken;
+            if (tokenAgeSec >= 3000) {
+                try { token = await _silentRefresh(); } catch { /* usa token esistente */ }
+            }
+            try {
+                const data = await _fetchGscData(token, _gscActiveDays);
+                _renderGscFull(data);
+            } catch(e) {
+                if (e.message?.includes('token_expired')) {
+                    try { token = await _silentRefresh(); const data = await _fetchGscData(token, _gscActiveDays); _renderGscFull(data); return; } catch {}
+                    if (datiGscCont) datiGscCont.innerHTML = '<div style="padding:16px 20px;font-size:13px;color:#666b84">Aggiornamento sessione Google...</div>';
+                    try { token = await _autoReconnect(); const data = await _fetchGscData(token, _gscActiveDays); _renderGscFull(data); return; } catch {}
+                    _showReconnectBtn();
+                }
+                else if (datiGscCont) datiGscCont.innerHTML = '<div style="padding:16px 20px;font-size:13px;color:#666b84">Errore nel caricamento dati GSC.</div>';
+            }
+        }
+
+        _loadGscData();
     }
 }
 
