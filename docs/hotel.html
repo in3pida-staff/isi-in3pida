@@ -923,6 +923,7 @@ function renderContent(site, pseData, now) {
         <!-- ═══ TAB: CONFIGURAZIONE ═══ -->
         <div id="htab-config" style="display:none">
         <div id="hconfig-content"><div class="loading" style="padding:20px"><div class="spinner"></div></div></div>
+        <div id="hscontent-dati_sito"></div>
         </div><!-- /htab-config -->
 
         <!-- ═══ TAB: STATISTICHE PSE ═══ -->
@@ -1027,10 +1028,10 @@ function renderContent(site, pseData, now) {
             }
         });
 
-        // ── Range selector
-        document.querySelectorAll('.h-range-btn').forEach(btn => {
+        // ── Range selector (solo grafico statistiche, non andamento)
+        document.querySelectorAll('.h-range-btn:not(.h-and-btn)').forEach(btn => {
             btn.addEventListener('click', () => {
-                document.querySelectorAll('.h-range-btn').forEach(b => { b.classList.remove('active-range'); });
+                document.querySelectorAll('.h-range-btn:not(.h-and-btn)').forEach(b => { b.classList.remove('active-range'); });
                 btn.classList.add('active-range');
                 const days = +btn.dataset.days;
                 curGran = days <= 30 ? 'week' : 'month';
@@ -1315,6 +1316,7 @@ function renderHotelSchemaView(s) {
 }
 
 function buildHotelSchemaForm(s) {
+    _schemaProfile = s || {};
     const formEl=document.getElementById('hschema-form'); if(!formEl) return;
     // Inizializza tmp arrays dal profilo hotel esistente (_site.hotel_profile)
     const hp = (_site && _site.hotel_profile) || {};
@@ -1781,7 +1783,7 @@ async function saveHotelProfile(siteId) {
         citta: g('city'), regione: g('region'), paese: g('country')||'IT',
         latitudine: g('latitude'), longitudine: g('longitude'),
         telefono: g('telephone'), email: g('email'), sito_web: g('url'),
-        checkin_dalle: g('checkin_time'), checkout_dalle: g('checkout_time'),
+        checkin_dalle: g('checkin_time'), checkout_dalle: g('checkout_time'), orario_reception: g('checkin_reception'),
         foto_principale: g('foto_principale'), gallery_urls: _galleryTmp.filter(Boolean).join('\n'),
         servizi: serviziAll, servizi_camera: g('servizi_camera'), servizi_accessibilita: g('servizi_accessibilita'),
         lingue_parlate: g('lingue_parlate'), zone_turistiche: g('zone_turistiche'),
@@ -1816,7 +1818,7 @@ async function saveHotelProfile(siteId) {
             if (_site) _site.hotel_profile = _currentHotelProfile;
             if (msg) { msg.style.display='block'; msg.style.color='#0D5F75'; msg.textContent='✓ Profilo hotel salvato.'; }
             // Anche schema standard
-            const schema = {name:profile.nome_hotel,type:profile.tipo_struttura,official_rating:profile.stelle,description:profile.descrizione,price_range:profile.prezzo_medio,street:profile.via,postal_code:profile.cap,city:profile.citta,region:profile.regione,country:profile.paese,latitude:profile.latitudine,longitude:profile.longitudine,telephone:profile.telefono,email:profile.email,url:profile.sito_web,checkin_time:profile.checkin_dalle,checkout_time:profile.checkout_dalle,pets_allowed:s?.pets_allowed||''};
+            const schema = {name:profile.nome_hotel,type:profile.tipo_struttura,official_rating:profile.stelle,description:profile.descrizione,price_range:profile.prezzo_medio,street:profile.via,postal_code:profile.cap,city:profile.citta,region:profile.regione,country:profile.paese,latitude:profile.latitudine,longitude:profile.longitudine,telephone:profile.telefono,email:profile.email,url:profile.sito_web,checkin_time:profile.checkin_dalle,checkout_time:profile.checkout_dalle,pets_allowed:g('pets_allowed')||''};
             renderHotelSchemaView(schema);
             // Push al plugin
             fetch(_pluginBase+'/wp-json/in3pida/v1/force-heartbeat',{method:'POST',headers:{'Content-Type':'application/json'}}).catch(()=>{});
@@ -2327,7 +2329,7 @@ async function initHotelCoerenza(site) {
 
     const savedRaw = hp.coerenza_channels || {};
     const channels = {};
-    const channelList = _DEFAULT_COERENZA_CHANNELS_H;
+    const channelList = [..._DEFAULT_COERENZA_CHANNELS_H];
 
     if (Object.keys(savedRaw).length === 0) {
         channelList.forEach(ch => { channels[ch] = { url: '', last_scan_at: null, results: [], error: null }; });
@@ -3582,7 +3584,7 @@ window.runHotelPseQuery = async function() {
     btn.disabled = true; btn.textContent = '⏳ Analisi in corso...';
     if(res) res.style.display = 'none';
     try {
-        await _SB.from('isi_sites').update({ pse_enabled: true }).eq('site_id', siteId);
+        await _SBq.from('isi_sites').update({ pse_enabled: true }).eq('site_id', siteId);
         const { data: { session: sess } } = await _SB.auth.getSession();
         if (!sess) throw new Error('Sessione scaduta');
         const r = await fetch(`${SUPABASE_URL}/functions/v1/pse-query`, {
