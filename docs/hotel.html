@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="css/style.css?v=20260622q">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet">
-    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6','isi_hotel_v7','isi_hotel_v8','isi_hotel_v9','isi_hotel_v10','isi_hotel_v11','isi_hotel_v12','isi_hotel_v13','isi_hotel_v14'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v136')){sessionStorage.setItem('isi_hotel_v136','1');location.reload(true);}</script>
+    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6','isi_hotel_v7','isi_hotel_v8','isi_hotel_v9','isi_hotel_v10','isi_hotel_v11','isi_hotel_v12','isi_hotel_v13','isi_hotel_v14'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v137')){sessionStorage.setItem('isi_hotel_v137','1');location.reload(true);}</script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <style>
         .tip-q{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:#EFF020;color:#0D5F75;font-size:9px;font-weight:800;cursor:default;flex-shrink:0;user-select:none;vertical-align:middle}
@@ -56,7 +56,7 @@
 
         /* ═══ HERO ═══ */
         .h-hero{background:#C1CBE8;padding:33px 28px 32px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;border-radius:16px;box-shadow:0 0 0 3px #C1CBE8;margin:25px 5% 30px 5%;position:relative;overflow:visible;}
-        .h-hero-name{font-family:'Source Code Pro',monospace;font-size:44px;font-weight:300;color:#fff;flex-shrink:0;}
+        .h-hero-name{font-family:'Source Code Pro',monospace;font-size:42px;font-weight:300;color:#fff;flex-shrink:0;}
         .h-hero-chips{display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
         .h-chip{background:#fff;border:none;border-radius:24px;padding:7px 17px;font-size:13px;color:#0D5F75;display:flex;align-items:center;gap:5px;white-space:nowrap;font-family:'Source Code Pro',monospace;font-weight:400;}
         .h-chip-lbl{font-size:12px;opacity:.65;font-weight:400;font-family:'Source Code Pro',monospace;}
@@ -95,11 +95,11 @@
         .h-range-btn.active-range{color:#0D5F75;border:1.5px solid #0D5F75;background:white;}
 
         /* ═══ SECTION HEADING ═══ */
-        .h-sec-hdr{display:flex;align-items:center;gap:10px;margin:18px 0 10px;}
-        .h-sec-icon{width:28px;height:28px;border-radius:50%;background:#0D5F75;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+        .h-sec-hdr{display:flex;align-items:center;gap:20px;margin:36px 0 20px;}
+        .h-sec-icon{width:56px;height:56px;border-radius:50%;background:#0D5F75;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
         .h-sec-texts{line-height:1.2;}
-        .h-sec-title{font-family:'Source Code Pro',monospace;font-size:17px;font-weight:700;color:#171b33;margin:0;}
-        .h-sec-sub{font-size:10px;color:#888;margin:0;}
+        .h-sec-title{font-family:'Source Code Pro',monospace;font-size:34px;font-weight:700;color:#0D5F75;margin:0;}
+        .h-sec-sub{font-size:20px;color:#0D5F75;margin:0;font-family:'Source Code Pro',monospace;}
 
         /* ═══ ELETTA CARD (float destra) ═══ */
         .h-eletta{background:#C1CBE8;border-radius:16px;padding:32px 16px calc(20px + 5vh) 46px;display:flex;flex-direction:column;align-items:flex-start;margin-left:-20px;margin-right:-18px;position:sticky;top:70px;}
@@ -636,7 +636,7 @@ function renderContent(site, pseData, now) {
               <!-- Section heading Panoramica -->
               <div class="h-sec-hdr">
                   <div class="h-sec-icon">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
                   </div>
                   <div class="h-sec-texts">
                       <div class="h-sec-title">Panoramica</div>
@@ -648,7 +648,7 @@ function renderContent(site, pseData, now) {
               <button id="btn-hotel-sync" style="display:none">SINCRONIZZA</button>
 
               <!-- Semafori + Notifiche -->
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;max-width:84%">
+              <div style="display:grid;grid-template-columns:1fr 1.5fr;gap:12px;margin-bottom:12px">
                 <div class="h-card" id="h-card-semafori" style="margin-bottom:0">
                     <div class="h-card-hdr"><span class="h-card-hdr-t">Stato semafori</span></div>
                     <div class="h-card-body" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px 14px">
