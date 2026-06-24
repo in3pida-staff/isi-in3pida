@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="css/style.css?v=20260622q">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet">
-    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6','isi_hotel_v7','isi_hotel_v8','isi_hotel_v9','isi_hotel_v10','isi_hotel_v11','isi_hotel_v12','isi_hotel_v13','isi_hotel_v14'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v139')){sessionStorage.setItem('isi_hotel_v139','1');location.reload(true);}</script>
+    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6','isi_hotel_v7','isi_hotel_v8','isi_hotel_v9','isi_hotel_v10','isi_hotel_v11','isi_hotel_v12','isi_hotel_v13','isi_hotel_v14'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v140')){sessionStorage.setItem('isi_hotel_v140','1');location.reload(true);}</script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <style>
         .tip-q{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:#EFF020;color:#0D5F75;font-size:9px;font-weight:800;cursor:default;flex-shrink:0;user-select:none;vertical-align:middle}
@@ -34,7 +34,7 @@
         .h-nav-item.active .h-nav-icon svg circle{fill:#0D5F75!important;}
         .h-nav-item.active .h-nav-icon svg path,.h-nav-item.active .h-nav-icon svg rect,.h-nav-item.active .h-nav-icon svg polyline,.h-nav-item.active .h-nav-icon svg line,.h-nav-item.active .h-nav-icon svg polygon{fill:#fff!important;stroke:#fff!important;}
         .h-sidebar-sep{width:40px;height:1px;background:rgba(255,255,255,0.5);margin:8px 0;}
-        .h-sidebar-bottom{width:75px;display:flex;flex-direction:column;align-items:center;padding:0 6px 10px;position:fixed;bottom:0;left:0;background:#EDEEF5;}
+        .h-sidebar-bottom{width:75px;display:flex;flex-direction:column;align-items:center;padding:0 0 10px 25px;position:fixed;bottom:0;left:0;background:#EDEEF5;}
 
         /* ═══ AREA DESTRA ═══ */
         .h-right{margin-left:70px;flex:1;display:flex;flex-direction:column;min-height:100vh;}
@@ -659,7 +659,7 @@ function renderContent(site, pseData, now) {
                         <div><div style="font-size:11px;color:#0D5F75;font-weight:400;margin-bottom:3px">Profilo AI</div><div style="font-size:12px;font-weight:600;color:${geo.has_ai_profile===true?'#0D5F75':'#d82d6b'}">${geo.has_ai_profile===true?'Attivo':geo.has_ai_profile===false?'Disabilitato':'In attesa'}</div></div>
                     </div>
                 </div>
-                <div class="h-card" id="h-card-notifiche" style="margin-bottom:0;margin-right:10px">
+                <div class="h-card" id="h-card-notifiche" style="margin-bottom:0;margin-right:35px">
                     <div class="h-card-hdr" style="display:flex;align-items:center;gap:8px"><span class="h-card-hdr-t">Notifiche</span>${notifCount>0?`<span style="background:#d82d6b;color:white;border-radius:50%;width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700">${notifCount}</span>`:''}</div>
                     <div class="h-card-body" style="padding:6px 14px 10px">
                         ${hrs>=48?`<div style="display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid #f4f4f8"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;flex-shrink:0;margin-top:3px;display:inline-block"></span><span style="font-size:12px;color:#4b4d68">Plugin non connesso — nessun segnale ricevuto da ${Math.round(hrs)}h</span></div>`:''}
