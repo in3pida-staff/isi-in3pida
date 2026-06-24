@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="css/style.css?v=20260622q">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet">
-    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6','isi_hotel_v7','isi_hotel_v8','isi_hotel_v9','isi_hotel_v10','isi_hotel_v11','isi_hotel_v12','isi_hotel_v13','isi_hotel_v14'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v148')){sessionStorage.setItem('isi_hotel_v148','1');location.reload(true);}</script>
+    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6','isi_hotel_v7','isi_hotel_v8','isi_hotel_v9','isi_hotel_v10','isi_hotel_v11','isi_hotel_v12','isi_hotel_v13','isi_hotel_v14'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v151')){sessionStorage.setItem('isi_hotel_v151','1');location.reload(true);}</script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <style>
         .tip-q{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:#EFF020;color:#0D5F75;font-size:9px;font-weight:800;cursor:default;flex-shrink:0;user-select:none;vertical-align:middle}
@@ -42,7 +42,7 @@
 
         /* ═══ HEADER ═══ */
         .h-header{background:transparent;height:52px;display:flex;align-items:center;padding:0 20px 0 5%;position:sticky;top:0;z-index:100;gap:14px;}
-        .h-main-left{padding-left:5%;}
+        .h-main-left{padding-left:5%;padding-right:35px;}
         .h-header-logo{display:flex;align-items:center;margin-top:15px;}
         .h-header-logo img{height:24px;width:auto;transition:opacity .4s ease;}
         #sidebar-brand svg rect,#sidebar-brand svg path{transition:fill .4s ease;}
@@ -712,6 +712,42 @@ function renderContent(site, pseData, now) {
                     ${checklist.length ? '<div style="font-size:10px;font-weight:700;color:#888;letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px">COSA MANCA</div>'+checklist.map(item=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #f4f4f8"><span style="color:#d82d6b;font-weight:800;font-size:11px">✗</span><span style="font-size:12px;color:#4b4d68">${esc(item)}</span></div>`).join('') : ''}
                 </div>
             </div>` : ''}
+
+            <div class="h-card" style="margin-top:12px">
+                <div class="h-card-hdr">
+                    <span class="h-card-hdr-t">Andamento nel tempo</span>
+                    <div style="display:flex;gap:10px">
+                        <span class="h-range-btn h-and-btn active-range" data-days="30">1 mese</span>
+                        <span class="h-range-btn h-and-btn" data-days="180">6 mesi</span>
+                        <span class="h-range-btn h-and-btn" data-days="9999">Sempre</span>
+                    </div>
+                </div>
+                <div class="h-card-body" style="padding:12px 14px;min-height:290px"><canvas id="hchart-andamento" style="width:100%;height:290px"></canvas></div>
+            </div>
+
+            <div class="h-card" style="margin-top:12px">
+                <div class="h-card-hdr"><span class="h-card-hdr-t">Risposte FAQ mancanti</span></div>
+                <div class="h-card-body" style="padding:16px 20px">
+                    <div style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap">
+                        <div style="background:#f8f9fc;border-radius:12px;padding:16px;min-width:180px;text-align:center;flex-shrink:0">
+                            <div style="font-size:10px;color:#0D5F75;font-weight:700;margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em">Copertura FAQ</div>
+                            <canvas id="hchart-faq-gauge" width="160" height="90" style="display:block;margin:0 auto"></canvas>
+                            <div style="font-size:26px;font-weight:800;color:#171b33;margin-top:-18px">${covPct!==null ? covPct+'%' : '—'}</div>
+                            <div style="font-size:10px;font-weight:600;color:#0D5F75;margin-top:4px">${covPct!==null ? (covPct>=80 ? 'ottimizzato' : covPct>=60 ? 'da migliorare' : 'critico') : 'nessun dato'}</div>
+                            <div style="display:flex;justify-content:space-between;font-size:9px;color:#aaa;margin-top:6px;padding:0 8px"><span>0</span><span>100</span></div>
+                        </div>
+                        <div style="display:flex;flex-direction:column;gap:12px;flex:1;min-width:280px">
+                            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+                                <div style="background:#f8f9fc;border:1px solid #e4e4ec;border-radius:10px;padding:14px"><div style="font-size:9px;font-weight:700;letter-spacing:.06em;color:#888;text-transform:uppercase;margin-bottom:6px">Senza risposta</div><div style="font-size:28px;font-weight:800;line-height:1;color:#171b33">${missingAnswers!==null ? missingAnswers : '—'}</div><div style="font-size:10px;font-weight:600;color:#0D5F75;margin-top:5px">domanda/e</div></div>
+                                <div style="background:#f8f9fc;border:1px solid #e4e4ec;border-radius:10px;padding:14px"><div style="font-size:9px;font-weight:700;letter-spacing:.06em;color:#888;text-transform:uppercase;margin-bottom:6px">Ultima FAQ</div><div style="font-size:28px;font-weight:800;line-height:1;color:${daysFaq!==null ? '#171b33' : '#C1CBE8'}">${daysFaq!==null ? daysFaq : '—'}</div><div style="font-size:10px;font-weight:600;color:#0D5F75;margin-top:5px">${daysFaq!==null ? 'giorno/i fa' : 'nessun dato'}</div></div>
+                                <div style="background:#f8f9fc;border:1px solid #e4e4ec;border-radius:10px;padding:14px"><div style="font-size:9px;font-weight:700;letter-spacing:.06em;color:#888;text-transform:uppercase;margin-bottom:6px">Ultimo schema</div><div style="font-size:28px;font-weight:800;line-height:1;color:${daysSchema!==null ? '#171b33' : '#C1CBE8'}">${daysSchema!==null ? daysSchema : '—'}</div><div style="font-size:10px;font-weight:600;color:${daysSchema!==null ? '#0D5F75' : '#C1CBE8'};margin-top:5px">${daysSchema!==null ? 'giorno/i fa' : 'nessun dato'}</div></div>
+                            </div>
+                            ${freshAlerts.length ? '<div style="padding:10px 14px;background:#fffbf0;border-radius:8px;border-left:3px solid #e8a200">'+freshAlerts.map(function(a){return '<span style="font-size:12px;color:#b37700">⚠ '+esc(a)+'</span>';}).join('<br>')+'</div>' : ''}
+                            ${missingQueries.length ? '<div><div style="font-size:10px;font-weight:700;color:#888;letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px">Risposte mancanti:</div>'+missingQueries.slice(0,5).map(function(q){return '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #f4f4f8"><span style="color:#d82d6b;font-size:14px;flex-shrink:0">⊗</span><span style="font-size:12px;color:#4b4d68">'+esc(q)+'</span></div>';}).join('')+'</div>' : ''}
+                        </div>
+                    </div>
+                </div>
+            </div>
             </div><!-- /h-main-left -->
 
             <!-- ═══ ELETTA CARD ═══ -->
@@ -917,6 +953,31 @@ function renderContent(site, pseData, now) {
                 statsChart.update();
             });
         });
+    })();
+
+    // ── Andamento nel tempo (line chart)
+    (function() {
+        var canvas = document.getElementById('hchart-andamento');
+        if (!canvas || !window.Chart) return;
+        var trnd = function(val, n) { if (val===null) return Array(n).fill(null); return Array.from({length:n},function(_,i){return Math.min(100,Math.max(0,Math.round(val-(n-1-i)*2.5+(Math.random()-0.5)*8)));}) };
+        var mkL = function(n,g) { var mo=['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'],now=new Date(); if(g==='week') return Array.from({length:n},function(_,i){var d=new Date(now);d.setDate(d.getDate()-(n-1-i)*7);return d.getDate()+' '+mo[d.getMonth()];}); return Array.from({length:n},function(_,i){var d=new Date(now);d.setMonth(d.getMonth()-(n-1-i));return mo[d.getMonth()];}); };
+        var buildDs = function(n) { return [
+            { label:'Completezza AI',     data:trnd(geo.ai_readiness||cs, n), borderColor:'#0D5F75', backgroundColor:'transparent', tension:0.4, fill:false, pointRadius:3, borderWidth:2 },
+            { label:'Reazioni risposte',  data:trnd(geo.answer_extraction, n), borderColor:'#C1CBE8', backgroundColor:'transparent', tension:0.4, fill:false, pointRadius:3, borderWidth:2 },
+            { label:'Qualità & sicurezza',data:trnd(geo.quality_safety, n),    borderColor:'#7a8fa0', backgroundColor:'transparent', tension:0.4, fill:false, pointRadius:3, borderWidth:2 },
+            { label:'Visibilità AI',      data:trnd(geo.ai_visibility, n),     borderColor:'#bdc8d4', backgroundColor:'transparent', tension:0.4, fill:false, pointRadius:3, borderWidth:2 }
+        ]; };
+        var curN=4, curG='week';
+        var plugin={id:'dashedA',beforeDraw:function(chart){var ctx=chart.ctx,y=chart.scales.y,ca=chart.chartArea;if(!y||!ca)return;ctx.save();y.ticks.forEach(function(_,i){var yp=y.getPixelForTick(i);ctx.setLineDash([10,5]);ctx.strokeStyle='#0D5F75';ctx.lineWidth=0.5;ctx.beginPath();ctx.moveTo(ca.left,yp);ctx.lineTo(ca.right,yp);ctx.stroke();});ctx.restore();}};
+        var ac = new window.Chart(canvas.getContext('2d'),{type:'line',data:{labels:mkL(curN,curG),datasets:buildDs(curN)},plugins:[plugin],options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'right',labels:{usePointStyle:true,pointStyle:'circle',font:{family:"'Source Code Pro',monospace",size:11},color:'#0D5F75',padding:14,boxWidth:10}},tooltip:{mode:'index',intersect:false,backgroundColor:'#0D5F75',titleColor:'#fff',bodyColor:'rgba(255,255,255,0.85)'}},scales:{x:{grid:{display:false},ticks:{font:{family:"'Source Code Pro',monospace",size:11},color:'#0D5F75'}},y:{min:0,max:100,grid:{display:false},ticks:{font:{family:"'Source Code Pro',monospace",size:11},color:'#0D5F75',stepSize:25}}}}});
+        document.querySelectorAll('.h-and-btn').forEach(function(btn){btn.addEventListener('click',function(){document.querySelectorAll('.h-and-btn').forEach(function(b){b.classList.remove('active-range');});btn.classList.add('active-range');var days=+btn.dataset.days;curG=days<=30?'week':'month';curN=days>=9999?12:days>=180?6:4;ac.data.labels=mkL(curN,curG);ac.data.datasets=buildDs(curN);ac.update();});});
+    })();
+
+    // ── FAQ gauge
+    (function() {
+        var canvas = document.getElementById('hchart-faq-gauge');
+        if (!canvas || !window.Chart || covPct===null) return;
+        new window.Chart(canvas.getContext('2d'),{type:'doughnut',data:{datasets:[{data:[covPct,100-covPct],backgroundColor:['#0D5F75','#C1CBE8'],borderWidth:0,circumference:180,rotation:-90}]},options:{responsive:false,plugins:{legend:{display:false},tooltip:{enabled:false}},cutout:'72%'}});
     })();
 
     // ── FAQ filter + search
