@@ -319,6 +319,10 @@ let _site = null, _pluginBase = '', _pluginSecret = '', _appFeatures = {}, _site
 let _faqItems = [], _faqFilter = 'all', _faqSearch = '';
 let _pseChartsInited = false, _mappaInited = false, _coerenzaInited = false, _configInited = false;
 let _aiLayerInited = false;
+let _camereTmp = [], _offerteTmp = [], _socialCustomTmp = [];
+let _galleryTmp = [], _serviziCustomTmp = [], _targetCustomTmp = [], _knowsaboutCustomTmp = [];
+let _schemaProfile = {}, _currentHotelProfile = {};
+const _camServPreset = ['Bagno privato','Aria condizionata','Wi-Fi','TV','Minibar','Balcone','Cucina','Frigorifero','Accessibile'];
 
 // ─── INIT ──────────────────────────────────────────────────────────────────────
 async function init() {
@@ -1232,15 +1236,614 @@ function renderHotelSchemaView(s) {
 
 function buildHotelSchemaForm(s) {
     const formEl=document.getElementById('hschema-form'); if(!formEl) return;
+    // Inizializza tmp arrays dal profilo hotel esistente (_site.hotel_profile)
+    const hp = (_site && _site.hotel_profile) || {};
+    _camereTmp      = JSON.parse(JSON.stringify(hp.camere||[]));
+    _offerteTmp     = JSON.parse(JSON.stringify(hp.offerte||[]));
+    _socialCustomTmp= JSON.parse(JSON.stringify(hp.social_custom||[]));
+    _galleryTmp     = (hp.gallery_urls||'').split('\n').map(u=>u.trim()).filter(Boolean);
+    const _serviziPreset = ['Wi-Fi gratuito','Colazione','Aria condizionata','Parcheggio','Ristorante','Camere familiari','Ascensore','Self check-in','Piscina','Bar','Camere non fumatori','Reception','Reception 24 ore','Late check-in','Accessibilità per ospiti con disabilità','Ricarica auto elettriche'];
+    _serviziCustomTmp   = (hp.servizi||'').split(',').map(x=>x.trim()).filter(x=>x&&!_serviziPreset.map(y=>y.toLowerCase()).includes(x.toLowerCase()));
+    const _targetPreset = ['Famiglie','Coppie','Business traveler','Turisti internazionali','Gruppi','Cicloturisti','Digital nomad'];
+    _targetCustomTmp    = (hp.target_clientela||'').split(',').map(x=>x.trim()).filter(x=>x&&!_targetPreset.map(y=>y.toLowerCase()).includes(x.toLowerCase()));
+    const _knowsaboutPreset = ['Vacanze in famiglia','Weekend romantici','Viaggi business','Turismo locale','Soggiorni con parcheggio','Hotel con colazione','Soggiorni vicino ad attrazioni'];
+    const _kaArr = Array.isArray(hp.knowsabout)?hp.knowsabout:(hp.knowsabout||'').split(',').map(x=>x.trim()).filter(Boolean);
+    _knowsaboutCustomTmp = _kaArr.filter(x=>!_knowsaboutPreset.map(y=>y.toLowerCase()).includes(x.toLowerCase()));
+
     const inp=(id,lbl,val,ph,type)=>'<div><label class="profile-label">'+lbl+'</label><input type="'+(type||'text')+'" id="hsf-'+id+'" class="profile-input" value="'+esc(val||'')+'" placeholder="'+esc(ph||'')+'"></div>';
     const ta=(id,lbl,val,ph,rows)=>'<div><label class="profile-label">'+lbl+'</label><textarea id="hsf-'+id+'" class="profile-input" rows="'+(rows||3)+'" style="resize:vertical" placeholder="'+esc(ph||'')+'">'+esc(val||'')+'</textarea></div>';
     const selF=(id,lbl,val,opts)=>'<div><label class="profile-label">'+lbl+'</label><select id="hsf-'+id+'" class="profile-input">'+opts.map(o=>'<option value="'+esc(o)+'"'+(val===o?' selected':'')+'>'+esc(o)+'</option>').join('')+'</select></div>';
-    const sec=t=>'<div style="font-size:11px;font-weight:700;color:var(--grey);letter-spacing:.06em;margin:20px 0 12px;padding-bottom:6px;border-bottom:2px solid #fce8ef;text-transform:uppercase">'+t+'</div>';
+    const sec=t=>'</div></div><div class="h-card" style="margin-bottom:8px"><div class="h-card-hdr"><div class="h-card-hdr-t"><span class="h-dot h-dot-ok"></span>'+t+'</div></div><div class="h-card-body">';
+    const secFirst=t=>'<div class="h-card" style="margin-bottom:8px"><div class="h-card-hdr"><div class="h-card-hdr-t"><span class="h-dot h-dot-ok"></span>'+t+'</div></div><div class="h-card-body">';
     const tipi=['Hotel','LodgingBusiness','BedAndBreakfast','Hostel','Motel','Resort','VacationRental'];
-    formEl.innerHTML=sec('IDENTITÀ')+'<div style="display:grid;grid-template-columns:2fr 1fr auto;gap:12px;margin-bottom:12px">'+inp('name','Nome hotel',s.name,'Hotel Bellevue')+selF('type','Tipo struttura',s.type,tipi)+'<div><label class="profile-label">Stelle</label><select id="hsf-official_rating" class="profile-input"><option value="">—</option>'+['1','2','3','4','5'].map(n=>'<option value="'+n+'"'+((s.official_rating||'')==n?' selected':'')+'>'+n+' ★</option>').join('')+'</select></div></div>'+ta('description','Descrizione',s.description,'Descrizione per i motori AI...',4)+'<div style="margin-top:12px">'+inp('price_range','Fascia di prezzo',s.price_range,'€/€€/€€€')+'</div>'+
-    sec('INDIRIZZO')+'<div style="display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:12px">'+inp('street','Via / Piazza',s.street,'Via Roma, 10')+inp('postal_code','CAP',s.postal_code,'47921')+'</div>'+'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px">'+inp('city','Città',s.city,'Rimini')+inp('region','Regione',s.region,'Emilia-Romagna')+inp('country','Paese',s.country,'IT')+'</div>'+'<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'+inp('latitude','Latitudine',s.latitude,'44.0600')+inp('longitude','Longitudine',s.longitude,'12.5657')+'</div>'+
-    sec('CONTATTI')+'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">'+inp('telephone','Telefono',s.telephone,'+39 0541 000000','tel')+inp('email','Email',s.email,'info@hotel.it','email')+inp('url','Sito web',s.url,'https://www.hotel.it','url')+'</div>'+
-    sec('CHECK-IN / CHECK-OUT')+'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">'+inp('checkin_time','Check-in',s.checkin_time,'14:00')+inp('checkout_time','Check-out',s.checkout_time,'11:00')+inp('pets_allowed','Animali ammessi',s.pets_allowed,'Sì / No')+'</div>';
+
+    const html=
+        secFirst('IDENTITÀ')+
+        '<div style="display:grid;grid-template-columns:2fr 1fr auto;gap:12px;margin-bottom:12px">'+
+        inp('name','Nome hotel',s.name,'Hotel Bellevue')+
+        selF('type','Tipo struttura',s.type,tipi)+
+        '<div><label class="profile-label">Stelle</label><select id="hsf-official_rating" class="profile-input"><option value="">—</option>'+['1','2','3','4','5'].map(n=>'<option value="'+n+'"'+((s.official_rating||'')==n?' selected':'')+'>'+n+' ★</option>').join('')+'</select></div>'+
+        '</div>'+
+        ta('description','Descrizione',s.description,'Descrizione per i motori AI...',4)+
+        '<div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:12px">'+
+        inp('price_range','Fascia di prezzo',s.price_range,'€/€€/€€€')+
+        inp('checkin_reception','Orario reception',hp.orario_reception,'24/7')+
+        '</div>'+
+
+        sec('INDIRIZZO')+
+        '<div style="display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:12px">'+inp('street','Via / Piazza',s.street,'Via Roma, 10')+inp('postal_code','CAP',s.postal_code,'47921')+'</div>'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px">'+inp('city','Città',s.city,'Rimini')+inp('region','Regione',s.region,'Emilia-Romagna')+inp('country','Paese',s.country||'IT','IT')+'</div>'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'+inp('latitude','Latitudine',s.latitude,'44.0600')+inp('longitude','Longitudine',s.longitude,'12.5657')+'</div>'+
+
+        sec('CONTATTI')+
+        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">'+inp('telephone','Telefono',s.telephone,'+39 0541 000000','tel')+inp('email','Email',s.email,'info@hotel.it','email')+inp('url','Sito web',s.url,'https://www.hotel.it','url')+'</div>'+
+
+        sec('CHECK-IN / CHECK-OUT')+
+        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">'+inp('checkin_time','Check-in dalle',s.checkin_time,'14:00')+inp('checkout_time','Check-out dalle',s.checkout_time,'11:00')+inp('pets_allowed','Animali ammessi',s.pets_allowed,'Sì / No')+'</div>'+
+
+        sec('STILE DI COMUNICAZIONE')+
+        '<div style="font-size:14px;color:#666b84;margin-bottom:14px">Analizza automaticamente il sito web e imposta il tono per le risposte FAQ generate dall\'AI.</div>'+
+        (()=>{const ws=hp.writing_style||{};if(ws.tono){const badges=[ws.tono,ws.persona?'usa "'+ws.persona+'"':'',ws.personalita].filter(Boolean).map(b=>'<span style="background:#e8f4f7;color:#0D5F75;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:700">'+esc(b)+'</span>').join('');return '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px" id="stile-badges">'+badges+'</div>'+(ws.esempio?'<div style="background:#f7f8fc;border-radius:6px;padding:10px 14px;font-size:13px;color:#4b4d68;font-style:italic;margin-bottom:12px;line-height:1.6">"'+esc(ws.esempio)+'"</div>':'');}return '<div style="font-size:13px;color:#9698a8;margin-bottom:12px" id="stile-badges">Stile non ancora rilevato.</div>';})() +
+        '<div id="stile-status" style="font-size:13px;margin-bottom:10px"></div>'+
+        '<button type="button" id="btn-rileva-stile" onclick="rilevaStiloSito(\''+esc((_site&&_site.site_id)||'')+'\');" style="background:#0D5F75;color:white;border:none;border-radius:6px;padding:8px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">Rileva stile dal sito</button>'+
+
+        sec('IMMAGINI')+
+        '<div style="margin-bottom:12px">'+inp('foto_principale','URL foto principale',hp.foto_principale||s.image,'https://hotel.it/foto.jpg','url')+'</div>'+
+        '<div><label class="profile-label">Galleria foto</label><div id="schema-gallery-list"></div>'+
+        '<div style="display:flex;gap:8px;margin-top:8px;align-items:center">'+
+        '<input type="url" id="new-gallery-input" placeholder="https://hotel.it/foto.jpg" style="flex:1;border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:13px;font-family:var(--font);outline:none;color:#171b33" onkeydown="if(event.key===\'Enter\'){event.preventDefault();addGalleryFromInput()}">'+
+        '<button type="button" onclick="addGalleryFromInput()" style="background:#0D5F75;color:white;border:none;border-radius:6px;padding:7px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);white-space:nowrap">Aggiungi</button>'+
+        '</div></div>'+
+
+        sec('SERVIZI E AMENITIES')+
+        '<div style="font-size:14px;color:#666b84;margin-bottom:14px">Seleziona i servizi già presenti oppure aggiungi servizi specifici della struttura.</div>'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">'+
+        (()=>{const sv=(hp.servizi||'').split(',').map(x=>x.trim().toLowerCase());return['Wi-Fi gratuito','Colazione','Aria condizionata','Parcheggio','Ristorante','Camere familiari','Ascensore','Self check-in','Piscina','Bar','Camere non fumatori','Reception','Reception 24 ore','Late check-in','Accessibilità per ospiti con disabilità','Ricarica auto elettriche'].map(item=>'<label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;font-weight:400;color:#4b4d68;font-family:var(--font)"><input type="checkbox" class="pf-servizi-chk" value="'+esc(item)+'" '+(sv.includes(item.toLowerCase())?'checked':'')+' style="width:16px;height:16px;accent-color:#0D5F75;cursor:pointer;flex-shrink:0">'+esc(item)+'</label>').join('');})() +
+        '</div>'+
+        '<div id="schema-servizi-custom-list"></div>'+
+        '<div style="display:flex;gap:8px;margin-top:10px;align-items:center">'+
+        '<input type="text" id="new-servizio-input" placeholder="Es: Jacuzzi, Sauna, Idromassaggio..." style="flex:1;border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:13px;font-family:var(--font);outline:none;color:#171b33" onkeydown="if(event.key===\'Enter\'){event.preventDefault();addServiziFromInput()}">'+
+        '<button type="button" onclick="addServiziFromInput()" style="background:#0D5F75;color:white;border:none;border-radius:6px;padding:7px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);white-space:nowrap">Aggiungi</button>'+
+        '</div>'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px">'+
+        ta('servizi_camera','Servizi in camera',hp.servizi_camera,'TV, Aria condizionata, Minibar')+
+        ta('servizi_accessibilita','Accessibilità',hp.servizi_accessibilita,'Ascensore, Camere per disabili')+
+        '</div>'+
+
+        sec('AUDIENCE E POSIZIONAMENTO AI')+
+        '<div style="font-size:14px;color:#666b84;margin-bottom:14px">Aiuta i motori di ricerca e gli assistenti AI a capire per chi è adatta la struttura e su quali temi è rilevante.</div>'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">'+
+        inp('lingue_parlate','Lingue parlate',hp.lingue_parlate,'italiano, inglese')+
+        inp('zone_turistiche','Zone turistiche collegate',hp.zone_turistiche,'Riviera Adriatica...')+
+        '</div>'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">'+
+        inp('attrazioni_vicine','Attrazioni vicine',hp.attrazioni_vicine,'centro storico, spiaggia, fiera')+
+        inp('keywords_semantiche','Keywords semantiche',hp.keywords_semantiche,'hotel per famiglie a Rimini...')+
+        '</div>'+
+        '<div style="font-size:10px;font-weight:700;color:#4a4a6a;margin-bottom:10px;text-transform:uppercase;letter-spacing:.05em">Target clienti</div>'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px">'+
+        (()=>{const sv=(hp.target_clientela||'').split(',').map(x=>x.trim().toLowerCase());return['Famiglie','Coppie','Business traveler','Turisti internazionali','Gruppi','Cicloturisti','Digital nomad'].map(item=>'<label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;font-weight:400;color:#4b4d68;font-family:var(--font)"><input type="checkbox" class="pf-target-chk" value="'+esc(item)+'" '+(sv.includes(item.toLowerCase())?'checked':'')+' style="width:16px;height:16px;accent-color:#0D5F75;cursor:pointer;flex-shrink:0">'+esc(item)+'</label>').join('');})() +
+        '</div>'+
+        '<div id="schema-target-custom-list"></div>'+
+        '<div style="display:flex;gap:8px;margin-top:10px;margin-bottom:16px;align-items:center">'+
+        '<input type="text" id="new-target-input" placeholder="Es: Anziani, Sportivi, Pellegrinaggi..." style="flex:1;border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:13px;font-family:var(--font);outline:none;color:#171b33" onkeydown="if(event.key===\'Enter\'){event.preventDefault();addTargetFromInput()}">'+
+        '<button type="button" onclick="addTargetFromInput()" style="background:#0D5F75;color:white;border:none;border-radius:6px;padding:7px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);white-space:nowrap">Aggiungi</button>'+
+        '</div>'+
+        '<div style="font-size:10px;font-weight:700;color:#4a4a6a;margin-bottom:10px;text-transform:uppercase;letter-spacing:.05em">Temi di pertinenza</div>'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px">'+
+        (()=>{const ka=Array.isArray(hp.knowsabout)?hp.knowsabout:(hp.knowsabout||'').split(',').map(x=>x.trim()).filter(Boolean);const sv=ka.map(x=>x.toLowerCase());return['Vacanze in famiglia','Weekend romantici','Viaggi business','Turismo locale','Soggiorni con parcheggio','Hotel con colazione','Soggiorni vicino ad attrazioni'].map(item=>'<label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;font-weight:400;color:#4b4d68;font-family:var(--font)"><input type="checkbox" class="pf-knowsabout-chk" value="'+esc(item)+'" '+(sv.includes(item.toLowerCase())?'checked':'')+' style="width:16px;height:16px;accent-color:#0D5F75;cursor:pointer;flex-shrink:0">'+esc(item)+'</label>').join('');})() +
+        '</div>'+
+        '<div id="schema-knowsabout-custom-list"></div>'+
+        '<div style="display:flex;gap:8px;margin-top:10px;margin-bottom:16px;align-items:center">'+
+        '<input type="text" id="new-knowsabout-input" placeholder="Es: Turismo gastronomico, Wellness..." style="flex:1;border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:13px;font-family:var(--font);outline:none;color:#171b33" onkeydown="if(event.key===\'Enter\'){event.preventDefault();addKnowsaboutFromInput()}">'+
+        '<button type="button" onclick="addKnowsaboutFromInput()" style="background:#0D5F75;color:white;border:none;border-radius:6px;padding:7px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);white-space:nowrap">Aggiungi</button>'+
+        '</div>'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px">'+
+        inp('stagionalita','Stagionalità',hp.stagionalita,'Estate, Tutto l\'anno')+
+        inp('usp','Proposte uniche (USP)',hp.usp,'Vista mare, posizione centrale...')+
+        '</div>'+
+        '<div style="margin-top:12px">'+ta('descrizione_ai','Frase di posizionamento AI',hp.descrizione_ai,'Come vuoi che l\'AI presenti il tuo hotel...',2)+'</div>'+
+
+        sec('CAMERE E APPARTAMENTI')+
+        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px">'+
+        inp('n_camere','N° camere totali',hp.n_camere,'42')+
+        inp('occupazione_min','Ospiti min/camera',hp.occupazione_min,'1')+
+        inp('occupazione_max','Ospiti max/camera',hp.occupazione_max,'4')+
+        '</div>'+
+        '<div style="font-size:10px;font-weight:700;color:#4a4a6a;margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em">Elenco camere / appartamenti</div>'+
+        '<div id="schema-camere-list"></div>'+
+        '<button type="button" onclick="addCamera()" style="margin-top:8px;background:#0D5F75;color:white;border:none;border-radius:6px;padding:8px 16px;font-size:13px;font-weight:700;letter-spacing:.05em;cursor:pointer;font-family:var(--font)">AGGIUNGI CAMERA/APPARTAMENTO</button>'+
+
+        sec('OFFERTE E PRENOTAZIONI')+
+        '<div style="margin-bottom:12px">'+inp('url_prenotazione','URL prenotazione diretta',hp.url_prenotazione,'https://hotel.it/prenota','url')+'</div>'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px">'+
+        inp('prezzo_min','Prezzo min/notte (€)',hp.prezzo_min,'80')+
+        inp('prezzo_max','Prezzo max/notte (€)',hp.prezzo_max,'350')+
+        inp('caparra','Acconto richiesto',hp.caparra,'30%')+
+        '</div>'+
+        ta('politica_cancellazione','Politica di cancellazione',hp.politica_cancellazione,'Cancellazione gratuita fino a 48h prima...')+
+        '<div style="font-size:10px;font-weight:700;color:#4a4a6a;margin:14px 0 8px;text-transform:uppercase;letter-spacing:.05em">Offerte speciali</div>'+
+        '<div id="schema-offerte-list"></div>'+
+        '<button type="button" onclick="addOfferta()" style="margin-top:8px;background:none;border:1px solid #0D5F75;border-radius:6px;padding:7px 14px;font-size:13px;font-weight:700;color:#0D5F75;cursor:pointer;font-family:var(--font)">+ Aggiungi offerta</button>'+
+
+        sec('RECENSIONI')+
+        '<div style="font-size:10px;font-weight:700;color:#4a4a6a;margin:0 0 6px;text-transform:uppercase;letter-spacing:.05em">Google Business</div>'+
+        '<div style="margin-bottom:6px">'+inp('google_business_url','URL Google Business',hp.google_business_url,'https://g.page/hotel','url')+'</div>'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">'+
+        inp('google_rating','Rating Google',hp.google_rating,'4.5')+
+        inp('google_n_recensioni','N° recensioni Google',hp.google_n_recensioni,'')+
+        '</div>'+
+        '<div style="font-size:10px;font-weight:700;color:#4a4a6a;margin:0 0 6px;text-transform:uppercase;letter-spacing:.05em">TripAdvisor</div>'+
+        '<div style="margin-bottom:6px">'+inp('tripadvisor_url','URL TripAdvisor',hp.tripadvisor_url,'https://tripadvisor.com/Hotel_Review-...','url')+'</div>'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">'+
+        inp('tripadvisor_rating','Rating TripAdvisor',hp.tripadvisor_rating,'')+
+        inp('tripadvisor_n_recensioni','N° recensioni TripAdvisor',hp.tripadvisor_n_recensioni,'')+
+        '</div>'+
+        '<div style="font-size:10px;font-weight:700;color:#4a4a6a;margin:0 0 6px;text-transform:uppercase;letter-spacing:.05em">Booking.com</div>'+
+        '<div style="margin-bottom:6px">'+inp('url_recensioni','URL Booking',hp.url_recensioni,'https://www.booking.com/hotel/it/xxx.html','url')+'</div>'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">'+
+        inp('booking_rating','Rating Booking',hp.booking_rating,'')+
+        inp('booking_n_recensioni','N° recensioni Booking',hp.booking_n_recensioni,'')+
+        '</div>'+
+        '<div style="margin-bottom:8px;display:flex;align-items:center;gap:10px">'+
+        '<button type="button" id="btn-detect-ratings" onclick="_detectRatings()" style="background:none;border:1px solid #0D5F75;border-radius:6px;padding:7px 14px;font-size:13px;font-weight:700;color:#0D5F75;cursor:pointer;font-family:var(--font)">Rileva automaticamente</button>'+
+        '<span id="detect-ratings-status" style="font-size:12px;color:#666b84"></span>'+
+        '</div>'+
+        '<div id="ratings-last-check-label" style="font-size:11px;color:#666b84;margin-bottom:16px">'+(hp.ratings_last_check?'Ultimo controllo: '+new Date(hp.ratings_last_check).toLocaleDateString('it-IT',{day:'2-digit',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'}):'')+'</div>'+
+
+        sec('SOCIAL E PROFILI ESTERNI')+
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">'+
+        inp('facebook_url','Facebook',hp.facebook_url,'https://facebook.com/hotel','url')+
+        inp('instagram_url','Instagram',hp.instagram_url,'https://instagram.com/hotel','url')+
+        '</div>'+
+        '<div id="schema-social-custom-list"></div>'+
+        '<div style="display:flex;gap:8px;margin-top:10px;align-items:center">'+
+        '<input type="text" id="new-social-nome" placeholder="Nome (es: YouTube)" style="width:140px;border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:13px;font-family:var(--font);outline:none;color:#171b33">'+
+        '<input type="url" id="new-social-url" placeholder="https://..." style="flex:1;border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:13px;font-family:var(--font);outline:none;color:#171b33">'+
+        '<button type="button" onclick="confirmSocialCustom()" style="background:#0D5F75;color:white;border:none;border-radius:6px;padding:7px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);white-space:nowrap">Aggiungi</button>'+
+        '</div>'+
+
+        '</div></div>';
+
+    formEl.innerHTML = html;
+    // Render sub-lists
+    renderCameraRows();
+    renderOfferteRows();
+    renderSocialCustomRows();
+    renderGalleryRows();
+    renderServiziCustomRows();
+    renderTargetCustomRows();
+    renderKnowsaboutCustomRows();
+}
+
+// ─── HELPER DINAMICI SCHEMA FORM ─────────────────────────────────────────────
+function renderCameraRows() {
+    const el = document.getElementById('schema-camere-list');
+    if (!el) return;
+    if (!_camereTmp.length) { el.innerHTML = '<div style="color:#aaa;font-size:13px;padding:4px 0">Nessuna camera. Clicca + per aggiungerne una.</div>'; return; }
+    el.innerHTML = _camereTmp.map((c,i) => {
+        const saved = (c.servizi||'').split(',').map(x=>x.trim().toLowerCase());
+        const customSvz = (c.servizi||'').split(',').map(x=>x.trim()).filter(x=>x&&!_camServPreset.map(y=>y.toLowerCase()).includes(x.toLowerCase())).join(', ');
+        return '<div id="camera-row-'+i+'" style="border:1px solid #e4e4ec;border-radius:6px;padding:14px;margin-bottom:12px">'+
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">'+
+            '<input type="text" value="'+esc(c.nome||'')+'" oninput="_camereTmp['+i+'].nome=this.value" placeholder="Nome camera" style="border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:13px;font-family:var(--font)">'+
+            '<input type="url" value="'+esc(c.url||'')+'" oninput="_camereTmp['+i+'].url=this.value" placeholder="URL pagina camera" style="border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:13px;font-family:var(--font)">'+
+            '</div>'+
+            '<textarea rows="2" oninput="_camereTmp['+i+'].descrizione=this.value" placeholder="Descrizione AI-oriented" style="width:100%;border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:13px;font-family:var(--font);resize:vertical;box-sizing:border-box;margin-bottom:8px">'+esc(c.descrizione||'')+'</textarea>'+
+            '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px">'+
+            '<input type="number" value="'+esc(String(c.n_camere||''))+'" oninput="_camereTmp['+i+'].n_camere=this.value" placeholder="N° camere" style="border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:13px;font-family:var(--font)">'+
+            '<input type="number" value="'+esc(String(c.n_max||''))+'" oninput="_camereTmp['+i+'].n_max=this.value" placeholder="N° max ospiti" style="border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:13px;font-family:var(--font)">'+
+            '<input type="text" value="'+esc(c.tipo_letto||'')+'" oninput="_camereTmp['+i+'].tipo_letto=this.value" placeholder="Tipo letto" style="border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:13px;font-family:var(--font)">'+
+            '</div>'+
+            '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px">'+
+            '<input type="text" value="'+esc(c.prezzo_da||'')+'" oninput="_camereTmp['+i+'].prezzo_da=this.value" placeholder="Prezzo da" style="border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:13px;font-family:var(--font)">'+
+            '<input type="text" value="'+esc(c.valuta||'EUR')+'" oninput="_camereTmp['+i+'].valuta=this.value" placeholder="EUR" style="border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:13px;font-family:var(--font)">'+
+            '<input type="text" value="'+esc(c.disponibilita||'')+'" oninput="_camereTmp['+i+'].disponibilita=this.value" placeholder="Disponibilità / note" style="border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:13px;font-family:var(--font)">'+
+            '</div>'+
+            '<div style="margin-bottom:10px"><input type="text" value="'+esc(c.vista||'')+'" oninput="_camereTmp['+i+'].vista=this.value" placeholder="Vista" style="width:33%;border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:13px;font-family:var(--font);box-sizing:border-box"></div>'+
+            '<div style="font-size:12px;font-weight:700;color:#4a4a6a;margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em">Servizi camera</div>'+
+            '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:8px">'+
+            _camServPreset.map(item=>'<label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;font-weight:400;color:#4b4d68;font-family:var(--font);border:1px solid #e4e4ec;border-radius:4px;padding:6px 8px"><input type="checkbox" class="cam-servizi-chk" data-idx="'+i+'" value="'+esc(item)+'" '+(saved.includes(item.toLowerCase())?'checked':'')+' onchange="updateCameraServizi('+i+')" style="width:14px;height:14px;accent-color:#0D5F75;cursor:pointer;flex-shrink:0">'+esc(item)+'</label>').join('') +
+            '</div>'+
+            '<input type="text" id="cam-custom-svz-'+i+'" value="'+esc(customSvz)+'" oninput="updateCameraServizi('+i+')" placeholder="Servizi aggiuntivi (separati da virgola)" style="width:100%;border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:13px;font-family:var(--font);box-sizing:border-box;margin-bottom:10px">'+
+            '<div style="display:flex;justify-content:flex-end"><button type="button" onclick="removeCamera('+i+')" style="background:none;border:1px solid #0D5F75;border-radius:6px;padding:6px 14px;cursor:pointer;color:#0D5F75;font-size:13px;font-weight:700;font-family:var(--font)">RIMUOVI CAMERA/APPARTAMENTO</button></div>'+
+            '</div>';
+    }).join('');
+}
+function updateCameraServizi(i) {
+    const checked = [...document.querySelectorAll('#camera-row-'+i+' .cam-servizi-chk:checked')].map(el=>el.value);
+    const custom = (document.getElementById('cam-custom-svz-'+i)?.value||'').split(',').map(x=>x.trim()).filter(Boolean);
+    _camereTmp[i].servizi = [...checked,...custom].join(', ');
+}
+function addCamera() { _camereTmp.push({nome:'',url:'',descrizione:'',n_camere:'',n_max:'',tipo_letto:'',prezzo_da:'',valuta:'EUR',disponibilita:'',vista:'',servizi:''}); renderCameraRows(); }
+function removeCamera(i) { _camereTmp.splice(i,1); renderCameraRows(); }
+
+function renderOfferteRows() {
+    const el = document.getElementById('schema-offerte-list');
+    if (!el) return;
+    if (!_offerteTmp.length) { el.innerHTML = '<div style="color:#aaa;font-size:13px;padding:4px 0">Nessuna offerta speciale.</div>'; return; }
+    const inpS = 'border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:13px;font-family:var(--font);width:100%;box-sizing:border-box;outline:none;color:#171b33';
+    const lbS = 'font-size:12px;font-weight:700;color:#666b84;display:block;margin-bottom:4px;font-family:var(--font)';
+    const tipiOff = ['Early Booking','Last Minute','Weekend','Lungo Soggiorno','Pacchetto','Offerta Speciale','Promozione'];
+    el.innerHTML = _offerteTmp.map((o,i)=>
+        '<div style="border:1px solid #e4e4ec;border-radius:8px;padding:14px 16px;margin-bottom:12px;background:#fafafa">'+
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">'+
+        '<div style="font-size:13px;font-weight:700;color:#4b4d68;font-family:var(--font)">Offerta '+(i+1)+'</div>'+
+        '<button type="button" onclick="removeOfferta('+i+')" style="background:none;border:1px solid #C1CBE8;border-radius:6px;padding:4px 10px;cursor:pointer;color:#b00020;font-size:13px;font-family:var(--font)">Rimuovi</button>'+
+        '</div>'+
+        '<div style="display:grid;grid-template-columns:2fr 1fr;gap:10px;margin-bottom:10px">'+
+        '<div><label style="'+lbS+'">Nome offerta *</label><input type="text" value="'+esc(o.nome||'')+'" oninput="_offerteTmp['+i+'].nome=this.value" placeholder="Es: Early Booking 20%" style="'+inpS+'"></div>'+
+        '<div><label style="'+lbS+'">Tipo</label><select oninput="_offerteTmp['+i+'].tipo=this.value" style="'+inpS+'">'+tipiOff.map(t=>'<option value="'+esc(t)+'"'+((o.tipo||'')==t?' selected':'')+'>'+esc(t)+'</option>').join('')+'</select></div>'+
+        '</div>'+
+        '<div style="margin-bottom:10px"><label style="'+lbS+'">Descrizione breve</label><textarea rows="2" oninput="_offerteTmp['+i+'].descrizione=this.value" placeholder="Prenota con almeno 30 giorni di anticipo e risparmia il 20%..." style="'+inpS+';resize:vertical">'+esc(o.descrizione||'')+'</textarea></div>'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px">'+
+        '<div><label style="'+lbS+'">Sconto (%)</label><input type="text" value="'+esc(o.sconto||'')+'" oninput="_offerteTmp['+i+'].sconto=this.value" placeholder="20" style="'+inpS+'"></div>'+
+        '<div><label style="'+lbS+'">Prezzo da (€)</label><input type="text" value="'+esc(o.prezzo_da||'')+'" oninput="_offerteTmp['+i+'].prezzo_da=this.value" placeholder="89" style="'+inpS+'"></div>'+
+        '<div><label style="'+lbS+'">URL offerta</label><input type="url" value="'+esc(o.url||'')+'" oninput="_offerteTmp['+i+'].url=this.value" placeholder="https://hotel.it/offerta" style="'+inpS+'"></div>'+
+        '</div>'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">'+
+        '<div><label style="'+lbS+'">Valida dal</label><input type="text" value="'+esc(o.data_inizio||'')+'" oninput="_offerteTmp['+i+'].data_inizio=this.value" placeholder="gg/mm/aaaa" style="'+inpS+'"></div>'+
+        '<div><label style="'+lbS+'">Valida fino al</label><input type="text" value="'+esc(o.data_fine||'')+'" oninput="_offerteTmp['+i+'].data_fine=this.value" placeholder="gg/mm/aaaa" style="'+inpS+'"></div>'+
+        '</div>'+
+        '<div><label style="'+lbS+'">Condizioni</label><input type="text" value="'+esc(o.condizioni||'')+'" oninput="_offerteTmp['+i+'].condizioni=this.value" placeholder="Es: Non cumulabile, Min 2 notti, solo prenotazione diretta..." style="'+inpS+'"></div>'+
+        '</div>'
+    ).join('');
+}
+function addOfferta() { _offerteTmp.push({nome:'',tipo:'Early Booking',descrizione:'',sconto:'',prezzo_da:'',url:'',data_inizio:'',data_fine:'',condizioni:''}); renderOfferteRows(); }
+function removeOfferta(i) { _offerteTmp.splice(i,1); renderOfferteRows(); }
+
+function renderSocialCustomRows() {
+    const el = document.getElementById('schema-social-custom-list');
+    if (!el) return;
+    if (!_socialCustomTmp.length) { el.innerHTML = ''; return; }
+    el.innerHTML = _socialCustomTmp.map((s,i)=>
+        '<div style="display:grid;grid-template-columns:140px 1fr auto;gap:8px;align-items:center;margin-bottom:6px;padding:6px 0;border-bottom:1px solid #f4f4f8">'+
+        '<span style="font-size:13px;font-weight:600;color:#4b4d68;font-family:var(--font);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(s.nome||'—')+'</span>'+
+        '<a href="'+esc(s.url||'#')+'" target="_blank" style="font-size:13px;color:#C1CBE8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--font)">'+esc(s.url||'')+'</a>'+
+        '<button type="button" onclick="removeSocialCustom('+i+')" style="background:none;border:1px solid #C1CBE8;border-radius:6px;padding:5px 9px;cursor:pointer;color:#b00020;font-size:13px;font-family:var(--font)">✕</button>'+
+        '</div>'
+    ).join('');
+}
+function confirmSocialCustom() {
+    const n=(document.getElementById('new-social-nome')?.value||'').trim();
+    const u=(document.getElementById('new-social-url')?.value||'').trim();
+    if(!n&&!u)return;
+    _socialCustomTmp.push({nome:n,url:u});
+    renderSocialCustomRows();
+    const ni=document.getElementById('new-social-nome'); if(ni)ni.value='';
+    const ui=document.getElementById('new-social-url'); if(ui)ui.value='';
+}
+function removeSocialCustom(i) { _socialCustomTmp.splice(i,1); renderSocialCustomRows(); }
+
+function renderGalleryRows() {
+    const el = document.getElementById('schema-gallery-list'); if (!el) return;
+    if (!_galleryTmp.length) { el.innerHTML = ''; return; }
+    el.innerHTML = _galleryTmp.map((url,i)=>
+        '<div style="display:grid;grid-template-columns:40px 1fr auto;gap:8px;align-items:center;margin-bottom:6px;padding:6px 0;border-bottom:1px solid #f4f4f8">'+
+        '<img src="'+esc(url)+'" onerror="this.style.display=\'none\'" style="width:36px;height:36px;object-fit:cover;border-radius:4px;display:block">'+
+        '<a href="'+esc(url)+'" target="_blank" style="font-size:13px;color:#C1CBE8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--font)">'+esc(url)+'</a>'+
+        '<button type="button" onclick="removeGalleryRow('+i+')" style="background:none;border:1px solid #C1CBE8;border-radius:6px;padding:5px 9px;cursor:pointer;color:#b00020;font-size:13px;font-family:var(--font)">✕</button>'+
+        '</div>'
+    ).join('');
+}
+function addGalleryFromInput() {
+    const inp = document.getElementById('new-gallery-input');
+    const v = (inp?.value||'').trim();
+    if (!v) return;
+    _galleryTmp.push(v);
+    renderGalleryRows();
+    if (inp) inp.value = '';
+}
+function removeGalleryRow(i) { _galleryTmp.splice(i,1); renderGalleryRows(); }
+
+function _renderCheckboxCustomList(elId, arr, removeFn, chkClass) {
+    const el = document.getElementById(elId); if (!el) return;
+    if (!arr.length) { el.innerHTML = ''; return; }
+    el.innerHTML = '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:4px">' +
+        arr.map((v,i) =>
+            '<div style="display:flex;align-items:center;gap:4px">'+
+            '<label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;font-weight:400;color:#4b4d68;font-family:var(--font);flex:1;min-width:0">'+
+            '<input type="checkbox" class="'+chkClass+'" value="'+esc(v)+'" checked style="width:16px;height:16px;accent-color:#0D5F75;cursor:pointer;flex-shrink:0">'+
+            '<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(v)+'</span>'+
+            '</label>'+
+            '<button type="button" onclick="'+removeFn+'('+i+')" style="background:none;border:none;color:#b00020;cursor:pointer;font-size:12px;padding:0 3px;flex-shrink:0;line-height:1">✕</button>'+
+            '</div>'
+        ).join('') + '</div>';
+}
+function renderServiziCustomRows() { _renderCheckboxCustomList('schema-servizi-custom-list',_serviziCustomTmp,'removeServiziCustom','pf-servizi-chk'); }
+function addServiziFromInput() { const inp=document.getElementById('new-servizio-input'); const v=(inp?.value||'').trim(); if(!v)return; _serviziCustomTmp.push(v); renderServiziCustomRows(); if(inp)inp.value=''; }
+function removeServiziCustom(i) { _serviziCustomTmp.splice(i,1); renderServiziCustomRows(); }
+
+function renderTargetCustomRows() { _renderCheckboxCustomList('schema-target-custom-list',_targetCustomTmp,'removeTargetCustom','pf-target-chk'); }
+function addTargetFromInput() { const inp=document.getElementById('new-target-input'); const v=(inp?.value||'').trim(); if(!v)return; _targetCustomTmp.push(v); renderTargetCustomRows(); if(inp)inp.value=''; }
+function removeTargetCustom(i) { _targetCustomTmp.splice(i,1); renderTargetCustomRows(); }
+
+function renderKnowsaboutCustomRows() { _renderCheckboxCustomList('schema-knowsabout-custom-list',_knowsaboutCustomTmp,'removeKnowsaboutCustom','pf-knowsabout-chk'); }
+function addKnowsaboutFromInput() { const inp=document.getElementById('new-knowsabout-input'); const v=(inp?.value||'').trim(); if(!v)return; _knowsaboutCustomTmp.push(v); renderKnowsaboutCustomRows(); if(inp)inp.value=''; }
+function removeKnowsaboutCustom(i) { _knowsaboutCustomTmp.splice(i,1); renderKnowsaboutCustomRows(); }
+
+function buildSchemaJsonLd(p) {
+    const obj = {
+        '@context':'https://schema.org',
+        '@type': p.tipo_struttura||p.type||'LodgingBusiness',
+        'name': p.nome_hotel||p.name||'',
+        'description': p.descrizione||p.description||undefined,
+        'url': p.sito_web||p.url||undefined,
+        'telephone': p.telefono||p.telephone||undefined,
+        'email': p.email||undefined,
+        'address': (p.via||p.street||p.citta||p.city) ? {
+            '@type':'PostalAddress',
+            'streetAddress':[p.via||p.street,p.numero_civico].filter(Boolean).join(' ')||undefined,
+            'postalCode':p.cap||p.postal_code||undefined,
+            'addressLocality':p.citta||p.city||undefined,
+            'addressRegion':p.regione||p.region||undefined,
+            'addressCountry':p.paese||p.country||'IT'
+        } : undefined,
+        'geo': (p.latitudine||p.latitude)&&(p.longitudine||p.longitude) ? {'@type':'GeoCoordinates','latitude':parseFloat(p.latitudine||p.latitude),'longitude':parseFloat(p.longitudine||p.longitude)} : undefined,
+        'image': p.foto_principale||p.image||undefined,
+        'starRating': (p.stelle||p.official_rating) ? {'@type':'Rating','ratingValue':parseInt(p.stelle||p.official_rating)} : undefined,
+        'checkinTime': p.checkin_dalle||p.checkin_time||undefined,
+        'checkoutTime': p.checkout_dalle||p.checkout_time||undefined,
+        'priceRange': p.prezzo_medio||p.price_range||undefined,
+        'numberOfRooms': (p.n_camere)?parseInt(p.n_camere):undefined,
+        'aggregateRating': (function(){
+            const candidates = [
+                {src:'Booking.com',v:parseFloat(p.booking_rating),scale:10,n:parseInt(p.booking_n_recensioni||0)},
+                {src:'Google',v:parseFloat(p.google_rating),scale:5,n:parseInt(p.google_n_recensioni||0)},
+                {src:'TripAdvisor',v:parseFloat(p.tripadvisor_rating),scale:5,n:parseInt(p.tripadvisor_n_recensioni||0)},
+            ].filter(c=>!isNaN(c.v)&&c.v>0);
+            if(!candidates.length) return undefined;
+            const best = candidates.reduce((a,b)=>(a.v/a.scale>=b.v/b.scale?a:b));
+            return {'@type':'AggregateRating','ratingValue':best.v,'bestRating':best.scale,'reviewCount':best.n,'description':best.src};
+        })(),
+        'sameAs': [p.facebook_url,p.instagram_url,p.tripadvisor_url,p.google_business_url,...(p.social_custom||[]).map(x=>x.url)].filter(Boolean)||undefined,
+        'amenityFeature': p.servizi ? p.servizi.split(',').map(x=>x.trim()).filter(Boolean).map(x=>({'@type':'LocationFeatureSpecification','name':x,'value':true})) : undefined,
+    };
+    function clean(o) {
+        if (Array.isArray(o)) return o.map(clean);
+        if (o&&typeof o==='object'){const r={};for(const k of Object.keys(o)){if(o[k]!==undefined&&o[k]!==''&&o[k]!==null&&!(Array.isArray(o[k])&&!o[k].length)){r[k]=clean(o[k]);}}return r;}
+        return o;
+    }
+    return clean(obj);
+}
+
+async function rilevaStiloSito(siteId) {
+    const btn = document.getElementById('btn-rileva-stile');
+    const statusEl = document.getElementById('stile-status');
+    const badgesEl = document.getElementById('stile-badges');
+    if (!btn) return;
+    btn.disabled = true;
+    btn.textContent = 'Rilevamento...';
+    if (statusEl) { statusEl.style.color = '#4b4d68'; statusEl.textContent = ''; }
+    try {
+        const { data: { session } } = await _SB.auth.getSession();
+        if (!session) throw new Error('Sessione scaduta');
+        const res = await fetch(SUPABASE_URL+'/functions/v1/pse-query', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
+            body: JSON.stringify({ site_id: siteId, action: 'detect_style' })
+        });
+        const json = await res.json();
+        if (!json.writing_style) throw new Error(json.error || 'Nessuno stile rilevato');
+        const ws = json.writing_style;
+        const { data: freshSite } = await _SBq.from('isi_sites').select('hotel_profile').eq('site_id', siteId).single();
+        const hp = freshSite?.hotel_profile || {};
+        await _SBq.from('isi_sites').update({ hotel_profile: { ...hp, writing_style: ws } }).eq('site_id', siteId);
+        if (badgesEl) {
+            const badges = [ws.tono, ws.persona ? 'usa "'+ws.persona+'"' : '', ws.personalita].filter(Boolean)
+                .map(b => '<span style="background:#e8f4f7;color:#0D5F75;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:700">'+esc(b)+'</span>').join('');
+            badgesEl.innerHTML = badges + (ws.esempio ? '<div style="background:#f7f8fc;border-radius:6px;padding:10px 14px;font-size:13px;color:#4b4d68;font-style:italic;margin-top:10px;line-height:1.6">"'+esc(ws.esempio)+'"</div>' : '');
+        }
+        if (statusEl) { statusEl.style.color = '#0D5F75'; statusEl.textContent = '✓ Stile rilevato e salvato.'; }
+    } catch(e) {
+        if (statusEl) { statusEl.style.color = '#d82d6b'; statusEl.textContent = 'Errore: ' + e.message; }
+    }
+    btn.disabled = false;
+    btn.textContent = 'Rileva stile dal sito';
+}
+
+async function _detectRatings(silent = false) {
+    const btn = document.getElementById('btn-detect-ratings');
+    const status = document.getElementById('detect-ratings-status');
+    const g = id => (document.getElementById('hsf-' + id)?.value || '').trim();
+    const s = (text, color) => { if (!silent && status) { status.textContent = text; status.style.color = color || '#666b84'; } };
+    const taUrl   = g('tripadvisor_url');
+    const gUrl    = g('google_business_url');
+    const bkUrl   = g('url_recensioni');
+    if (!taUrl && !gUrl && !bkUrl) { s('Nessun URL trovato — inserisci prima i link', '#b00020'); return; }
+    const { data: { session } } = await _SB.auth.getSession();
+    if (!session) return;
+    if (!silent) { btn.disabled = true; btn.textContent = 'Rilevamento...'; }
+    s('Contatto i portali...', '#0D5F75');
+    const call = async (url, source) => {
+        if (!url) return null;
+        try {
+            const r = await fetch(SUPABASE_URL+'/functions/v1/fetch-rating', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
+                body: JSON.stringify({ url, source }),
+            });
+            return await r.json();
+        } catch { return null; }
+    };
+    const [ta, goog, bk] = await Promise.all([call(taUrl,'tripadvisor'),call(gUrl,'google'),call(bkUrl,'booking')]);
+    const fill = (id, val) => {
+        const el = document.getElementById('hsf-' + id);
+        if (el && val) { el.value = val; el.style.border = '2px solid #0D5F75'; el.style.background = '#eaf4f7'; setTimeout(() => { el.style.border = ''; el.style.background = ''; }, 4000); }
+    };
+    let found = 0;
+    const portaliAggiornati = [];
+    if (ta?.rating || ta?.n_recensioni) { if (ta.rating) { fill('tripadvisor_rating', ta.rating); found++; } if (ta.n_recensioni) { fill('tripadvisor_n_recensioni', ta.n_recensioni); found++; } portaliAggiornati.push('TripAdvisor'); }
+    if (goog?.rating || goog?.n_recensioni) { if (goog.rating) { fill('google_rating', goog.rating); found++; } if (goog.n_recensioni) { fill('google_n_recensioni', goog.n_recensioni); found++; } portaliAggiornati.push('Google'); }
+    if (bk?.rating || bk?.n_recensioni) { if (bk.rating) { fill('booking_rating', bk.rating); found++; } if (bk.n_recensioni) { fill('booking_n_recensioni', bk.n_recensioni); found++; } portaliAggiornati.push('Booking'); }
+    if (!silent) { btn.disabled = false; btn.textContent = 'Rileva automaticamente'; }
+    if (found > 0) s('Aggiornati: ' + portaliAggiornati.join(', ') + ' — salva per confermare', '#0D5F75');
+    else s('Controllo effettuato — nessun aggiornamento trovato', '#666b84');
+}
+
+async function saveHotelProfile(siteId) {
+    const btn = document.getElementById('btn-save-hschema');
+    const msg = document.getElementById('hschema-msg');
+    if (!btn) return;
+    btn.disabled = true; btn.textContent = 'Salvataggio...';
+    const g = id => (document.getElementById('hsf-' + id)?.value || '').trim();
+    const checkedVals = cls => [...document.querySelectorAll('.'+cls+':checked')].map(el=>el.value);
+    const serviziChecked = checkedVals('pf-servizi-chk');
+    const serviziAll = [...serviziChecked, ..._serviziCustomTmp.filter(Boolean)].join(', ');
+    const targetChecked = checkedVals('pf-target-chk');
+    const targetAll = [...targetChecked, ..._targetCustomTmp.filter(Boolean)].join(', ');
+    const knowsaboutChecked = checkedVals('pf-knowsabout-chk');
+    const knowsaboutAll = [...knowsaboutChecked, ..._knowsaboutCustomTmp.filter(Boolean)];
+    const profile = {
+        nome_hotel: g('name'), tipo_struttura: g('type'), stelle: g('official_rating'),
+        descrizione: g('description'), prezzo_medio: g('price_range'),
+        via: g('street'), cap: g('postal_code'),
+        citta: g('city'), regione: g('region'), paese: g('country')||'IT',
+        latitudine: g('latitude'), longitudine: g('longitude'),
+        telefono: g('telephone'), email: g('email'), sito_web: g('url'),
+        checkin_dalle: g('checkin_time'), checkout_dalle: g('checkout_time'),
+        foto_principale: g('foto_principale'), gallery_urls: _galleryTmp.filter(Boolean).join('\n'),
+        servizi: serviziAll, servizi_camera: g('servizi_camera'), servizi_accessibilita: g('servizi_accessibilita'),
+        lingue_parlate: g('lingue_parlate'), zone_turistiche: g('zone_turistiche'),
+        attrazioni_vicine: g('attrazioni_vicine'), keywords_semantiche: g('keywords_semantiche'),
+        target_clientela: targetAll, knowsabout: knowsaboutAll,
+        stagionalita: g('stagionalita'), usp: g('usp'),
+        descrizione_ai: g('descrizione_ai'),
+        n_camere: g('n_camere'), occupazione_min: g('occupazione_min'), occupazione_max: g('occupazione_max'),
+        camere: _camereTmp.filter(c=>c.nome),
+        url_prenotazione: g('url_prenotazione'),
+        prezzo_min: g('prezzo_min'), prezzo_max: g('prezzo_max'), caparra: g('caparra'),
+        politica_cancellazione: g('politica_cancellazione'),
+        offerte: _offerteTmp.filter(o=>o.nome),
+        google_rating: g('google_rating'), google_n_recensioni: g('google_n_recensioni'),
+        tripadvisor_rating: g('tripadvisor_rating'), tripadvisor_n_recensioni: g('tripadvisor_n_recensioni'),
+        booking_rating: g('booking_rating'), booking_n_recensioni: g('booking_n_recensioni'),
+        url_recensioni: g('url_recensioni'),
+        facebook_url: g('facebook_url'), instagram_url: g('instagram_url'),
+        tripadvisor_url: g('tripadvisor_url'), google_business_url: g('google_business_url'),
+        social_custom: _socialCustomTmp.filter(x=>x.url),
+        _updated_at: new Date().toISOString(), _source: 'hotel_admin',
+    };
+    try {
+        const { data: freshSite } = await _SBq.from('isi_sites').select('hotel_profile').eq('site_id', siteId).single();
+        const freshHp = freshSite?.hotel_profile || {};
+        const { error } = await _SBq.from('isi_sites').update({ hotel_profile: { ...freshHp, ...profile } }).eq('site_id', siteId);
+        btn.disabled = false; btn.textContent = 'Salva e invia al plugin';
+        if (error) {
+            if (msg) { msg.style.display='block'; msg.style.color='#b00020'; msg.textContent='Errore: '+error.message; }
+        } else {
+            _currentHotelProfile = { ...freshHp, ...profile };
+            if (_site) _site.hotel_profile = _currentHotelProfile;
+            if (msg) { msg.style.display='block'; msg.style.color='#0D5F75'; msg.textContent='✓ Profilo hotel salvato.'; }
+            // Anche schema standard
+            const schema = {name:profile.nome_hotel,type:profile.tipo_struttura,official_rating:profile.stelle,description:profile.descrizione,price_range:profile.prezzo_medio,street:profile.via,postal_code:profile.cap,city:profile.citta,region:profile.regione,country:profile.paese,latitude:profile.latitudine,longitude:profile.longitudine,telephone:profile.telefono,email:profile.email,url:profile.sito_web,checkin_time:profile.checkin_dalle,checkout_time:profile.checkout_dalle,pets_allowed:s?.pets_allowed||''};
+            renderHotelSchemaView(schema);
+            // Push al plugin
+            fetch(_pluginBase+'/wp-json/in3pida/v1/force-heartbeat',{method:'POST',headers:{'Content-Type':'application/json'}}).catch(()=>{});
+            setTimeout(()=>{toggleHotelSchemaEdit(false);if(msg)msg.style.display='none';},2000);
+        }
+    } catch(e) {
+        btn.disabled = false; btn.textContent = 'Salva e invia al plugin';
+        if (msg) { msg.style.display='block'; msg.style.color='#b00020'; msg.textContent='Errore: '+e.message; }
+    }
+}
+
+async function revertToPluginProfile() {
+    if (!await isiConfirm('Svuotare i dati manuali del profilo hotel?', 'Svuota')) return;
+    const hp = _site?.hotel_profile || {};
+    const preserved = {};
+    if (hp.site_mode) preserved.site_mode = hp.site_mode;
+    if (hp.coerenza_channels) preserved.coerenza_channels = hp.coerenza_channels;
+    if (hp.isi_config) preserved.isi_config = hp.isi_config;
+    const { error } = await _SBq.from('isi_sites').update({ hotel_profile: preserved }).eq('site_id', _site.site_id);
+    if (!error) {
+        _currentHotelProfile = preserved;
+        _schemaProfile = {}; _camereTmp = []; _offerteTmp = []; _socialCustomTmp = [];
+        if (_site) _site.hotel_profile = preserved;
+        renderHotelSchemaView({});
+        buildHotelSchemaForm({});
+        toggleHotelSchemaEdit(false);
+    }
+}
+
+async function loadFaqPluginSettings() {
+    try {
+        const ctrl = new AbortController(); setTimeout(() => ctrl.abort(), 6000);
+        const r = await fetch(_pluginBase + '/wp-json/in3pida/v1/faq-settings', { signal: ctrl.signal });
+        if (!r.ok) return;
+        const s = await r.json().catch(() => ({}));
+        if (s.page_title !== undefined && document.getElementById('faq-setting-title')) document.getElementById('faq-setting-title').value = s.page_title || '';
+        if (s.page_subtitle !== undefined && document.getElementById('faq-setting-subtitle')) document.getElementById('faq-setting-subtitle').value = s.page_subtitle || '';
+        if (s.color_primary !== undefined && document.getElementById('faq-setting-color1')) { document.getElementById('faq-setting-color1').value = s.color_primary || '#171b33'; if(document.getElementById('faq-setting-color1-inherit'))document.getElementById('faq-setting-color1-inherit').checked = !!s.color_primary_inherit; }
+        if (s.color_accent !== undefined && document.getElementById('faq-setting-color2'))  { document.getElementById('faq-setting-color2').value = s.color_accent  || '#0D5F75'; if(document.getElementById('faq-setting-color2-inherit'))document.getElementById('faq-setting-color2-inherit').checked = !!s.color_accent_inherit; }
+        if (s.order_by !== undefined && document.getElementById('faq-order-manual')) {
+            document.getElementById('faq-order-manual').checked = s.order_by !== 'asc';
+            if(document.getElementById('faq-order-asc'))document.getElementById('faq-order-asc').checked = s.order_by === 'asc';
+        }
+        if (s.open_first !== undefined && document.getElementById('faq-setting-open-first')) document.getElementById('faq-setting-open-first').checked = !!s.open_first;
+        if (s.schema_seo !== undefined && document.getElementById('faq-setting-schema-seo')) document.getElementById('faq-setting-schema-seo').checked = !!s.schema_seo;
+    } catch (_) {}
+}
+
+async function saveFaqPluginSettings() {
+    const btn = document.getElementById('btn-save-faq-settings');
+    const msg = document.getElementById('faq-settings-msg');
+    if (!btn) return;
+    btn.disabled = true; btn.textContent = 'Salvataggio...';
+    const payload = {
+        site_id: _pluginSecret,
+        page_title:    (document.getElementById('faq-setting-title')?.value||'').trim(),
+        page_subtitle: (document.getElementById('faq-setting-subtitle')?.value||'').trim(),
+        color_primary:         document.getElementById('faq-setting-color1')?.value||'',
+        color_primary_inherit: document.getElementById('faq-setting-color1-inherit')?.checked||false,
+        color_accent:          document.getElementById('faq-setting-color2')?.value||'',
+        color_accent_inherit:  document.getElementById('faq-setting-color2-inherit')?.checked||false,
+        order_by:    document.getElementById('faq-order-asc')?.checked ? 'asc' : 'manual',
+        open_first:  document.getElementById('faq-setting-open-first')?.checked||false,
+        schema_seo:  document.getElementById('faq-setting-schema-seo')?.checked||false,
+    };
+    try {
+        const ctrl = new AbortController(); setTimeout(() => ctrl.abort(), 8000);
+        const r = await fetch(_pluginBase + '/wp-json/in3pida/v1/faq-settings', {
+            method: 'POST', signal: ctrl.signal,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        if (msg) { msg.style.display='block'; msg.style.background='#f4fff8'; msg.style.color='#166534'; msg.textContent='Impostazioni salvate!'; }
+    } catch (e) {
+        if (msg) { msg.style.display='block'; msg.style.background='#e8ecf7'; msg.style.color='#b00020'; msg.textContent='Errore: '+e.message+' — aggiorna il plugin per abilitare questa funzione.'; }
+    }
+    setTimeout(()=>{ if(msg)msg.style.display='none'; }, 5000);
+    btn.disabled = false; btn.textContent = 'Salva impostazioni';
+}
+
+async function forceSync(siteId, siteUrl, btn) {
+    const base = (siteUrl || '').replace(/\/$/, '');
+    const orig = btn.textContent;
+    btn.textContent = 'Sync...';
+    btn.disabled = true;
+    try {
+        const { data: site, error } = await _SBq.from('isi_sites').select('hotel_profile, sync_secret').eq('site_id', siteId).single();
+        if (error || !site) throw new Error('Sito non trovato in Supabase');
+        if (!site.sync_secret) throw new Error('Secret non configurato');
+        const ctrl = new AbortController();
+        setTimeout(() => ctrl.abort(), 15000);
+        const r = await fetch(base + '/wp-json/in3pida/v1/receive-profile', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ secret: site.sync_secret, hotel_profile: site.hotel_profile || {} }),
+            signal: ctrl.signal,
+        });
+        const d = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(d.error || 'Errore '+r.status);
+        fetch(base + '/wp-json/in3pida/v1/force-heartbeat', { method:'POST', headers:{'Content-Type':'application/json'} }).catch(()=>{});
+        btn.textContent = '✓ Sync OK';
+        setTimeout(() => { btn.disabled = false; btn.textContent = orig; }, 2000);
+    } catch(e) {
+        btn.textContent = '✗ ' + e.message.slice(0, 25);
+        setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 4000);
+    }
 }
 
 function toggleHotelSchemaEdit(show) {
@@ -1251,18 +1854,25 @@ function toggleHotelSchemaEdit(show) {
 }
 
 async function saveHotelSchema() {
-    const btn=document.getElementById('btn-save-hschema'), msg=document.getElementById('hschema-msg');
-    btn.disabled=true; btn.textContent='Invio...';
-    const g=id=>(document.getElementById('hsf-'+id)?.value||'').trim();
-    const schema={name:g('name'),type:g('type'),official_rating:g('official_rating'),description:g('description'),price_range:g('price_range'),street:g('street'),postal_code:g('postal_code'),city:g('city'),region:g('region'),country:g('country'),latitude:g('latitude'),longitude:g('longitude'),telephone:g('telephone'),email:g('email'),url:g('url'),checkin_time:g('checkin_time'),checkout_time:g('checkout_time'),pets_allowed:g('pets_allowed')};
-    try {
-        const ctrl=new AbortController(); setTimeout(()=>ctrl.abort(),15000);
-        const r=await fetch(_pluginBase+'/wp-json/in3pida/v1/schema',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({secret:_pluginSecret,schema}),signal:ctrl.signal});
-        const d=await r.json().catch(()=>({}));
-        if(r.ok&&d.ok){ msg.style.display='block'; msg.style.color='#0D5F75'; msg.textContent='✓ Salvato sul plugin. Sync in corso...'; renderHotelSchemaView(schema); fetch(_pluginBase+'/wp-json/in3pida/v1/force-heartbeat',{method:'POST',headers:{'Content-Type':'application/json'}}).catch(()=>{}); setTimeout(()=>{toggleHotelSchemaEdit(false);msg.style.display='none';},2000); }
-        else throw new Error(d.message||'Risposta '+r.status);
-    } catch(e){ msg.style.display='block'; msg.style.color='#b00020'; msg.textContent='Errore: '+e.message; }
-    finally { btn.disabled=false; btn.textContent='Salva e invia al plugin'; }
+    // Delega a saveHotelProfile (gestisce anche camere, offerte, servizi, target, ecc.)
+    const siteId = _site?.site_id;
+    if (siteId) {
+        await saveHotelProfile(siteId);
+    } else {
+        // Fallback: salva solo schema base sul plugin
+        const btn=document.getElementById('btn-save-hschema'), msg=document.getElementById('hschema-msg');
+        btn.disabled=true; btn.textContent='Invio...';
+        const g=id=>(document.getElementById('hsf-'+id)?.value||'').trim();
+        const schema={name:g('name'),type:g('type'),official_rating:g('official_rating'),description:g('description'),price_range:g('price_range'),street:g('street'),postal_code:g('postal_code'),city:g('city'),region:g('region'),country:g('country'),latitude:g('latitude'),longitude:g('longitude'),telephone:g('telephone'),email:g('email'),url:g('url'),checkin_time:g('checkin_time'),checkout_time:g('checkout_time'),pets_allowed:g('pets_allowed')};
+        try {
+            const ctrl=new AbortController(); setTimeout(()=>ctrl.abort(),15000);
+            const r=await fetch(_pluginBase+'/wp-json/in3pida/v1/schema',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({secret:_pluginSecret,schema}),signal:ctrl.signal});
+            const d=await r.json().catch(()=>({}));
+            if(r.ok&&d.ok){ msg.style.display='block'; msg.style.color='#0D5F75'; msg.textContent='✓ Salvato sul plugin. Sync in corso...'; renderHotelSchemaView(schema); fetch(_pluginBase+'/wp-json/in3pida/v1/force-heartbeat',{method:'POST',headers:{'Content-Type':'application/json'}}).catch(()=>{}); setTimeout(()=>{toggleHotelSchemaEdit(false);msg.style.display='none';},2000); }
+            else throw new Error(d.message||'Risposta '+r.status);
+        } catch(e){ msg.style.display='block'; msg.style.color='#b00020'; msg.textContent='Errore: '+e.message; }
+        finally { btn.disabled=false; btn.textContent='Salva e invia al plugin'; }
+    }
 }
 
 // ─── MAPPA QUERY ──────────────────────────────────────────────────────────────
