@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="css/style.css?v=20260622q">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet">
-    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6','isi_hotel_v7','isi_hotel_v8','isi_hotel_v9','isi_hotel_v10','isi_hotel_v11','isi_hotel_v12','isi_hotel_v13','isi_hotel_v14'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v141')){sessionStorage.setItem('isi_hotel_v141','1');location.reload(true);}</script>
+    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6','isi_hotel_v7','isi_hotel_v8','isi_hotel_v9','isi_hotel_v10','isi_hotel_v11','isi_hotel_v12','isi_hotel_v13','isi_hotel_v14'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v142')){sessionStorage.setItem('isi_hotel_v142','1');location.reload(true);}</script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <style>
         .tip-q{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:#EFF020;color:#0D5F75;font-size:9px;font-weight:800;cursor:default;flex-shrink:0;user-select:none;vertical-align:middle}
@@ -45,7 +45,7 @@
         .h-header-logo{display:flex;align-items:center;margin-top:15px;}
         .h-header-logo img{height:24px;width:auto;transition:opacity .4s ease;}
         #sidebar-brand svg rect,#sidebar-brand svg path{transition:fill .4s ease;}
-        .h-btn-sync{background:#EFF020;color:#0D5F75;border:0.5px solid #0D5F75;border-radius:24px;padding:8px 21px;font-family:'Source Code Pro',monospace;font-size:16px;font-weight:700;cursor:pointer;transition:background .15s,color .15s,border-color .15s,transform .4s ease;flex-shrink:0;margin-top:15px;}
+        .h-btn-sync{background:#EFF020;color:#0D5F75;border:0.5px solid #0D5F75;border-radius:24px;padding:8px 21px;font-family:'Source Code Pro',monospace;font-size:16px;font-weight:700;cursor:pointer;transition:background .15s,color .15s,border-color .15s,opacity .2s ease;flex-shrink:0;margin-top:15px;}
         .h-btn-sync:hover{background:#0D5F75;color:#EFF020;border-color:#0D5F75;}
         .h-btn-sync:disabled{opacity:.5;cursor:not-allowed;}
         #btn-guida:hover{background:#0D5F75!important;color:#C1CBE8!important;transition:all .15s;}
@@ -230,6 +230,7 @@
       <div class="h-header-logo"><img src="images/logo-eletta.png" alt="Eletta"></div>
       <button class="h-btn-sync" id="btn-sync-header" style="margin-left:20px">Sincronizza</button>
       <div class="h-header-right">
+        <button id="btn-sync-alt" class="h-btn-sync" style="opacity:0;pointer-events:none;transition:opacity .2s ease .1s;margin-top:0" onclick="document.getElementById('btn-hotel-sync').click()">Sincronizza</button>
         <button id="btn-guida" onclick="document.getElementById('guida-overlay').style.display='flex'" style="background:#C1CBE8;border:none;border-radius:20px;padding:5px 13px;font-size:11px;font-weight:600;color:#fff;cursor:pointer;display:flex;align-items:center;font-family:'Source Code Pro',monospace">Guida</button>
         <button id="btn-feedback" onclick="document.getElementById('feedback-overlay').style.display='flex'" style="background:none;border:1px solid #C1CBE8;border-radius:20px;padding:5px 13px;font-size:11px;font-weight:600;color:#0D5F75;cursor:pointer;display:flex;align-items:center;gap:4px;font-family:'Sarabun',sans-serif"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Feedback</button>
         <div class="navbar-user-pill" id="user-pill" style="cursor:pointer">
@@ -1428,21 +1429,10 @@ window.addEventListener('scroll', function() {
   var scrolled = window.scrollY > 30;
   var logoImg = document.querySelector('.h-header-logo img');
   if (logoImg) logoImg.style.opacity = scrolled ? '0' : '1';
-  var syncBtn = document.getElementById('btn-sync-header');
-  var guidaBtn = document.getElementById('btn-guida');
-  if (syncBtn && guidaBtn) {
-    if (scrolled) {
-      var syncRect = syncBtn.getBoundingClientRect();
-      var guidaRect = guidaBtn.getBoundingClientRect();
-      var scale = guidaRect.height / syncRect.height;
-      var shiftX = guidaRect.left - syncRect.right - 10;
-      syncBtn.style.transformOrigin = 'right center';
-      syncBtn.style.transform = 'translateX(' + shiftX + 'px) scale(' + scale.toFixed(3) + ')';
-    } else {
-      syncBtn.style.transformOrigin = '';
-      syncBtn.style.transform = 'translateX(0) scale(1)';
-    }
-  }
+  var syncMain = document.getElementById('btn-sync-header');
+  var syncAlt = document.getElementById('btn-sync-alt');
+  if (syncMain) { syncMain.style.opacity = scrolled ? '0' : '1'; syncMain.style.pointerEvents = scrolled ? 'none' : 'auto'; }
+  if (syncAlt) { syncAlt.style.opacity = scrolled ? '1' : '0'; syncAlt.style.pointerEvents = scrolled ? 'auto' : 'none'; }
   document.querySelectorAll('#sidebar-brand svg rect,#sidebar-brand svg path').forEach(function(el) {
     el.style.fill = scrolled ? '#0D5F75' : '#C1CBE8';
   });
