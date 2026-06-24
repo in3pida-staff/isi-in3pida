@@ -658,7 +658,7 @@ function renderContent(site, pseData, now) {
               <!-- Semafori + Notifiche -->
               <div style="display:grid;grid-template-columns:1fr 1.5fr;gap:12px;margin-bottom:12px">
                 <div class="h-card" id="h-card-semafori" style="margin-bottom:0">
-                    <div class="h-card-hdr"><span class="h-card-hdr-t">Stato semafori</span></div>
+                    <div class="h-card-hdr" style="gap:12px"><div style="width:38px;height:38px;border-radius:50%;background:#0D5F75;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="3"/><circle cx="12" cy="7" r="1.5" fill="white" stroke="none"/><circle cx="12" cy="12" r="1.5" fill="white" stroke="none"/><circle cx="12" cy="17" r="1.5" fill="white" stroke="none"/></svg></div><span class="h-card-hdr-t" style="font-size:24px;font-weight:700">Stato semafori</span></div>
                     <div class="h-card-body" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px 14px">
                         <div><div style="font-size:11px;color:#0D5F75;font-weight:400;margin-bottom:3px">Stato generale</div><div style="font-size:12px;font-weight:600;color:${statoGen==='ok'?'#0D5F75':'#d82d6b'}">${statoGen==='ok'?'Tutto OK':statoGen==='warn'?'Attenzione':'Problemi rilevati'}</div></div>
                         <div><div style="font-size:11px;color:#0D5F75;font-weight:400;margin-bottom:3px">Plugin attivo sul sito</div><div style="font-size:12px;font-weight:400;color:rgba(13,95,117,0.6)">${site.last_heartbeat?timeAgo(site.last_heartbeat):'Nessun segnale'}</div></div>
