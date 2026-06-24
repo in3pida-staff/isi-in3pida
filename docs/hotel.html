@@ -417,9 +417,9 @@ async function init() {
             if (tab==='faq')      initHotelFaq();
             if (tab==='schema')   initHotelSchema(site);
             if (tab==='mappa')    initHotelMappa(site);
-            if (tab==='coerenza') initHotelCoerenza();
-            if (tab==='config')   initHotelConfig();
-            if (tab==='pse')      initHotelPse(pseData||[], now);
+            if (tab==='coerenza') initHotelCoerenza(site);
+            if (tab==='config')   initHotelConfig(site);
+            if (tab==='pse')      initHotelPseCharts(pseData||[]);
         });
     });
 
