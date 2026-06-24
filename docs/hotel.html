@@ -318,6 +318,7 @@ const _SBq = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { aut
 let _site = null, _pluginBase = '', _pluginSecret = '', _appFeatures = {}, _siteAppPerms = {};
 let _faqItems = [], _faqFilter = 'all', _faqSearch = '';
 let _pseChartsInited = false, _mappaInited = false, _coerenzaInited = false, _configInited = false;
+let _aiLayerInited = false;
 
 // ─── INIT ──────────────────────────────────────────────────────────────────────
 async function init() {
@@ -417,7 +418,7 @@ async function init() {
             if (tab==='faq')      initHotelFaq();
             if (tab==='schema')   initHotelSchema(site);
             if (tab==='mappa')    initHotelMappa(site);
-            if (tab==='coerenza') initHotelCoerenza(site);
+            if (tab==='coerenza') { initHotelCoerenza(site); initAiLayerPanel(site); }
             if (tab==='config')   initHotelConfig(site);
             if (tab==='pse')      initHotelPseCharts(pseData||[]);
         });
@@ -840,13 +841,23 @@ function renderContent(site, pseData, now) {
 
         <!-- ═══ TAB: COERENZA ═══ -->
         <div id="htab-coerenza" style="display:none">
+        <div id="ai-layer-content"></div>
         <div class="card" style="margin-bottom:20px;border-radius:8px;border:1px solid #e4e4ec;box-shadow:none">
             <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
-                <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Coerenza Contenuti — Confronto Canali</div></div>
-                <button id="btn-save-hcoerenza" class="btn-update" style="margin-left:0;display:none">Salva</button>
+                <div style="display:flex;align-items:center;gap:8px">
+                    <span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span>
+                    <div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Coerenza Contenuti — Confronto Canali</div>
+                </div>
+                <div style="display:flex;gap:8px;align-items:center">
+                    <button id="btn-aggiungi-canale" class="btn-ping" style="font-size:11px;padding:5px 12px" onclick="document.getElementById('hmodal-canale').style.display='flex';document.getElementById('hinput-nuovo-canale').value='';document.getElementById('hinput-nuovo-canale').focus()">+ Aggiungi canale</button>
+                    <button id="btn-avvia-scansione-h" class="btn-update" style="margin-left:0;font-size:11px;padding:5px 12px">▶ Scansiona tutti</button>
+                    <button id="btn-esporta-report-h" class="btn-ping" style="font-size:11px;padding:5px 12px">📋 Report</button>
+                </div>
             </div>
-            <div style="padding:12px 20px;border-bottom:1px solid #ececf2;font-size:12px;color:#666b84">Inserisci i dati per ogni canale per confrontare la coerenza delle informazioni sul tuo hotel.</div>
-            <div id="hcoerenza-content" style="padding:0;overflow-x:auto"><div class="loading" style="padding:20px"><div class="spinner"></div></div></div>
+            <div style="padding:12px 20px;border-bottom:1px solid #ececf2;font-size:12px;color:#666b84">
+                Inserisci il link del tuo hotel su ogni portale e clicca Scansiona per confrontare automaticamente nome, stelle, indirizzo, telefono, check-in/out con i tuoi dati ufficiali.
+            </div>
+            <div id="hcoerenza-content" style="padding:14px 20px"><div class="loading" style="padding:20px"><div class="spinner"></div></div></div>
         </div>
         </div><!-- /htab-coerenza -->
 
@@ -857,6 +868,19 @@ function renderContent(site, pseData, now) {
 
         <!-- ═══ TAB: STATISTICHE PSE ═══ -->
         <div id="htab-pse" style="display:none">
+        <div class="card" style="margin-bottom:20px;border-radius:8px;border:1px solid #e4e4ec;box-shadow:none">
+            <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
+                <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Simulatore Query AI</div></div>
+            </div>
+            <div style="padding:16px 20px">
+                <div style="font-size:12px;color:#666b84;margin-bottom:10px">Testa se il tuo hotel compare nelle risposte AI per una query specifica.</div>
+                <div style="display:flex;gap:8px;align-items:center">
+                    <input type="text" id="hpse-query-input" placeholder="Es: hotel con piscina a Rimini per famiglie..." style="flex:1;border:1px solid #e4e4ec;border-radius:6px;padding:9px 12px;font-size:13px;color:#171b33;outline:none;font-family:'Source Code Pro',monospace" onkeydown="if(event.key==='Enter')runHotelPseQuery()">
+                    <button id="hpse-run-btn" class="btn-update" style="margin-left:0;white-space:nowrap" onclick="runHotelPseQuery()">✦ Analizza</button>
+                </div>
+                <div id="hpse-run-result" style="margin-top:14px;display:none"></div>
+            </div>
+        </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px">
             <div class="card" style="border-radius:8px;border:1px solid #e4e4ec;box-shadow:none;margin:0">
                 <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Presenza nei risultati AI</div></div></div>
@@ -870,11 +894,15 @@ function renderContent(site, pseData, now) {
                 <div style="padding:20px"><canvas id="hchart-pse-bar" style="max-height:200px"></canvas></div>
             </div>
         </div>
-        <div class="card" style="border-radius:8px;border:1px solid #e4e4ec;box-shadow:none;margin:0">
+        <div class="card" style="border-radius:8px;border:1px solid #e4e4ec;box-shadow:none;margin:0;margin-bottom:20px">
             <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Riepilogo PSE</div></div></div>
             <div style="padding:16px 20px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
                 ${(()=>{const tot=pseData.length;const totCost=pseData.reduce((a,r)=>a+(parseFloat(r.cost_usd)||0),0);const cited=pseData.filter(r=>r.result?.cited||r.result?.found||r.result?.match_found).length;const pct=tot>0?Math.round(cited/tot*100):null;const bx=(l,v,s,vc)=>'<div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:16px 18px"><div style="font-size:10px;color:#aaa;font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px">'+l+'</div><div style="font-size:28px;font-weight:800;color:#171b33;line-height:1">'+v+'</div><div style="font-size:11px;font-weight:600;color:'+vc+';margin-top:5px">'+s+'</div></div>';return bx('QUERY TOTALI',tot,'eseguite','#0D5F75')+bx('CITAZIONI',cited,'trovate','#0D5F75')+bx('TASSO CITAZIONE',pct!==null?pct+'%':'—',pct!==null?(pct>=50?'buona visibilità':'da migliorare'):'nessun dato',pct!==null?'#0D5F75':'#ead0dc')+bx('COSTO TOTALE','€'+totCost.toFixed(4),'speso','#666b84');})()}
             </div>
+        </div>
+        <div class="card" style="border-radius:8px;border:1px solid #e4e4ec;box-shadow:none;margin:0">
+            <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Distribuzione per LLM</div></div></div>
+            <div id="hpse-llm-bars" style="padding:16px 20px;display:none"></div>
         </div>
         </div><!-- /htab-pse -->
     `;
@@ -1238,140 +1266,947 @@ async function saveHotelSchema() {
 }
 
 // ─── MAPPA QUERY ──────────────────────────────────────────────────────────────
-async function initHotelMappa(site) {
-    if (_mappaInited) return; _mappaInited = true;
-    const cont=document.getElementById('hmappa-content'); if(!cont) return;
-    const faqData=site.faq_data||{}, qmap=faqData.query_map||faqData.mappa_query||{}, cats=Object.keys(qmap);
-    if(!cats.length){ cont.innerHTML='<div style="color:#aaa;font-size:13px">Nessuna categoria disponibile. Sincronizza dal plugin.</div>'; return; }
-    cont.innerHTML=cats.map(cat=>{
-        const entry=qmap[cat]||{}, queries=Array.isArray(entry.queries)?entry.queries:(entry.examples||[]), answer=entry.answer||entry.risposta||'', covered=entry.covered??!!answer;
-        const badge=covered?'<span style="background:#fbf4f7;color:#0D5F75;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px">Coperta</span>':'<span style="background:#fce8ef;color:#0D5F75;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px">Mancante</span>';
-        return `<div style="padding:16px 20px;border-bottom:1px solid #f4f4f8"><div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><div style="font-size:13px;font-weight:700;color:#171b33;text-transform:capitalize">${esc(cat.replace(/_/g,' '))}</div>${badge}</div>${queries.length?'<div style="margin-bottom:8px">'+queries.slice(0,3).map(q=>'<div style="font-size:12px;color:#666b84;padding:2px 0">• '+esc(q)+'</div>').join('')+(queries.length>3?'<div style="font-size:11px;color:#aaa">+'+( queries.length-3)+' altre...</div>':'')+'</div>':''}<div style="display:flex;gap:8px;align-items:flex-start"><textarea data-cat="${esc(cat)}" class="hqmap-answer" style="flex:1;border:1px solid #e4e4ec;border-radius:6px;padding:8px 10px;font-size:12px;resize:vertical;min-height:60px;color:#171b33;outline:none" placeholder="Scrivi la risposta...">${esc(answer)}</textarea><button class="btn-update" style="margin-left:0;padding:8px 14px;font-size:12px" onclick="saveHotelMappaAnswer('${esc(cat)}','${esc(site.site_id)}')">Salva</button></div></div>`;
-    }).join('');
+
+function buildHotelFeatures(site) {
+    const sc  = site.schema_data   || {};
+    const hp  = site.hotel_profile || {};
+    const am  = Array.isArray(sc.amenities) ? sc.amenities.map(a => a.toLowerCase()).join(' ') : '';
+    const kw  = (sc.keywords     || '').toLowerCase();
+    const des = (sc.description  || hp.descrizione || '').toLowerCase();
+    const hpSrv = (hp.servizi || '').toLowerCase();
+    const hpKnw = Array.isArray(hp.knowsabout) ? hp.knowsabout.join(' ').toLowerCase() : (hp.knowsabout || '').toLowerCase();
+    const txt = am + ' ' + kw + ' ' + des + ' ' + hpSrv + ' ' + hpKnw;
+    const hpTgt = (hp.target_clientela || '').toLowerCase();
+    const city = (sc.city || sc.address?.addressLocality || hp.citta || hp.comune || '').toLowerCase();
+    const beachCity = /cattolica|rimini|riccione|cesenatico|bellaria|igea|misano|cervia|milano marittima|pescara|jesolo|bibione|lignano|viareggio|forte dei marmi|marina di|lido di/i;
+    return {
+        city:              sc.city || sc.address?.addressLocality || hp.citta || hp.comune || '',
+        hasMare:           beachCity.test(city) || /spiaggia|mare|beach|lungomare|riviera/.test(txt),
+        hasMontagna:       /montagna|alpi|dolomiti|\bsci\b|trekking/.test(txt),
+        hasSpiaggiaPropria:/spiaggia privata|spiaggia convenzionata|spiaggia riservata|ombrellone incluso|lettino incluso|accesso diretto.{0,12}mare|primo fila/.test(txt),
+        hasFamily:         /famil|bambini/.test(txt),
+        hasRomantic:       /romantic|luna di miele|honeymoon|suite nuziale|pacchett.{0,8}coppia|camera romantica/.test(txt),
+        hasElderly:        /over.?65|terza.?et|anziani|senior|men[uù] dietetico|antiscivolo|servizio medico/.test(txt) || /anziani|over.?65|terza.?et/i.test(hpTgt),
+        hasAccessibility:  /accessib|disabil|barriere architetton/.test(txt) || String(hp.servizi_accessibilita||'').trim().length > 5,
+        hasPiscina:        /piscin/.test(txt),
+        hasSpa:            /\bspa\b|sauna|hammam|bagno turco|centro benessere/.test(txt),
+        hasPets:           /^s[iì]$/i.test(String(sc.pets_allowed||'')) || sc.pets_allowed === true || sc.pets_allowed === 'true' || /animali|pet friendly|cani/.test(txt),
+        hasRistorante:     /ristorante|cucina|dining/.test(txt),
+        hasColazione:      /colazione|breakfast/.test(txt),
+        hasParcheggio:     /parcheggio|parking|garage/.test(txt),
+        hasBusiness:       /sala meeting|sala conferenz|coworking|centro congressi/.test(txt),
+        hasSports:         /palestra|biciclette|sport|fitness|escursion/.test(txt),
+        hasMarriages:      /matrimon|wedding|riceviment|cerimoni|banchett/.test(txt),
+        hasWellness:       /\bspa\b|benessere|wellness|sauna|massagg/.test(txt),
+    };
 }
 
-window.saveHotelMappaAnswer = async function(cat, siteId) {
-    const el=document.querySelector('.hqmap-answer[data-cat="'+cat+'"]'); if(!el) return;
-    const answer=el.value.trim();
-    const {data:s}=await _SBq.from('isi_sites').select('faq_data').eq('site_id',siteId).single();
-    const fd=s?.faq_data||{}, qm=fd.query_map||fd.mappa_query||{};
-    qm[cat]={...(qm[cat]||{}),answer,covered:!!answer};
-    const {error}=await _SBq.from('isi_sites').update({faq_data:{...fd,query_map:qm}}).eq('site_id',siteId);
-    el.style.borderColor=error?'#0D5F75':'#0D5F75'; setTimeout(()=>{el.style.borderColor='#e4e4ec';},2000);
+const INTENT_LIBRARY = [
+    { id:'family_general', category:'famiglie_con_bambini', label:'Family generale', appliesWhen:f=>f.hasFamily, templates:()=>['L\'hotel è adatto per famiglie con bambini piccoli?','Ci sono servizi specifici per i bambini?','L\'hotel è family friendly?','Sono disponibili lettini per neonati?','Si possono richiedere seggioloni per la cena?','Ci sono camere comunicanti per famiglie numerose?','Posso avere una culla in camera?','L\'hotel offre animazione per bambini?','Ci sono attività organizzate per i bambini?','È disponibile un baby sitter su richiesta?','I bambini pagano la tariffa intera?','Fino a che età i bambini soggiornano gratis?','C\'è un parco giochi o un\'area bambini?','Il ristorante ha un menù dedicato ai bambini?','Posso scaldare il biberon o il cibo per neonati?'], seasonalTemplates:()=>['Ci sono pacchetti vacanze estive per famiglie?','L\'hotel organizza attività per bambini in estate?'], priorityScore:f=>(f.hasFamily?12:0)+(f.hasMare?5:0)+(f.hasPiscina?5:0) },
+    { id:'family_pool', category:'famiglie_con_bambini', label:'Family con piscina', appliesWhen:f=>f.hasPiscina&&f.hasFamily, templates:()=>['La piscina è adatta anche per i bambini?','C\'è una piscina per bambini o una zona poco profonda?','Ci sono scivoli o giochi acquatici per bambini?','La piscina per bambini è sorvegliata?','I bambini piccoli possono usare la piscina?'], seasonalTemplates:()=>['La piscina è aperta tutto il giorno in estate?'], priorityScore:f=>(f.hasFamily?10:0)+(f.hasPiscina?10:0) },
+    { id:'family_beach', category:'famiglie_con_bambini', label:'Family spiaggia', appliesWhen:f=>f.hasMare&&f.hasFamily, templates:()=>['L\'hotel è adatto per famiglie con bambini al mare?','La spiaggia è sicura per i bambini piccoli?','C\'è una zona di mare protetta per i bambini?','L\'hotel organizza attività in spiaggia per famiglie?','Ci sono ombrelloni e lettini riservati per le famiglie?'], seasonalTemplates:()=>['Ci sono pacchetti mare per famiglie in estate?'], priorityScore:f=>(f.hasMare?10:0)+(f.hasFamily?6:0) },
+    { id:'romantic_general', category:'coppie_romantici', label:'Romantico generale', appliesWhen:f=>f.hasRomantic||f.hasSpa, templates:()=>['L\'hotel offre pacchetti romantici per coppie?','È possibile organizzare una cena romantica in camera?','Ci sono suite o camere speciali per la luna di miele?','L\'hotel ha decorazioni romantiche per occasioni speciali?','Posso richiedere champagne o fiori in camera all\'arrivo?','Ci sono pacchetti speciali per anniversari di matrimonio?','L\'hotel è adatto per un weekend romantico?','È possibile prenotare una cena privata a lume di candela?','Ci sono trattamenti benessere per coppie?','L\'hotel ha terrazze o spazi privati per le coppie?'], seasonalTemplates:()=>['Ci sono offerte speciali per San Valentino?','L\'hotel ha pacchetti per la festa degli innamorati?'], priorityScore:f=>(f.hasRomantic?14:0)+(f.hasSpa?4:0)+(f.hasMare?3:0) },
+    { id:'romantic_sea', category:'coppie_romantici', label:'Romantico mare', appliesWhen:f=>f.hasRomantic&&f.hasMare, templates:()=>['C\'è una camera con vista mare?','Le camere hanno terrazza o balcone con vista sul mare?','È possibile fare il bagno al tramonto?','L\'hotel organizza aperitivi in riva al mare?','Ci sono angoli romantici vista mare nell\'hotel?'], seasonalTemplates:()=>['Ci sono pacchetti estivi romantici con vista mare?'], priorityScore:f=>(f.hasRomantic?10:0)+(f.hasMare?8:0) },
+    { id:'romantic_spa', category:'coppie_romantici', label:'Romantico spa', appliesWhen:f=>f.hasRomantic&&f.hasSpa, templates:()=>['Ci sono trattamenti spa per coppie?','La vasca idromassaggio è disponibile per uso privato?','L\'hotel offre massaggi di coppia?','È possibile prenotare la spa in esclusiva per due?','Ci sono rituali benessere dedicati alle coppie?'], seasonalTemplates:()=>[], priorityScore:f=>(f.hasRomantic?8:0)+(f.hasSpa?8:0) },
+    { id:'business_general', category:'business_lavoro', label:'Business generale', appliesWhen:f=>f.hasBusiness, templates:()=>['L\'hotel ha una sala meeting o sala conferenze?','Il WiFi è veloce e adatto per il lavoro?','L\'hotel emette fattura elettronica?','C\'è un\'area coworking o scrivania in camera?','È possibile prenotare una sala riunioni?','Il WiFi è incluso nel prezzo?','Ci sono servizi di stampa o segreteria disponibili?','La sala meeting è attrezzata con proiettore e schermo?','L\'hotel può ospitare eventi aziendali o team building?','Ci sono tariffe speciali per soggiorni di lavoro prolungati?','È disponibile il servizio in camera per pranzi di lavoro?'], seasonalTemplates:()=>[], priorityScore:f=>f.hasBusiness?18:0 },
+    { id:'business_congress', category:'business_lavoro', label:'Congressi e fiere', appliesWhen:f=>f.hasBusiness, templates:()=>['L\'hotel è vicino al centro congressi?','Ci sono navette per fiere ed eventi?','L\'hotel ha convenzioni con centri fieristici?','È disponibile il servizio sveglia?','L\'hotel offre tariffe per gruppi aziendali?','C\'è il transfer per congressi e fiere?'], seasonalTemplates:()=>[], priorityScore:f=>f.hasBusiness?8:0 },
+    { id:'pets_general', category:'animali_domestici', label:'Animali domestici', appliesWhen:f=>f.hasPets, templates:()=>['L\'hotel accetta animali domestici?','Posso portare il mio cane in hotel?','L\'hotel accetta i gatti?','C\'è un supplemento per gli animali domestici?','I cani di grossa taglia sono ammessi?','Ci sono restrizioni sulle razze di cani accettate?','C\'è un\'area verde dove portare il cane a fare i bisogni?','Sono disponibili ciotole o cucce per i cani?','Posso lasciare il mio animale in camera da solo?','L\'hotel è vicino a un veterinario?','I cani possono accedere alle aree comuni dell\'hotel?','C\'è un\'area per far correre il cane?','Il cane può venire al ristorante con me?'], seasonalTemplates:()=>['Ci sono offerte estive per vacanze con animali?','La spiaggia vicina è pet friendly?'], priorityScore:f=>f.hasPets?20:0 },
+    { id:'pets_beach', category:'animali_domestici', label:'Animali + spiaggia', appliesWhen:f=>f.hasPets&&f.hasMare, templates:()=>['C\'è una spiaggia pet friendly vicino all\'hotel?','I cani possono accedere alla spiaggia?','Ci sono orari specifici in spiaggia per i cani?','La spiaggia è accessibile con animali domestici?'], seasonalTemplates:()=>[], priorityScore:f=>(f.hasPets?8:0)+(f.hasMare?6:0) },
+    { id:'accessibility_general', category:'accessibilita_disabili', label:'Accessibilità', appliesWhen:f=>f.hasAccessibility, templates:()=>['L\'hotel è accessibile per persone con disabilità?','Ci sono camere attrezzate per ospiti con disabilità motorie?','L\'hotel ha l\'ascensore?','Ci sono rampe di accesso per sedie a rotelle?','Il bagno delle camere accessibili è attrezzato?','C\'è la doccia a pavimento nelle camere per disabili?','Il parcheggio ha posti riservati ai disabili?','L\'hotel è privo di barriere architettoniche?','Le porte delle camere sono sufficientemente larghe per sedie a rotelle?','Il personale è formato per assistere ospiti con disabilità?','Il ristorante è accessibile con sedia a rotelle?','L\'hotel dispone di ausili speciali su richiesta?'], seasonalTemplates:()=>[], priorityScore:f=>f.hasAccessibility?16:0 },
+    { id:'seniors_general', category:'terza_eta_anziani', label:'Terza età', appliesWhen:f=>f.hasElderly, templates:()=>['L\'hotel è adatto per ospiti anziani?','Ci sono servizi specifici per gli over 65?','L\'hotel ha l\'ascensore?','È possibile avere una camera al piano terra?','Il personale è disponibile per assistenza agli anziani?','Il menù prevede opzioni dietetiche per anziani?','I pavimenti sono antiscivolo?','L\'hotel è vicino a una farmacia?','È disponibile un servizio medico o infermieristico?','L\'hotel è tranquillo e adatto al riposo?','Ci sono sedie e aree di relax accessibili?','Il ristorante serve pasti a orari fissi adatti agli anziani?'], seasonalTemplates:()=>[], priorityScore:f=>f.hasElderly?12:0 },
+    { id:'pool_general', category:'piscina', label:'Piscina', appliesWhen:f=>f.hasPiscina, templates:()=>['L\'hotel ha la piscina?','La piscina è all\'aperto o al coperto?','La piscina è riscaldata?','Quali sono gli orari della piscina?','Ci sono lettini in piscina inclusi?','Bisogna prenotare il posto in piscina?','La piscina è accessibile a tutti gli ospiti?','C\'è un bar bordo piscina?','La piscina ha una zona profonda e una poco profonda?','L\'hotel ha una piscina esterna con solarium?','La piscina è aperta tutto l\'anno?','Ci sono asciugamani disponibili in piscina?'], seasonalTemplates:()=>['La piscina è aperta durante tutta l\'estate?','Ci sono eventi in piscina durante la stagione?'], priorityScore:f=>f.hasPiscina?14:0 },
+    { id:'sports_general', category:'sport_avventura', label:'Sport generale', appliesWhen:f=>f.hasSports||f.hasMontagna, templates:()=>['L\'hotel ha una palestra?','È possibile noleggiare biciclette in hotel?','L\'hotel è vicino a piste ciclabili?','Ci sono escursioni organizzate dall\'hotel?','È disponibile il noleggio di attrezzatura sportiva?','L\'hotel ha un campo da tennis?','Ci sono corsi di sport acquatici nelle vicinanze?','L\'hotel organizza tour in bicicletta o a piedi?','È possibile fare jogging o running nelle vicinanze?','Ci sono strutture sportive convenzionate con l\'hotel?','La palestra è inclusa nel soggiorno?','Quali orari ha la palestra?'], seasonalTemplates:()=>['Ci sono attività sportive estive organizzate dall\'hotel?'], priorityScore:f=>(f.hasSports?12:0)+(f.hasMontagna?8:0) },
+    { id:'sports_mountain', category:'sport_avventura', label:'Sport montagna', appliesWhen:f=>f.hasMontagna, templates:()=>['L\'hotel organizza escursioni in montagna?','È possibile praticare sci nelle vicinanze?','Ci sono sentieri di trekking vicino all\'hotel?','L\'hotel ha un deposito per sci e attrezzatura?','Ci sono piste da sci accessibili dall\'hotel?','L\'hotel offre il noleggio di attrezzatura da sci?','Ci sono guide alpine disponibili?','L\'hotel organizza tour per ciaspolate o snowshoe?'], seasonalTemplates:()=>['L\'hotel è aperto durante la stagione invernale?','Ci sono pacchetti sci per la stagione invernale?'], priorityScore:f=>f.hasMontagna?14:0 },
+    { id:'spa_general', category:'benessere_spa', label:'Spa e benessere', appliesWhen:f=>f.hasSpa||f.hasWellness, templates:()=>['L\'hotel ha una spa?','Ci sono trattamenti benessere disponibili?','L\'hotel ha la sauna?','È possibile prenotare un massaggio?','C\'è il bagno turco o l\'hammam?','La spa è inclusa nel prezzo del soggiorno?','La spa è aperta anche agli ospiti esterni?','Quali trattamenti estetici sono disponibili?','È necessario prenotare i trattamenti in anticipo?','Ci sono percorsi benessere con più trattamenti?','L\'hotel ha una piscina riscaldata nella spa?','Ci sono trattamenti specifici per il viso?','La spa ha una zona relax o salotto tranquillo?','I trattamenti sono eseguiti da personale qualificato?'], seasonalTemplates:()=>['Ci sono pacchetti benessere per l\'inverno?'], priorityScore:f=>(f.hasSpa?14:0)+(f.hasWellness?8:0) },
+    { id:'weddings_general', category:'matrimoni_eventi', label:'Matrimoni ed eventi', appliesWhen:f=>f.hasMarriages, templates:()=>['L\'hotel organizza matrimoni?','C\'è una sala ricevimenti disponibile?','Quante persone può ospitare per un matrimonio?','L\'hotel ha un giardino per cerimonie all\'aperto?','È possibile organizzare il banchetto nuziale in hotel?','L\'hotel offre pacchetti completi per matrimoni?','Ci sono spazi per cerimonie civili in hotel?','Il ristorante può essere riservato per eventi privati?','L\'hotel organizza comunioni e cresime?','È possibile portare il proprio catering?','L\'hotel ha convenzioni con fioristi e fotografi?','Ci sono suite nuziali per la prima notte?','È possibile fare una degustazione del menù in anticipo?','L\'hotel ha esperienza nell\'organizzazione di eventi aziendali?'], seasonalTemplates:()=>[], priorityScore:f=>f.hasMarriages?16:0 },
+    { id:'parking_general', category:'parcheggio', label:'Parcheggio', appliesWhen:f=>f.hasParcheggio, templates:()=>['L\'hotel ha il parcheggio?','Il parcheggio è gratuito?','Il garage è coperto?','Il parcheggio è custodito o sorvegliato?','Bisogna prenotare il posto auto in anticipo?','C\'è il parcheggio per camper o caravan?','Sono disponibili colonnine di ricarica per auto elettriche?','Dove posso parcheggiare la bicicletta in modo sicuro?','C\'è spazio per moto e scooter?','Il parcheggio è a pagamento per tutta la durata del soggiorno?','Ci sono posti auto riservati per i disabili?','Il parcheggio è nelle vicinanze dell\'hotel o sottostante?'], seasonalTemplates:()=>[], priorityScore:f=>f.hasParcheggio?14:0 },
+    { id:'breakfast_general', category:'colazione', label:'Colazione', appliesWhen:f=>f.hasColazione, templates:()=>['La colazione è inclusa nel prezzo?','A che ora viene servita la colazione?','Fino a che ora è disponibile la colazione?','C\'è il buffet della colazione?','È possibile fare colazione in camera?','L\'hotel offre opzioni gluten free a colazione?','Ci sono alternative vegane o vegetariane a colazione?','La colazione è continental o all\'italiana?','C\'è la colazione salata con uova o affettati?','I bambini possono fare colazione gratis?','È possibile richiedere una colazione anticipata?','La colazione è servita tutti i giorni, festivi inclusi?','Ci sono opzioni senza lattosio o per intolleranze?','È possibile avere prodotti locali o biologici a colazione?'], seasonalTemplates:()=>[], priorityScore:f=>f.hasColazione?12:0 },
+    { id:'restaurant_general', category:'ristorante', label:'Ristorante', appliesWhen:f=>f.hasRistorante, templates:()=>['L\'hotel ha un ristorante?','Il ristorante è aperto a cena?','La cena è inclusa nel prezzo della camera?','L\'hotel offre la mezza pensione?','È disponibile la pensione completa?','Il ristorante è aperto anche agli ospiti esterni?','Il menù prevede piatti vegetariani?','Ci sono opzioni vegane nel menù?','Il ristorante ha un menù per bambini?','È possibile richiedere un menù per allergie o intolleranze?','Bisogna prenotare il tavolo per la cena?','Il bar dell\'hotel è aperto fino a tardi?','L\'hotel serve il pranzo?','È possibile ordinare il servizio in camera?','Il ristorante propone piatti tipici locali?','L\'hotel ha una carta dei vini?'], seasonalTemplates:()=>[], priorityScore:f=>f.hasRistorante?14:0 },
+    { id:'beach_nearby', category:'spiaggia_mare', label:'Hotel vicino al mare', appliesWhen:f=>f.hasMare, templates:()=>['L\'hotel è vicino alla spiaggia?','A quanti minuti a piedi si trova il mare?','C\'è la vista mare dall\'hotel?','Le camere hanno il balcone con vista mare?','L\'hotel è sul lungomare?','Ci sono spiagge libere nelle vicinanze?','Come si raggiunge la spiaggia dall\'hotel?','L\'hotel fornisce asciugamani per la spiaggia?','Ci sono stabilimenti balneari convenzionati?','La spiaggia è sabbiosa o ghiaiosa?'], seasonalTemplates:()=>['La spiaggia è frequentata in estate?','Ci sono eventi in spiaggia durante la stagione estiva?'], priorityScore:f=>f.hasMare?12:0 },
+    { id:'beach_direct', category:'spiaggia_mare', label:'Accesso diretto al mare', appliesWhen:f=>f.hasSpiaggiaPropria, templates:()=>['L\'hotel ha accesso diretto al mare?','C\'è una spiaggia privata dell\'hotel?','La spiaggia è riservata agli ospiti?','L\'hotel è in prima fila sul mare?','C\'è un bar direttamente in spiaggia?','La spiaggia dell\'hotel è sorvegliata?','È possibile fare il bagno direttamente dall\'hotel?'], seasonalTemplates:()=>['La spiaggia privata è aperta tutta la stagione estiva?'], priorityScore:f=>f.hasSpiaggiaPropria?16:0 },
+    { id:'beach_equipped', category:'spiaggia_mare', label:'Spiaggia attrezzata', appliesWhen:f=>f.hasSpiaggiaPropria, templates:()=>['L\'ombrellone è incluso nel prezzo del soggiorno?','Il lettino in spiaggia è incluso?','La spiaggia è attrezzata con ombrelloni e sdraio?','Quante file di ombrelloni ha la spiaggia?','C\'è la doccia in spiaggia?','È possibile avere un ombrellone aggiuntivo?','Gli asciugamani da mare sono inclusi?','C\'è il servizio di bar in spiaggia?'], seasonalTemplates:()=>[], priorityScore:f=>f.hasSpiaggiaPropria?10:0 },
+    { id:'rooms_general', category:'camere_servizi', label:'Camere e servizi', appliesWhen:()=>true, templates:()=>['Le camere hanno l\'aria condizionata?','Il WiFi è gratuito in camera?','Le camere hanno la TV?','C\'è la cassaforte in camera?','Il bagno privato è presente in tutte le camere?','Le camere hanno il frigobar?','Ci sono camere con balcone o terrazza?','Quali tipologie di camera sono disponibili?','Ci sono camere comunicanti per famiglie?','Le camere sono insonorizzate?','Il cambio della biancheria è giornaliero?','C\'è il servizio di pulizia camera ogni giorno?','Sono disponibili adattatori elettrici?','C\'è la macchina del caffè in camera?','Le camere hanno il riscaldamento?'], seasonalTemplates:()=>[], priorityScore:()=>10 },
+    { id:'transport_general', category:'trasporti_arrivo', label:'Come arrivare', appliesWhen:()=>true, templates:dest=>['Come si arriva all\'hotel?','L\'hotel è vicino alla stazione ferroviaria?','C\'è il transfer dall\'aeroporto?','L\'hotel è raggiungibile con i mezzi pubblici?','C\'è una navetta dall\'aeroporto all\'hotel?','Qual è l\'aeroporto più vicino?','Come si arriva in auto'+(dest?' a '+dest:'')+'?','C\'è un servizio taxi convenzionato con l\'hotel?','L\'hotel offre noleggio auto o scooter?','Ci sono autobus o tram che arrivano vicino all\'hotel?','Dove si parcheggia se si arriva in moto?','L\'hotel fornisce indicazioni stradali?','Quanto dista l\'hotel dall\'autostrada?'], seasonalTemplates:()=>[], priorityScore:()=>8 },
+    { id:'checkin_general', category:'check_in_out', label:'Check-in e check-out', appliesWhen:()=>true, templates:()=>['A che ora è il check-in?','A che ora è il check-out?','È possibile fare il check-in anticipato?','È disponibile il check-out tardivo?','C\'è il self check-in?','Come si ritira la chiave se si arriva tardi la notte?','La reception è aperta 24 ore su 24?','Posso lasciare i bagagli in hotel prima del check-in?','È possibile depositare i bagagli dopo il check-out?','È necessario un documento d\'identità al check-in?','Come funziona il check-in online?','Devo pagare alla prenotazione o all\'arrivo?','Posso comunicare un orario di arrivo?','Il check-in anticipato ha un costo aggiuntivo?','C\'è un portiere di notte?'], seasonalTemplates:()=>[], priorityScore:()=>10 },
+    { id:'booking_general', category:'prenotazione_prezzi', label:'Prenotazione e prezzi', appliesWhen:()=>true, templates:()=>['Qual è il prezzo per notte?','La cancellazione è gratuita?','Entro quando posso cancellare gratuitamente?','Ci sono offerte last minute?','Il prezzo è garantito sul sito ufficiale?','È richiesta una caparra alla prenotazione?','Prenoto direttamente sul sito ho uno sconto?','I bambini soggiornano gratis?','Ci sono pacchetti tutto incluso?','Quali metodi di pagamento sono accettati?','È possibile pagare in contanti all\'arrivo?','L\'hotel accetta carta di credito o bancomat?','È richiesto un deposito cauzionale?','La tassa di soggiorno è inclusa nel prezzo?','Ci sono tariffe speciali per soggiorni lunghi?','L\'hotel offre sconti per gruppi?','È possibile modificare la prenotazione?','Come funziona il rimborso in caso di cancellazione?'], seasonalTemplates:()=>['Ci sono offerte speciali per l\'estate?','L\'hotel ha promozioni per le festività?'], priorityScore:()=>16 },
+];
+
+function generateQueriesForHotel(site) {
+    const features = buildHotelFeatures(site);
+    const dest = features.city || 'Italia';
+    const month = new Date().getMonth() + 1;
+    const isSeason = month >= 3 && month <= 9;
+    const result = {};
+    INTENT_LIBRARY.forEach(intent => {
+        if (!intent.appliesWhen(features)) return;
+        const queries = [...intent.templates(dest)];
+        if (isSeason && intent.seasonalTemplates) {
+            intent.seasonalTemplates(dest).forEach(q => { if (!queries.includes(q)) queries.push(q); });
+        }
+        const cat = intent.category;
+        if (!result[cat]) result[cat] = [];
+        queries.forEach(q => { if (!result[cat].includes(q)) result[cat].push(q); });
+    });
+    return result;
+}
+
+function getPriorityForCategory(category, features, hotelQueries) {
+    const alwaysMedia = ['prenotazione_prezzi', 'check_in_out', 'trasporti_arrivo'];
+    const score = INTENT_LIBRARY
+        .filter(i => i.category === category)
+        .reduce((sum, i) => sum + i.priorityScore(features), 0);
+    let prio;
+    if (score >= 15) prio = 'alta';
+    else if (score >= 8) prio = 'media';
+    else if (score >= 3) prio = 'bassa';
+    else if (hotelQueries[category]?.length) prio = 'bassa';
+    else prio = 'non_rilevante';
+    if (alwaysMedia.includes(category) && (prio === 'bassa' || prio === 'non_rilevante')) return 'media';
+    return prio;
+}
+
+function applySignalBoost(priorityScores, signals) {
+    if (!signals || !signals.length) return;
+    const catKeywords = {
+        'famiglie_con_bambini': /bambin|family|famil|piscin/i,
+        'coppie_romantici':     /romantico|anniversario|luna.di.miele|coppia/i,
+        'business_lavoro':      /meeting|business|conferenz|coworking|aziend/i,
+        'animali_domestici':    /cane|gatto|animali|pet/i,
+        'benessere_spa':        /spa|benessere|massagg|sauna|wellness/i,
+        'matrimoni_eventi':     /matrimon|riceviment|nozze|cerimoni/i,
+        'spiaggia_mare':        /spiaggia|mare|beach|lungomare/i,
+        'sport_avventura':      /sport|palestra|escursion|biciclette|trekking/i,
+        'prenotazione_prezzi':  /prenota|preventivo|offerta|tariffa|prezzo/i,
+    };
+    signals.forEach(sig => {
+        const text = ((sig.page_url || '') + ' ' + (sig.element_text || '')).toLowerCase();
+        Object.entries(catKeywords).forEach(([cat, rx]) => {
+            if (rx.test(text)) priorityScores[cat] = (priorityScores[cat] || 0) + 5;
+        });
+    });
+}
+
+const PRIORITY_ORDER = { 'alta':0, 'media':1, 'bassa':2, 'non_rilevante':3 };
+const PRIORITY_BADGE = {
+    'alta':          '<span style="font-size:10px;font-weight:700;color:#0D5F75;background:#e8f4f7;border:1px solid #C1CBE8;border-radius:20px;padding:2px 8px;white-space:nowrap">ALTA PRIORITÀ</span>',
+    'media':         '<span style="font-size:10px;font-weight:700;color:#666b84;background:#f4f4f8;border:1px solid #e4e4ec;border-radius:20px;padding:2px 8px;white-space:nowrap">MEDIA PRIORITÀ</span>',
+    'bassa':         '<span style="font-size:10px;font-weight:700;color:#9ca3af;background:#fafafa;border:1px solid #e4e4ec;border-radius:20px;padding:2px 8px;white-space:nowrap">BASSA PRIORITÀ</span>',
+    'non_rilevante': '<span style="font-size:10px;font-weight:700;color:#c4c4c4;background:#fafafa;border:1px solid #f0f0f0;border-radius:20px;padding:2px 8px;white-space:nowrap">NON RILEVANTE</span>',
+};
+
+let _mappaCurrentSite = null, _mappaCurrentPseData = null;
+
+async function initHotelMappa(site) {
+    if (_mappaInited) return; _mappaInited = true;
+    const cont = document.getElementById('hmappa-content');
+    if (!cont) return;
+    try { await _initHotelMappaInner(site, cont); }
+    catch(e) { _mappaInited = false; cont.innerHTML = `<div style="padding:20px;color:#b00020;font-size:13px">Errore: ${esc(e.message)}</div>`; }
+}
+
+async function _initHotelMappaInner(site, cont) {
+    _mappaCurrentSite = site;
+    const faqData = site?.faq_data || {};
+    const qmap = faqData.query_map || faqData.mappa_query || {};
+    const faqQuestions = new Set((faqData.items || []).map(f => (f.question || '').toLowerCase().trim()));
+    const hotelFeatures = buildHotelFeatures(site);
+    const hotelQueries  = generateQueriesForHotel(site);
+
+    const priorityScores = {};
+    const allCats = [...new Set(INTENT_LIBRARY.map(i => i.category))];
+    allCats.forEach(cat => {
+        priorityScores[cat] = INTENT_LIBRARY
+            .filter(i => i.category === cat && i.appliesWhen(hotelFeatures))
+            .reduce((sum, i) => sum + i.priorityScore(hotelFeatures), 0);
+    });
+    try {
+        const { data: signals } = await _SBq.from('isi_signals').select('event_type,page_url,element_text').eq('site_id', site.site_id).order('created_at', { ascending: false }).limit(200);
+        if (signals && signals.length) applySignalBoost(priorityScores, signals);
+    } catch(e) {}
+
+    const cats = allCats.sort((a, b) =>
+        PRIORITY_ORDER[getPriorityForCategory(a, hotelFeatures, hotelQueries)] -
+        PRIORITY_ORDER[getPriorityForCategory(b, hotelFeatures, hotelQueries)]);
+
+    let totalQ = 0, coveredQ = 0, dismissedQ = 0;
+    cats.forEach(cat => {
+        const qs = hotelQueries[cat] || [];
+        const entry = qmap[cat] || {};
+        const dismissed = Array.isArray(entry.dismissed_queries) ? entry.dismissed_queries : [];
+        const activeQs = qs.filter(q => !dismissed.includes(q));
+        const _storedCov = Array.isArray(entry.covered_queries) ? entry.covered_queries.filter(q => q.trim().endsWith('?')) : (entry.covered ? qs : []);
+        const coveredSet = new Set([..._storedCov, ...qs.filter(q => faqQuestions.has(q.toLowerCase().trim()))]);
+        totalQ += activeQs.length;
+        coveredQ += activeQs.filter(q => coveredSet.has(q) || coveredSet.has(q.toLowerCase())).length;
+        dismissedQ += dismissed.filter(q => qs.includes(q)).length;
+    });
+    const pct = totalQ > 0 ? Math.round(coveredQ / totalQ * 100) : 0;
+
+    // Build intent queries map for this hotel
+    const intentQueriesMap = {};
+    INTENT_LIBRARY.forEach(intent => {
+        if (!intent.appliesWhen(hotelFeatures)) return;
+        const dest = hotelFeatures.city || 'Italia';
+        const month = new Date().getMonth() + 1;
+        const isSeason = month >= 3 && month <= 9;
+        const queries = [...intent.templates(dest)];
+        if (isSeason && intent.seasonalTemplates) {
+            intent.seasonalTemplates(dest).forEach(q => { if (!queries.includes(q)) queries.push(q); });
+        }
+        if (!intentQueriesMap[intent.category]) intentQueriesMap[intent.category] = [];
+        intentQueriesMap[intent.category].push({ intent, queries });
+    });
+
+    const renderQueryRow = (q, cat, isCov, sid) => {
+        const qE = esc(q).replace(/'/g,"\\'");
+        const cE = esc(cat);
+        const sE = esc(sid);
+        return `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 20px;border-top:1px solid #f4f4f8">
+            <div style="display:flex;align-items:center;gap:10px;min-width:0">
+                <span style="font-size:15px;color:${isCov?'#0D5F75':'#C1CBE8'};font-weight:800;flex-shrink:0">${isCov?'✓':'✗'}</span>
+                <span style="font-size:13px;color:#171b33;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(q)}</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;margin-left:12px;flex-shrink:0">
+                ${isCov ? '<span style="font-size:11px;color:#0D5F75;font-weight:700;white-space:nowrap">Coperta ✓</span>' : ''}
+                <button class="btn-update" style="padding:4px 10px;font-size:11px" onclick="generaRispostaQuery(this,'${cE}','${qE}','${sE}')">✦ Genera</button>
+                <button class="btn-ping" style="padding:4px 8px;font-size:11px" onclick="apriModaleFaqHotel('${qE}')">✎ Scrivi</button>
+                <button style="padding:4px 8px;font-size:11px;font-weight:600;background:white;border:1px solid #e4e4ec;border-radius:8px;cursor:pointer;color:#9ca3af;font-family:'Source Code Pro',monospace;white-space:nowrap" onclick="dismissHotelQuery(this,'${cE}','${qE}','${sE}')">✕</button>
+            </div>
+        </div>`;
+    };
+
+    const renderCat = cat => {
+        const label = cat.replace(/_/g,' ').replace(/\b\w/g, c => c.toUpperCase());
+        const prio  = getPriorityForCategory(cat, hotelFeatures, hotelQueries);
+        const qs    = hotelQueries[cat] || [];
+        const entry = qmap[cat] || {};
+        const dismissedArr = Array.isArray(entry.dismissed_queries) ? entry.dismissed_queries : [];
+        const dismissedSet = new Set(dismissedArr);
+        const activeQs = qs.filter(q => !dismissedSet.has(q));
+        const _storedCov = Array.isArray(entry.covered_queries) ? entry.covered_queries.filter(q => q.trim().endsWith('?')) : (entry.covered ? qs : []);
+        const coveredSet = new Set([..._storedCov, ...qs.filter(q => faqQuestions.has(q.toLowerCase().trim()))]);
+        const covQ = activeQs.filter(q => coveredSet.has(q) || coveredSet.has(q.toLowerCase())).length;
+        const dotColor = prio==='alta'?'#0D5F75':prio==='media'?'#666b84':'#9ca3af';
+        const catIntents = intentQueriesMap[cat] || [];
+        let bodyHtml = '';
+        if (catIntents.length > 0) {
+            catIntents.forEach((item, idx) => {
+                const activeIntentQs = item.queries.filter(q => !dismissedSet.has(q));
+                if (!activeIntentQs.length) return;
+                bodyHtml += `<div style="font-size:10px;font-weight:700;color:#666b84;text-transform:uppercase;padding:8px 20px 4px${idx>0?';border-top:1px solid #ececf2':''}">${esc(item.intent.label)}</div>`;
+                bodyHtml += activeIntentQs.map(q => renderQueryRow(q, cat, coveredSet.has(q)||coveredSet.has(q.toLowerCase()), site.site_id)).join('');
+            });
+            const intentQs = new Set(catIntents.flatMap(i => i.queries));
+            activeQs.filter(q => !intentQs.has(q)).forEach(q => {
+                bodyHtml += renderQueryRow(q, cat, coveredSet.has(q)||coveredSet.has(q.toLowerCase()), site.site_id);
+            });
+        } else {
+            bodyHtml = activeQs.map(q => renderQueryRow(q, cat, coveredSet.has(q)||coveredSet.has(q.toLowerCase()), site.site_id)).join('');
+        }
+        let dismissedHtml = '';
+        if (dismissedArr.length > 0) {
+            const dId = 'hdism-' + cat.replace(/[^a-z0-9]/gi,'_');
+            dismissedHtml = `<div style="border-top:1px solid #ececf2">
+                <button onclick="var c=document.getElementById('${dId}');var o=c.style.display!=='none';c.style.display=o?'none':'block';this.textContent=o?'▸ Mostra ${dismissedArr.length} non rilevanti':'▴ Nascondi non rilevanti';" style="width:100%;text-align:left;background:#fafafa;border:none;padding:8px 20px;font-size:10px;font-weight:600;color:#9ca3af;cursor:pointer;font-family:'Source Code Pro',monospace">▸ Mostra ${dismissedArr.length} non rilevanti</button>
+                <div id="${dId}" style="display:none">${dismissedArr.map(q=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 20px;border-top:1px solid #f4f4f8"><span style="font-size:12px;color:#9ca3af;text-decoration:line-through">${esc(q)}</span><button style="padding:4px 8px;font-size:11px;background:white;border:1px solid #e4e4ec;border-radius:6px;cursor:pointer;color:#0D5F75;font-family:'Source Code Pro',monospace" onclick="restoreHotelQuery(this,'${esc(cat)}','${esc(q).replace(/'/g,"\\'")}','${esc(site.site_id)}')">↩ Ripristina</button></div>`).join('')}</div>
+            </div>`;
+        }
+        return `<div class="card" style="margin-bottom:12px;border:1px solid #e4e4ec;box-shadow:none${prio==='non_rilevante'?';opacity:.45':''}">
+            <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
+                <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:${dotColor};display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">${esc(label)}</div>${PRIORITY_BADGE[prio]}</div>
+                <span style="background:white;border:1px solid #e4e4ec;border-radius:20px;font-size:10px;font-weight:700;color:#666b84;padding:3px 10px;white-space:nowrap">${covQ}/${activeQs.length} COPERTE</span>
+            </div>
+            ${bodyHtml}${dismissedHtml}
+        </div>`;
+    };
+
+    const relevantCats   = cats.filter(c => getPriorityForCategory(c, hotelFeatures, hotelQueries) !== 'non_rilevante');
+    const irrelevantCats = cats.filter(c => getPriorityForCategory(c, hotelFeatures, hotelQueries) === 'non_rilevante');
+
+    // Summary bar
+    cont.innerHTML = `<div style="background:#fafafa;border-bottom:1px solid #e4e4ec;padding:12px 20px;display:flex;gap:20px;flex-wrap:wrap;align-items:center;margin-bottom:16px">
+        <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:200px">
+            <div style="flex:1;background:#e4e4ec;border-radius:4px;height:6px;overflow:hidden"><div style="height:100%;background:#0D5F75;border-radius:4px;width:${pct}%"></div></div>
+            <span style="font-size:12px;font-weight:700;color:#0D5F75;white-space:nowrap">${pct}% coperta</span>
+        </div>
+        <span style="font-size:11px;color:#666b84">${coveredQ}/${totalQ} query coperte</span>
+        ${dismissedQ ? `<span style="font-size:11px;color:#9ca3af">${dismissedQ} ignorate</span>` : ''}
+    </div>` +
+    relevantCats.map(renderCat).join('') +
+    (irrelevantCats.length ? `<div style="margin-bottom:12px"><button class="btn-ping" style="font-size:11px;margin-left:0" onclick="var s=document.getElementById('hirrel-cats');var sh=s.style.display!=='none';s.style.display=sh?'none':'block';this.textContent=sh?'▸ Mostra ${irrelevantCats.length} non rilevanti':'▴ Nascondi non rilevanti';">▸ Mostra ${irrelevantCats.length} categorie non rilevanti per questo hotel</button></div><div id="hirrel-cats" style="display:none">${irrelevantCats.map(renderCat).join('')}</div>` : '');
+}
+
+window.generaRispostaQuery = async function(btn, cat, query, siteId) {
+    const origText = btn.textContent;
+    btn.disabled = true; btn.textContent = '⏳...';
+    try {
+        const { data: { session } } = await _SB.auth.getSession();
+        if (!session) throw new Error('Sessione scaduta');
+        const r = await fetch(`${SUPABASE_URL}/functions/v1/pse-query`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
+            body: JSON.stringify({ site_id: siteId, query, action: 'faq_generate' })
+        });
+        const json = await r.json();
+        if (!json.answer) throw new Error(json.error || 'Nessuna risposta generata');
+        const aiAnswer = json.answer;
+        // Save to Supabase faq_data
+        const { data: siteRow } = await _SBq.from('isi_sites').select('faq_data').eq('site_id', siteId).single();
+        const fd = siteRow?.faq_data || {};
+        const items = Array.isArray(fd.items) ? [...fd.items] : [];
+        const existingIdx = items.findIndex(f => (f.question||'').trim().toLowerCase() === query.trim().toLowerCase());
+        if (existingIdx >= 0) {
+            items[existingIdx] = { ...items[existingIdx], answer: aiAnswer, solo_ai: true, status: 'publish', updated_at: new Date().toISOString() };
+        } else {
+            items.push({ id: Date.now(), question: query, answer: aiAnswer, solo_ai: true, status: 'publish', menu_order: 0, created_at: new Date().toISOString() });
+        }
+        const qmSave = fd.query_map || {};
+        const catEntry = qmSave[cat] || {};
+        const covQ2 = Array.isArray(catEntry.covered_queries) ? catEntry.covered_queries : [];
+        if (!covQ2.includes(query)) covQ2.push(query);
+        qmSave[cat] = { ...catEntry, covered_queries: covQ2 };
+        await _SBq.from('isi_sites').update({ faq_data: { ...fd, items, query_map: qmSave } }).eq('site_id', siteId);
+        if (_site) { _site.faq_data = { ...fd, items, query_map: qmSave }; _faqItems = []; }
+        const wrapper = btn.closest('div[style*="gap:6px"]');
+        if (wrapper) wrapper.innerHTML = `<span style="font-size:11px;color:#0D5F75;font-weight:700">Coperta ✓</span><button class="btn-update" style="padding:4px 10px;font-size:11px" onclick="generaRispostaQuery(this,'${esc(cat)}','${esc(query).replace(/'/g,"\\'")}','${esc(siteId)}')">✦ Genera</button>`;
+        showToast('✓ FAQ generata e salvata');
+    } catch(e) {
+        showToast('⚠ ' + e.message);
+        apriModaleFaqHotel(query);
+    }
+    btn.disabled = false; btn.textContent = origText;
+};
+
+window.dismissHotelQuery = async function(btn, cat, query, siteId) {
+    btn.disabled = true; btn.textContent = '...';
+    try {
+        const { data: fresh } = await _SBq.from('isi_sites').select('faq_data').eq('site_id', siteId).single();
+        const faq = fresh?.faq_data || _mappaCurrentSite?.faq_data || {};
+        const qm = faq.query_map || {};
+        const entry = qm[cat] || {};
+        const dismissed = Array.isArray(entry.dismissed_queries) ? [...entry.dismissed_queries] : [];
+        if (!dismissed.includes(query)) dismissed.push(query);
+        const newFaq = { ...faq, query_map: { ...qm, [cat]: { ...entry, dismissed_queries: dismissed } } };
+        await _SBq.from('isi_sites').update({ faq_data: newFaq }).eq('site_id', siteId);
+        if (_mappaCurrentSite) _mappaCurrentSite.faq_data = newFaq;
+        _mappaInited = false;
+        if (_mappaCurrentSite) await initHotelMappa(_mappaCurrentSite);
+    } catch(e) { btn.textContent = '✕'; btn.disabled = false; }
+};
+
+window.restoreHotelQuery = async function(btn, cat, query, siteId) {
+    btn.disabled = true; btn.textContent = '...';
+    try {
+        const { data: fresh } = await _SBq.from('isi_sites').select('faq_data').eq('site_id', siteId).single();
+        const faq = fresh?.faq_data || _mappaCurrentSite?.faq_data || {};
+        const qm = faq.query_map || {};
+        const entry = qm[cat] || {};
+        const dismissed = (Array.isArray(entry.dismissed_queries) ? entry.dismissed_queries : []).filter(q => q !== query);
+        const newFaq = { ...faq, query_map: { ...qm, [cat]: { ...entry, dismissed_queries: dismissed } } };
+        await _SBq.from('isi_sites').update({ faq_data: newFaq }).eq('site_id', siteId);
+        if (_mappaCurrentSite) _mappaCurrentSite.faq_data = newFaq;
+        _mappaInited = false;
+        if (_mappaCurrentSite) await initHotelMappa(_mappaCurrentSite);
+    } catch(e) { btn.textContent = '↩ Ripristina'; btn.disabled = false; }
+};
+
+window.apriModaleFaqHotel = function(query, prefillAnswer, errorMsg) {
+    document.getElementById('faq-hotel-modal-ttl').textContent = 'Aggiungi FAQ';
+    document.getElementById('fhm-id').value   = '';
+    document.getElementById('fhm-q').value    = query;
+    document.getElementById('fhm-a').value    = prefillAnswer || '';
+    document.getElementById('fhm-solo-ai').checked = true;
+    const msgEl = document.getElementById('fhm-msg');
+    if (errorMsg) { msgEl.textContent = errorMsg; msgEl.style.background='#fce8ef'; msgEl.style.color='#b00020'; msgEl.style.display='block'; }
+    else { msgEl.style.display='none'; }
+    document.getElementById('faq-hotel-modal').style.display = 'flex';
 };
 
 // ─── COERENZA ─────────────────────────────────────────────────────────────────
-const COERENZA_FIELDS   = ['Nome struttura','Descrizione','Telefono','Email','Indirizzo','Check-in','Check-out','Stelle','Servizi','Prezzi','Sito web'];
-const COERENZA_CHANNELS = ['Sito Web','Google Business','Booking.com','TripAdvisor','Airbnb','Expedia'];
+const _DEFAULT_COERENZA_CHANNELS_H = ['Google Business','Booking.com','TripAdvisor','Airbnb','Expedia'];
 
 async function initHotelCoerenza(site) {
     if (_coerenzaInited) return; _coerenzaInited = true;
-    const cont=document.getElementById('hcoerenza-content'); if(!cont) return;
-    const saved=(site.hotel_profile||{}).coerenza_channels||{};
-    const btnSave=document.getElementById('btn-save-hcoerenza'); if(btnSave) btnSave.style.display='inline-flex';
-    const thS='padding:10px 12px;font-size:10px;font-weight:700;color:#aaa;letter-spacing:.05em;text-transform:uppercase;text-align:center;background:#fafafa;white-space:nowrap;border-bottom:1px solid #e4e4ec';
-    const tdS='padding:8px 10px;border-bottom:1px solid #f4f4f8;vertical-align:top';
-    let html='<table style="width:100%;border-collapse:collapse;min-width:900px"><thead><tr><th style="'+thS+';text-align:left;min-width:140px">Campo</th>';
-    COERENZA_CHANNELS.forEach(ch=>{ html+='<th style="'+thS+'">'+esc(ch)+'</th>'; });
-    html+='</tr></thead><tbody>';
-    COERENZA_FIELDS.forEach(field=>{
-        html+='<tr><td style="'+tdS+';font-size:12px;font-weight:700;color:#4b4d68;white-space:nowrap">'+esc(field)+'</td>';
-        COERENZA_CHANNELS.forEach(ch=>{ const val=(saved[ch]||{})[field]||''; html+='<td style="'+tdS+'"><textarea data-field="'+esc(field)+'" data-channel="'+esc(ch)+'" class="hcoer-inp" style="width:100%;border:1px solid #e4e4ec;border-radius:6px;padding:6px 8px;font-size:12px;resize:vertical;min-height:42px;color:#171b33;outline:none;box-sizing:border-box" placeholder="—">'+esc(val)+'</textarea></td>'; });
-        html+='</tr>';
-    });
-    html+='</tbody></table>';
-    cont.innerHTML=html;
-    if(btnSave) btnSave.onclick=async()=>{
-        btnSave.textContent='Salvataggio...'; btnSave.disabled=true;
-        const data={};
-        cont.querySelectorAll('.hcoer-inp').forEach(inp=>{ const ch=inp.dataset.channel,fi=inp.dataset.field; if(!data[ch])data[ch]={}; if(inp.value.trim())data[ch][fi]=inp.value.trim(); });
-        const hp=site.hotel_profile||{};
-        const{error}=await _SBq.from('isi_sites').update({hotel_profile:{...hp,coerenza_channels:data}}).eq('site_id',site.site_id);
-        btnSave.textContent=error?'✗ Errore':'✓ Salvato'; setTimeout(()=>{btnSave.textContent='Salva';btnSave.disabled=false;},2500);
+    const hp = site?.hotel_profile || {};
+    const sc = site?.schema_data   || {};
+    const cont = document.getElementById('hcoerenza-content');
+    if (!cont) return;
+
+    const addr = [hp.via, hp.numero_civico, hp.cap, hp.citta].filter(Boolean).join(', ') ||
+                 [sc.street, sc.city, sc.postal_code].filter(Boolean).join(', ') || '—';
+
+    const savedRaw = hp.coerenza_channels || {};
+    const channels = {};
+    const channelList = _DEFAULT_COERENZA_CHANNELS_H;
+
+    if (Object.keys(savedRaw).length === 0) {
+        channelList.forEach(ch => { channels[ch] = { url: '', last_scan_at: null, results: [], error: null }; });
+        const hp2 = { ...hp, coerenza_channels: channels };
+        site.hotel_profile = hp2;
+        _SBq.from('isi_sites').update({ hotel_profile: hp2 }).eq('site_id', site.site_id);
+    } else {
+        channelList.length = 0;
+        Object.keys(savedRaw).forEach(ch => {
+            const s = savedRaw[ch];
+            channelList.push(ch);
+            channels[ch] = s && typeof s === 'object'
+                ? { url: s.url || '', last_scan_at: s.last_scan_at || null, results: s.results || [], error: s.error || null }
+                : { url: '', last_scan_at: null, results: [], error: null };
+        });
+    }
+
+    const refData = {
+        'Nome struttura': sc.name || hp.nome_hotel || hp.nome || '',
+        'Stelle':         String(sc.official_rating || hp.stelle || ''),
+        'Indirizzo':      addr !== '—' ? addr : '',
+        'Telefono':       hp.telefono || sc.telephone || '',
+        'Email':          hp.email || sc.email || '',
+        'Check-in':       hp.checkin_dalle || sc.checkin_time || '',
+        'Check-out':      hp.checkout_alle || sc.checkout_time || '',
+        'Sito web':       hp.sito_web || sc.url || '',
+    };
+
+    const expandedChannels = new Set();
+
+    function renderChannels() {
+        cont.innerHTML = channelList.map(ch => {
+            const d = channels[ch];
+            const hasUrl = !!d.url;
+            const hasResults = d.results && d.results.length > 0;
+            const hasDetail = hasResults || !!d.error;
+            const matchCount    = hasResults ? d.results.filter(r => r.match).length : 0;
+            const totalCount    = hasResults ? d.results.length : 0;
+            const incoerCount   = hasResults ? d.results.filter(r => !r.match && r.found_value).length : 0;
+            const notFoundCount = hasResults ? d.results.filter(r => !r.match && !r.found_value).length : 0;
+            const isExpanded    = expandedChannels.has(ch);
+
+            let statusHtml;
+            if (!hasUrl) {
+                statusHtml = '<span style="font-size:13px;color:#9ca3af">URL non configurato — inserisci il link alla tua scheda su questo portale</span>';
+            } else if (d.error) {
+                statusHtml = '<span style="font-size:13px;color:#b00020">⚠ ' + esc(d.error) + '</span>';
+            } else if (!hasResults) {
+                statusHtml = '<span style="font-size:13px;color:#666b84">Non ancora scansionato</span>';
+            } else if (incoerCount === 0) {
+                const nf = notFoundCount > 0 ? ' · '+notFoundCount+' non trovati' : '';
+                statusHtml = '<span style="font-size:13px;color:#0D5F75">✓ '+matchCount+'/'+totalCount+' campi allineati'+nf+'</span>';
+            } else {
+                const nf = notFoundCount > 0 ? ' · '+notFoundCount+' non trovati' : '';
+                statusHtml = '<span style="font-size:13px;color:#b00020">✗ '+matchCount+'/'+totalCount+' allineati · '+incoerCount+' incoerenze'+nf+'</span>';
+            }
+
+            const arrowSvg = hasDetail
+                ? `<button type="button" class="hbtn-toggle-ch" data-channel="${esc(ch)}"
+                    style="background:none;border:none;cursor:pointer;padding:1px 3px;flex-shrink:0;display:inline-flex;align-items:center;line-height:1;vertical-align:middle">
+                    <svg viewBox="0 0 10 7" fill="none" xmlns="http://www.w3.org/2000/svg"
+                        style="width:9px;height:9px;transition:transform .18s ease;transform:rotate(${isExpanded ? '0' : '-90'}deg)">
+                        <path d="M1 1L5 5.5L9 1" stroke="#9ca3af" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg></button>` : '';
+
+            let detailHtml = '';
+            if (hasDetail && isExpanded) {
+                if (d.error) {
+                    detailHtml = `<div style="margin-top:10px;padding:10px 12px;background:#fff5f7;border:1px solid #C1CBE8;border-radius:6px;font-size:13px;color:#b00020">
+                        ${esc(d.error)}
+                        ${d.last_scan_at ? `<div style="margin-top:4px;font-size:12px;color:#9ca3af">Ultima scansione: ${new Date(d.last_scan_at).toLocaleDateString('it-IT')} alle ${new Date(d.last_scan_at).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})}</div>` : ''}
+                    </div>`;
+                } else if (hasResults) {
+                    detailHtml = '<div style="margin-top:12px;border-top:1px solid #f4f4f8;padding-top:10px">' +
+                        '<div style="display:grid;grid-template-columns:130px 1fr 1fr 28px;gap:8px;padding:0 0 6px 0;border-bottom:1px solid #e4e4ec;margin-bottom:4px">' +
+                            '<div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em">Campo</div>' +
+                            '<div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em">I tuoi dati</div>' +
+                            '<div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em">Trovato su '+esc(ch)+'</div>' +
+                            '<div></div>' +
+                        '</div>' +
+                        d.results.map(r =>
+                            `<div style="display:grid;grid-template-columns:130px 1fr 1fr 28px;gap:8px;align-items:start;padding:5px 0;border-bottom:1px solid #f4f4f8">
+                                <div style="font-size:12px;font-weight:700;color:#666b84;padding-top:1px">${esc(r.field)}</div>
+                                <div style="font-size:13px;color:#4b4d68">${esc(r.our_value || '—')}</div>
+                                <div style="font-size:13px;color:${r.match ? '#4b4d68' : (r.found_value ? '#b00020' : '#9ca3af')};font-weight:${r.match ? '400' : (r.found_value ? '700' : '400')}">${esc(r.found_value || '—')}</div>
+                                <div style="font-size:15px;text-align:center;padding-top:1px">${r.match ? '<span style="color:#C1CBE8">✓</span>' : (r.found_value ? '<span style="color:#b00020">✗</span>' : '<span style="color:#9ca3af">○</span>')}</div>
+                            </div>`
+                        ).join('') + '</div>';
+                    if (d.last_scan_at) {
+                        const dt = new Date(d.last_scan_at);
+                        detailHtml += `<div style="font-size:12px;color:#9ca3af;margin-top:8px">Ultima scansione: ${dt.toLocaleDateString('it-IT')} alle ${dt.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})}</div>`;
+                    }
+                }
+            }
+
+            return `<div style="border:1px solid #e4e4ec;border-radius:8px;padding:14px 16px;margin-bottom:12px">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+                    <div style="font-size:14px;font-weight:700;color:#171b33;flex-shrink:0">${esc(ch)}</div>
+                    <input type="url" class="hcoer-url-inp" data-channel="${esc(ch)}" value="${esc(d.url||'')}" placeholder="https://..." style="flex:1;min-width:0;border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:13px;outline:none;color:#171b33;background:#fff">
+                    <button type="button" class="hbtn-scan-ch" data-channel="${esc(ch)}" style="background:#0D5F75;color:white;border:none;border-radius:6px;padding:7px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Source Code Pro',monospace;white-space:nowrap;flex-shrink:0">Scansiona</button>
+                    <button type="button" class="hbtn-save-ch" data-channel="${esc(ch)}" style="background:transparent;color:#171b33;border:1.5px solid #e4e4ec;border-radius:4px;padding:7px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Source Code Pro',monospace;white-space:nowrap;flex-shrink:0">Salva</button>
+                    <button type="button" class="hbtn-remove-ch" data-channel="${esc(ch)}" style="background:none;border:1px solid #e4e4ec;border-radius:4px;padding:5px 8px;cursor:pointer;color:#9ca3af;font-size:13px;line-height:1">✕</button>
+                </div>
+                <div class="${hasDetail ? 'hcoer-status-row' : ''}" data-channel="${esc(ch)}" style="${hasDetail ? 'cursor:pointer;' : ''}display:inline-flex;align-items:center;gap:5px">
+                    ${statusHtml}
+                    ${arrowSvg}
+                </div>
+                ${detailHtml}
+            </div>`;
+        }).join('');
+
+        cont.querySelectorAll('.hcoer-url-inp').forEach(inp => {
+            inp.onblur = async () => {
+                const ch = inp.dataset.channel, url = inp.value.trim();
+                if (channels[ch].url === url) return;
+                channels[ch].url = url;
+                const hp2 = site?.hotel_profile || {};
+                await _SBq.from('isi_sites').update({ hotel_profile: {...hp2, coerenza_channels: channels} }).eq('site_id', site.site_id);
+                renderChannels();
+            };
+            inp.onkeydown = (e) => { if (e.key === 'Enter') inp.blur(); };
+        });
+        cont.querySelectorAll('.hbtn-save-ch').forEach(btn => {
+            btn.onclick = async () => {
+                const ch = btn.dataset.channel;
+                const url = cont.querySelector(`.hcoer-url-inp[data-channel="${ch}"]`)?.value?.trim() || '';
+                channels[ch].url = url;
+                const hp2 = site?.hotel_profile || {};
+                hp2.coerenza_channels = channels;
+                site.hotel_profile = hp2;
+                await _SBq.from('isi_sites').update({ hotel_profile: hp2 }).eq('site_id', site.site_id);
+                btn.textContent = '✓ Salvato'; btn.style.color = '#0D5F75'; btn.style.borderColor = '#C1CBE8';
+                setTimeout(() => { btn.textContent = 'Salva'; btn.style.color = '#171b33'; btn.style.borderColor = '#e4e4ec'; }, 2000);
+            };
+        });
+        cont.querySelectorAll('.hbtn-scan-ch').forEach(btn => {
+            btn.onclick = () => {
+                const ch = btn.dataset.channel;
+                const url = (cont.querySelector(`.hcoer-url-inp[data-channel="${ch}"]`))?.value?.trim() || channels[ch]?.url;
+                if (!url) { showToast('Inserisci prima il link per ' + ch); return; }
+                channels[ch].url = url;
+                scanHotelChannel(ch, url, btn);
+            };
+        });
+        cont.querySelectorAll('.hbtn-remove-ch').forEach(btn => {
+            btn.onclick = () => {
+                const ch = btn.dataset.channel;
+                const modal = document.getElementById('hmodal-del-canale');
+                if (modal) {
+                    document.getElementById('hmodal-del-canale-msg').textContent = 'Rimuovere il canale "' + ch + '"?';
+                    modal.style.display = 'flex';
+                    const okBtn = document.getElementById('hbtn-ok-del-canale');
+                    const newOkBtn = okBtn.cloneNode(true);
+                    okBtn.parentNode.replaceChild(newOkBtn, okBtn);
+                    newOkBtn.onclick = async () => {
+                        modal.style.display = 'none';
+                        const idx = channelList.indexOf(ch);
+                        if (idx > -1) channelList.splice(idx, 1);
+                        delete channels[ch];
+                        expandedChannels.delete(ch);
+                        const hp2 = site?.hotel_profile || {};
+                        hp2.coerenza_channels = channels;
+                        site.hotel_profile = hp2;
+                        await _SBq.from('isi_sites').update({ hotel_profile: hp2 }).eq('site_id', site.site_id);
+                        renderChannels();
+                    };
+                }
+            };
+        });
+        cont.querySelectorAll('.hbtn-toggle-ch, .hcoer-status-row').forEach(el => {
+            el.onclick = (e) => {
+                if (el.classList.contains('hcoer-status-row') && e.target.closest('.hbtn-toggle-ch')) return;
+                const ch = el.dataset.channel;
+                if (!ch) return;
+                if (expandedChannels.has(ch)) expandedChannels.delete(ch);
+                else expandedChannels.add(ch);
+                renderChannels();
+            };
+        });
+    }
+
+    async function scanHotelChannel(ch, url, btn) {
+        const origText = btn ? btn.textContent : '';
+        if (btn) { btn.textContent = '⏳...'; btn.disabled = true; }
+        try {
+            const { data: { session } } = await _SB.auth.getSession();
+            if (!session) throw new Error('Sessione scaduta');
+            const r = await fetch(`${SUPABASE_URL}/functions/v1/channel-scan`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
+                body: JSON.stringify({ site_id: site.site_id, channel: ch, url }),
+            });
+            const res = await r.json();
+            if (res.results && res.results.length) {
+                channels[ch].results = res.results;
+                channels[ch].last_scan_at = new Date().toISOString();
+                channels[ch].error = null;
+                expandedChannels.add(ch);
+                const hp2 = site?.hotel_profile || {};
+                hp2.coerenza_channels = channels;
+                site.hotel_profile = hp2;
+                await _SBq.from('isi_sites').update({ hotel_profile: hp2 }).eq('site_id', site.site_id);
+                renderChannels();
+                showToast('Scansione ' + ch + ' completata.');
+            } else {
+                const msg = res.message || 'Impossibile leggere la pagina. Prova con un URL diretto alla scheda hotel.';
+                channels[ch].error = msg;
+                channels[ch].last_scan_at = new Date().toISOString();
+                expandedChannels.add(ch);
+                const hp2 = site?.hotel_profile || {};
+                hp2.coerenza_channels = channels;
+                site.hotel_profile = hp2;
+                await _SBq.from('isi_sites').update({ hotel_profile: hp2 }).eq('site_id', site.site_id);
+                renderChannels();
+                showToast('⚠ ' + ch + ': ' + msg);
+            }
+        } catch(e) { showToast('Errore: ' + e.message); }
+        if (btn) { btn.textContent = origText || 'Scansiona'; btn.disabled = false; }
+    }
+
+    renderChannels();
+
+    window._hDoAggiungiCanale = async () => {
+        const inp = document.getElementById('hinput-nuovo-canale');
+        const ch = (inp?.value || '').trim();
+        if (!ch) return;
+        if (channelList.includes(ch)) { showToast('Canale già presente.'); document.getElementById('hmodal-canale').style.display = 'none'; return; }
+        channelList.push(ch);
+        channels[ch] = { url: '', last_scan_at: null, results: [] };
+        const hp2 = site?.hotel_profile || {};
+        hp2.coerenza_channels = channels;
+        site.hotel_profile = hp2;
+        await _SBq.from('isi_sites').update({ hotel_profile: hp2 }).eq('site_id', site.site_id);
+        renderChannels();
+        document.getElementById('hmodal-canale').style.display = 'none';
+    };
+
+    function buildHReportRows() {
+        const thS = 'padding:7px 14px;font-size:10px;font-weight:700;color:#666b84;text-align:left;text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid #e4e4ec;background:#fafafa';
+        let html = '';
+        channelList.forEach(ch => {
+            const d = channels[ch]; if (!d) return;
+            const shortUrl = d.url ? (d.url.length > 55 ? d.url.slice(0,53)+'…' : d.url) : '';
+            html += `<div style="border:1px solid #e4e4ec;border-radius:8px;margin-bottom:12px;overflow:hidden">`;
+            html += `<div style="background:#f7f7fb;padding:10px 14px;border-bottom:1px solid #e4e4ec;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">
+                <span style="font-weight:700;font-size:14px;color:#171b33">${esc(ch)}</span>
+                ${shortUrl ? `<span style="font-size:12px;color:#C1CBE8">${esc(shortUrl)}</span>` : ''}
+            </div>`;
+            if (!d.url) {
+                html += `<div style="padding:10px 14px;font-size:13px;color:#9ca3af">URL non configurato</div>`;
+            } else if (d.error) {
+                html += `<div style="padding:10px 14px;font-size:13px;color:#b00020">⚠ ${esc(d.error)}</div>`;
+            } else if (!d.results?.length) {
+                html += `<div style="padding:10px 14px;font-size:13px;color:#666b84">Non ancora scansionato</div>`;
+            } else {
+                html += `<table style="width:100%;border-collapse:collapse">
+                    <thead><tr>
+                        <th style="${thS};width:120px">Campo</th>
+                        <th style="${thS}">I tuoi dati</th>
+                        <th style="${thS}">Trovato sul portale</th>
+                        <th style="${thS};width:36px;text-align:center">✓/✗</th>
+                    </tr></thead><tbody>`;
+                d.results.forEach(r => {
+                    const icon = r.match ? '✓' : (r.found_value ? '✗' : '○');
+                    const iconColor = r.match ? '#C1CBE8' : (r.found_value ? '#b00020' : '#9ca3af');
+                    html += `<tr>
+                        <td style="padding:8px 14px;font-size:13px;font-weight:600;color:#4b4d68;border-bottom:1px solid #f4f4f8">${esc(r.field)}</td>
+                        <td style="padding:8px 14px;font-size:13px;color:#171b33;border-bottom:1px solid #f4f4f8">${esc(r.our_value||'—')}</td>
+                        <td style="padding:8px 14px;font-size:13px;border-bottom:1px solid #f4f4f8;color:${r.match?'#171b33':(r.found_value?'#b00020':'#9ca3af')};font-weight:${!r.match&&r.found_value?'700':'400'}">${esc(r.found_value||'—')}</td>
+                        <td style="padding:8px 14px;font-size:15px;text-align:center;border-bottom:1px solid #f4f4f8;color:${iconColor}">${icon}</td>
+                    </tr>`;
+                });
+                if (d.last_scan_at) {
+                    const dt = new Date(d.last_scan_at);
+                    html += `<tr><td colspan="4" style="padding:6px 14px;font-size:12px;color:#9ca3af;background:#fafafa">Scansione: ${dt.toLocaleDateString('it-IT')} ore ${dt.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})}</td></tr>`;
+                }
+                html += `</tbody></table>`;
+            }
+            html += `</div>`;
+        });
+        return html || '<p style="color:#9ca3af;font-size:14px">Nessun canale configurato.</p>';
+    }
+
+    window._printHCoerenzaReport = () => {
+        const hotelNome = site.site_name || '';
+        const oggi = new Date().toLocaleDateString('it-IT');
+        const rows = buildHReportRows();
+        const w = window.open('', '_blank');
+        if (!w) { showToast('Consenti i popup per stampare.'); return; }
+        w.document.write(`<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><title>Report Confronto Canali — ${esc(hotelNome)}</title><style>body{font-family:Arial,Helvetica,sans-serif;color:#171b33;padding:32px;max-width:900px;margin:0 auto}h2{margin:0 0 4px;font-size:22px;color:#0D5F75}.sub{font-size:14px;color:#666b84;margin:0 0 24px}table{width:100%;border-collapse:collapse;margin-top:0}@media print{button{display:none!important}}.footer{margin-top:24px;font-size:12px;color:#9ca3af;border-top:1px solid #e4e4ec;padding-top:12px}</style></head><body><h2>Report Confronto Canali</h2><p class="sub">${esc(hotelNome)} &nbsp;·&nbsp; ${oggi}</p>${rows}<p class="footer">Generato da Eletta — isi.in3pida.it &nbsp;·&nbsp; ${oggi}</p><br><button onclick="window.print()" style="background:#0D5F75;color:white;border:none;padding:10px 24px;font-size:15px;font-weight:700;border-radius:6px;cursor:pointer">Stampa / Salva PDF</button></body></html>`);
+        w.document.close();
+    };
+
+    const btnReport = document.getElementById('btn-esporta-report-h');
+    if (btnReport) btnReport.onclick = () => {
+        const hotelNome = site.site_name || '';
+        const oggi = new Date().toLocaleDateString('it-IT');
+        const hmodal = document.getElementById('hmodal-report-coerenza');
+        if (hmodal) {
+            document.getElementById('hmodal-report-title').textContent = 'Report Confronto Canali — ' + hotelNome;
+            document.getElementById('hmodal-report-sub').textContent = 'Generato il ' + oggi;
+            document.getElementById('hmodal-report-body').innerHTML = buildHReportRows();
+            hmodal.style.display = 'flex';
+        } else {
+            window._printHCoerenzaReport();
+        }
+    };
+
+    const btnAll = document.getElementById('btn-avvia-scansione-h');
+    if (btnAll) btnAll.onclick = async () => {
+        const configured = channelList.filter(ch => channels[ch]?.url);
+        if (!configured.length) { showToast('Inserisci prima i link ai portali per avviare la scansione.'); return; }
+        btnAll.textContent = '⏳ Scansione...'; btnAll.disabled = true;
+        for (const ch of configured) {
+            await scanHotelChannel(ch, channels[ch].url, null);
+        }
+        btnAll.textContent = '▶ Scansiona tutti'; btnAll.disabled = false;
+        showToast('Scansione completata per tutti i canali configurati.');
     };
 }
 
 // ─── CONFIGURAZIONE ───────────────────────────────────────────────────────────
 async function initHotelConfig(site) {
     if (_configInited) return; _configInited = true;
-    const cont=document.getElementById('hconfig-content'); if(!cont) return;
-    const hp=site.hotel_profile||{}, cfg=hp.isi_config||{}, geo=site.geo_scores||{};
-    const cardH='<div class="card" style="margin-bottom:20px;border-radius:8px;border:1px solid #e4e4ec;box-shadow:none">';
-    const chH=(dot,title)=>'<div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:'+dot+';display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">'+title+'</div></div></div>';
-    const row=(l,v)=>'<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f4f4f8"><span style="font-size:13px;font-weight:600;color:#4b4d68">'+l+'</span><span style="font-size:13px;color:#171b33;font-weight:700">'+v+'</span></div>';
-    const toggl=(id,label,checked)=>'<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #f4f4f8"><span style="font-size:13px;font-weight:600;color:#4b4d68">'+label+'</span><label style="display:inline-flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="hcfg-'+id+'" '+(checked?'checked':'')+' style="width:16px;height:16px;accent-color:#0D5F75"><span style="font-size:12px;color:#aaa">'+(checked?'Attivo':'Disattivo')+'</span></label></div>';
-    const inp=(id,label,val,ph)=>'<div style="padding:10px 0;border-bottom:1px solid #f4f4f8"><label style="font-size:11px;font-weight:700;color:#aaa;letter-spacing:.05em;text-transform:uppercase;display:block;margin-bottom:6px">'+label+'</label><input type="text" id="hcfg-'+id+'" value="'+esc(val||'')+'" placeholder="'+esc(ph||'')+'" style="width:100%;border:1px solid #e4e4ec;border-radius:6px;padding:8px 12px;font-size:13px;color:#171b33;outline:none;box-sizing:border-box"></div>';
+    const cont = document.getElementById('hconfig-content'); if (!cont) return;
+    const hp = site.hotel_profile || {}, cfg = hp.isi_config || {}, geo = site.geo_scores || {};
+    const cardH = '<div class="card" style="margin-bottom:20px;border-radius:8px;border:1px solid #e4e4ec;box-shadow:none">';
+    const chH = (dot,title) => '<div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:'+dot+';display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">'+title+'</div></div></div>';
+    const row = (l,v) => '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f4f4f8"><span style="font-size:13px;font-weight:600;color:#4b4d68">'+l+'</span><span style="font-size:13px;color:#171b33;font-weight:700">'+v+'</span></div>';
+    const toggl = (id,label,checked) => '<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #f4f4f8"><span style="font-size:13px;font-weight:600;color:#4b4d68">'+label+'</span><label style="display:inline-flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="hcfg-'+id+'" '+(checked?'checked':'')+' style="width:16px;height:16px;accent-color:#0D5F75"><span style="font-size:12px;color:#aaa">'+(checked?'Attivo':'Disattivo')+'</span></label></div>';
 
-    const hb=site.last_heartbeat, hbHrs=hb?(Date.now()-new Date(hb).getTime())/3600000:Infinity;
-    const isScriptMode=(site.hotel_profile?.site_mode==='script');
-    const connDot=hbHrs<25?'#0D5F75':hbHrs<48?'#666b84':'#0D5F75';
-    const connLabel=hbHrs<25?'Connesso':hbHrs<48?'Segnale debole':'Non connesso';
-    const connSub=hb?'Ultimo segnale: '+timeAgo(hb):'Nessun segnale ricevuto';
-    const scriptSrc='https://isi.in3pida.it/eletta.js?id='+encodeURIComponent(site.site_id);
-    const scriptTag='<script src="'+scriptSrc+'" async><\/script>';
+    const hb = site.last_heartbeat, hbHrs = hb ? (Date.now()-new Date(hb).getTime())/3600000 : Infinity;
+    const isScriptMode = (site.plugin_version||'').startsWith('js-') || hp.site_mode === 'script';
+    const connDot = hbHrs < 25 ? '#0D5F75' : '#aaa';
+    const connLabel = hbHrs < 25 ? (hbHrs<1?'Connesso · meno di 1h fa':'Connesso · '+Math.round(hbHrs)+'h fa') : (hbHrs<9999?'Offline da '+Math.round(hbHrs)+'h':'Nessun segnale');
+    const scriptSrc = 'https://in3pida-staff.github.io/isi-in3pida/eletta.js?id=' + site.site_id;
+    const scriptTag = '<script src="' + scriptSrc + '" async><\/script>';
+    const neverConnected = hbHrs >= 9999;
+    const installBanner = neverConnected
+        ? '<div style="margin:12px 0 4px;padding:10px 12px;background:#e8ecf7;border:1px solid #C1CBE8;border-radius:4px;display:flex;align-items:flex-start;gap:8px"><span style="font-size:15px;line-height:1.4">⚠</span><div><div style="font-size:13px;color:#0D5F75;margin-bottom:2px">'+(isScriptMode?'Script':'Plugin')+' non installato</div><div style="font-size:12px;color:#4b4d68">'+(isScriptMode?'Nessun segnale. Copia lo script qui sotto e incollalo nel &lt;head&gt; del sito.':'Nessun segnale. Installa il plugin sul sito WordPress.')+'</div></div></div>'
+        : hbHrs < 25
+            ? '<div style="margin:12px 0 4px;padding:9px 12px;background:#e8ecf7;border:1px solid #C1CBE8;border-radius:4px;font-size:13px;color:#0D5F75">✓ '+(isScriptMode?'Script':'Plugin')+' installato e attivo</div>'
+            : '<div style="margin:12px 0 4px;padding:9px 12px;background:#e8ecf7;border:1px solid #C1CBE8;border-radius:4px;font-size:13px;color:#0D5F75">⚠ '+(isScriptMode?'Script':'Plugin')+' installato ma nessun segnale recente</div>';
 
-    const connCard=cardH+chH(connDot,'Stato Connessione')+
-        '<div style="padding:0 20px">'+
-        row('Stato','<span style="color:'+connDot+';font-weight:700">'+connLabel+'</span>')+
-        row('Modalità',isScriptMode?'<span style="color:#0D5F75;font-weight:700">Script JS</span>':'Plugin WordPress')+
-        row('Ultimo segnale',hb?timeAgo(hb):'—')+
-        (!isScriptMode?row('Versione plugin',esc(site.plugin_version||'—')):'')+
-        (!isScriptMode?row('WordPress',esc(site.wp_version||'—')):'')+
-        '</div>'+
-        (isScriptMode?
-            '<div style="padding:14px 20px 0">'+
-            '<div style="font-size:11px;font-weight:700;color:#aaa;letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px">Script da incollare nel sito</div>'+
-            '<div style="display:flex;gap:8px;align-items:center">'+
-            '<code id="hcfg-script-tag" style="flex:1;background:#f4f4f8;padding:10px 12px;border-radius:6px;font-size:12px;color:#171b33;word-break:break-all">'+esc(scriptTag)+'</code>'+
-            '<button id="hcfg-copy-script" class="btn-update" style="flex-shrink:0;white-space:nowrap;margin-left:0">Copia</button>'+
-            '</div></div>'+
-            '<div style="padding:10px 20px 16px">'+
-            '<a href="'+esc((site.site_url||'').replace(/\/$/,''))+'/faq" target="_blank" style="color:#0D5F75;font-weight:700;font-size:13px;text-decoration:none">Pagina FAQ pubblica →</a>'+
-            '</div>'
-        :
-            '<div style="padding:10px 20px 16px">'+
-            '<a href="'+esc((site.site_url||'').replace(/\/$/,''))+'/faq" target="_blank" style="color:#0D5F75;font-weight:700;font-size:13px;text-decoration:none">Pagina FAQ pubblica →</a>'+
-            '</div>'
-        )+
+    const connSection = cardH + chH(connDot,'Connessione') +
+        '<div style="padding:0 20px 16px">' +
+        row('Stato', '<span style="color:'+connDot+';font-weight:700">'+connLabel+'</span>') +
+        row('Modalità', isScriptMode ? '<span style="color:#0D5F75;font-weight:700">Script JS</span>' : 'Plugin WordPress') +
+        row('Ultimo segnale', hb ? timeAgo(hb) : '—') +
+        (!isScriptMode ? row('Versione plugin', esc(site.plugin_version||'—')) : '') +
+        (!isScriptMode ? row('WordPress', esc(site.wp_version||'—')) : '') +
+        installBanner +
+        '</div>' +
+        (isScriptMode ? (
+            '<div style="padding:10px 20px 16px;border-top:1px solid #f4f4f8">' +
+            '<div style="font-size:11px;color:#aaa;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Script da incollare nel sito</div>' +
+            '<div style="display:flex;gap:8px;align-items:center">' +
+            '<code id="hcfg-script-tag" style="flex:1;background:#f4f4f8;border-radius:6px;padding:10px 12px;font-size:12px;color:#4b4d68;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;border:1px solid #e4e4ec;font-family:monospace">' + esc(scriptTag) + '</code>' +
+            '<button id="hcfg-copy-script" class="btn-update" style="flex-shrink:0;font-size:12px;padding:6px 14px;margin-left:0;white-space:nowrap">Copia</button>' +
+            '</div></div>'
+        ) : '') +
         '</div>';
 
-    cont.innerHTML=
-        connCard+
-        cardH+chH('#0D5F75','Abilitazioni Plugin')+'<div style="padding:0 20px">'+
-        toggl('chunk_engine','Chunk Engine',cfg.chunk_engine!==false)+
-        toggl('citation_engine','Citation Engine',cfg.citation_engine!==false)+
-        toggl('entity_graph','Entity Graph',cfg.entity_graph!==false)+
-        toggl('faq_enabled','FAQ Pubbliche',cfg.faq_enabled!==false)+
-        '</div><div style="padding:14px 20px;display:flex;gap:10px"><button id="hbtn-save-toggles" class="btn-update" style="margin-left:0">Salva abilitazioni</button></div></div>'+
+    const gscSection = (() => {
+        const gscEmail = cfg.gsc_email || '';
+        const gscSite  = cfg.gsc_site  || '';
+        if (gscEmail && gscSite) {
+            return `<div style="padding:9px 12px;background:#e8ecf7;border:1px solid #C1CBE8;border-radius:4px;font-size:13px;color:#0D5F75;margin-bottom:12px">● Collegata — <strong>${esc(gscSite)}</strong> (${esc(gscEmail)})</div>` +
+            '<button id="hbtn-gsc-disconnect" class="btn-ping" style="margin-left:0;font-size:12px">Disconnetti</button>' +
+            '<div id="hgsc-data-container" style="margin-top:14px"></div>';
+        } else {
+            return '<div style="padding:9px 12px;background:#f4f4f8;border:1px solid #e4e4ec;border-radius:4px;font-size:13px;color:#666b84;margin-bottom:14px">○ Search Console non collegata</div>' +
+            `<button id="hbtn-connect-gsc" class="btn-update" style="margin-left:0;display:flex;align-items:center;gap:8px"><svg width="16" height="16" viewBox="0 0 48 48"><path fill="#4285F4" d="M45.12 24.5c0-1.56-.14-3.06-.4-4.5H24v8.51h11.84c-.51 2.75-2.06 5.08-4.39 6.64v5.52h7.11c4.16-3.83 6.56-9.47 6.56-16.17z"/><path fill="#34A853" d="M24 46c5.94 0 10.92-1.97 14.56-5.33l-7.11-5.52c-1.97 1.32-4.49 2.1-7.45 2.1-5.73 0-10.58-3.87-12.31-9.07H4.34v5.7C7.96 41.07 15.4 46 24 46z"/><path fill="#FBBC05" d="M11.69 28.18C11.25 26.86 11 25.45 11 24s.25-2.86.69-4.18v-5.7H4.34C2.85 17.09 2 20.45 2 24c0 3.55.85 6.91 2.34 9.88l7.35-5.7z"/><path fill="#EA4335" d="M24 10.75c3.23 0 6.13 1.11 8.41 3.29l6.31-6.31C34.91 4.18 29.93 2 24 2 15.4 2 7.96 6.93 4.34 14.12l7.35 5.7c1.73-5.2 6.58-9.07 12.31-9.07z"/></svg> Collega con Google</button>` +
+            '<div id="hgsc-msg" style="font-size:13px;color:#9ca3af;margin-top:8px"></div>';
+        }
+    })();
 
-        cardH+chH('#0D5F75','Chiavi API')+'<div style="padding:0 20px">'+
-        inp('gemini_key','Chiave API Google Gemini',cfg.gemini_api_key?'••••••••••'+cfg.gemini_api_key.slice(-4):'','Incolla la chiave da aistudio.google.com')+
-        inp('isi_token','Token ISI',cfg.isi_token?'••••'+cfg.isi_token.slice(-8):'','Token fornito da ISI')+
-        '</div><div style="padding:14px 20px;display:flex;gap:10px"><button id="hbtn-save-keys" class="btn-update" style="margin-left:0">Salva chiavi</button><div id="hcfg-keys-msg" style="font-size:13px;padding:8px 0"></div></div></div>'+
+    cont.innerHTML =
+        connSection +
+        (!isScriptMode ? (
+        cardH + chH('#0D5F75','Abilitazioni Plugin') +
+        '<div style="padding:0 20px">' +
+        toggl('llm_layer','LLM Ready Layer (llms.txt + AI sitemap)', geo.has_ai_profile!==false) +
+        toggl('chunk_engine','Chunk Engine', cfg.chunk_engine!==false) +
+        toggl('citation_engine','Citation Engine', cfg.citation_engine!==false) +
+        toggl('entity_graph','Entity Graph', cfg.entity_graph!==false) +
+        toggl('faq_enabled','FAQ Pubbliche', cfg.faq_enabled!==false) +
+        '</div><div style="padding:14px 20px;display:flex;align-items:center;gap:10px"><button id="hbtn-save-toggles" class="btn-update" style="margin-left:0">Salva abilitazioni</button><span id="hcfg-toggle-msg" style="font-size:13px;color:#0D5F75"></span></div></div>'
+        ) : '') +
+        cardH + chH('#0D5F75','Sync ISI — Visibilità AI') +
+        '<div style="padding:16px 20px">' +
+        row('Ultimo sync ISI', cfg.last_isi_sync ? new Date(cfg.last_isi_sync).toLocaleString('it-IT') : '—') +
+        row('Stato ultimo sync', cfg.last_isi_sync_status || '—') +
+        '</div></div>' +
+        cardH + chH('#0D5F75','Google Search Console') +
+        '<div style="padding:16px 20px" id="hgsc-section">' + gscSection + '</div></div>';
 
-        cardH+chH('#0D5F75','Sync ISI — Visibilità AI')+'<div style="padding:16px 20px">'+
-        row('Ultimo sync ISI',cfg.last_isi_sync?new Date(cfg.last_isi_sync).toLocaleString('it-IT'):'—')+
-        row('Stato ultimo sync',cfg.last_isi_sync_status||'—')+
-        '</div></div>';
-
-    document.getElementById('hbtn-save-toggles')?.addEventListener('click', async()=>{
-        const newCfg={...cfg,chunk_engine:document.getElementById('hcfg-chunk_engine')?.checked,citation_engine:document.getElementById('hcfg-citation_engine')?.checked,entity_graph:document.getElementById('hcfg-entity_graph')?.checked,faq_enabled:document.getElementById('hcfg-faq_enabled')?.checked};
-        await _SBq.from('isi_sites').update({hotel_profile:{...hp,isi_config:newCfg}}).eq('site_id',site.site_id);
-        site.hotel_profile={...hp,isi_config:newCfg};
-    });
     document.getElementById('hcfg-copy-script')?.addEventListener('click', function(){
-        const tag=document.getElementById('hcfg-script-tag')?.textContent||'';
-        navigator.clipboard.writeText(tag).then(()=>{this.textContent='✓ Copiato';setTimeout(()=>{this.textContent='Copia';},2000);});
+        navigator.clipboard.writeText(scriptTag).catch(()=>{});
+        this.textContent = '✓ Copiato'; setTimeout(() => { this.textContent = 'Copia'; }, 2000);
     });
-    document.getElementById('hbtn-save-keys')?.addEventListener('click', async()=>{
-        const gKey=document.getElementById('hcfg-gemini_key')?.value.trim(), iKey=document.getElementById('hcfg-isi_token')?.value.trim(), msg=document.getElementById('hcfg-keys-msg');
-        const newCfg={...cfg};
-        if(gKey&&!gKey.startsWith('•')) newCfg.gemini_api_key=gKey;
-        if(iKey&&!iKey.startsWith('•')) newCfg.isi_token=iKey;
-        const{error}=await _SBq.from('isi_sites').update({hotel_profile:{...hp,isi_config:newCfg}}).eq('site_id',site.site_id);
-        if(msg){msg.style.color=error?'#0D5F75':'#0D5F75';msg.textContent=error?'✗ Errore':'✓ Salvate';setTimeout(()=>{msg.textContent='';},3000);}
-        site.hotel_profile={...hp,isi_config:newCfg};
+    document.getElementById('hbtn-save-toggles')?.addEventListener('click', async () => {
+        const btn = document.getElementById('hbtn-save-toggles');
+        const newCfg = { ...cfg,
+            llm_layer:      document.getElementById('hcfg-llm_layer')?.checked,
+            chunk_engine:   document.getElementById('hcfg-chunk_engine')?.checked,
+            citation_engine:document.getElementById('hcfg-citation_engine')?.checked,
+            entity_graph:   document.getElementById('hcfg-entity_graph')?.checked,
+            faq_enabled:    document.getElementById('hcfg-faq_enabled')?.checked,
+        };
+        const { data: fresh } = await _SBq.from('isi_sites').select('hotel_profile').eq('site_id', site.site_id).single();
+        const hp2 = fresh?.hotel_profile || hp;
+        const { error } = await _SBq.from('isi_sites').update({ hotel_profile: { ...hp2, isi_config: newCfg } }).eq('site_id', site.site_id);
+        site.hotel_profile = { ...hp2, isi_config: newCfg };
+        if (btn) { btn.textContent = error ? '✗ Errore' : '✓ Salvato'; setTimeout(() => { btn.textContent = 'Salva abilitazioni'; }, 3000); }
     });
+
+    // Precarica GIS subito
+    _loadGisScript().catch(() => {});
+
+    // ── Google Search Console OAuth ─────────────────────────────────────────
+    async function hSaveGscConfig(email, gscSite, accessToken) {
+        const { data: freshSC } = await _SBq.from('isi_sites').select('hotel_profile').eq('site_id', site.site_id).single();
+        const hp3 = freshSC?.hotel_profile || hp;
+        const newCfg3 = { ...(hp3.isi_config || cfg), gsc_email: email, gsc_site: gscSite, gsc_token: accessToken, gsc_token_ts: Date.now() };
+        await _SBq.from('isi_sites').update({ hotel_profile: { ...hp3, isi_config: newCfg3 } }).eq('site_id', site.site_id);
+        site.hotel_profile = { ...hp3, isi_config: newCfg3 };
+    }
+
+    async function hFetchGscData(accessToken, gscSite) {
+        const endDate = new Date().toISOString().slice(0,10);
+        const startDate = new Date(Date.now() - 28*86400000).toISOString().slice(0,10);
+        const res = await fetch(`https://searchconsole.googleapis.com/webmasters/v3/sites/${encodeURIComponent(gscSite)}/searchAnalytics/query`, {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + accessToken, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ startDate, endDate, dimensions: ['query'], rowLimit: 10, startRow: 0 })
+        });
+        if (!res.ok) throw new Error('GSC API error ' + res.status);
+        return await res.json();
+    }
+
+    function hRenderGscData(data) {
+        const gc = document.getElementById('hgsc-data-container');
+        if (!gc) return;
+        const rows = data.rows || [];
+        if (!rows.length) { gc.innerHTML = '<div style="font-size:13px;color:#9ca3af">Nessun dato disponibile negli ultimi 28 giorni.</div>'; return; }
+        gc.innerHTML = `<div style="font-size:11px;font-weight:700;color:#666b84;margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em">Top query (ultimi 28 gg)</div>` +
+            `<table style="width:100%;border-collapse:collapse;font-size:12px">` +
+            `<tr style="color:#9ca3af;border-bottom:1px solid #f0f0f5"><td style="padding:4px 8px 4px 0">Query</td><td style="padding:4px 8px;text-align:right">Click</td><td style="padding:4px 8px;text-align:right">Impr.</td><td style="padding:4px 8px;text-align:right">CTR</td><td style="padding:4px 0;text-align:right">Pos.</td></tr>` +
+            rows.map(r => `<tr style="border-bottom:1px solid #f4f4f8"><td style="padding:5px 8px 5px 0;color:#171b33;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.keys[0])}</td><td style="padding:5px 8px;text-align:right;color:#0D5F75;font-weight:600">${r.clicks}</td><td style="padding:5px 8px;text-align:right;color:#666b84">${r.impressions}</td><td style="padding:5px 8px;text-align:right;color:#666b84">${(r.ctr*100).toFixed(1)}%</td><td style="padding:5px 0;text-align:right;color:#666b84">${r.position.toFixed(1)}</td></tr>`).join('') +
+            '</table>';
+    }
+
+    const btnConnectGsc = document.getElementById('hbtn-connect-gsc');
+    if (btnConnectGsc) {
+        btnConnectGsc.addEventListener('click', async () => {
+            const msg = document.getElementById('hgsc-msg');
+            btnConnectGsc.disabled = true; btnConnectGsc.textContent = '⏳ Connessione...';
+            try {
+                let clientId = localStorage.getItem('isi_gsc_client_id') || '';
+                if (!clientId) {
+                    clientId = await new Promise((res2, rej2) => {
+                        const ov = document.createElement('div');
+                        ov.style.cssText = 'position:fixed;inset:0;background:rgba(23,27,51,.45);z-index:9999;display:flex;align-items:center;justify-content:center';
+                        ov.innerHTML = `<div style="background:white;border-radius:10px;padding:24px;max-width:520px;width:90%;box-shadow:0 8px 32px rgba(23,27,51,.18)">
+                            <div style="font-size:15px;font-weight:600;color:#171b33;margin-bottom:16px">Configura Google Search Console</div>
+                            <div style="font-size:13px;color:#666b84;margin-bottom:14px;line-height:1.6">Serve un <strong>Google OAuth Client ID</strong> — si crea una volta sola e vale per tutti gli hotel.</div>
+                            <ol style="font-size:13px;color:#171b33;margin:0 0 16px 16px;padding:0;line-height:2.2">
+                                <li>Vai su <a href="https://console.cloud.google.com/apis/credentials" target="_blank" style="color:#0D5F75">console.cloud.google.com/apis/credentials</a></li>
+                                <li>Abilita la <strong>Google Search Console API</strong></li>
+                                <li>Crea credenziali → <strong>ID client OAuth 2.0</strong> → Applicazione web</li>
+                                <li>Aggiungi origine autorizzata: <code style="background:#f4f4f8;padding:1px 6px;border-radius:3px;font-size:12px">https://isi.in3pida.it</code></li>
+                                <li>Copia il <strong>Client ID</strong> e incollalo qui:</li>
+                            </ol>
+                            <input id="_hgsc-cid-input" type="text" placeholder="123456789-xxxx.apps.googleusercontent.com" style="width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #e4e4ec;border-radius:4px;font-size:13px;margin-bottom:8px">
+                            <div id="_hgsc-cid-msg" style="font-size:12px;color:#d82d6b;margin-bottom:12px;min-height:16px"></div>
+                            <div style="display:flex;gap:8px;justify-content:flex-end">
+                                <button id="_hgsc-cid-cancel" class="btn-ping" style="padding:7px 18px">Annulla</button>
+                                <button id="_hgsc-cid-save" class="btn-update" style="padding:7px 18px">Salva e continua</button>
+                            </div></div>`;
+                        document.body.appendChild(ov);
+                        ov.querySelector('#_hgsc-cid-cancel').addEventListener('click', () => { document.body.removeChild(ov); rej2(new Error('annullato')); });
+                        ov.querySelector('#_hgsc-cid-save').addEventListener('click', () => {
+                            const v = (ov.querySelector('#_hgsc-cid-input').value || '').trim();
+                            if (!v.includes('.apps.googleusercontent.com')) {
+                                ov.querySelector('#_hgsc-cid-msg').textContent = 'Il Client ID deve terminare con .apps.googleusercontent.com';
+                                return;
+                            }
+                            localStorage.setItem('isi_gsc_client_id', v);
+                            document.body.removeChild(ov);
+                            res2(v);
+                        });
+                    });
+                }
+
+                await _loadGisScript();
+                let sitesData = null, userEmail = '';
+                await new Promise((resolve, reject) => {
+                    const tokenClient = window.google.accounts.oauth2.initTokenClient({
+                        client_id: clientId,
+                        scope: 'https://www.googleapis.com/auth/webmasters.readonly https://www.googleapis.com/auth/userinfo.email',
+                        callback: async (resp) => {
+                            if (resp.error) { reject(new Error(resp.error)); return; }
+                            try {
+                                const meRes = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', { headers: { 'Authorization': 'Bearer ' + resp.access_token } });
+                                const me = await meRes.json(); userEmail = me.email || '';
+                                const sitesRes = await fetch('https://searchconsole.googleapis.com/webmasters/v3/sites', { headers: { 'Authorization': 'Bearer ' + resp.access_token } });
+                                const sitesJson = await sitesRes.json();
+                                sitesData = { token: resp.access_token, sites: sitesJson.siteEntry || [] };
+                                resolve();
+                            } catch(e) { reject(e); }
+                        }
+                    });
+                    tokenClient.requestAccessToken({ prompt: 'consent' });
+                    setTimeout(() => reject(new Error('Popup bloccato o chiuso — riprova')), 30000);
+                });
+
+                if (!sitesData.sites.length) throw new Error('Nessuna proprietà trovata in Search Console');
+
+                const siteUrl = await new Promise((resolve, reject) => {
+                    const ov = document.createElement('div');
+                    ov.style.cssText = 'position:fixed;inset:0;background:rgba(23,27,51,.45);z-index:9999;display:flex;align-items:center;justify-content:center';
+                    const opts = sitesData.sites.map((s,i) => `<label style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #f4f4f8;cursor:pointer"><input type="radio" name="hgsc-site-pick" value="${esc(s.siteUrl)}" ${i===0?'checked':''}><span style="font-size:13px;color:#171b33">${esc(s.siteUrl)}</span></label>`).join('');
+                    ov.innerHTML = `<div style="background:white;border-radius:10px;padding:24px;max-width:480px;width:90%;box-shadow:0 8px 32px rgba(23,27,51,.18)">
+                        <div style="font-size:15px;color:#171b33;font-weight:600;margin-bottom:14px">Seleziona la proprietà da collegare</div>
+                        <div style="max-height:240px;overflow-y:auto;margin-bottom:16px">${opts}</div>
+                        <div style="display:flex;gap:8px;justify-content:flex-end">
+                            <button id="_hgsc-cancel" class="btn-ping" style="padding:7px 18px">Annulla</button>
+                            <button id="_hgsc-confirm" class="btn-update" style="padding:7px 18px">Collega</button>
+                        </div></div>`;
+                    document.body.appendChild(ov);
+                    ov.querySelector('#_hgsc-cancel').addEventListener('click', () => { document.body.removeChild(ov); reject(new Error('annullato')); });
+                    ov.querySelector('#_hgsc-confirm').addEventListener('click', () => {
+                        const checked = ov.querySelector('input[name="hgsc-site-pick"]:checked');
+                        document.body.removeChild(ov);
+                        if (checked) resolve(checked.value); else reject(new Error('annullato'));
+                    });
+                });
+
+                await hSaveGscConfig(userEmail, siteUrl, sitesData.token);
+                _configInited = false;
+                initHotelConfig(site);
+            } catch(e) {
+                if (e.message !== 'annullato') { if (msg) msg.textContent = '✗ ' + e.message; }
+                btnConnectGsc.disabled = false;
+                btnConnectGsc.innerHTML = `<svg width="16" height="16" viewBox="0 0 48 48"><path fill="#4285F4" d="M45.12 24.5c0-1.56-.14-3.06-.4-4.5H24v8.51h11.84c-.51 2.75-2.06 5.08-4.39 6.64v5.52h7.11c4.16-3.83 6.56-9.47 6.56-16.17z"/><path fill="#34A853" d="M24 46c5.94 0 10.92-1.97 14.56-5.33l-7.11-5.52c-1.97 1.32-4.49 2.1-7.45 2.1-5.73 0-10.58-3.87-12.31-9.07H4.34v5.7C7.96 41.07 15.4 46 24 46z"/><path fill="#FBBC05" d="M11.69 28.18C11.25 26.86 11 25.45 11 24s.25-2.86.69-4.18v-5.7H4.34C2.85 17.09 2 20.45 2 24c0 3.55.85 6.91 2.34 9.88l7.35-5.7z"/><path fill="#EA4335" d="M24 10.75c3.23 0 6.13 1.11 8.41 3.29l6.31-6.31C34.91 4.18 29.93 2 24 2 15.4 2 7.96 6.93 4.34 14.12l7.35 5.7c1.73-5.2 6.58-9.07 12.31-9.07z"/></svg> Collega con Google`;
+            }
+        });
+    }
+
+    const btnDisconnectGsc = document.getElementById('hbtn-gsc-disconnect');
+    if (btnDisconnectGsc) {
+        btnDisconnectGsc.addEventListener('click', async () => {
+            const { data: freshSC } = await _SBq.from('isi_sites').select('hotel_profile').eq('site_id', site.site_id).single();
+            const hp3 = freshSC?.hotel_profile || hp;
+            const newCfg3 = { ...(hp3.isi_config || cfg) };
+            delete newCfg3.gsc_email; delete newCfg3.gsc_site; delete newCfg3.gsc_token;
+            await _SBq.from('isi_sites').update({ hotel_profile: { ...hp3, isi_config: newCfg3 } }).eq('site_id', site.site_id);
+            _configInited = false;
+            site.hotel_profile = { ...hp3, isi_config: newCfg3 };
+            initHotelConfig(site);
+        });
+        if (cfg.gsc_token && cfg.gsc_site) {
+            hFetchGscData(cfg.gsc_token, cfg.gsc_site).then(hRenderGscData).catch(() => {
+                const gc = document.getElementById('hgsc-data-container');
+                if (gc) gc.innerHTML = `<div style="font-size:13px;color:#9ca3af">Token scaduto — disconnetti e ricollega.</div>`;
+            });
+        }
+    }
 }
 
 // ─── PSE CHARTS ───────────────────────────────────────────────────────────────
@@ -1394,6 +2229,199 @@ function initHotelPseCharts(pseData) {
     }
 }
 
+// ─── PSE SIMULATORE ───────────────────────────────────────────────────────────
+window.runHotelPseQuery = async function() {
+    const input = document.getElementById('hpse-query-input');
+    const btn   = document.getElementById('hpse-run-btn');
+    const res   = document.getElementById('hpse-run-result');
+    const query = (input?.value || '').trim();
+    if (!query) { input?.focus(); return; }
+    if (!_site) { if(res){res.innerHTML='<div style="color:#d82d6b;font-size:13px">Sessione non disponibile</div>';res.style.display='block';} return; }
+    const siteId = _site.site_id;
+    const hp = _site.hotel_profile || {};
+    const sc = _site.schema_data || {};
+    const hotelCtx = {
+        nome: sc.name || hp.nome_hotel || hp.nome || '',
+        citta: sc.city || hp.citta || '',
+        servizi: hp.servizi || sc.amenities?.join(', ') || '',
+        descrizione: sc.description || hp.descrizione || '',
+    };
+    btn.disabled = true; btn.textContent = '⏳ Analisi in corso...';
+    if(res) res.style.display = 'none';
+    try {
+        await _SB.from('isi_sites').update({ pse_enabled: true }).eq('site_id', siteId);
+        const { data: { session: sess } } = await _SB.auth.getSession();
+        if (!sess) throw new Error('Sessione scaduta');
+        const r = await fetch(`${SUPABASE_URL}/functions/v1/pse-query`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + sess.access_token },
+            body: JSON.stringify({ site_id: siteId, query, hotel_context: hotelCtx })
+        });
+        const json = await r.json();
+        if (!r.ok) throw new Error(json.error || 'Errore PSE');
+        const d = json.result || {};
+        const groqP = d.llm_results?.groq?.probability ?? d.probability ?? null;
+        const gemP  = d.llm_results?.gemini?.probability ?? null;
+        const avgP  = gemP !== null ? Math.round((groqP + gemP) / 2) : groqP;
+        const color = avgP !== null ? (avgP >= 60 ? '#0D5F75' : avgP >= 35 ? '#666b84' : '#d82d6b') : '#aaa';
+        const verdict = d.verdict || (avgP >= 60 ? 'Probabile' : avgP >= 35 ? 'Incerto' : 'Improbabile');
+        let html = `<div style="background:#f7f8fc;border-radius:8px;padding:18px 20px;border:1px solid #e4e4ec">
+            <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px">
+                <div style="font-size:36px;font-weight:800;line-height:1;color:${color}">${avgP !== null ? avgP+'%' : '—'}</div>
+                <div>
+                    <div style="font-size:15px;font-weight:700;color:#171b33">${verdict}</div>
+                    <div style="font-size:12px;color:#666b84;margin-top:2px">${gemP !== null ? 'Groq: '+groqP+'% &nbsp;•&nbsp; Gemini: '+gemP+'%' : 'Groq: '+(groqP ?? '—')+'%'}</div>
+                </div>
+            </div>`;
+        if (d.why) html += `<div style="font-size:13px;color:#4b4d68;line-height:1.6;margin-bottom:10px">${esc(d.why)}</div>`;
+        if (d.sample_answer) html += `<div style="font-size:13px;color:#171b33;background:white;border-left:3px solid #0D5F75;padding:8px 12px;border-radius:0 4px 4px 0;font-style:italic;margin-bottom:10px;line-height:1.6">"${esc(d.sample_answer)}"</div>`;
+        if (d.suggestions?.length) html += `<div style="font-size:12px;color:#0D5F75;font-weight:600;margin-bottom:4px">Suggerimenti:</div><ul style="margin:0;padding-left:18px;font-size:13px;color:#4b4d68;line-height:1.7">${d.suggestions.map(s=>`<li>${esc(s)}</li>`).join('')}</ul>`;
+        html += '</div>';
+        if(res){ res.innerHTML = html; res.style.display = 'block'; }
+        setTimeout(() => { _pseChartsInited = false; }, 1200);
+    } catch(e) {
+        if(res){ res.innerHTML = `<div style="color:#d82d6b;font-size:13px">${esc(e.message)}</div>`; res.style.display = 'block'; }
+    } finally {
+        btn.disabled = false; btn.textContent = '✦ Analizza';
+    }
+};
+
+// ─── AI LAYER ─────────────────────────────────────────────────────────────────
+function initAiLayerPanel(site) {
+    if (_aiLayerInited) return; _aiLayerInited = true;
+    const cont = document.getElementById('ai-layer-content');
+    if (!cont) return;
+    const geo = site?.geo_scores || {};
+    const hp = site?.hotel_profile || {};
+    const base = (site?.site_url || '').replace(/\/$/, '');
+    const aiProfileUrl = base + '/wp-json/in3pida/v1/ai-profile';
+    const isScriptJs = (site?.plugin_version||'').startsWith('js-') || hp.site_mode === 'script';
+    const aiLayerDisabled = hp.ai_layer_disabled === true;
+    const scriptAiUrl = SUPABASE_URL + '/functions/v1/ai-profile?site_id=' + encodeURIComponent(site.site_id);
+    const statusColor = '#0D5F75';
+    const statusLabel = isScriptJs ? (aiLayerDisabled ? 'Script JS — AI Layer off' : 'Script JS') : (geo.has_ai_profile === true ? 'Attivo' : 'Non attivo');
+    const isActive = geo.has_ai_profile === true;
+
+    const infoCard = (label, val, note) =>
+        `<div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:14px 16px">
+            <div style="font-size:12px;color:#9ca3af;font-weight:500;letter-spacing:.05em;text-transform:uppercase;margin-bottom:5px">${label}</div>
+            <div style="font-size:15px;font-weight:700;color:#171b33">${esc(String(val||'—'))}</div>
+            ${note ? '<div style="font-size:12px;color:#666b84;margin-top:4px">'+esc(note)+'</div>' : ''}
+         </div>`;
+
+    cont.innerHTML = `
+    <div class="card" style="margin-bottom:20px;border-radius:8px;border:1px solid #e4e4ec;box-shadow:none">
+        <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
+            <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Stato AI Layer</div></div>
+        </div>
+        <div style="padding:20px">
+            <div style="display:inline-flex;align-items:center;gap:10px;background:white;border:1px solid #e4e4ec;border-radius:10px;padding:14px 20px;margin-bottom:20px">
+                <span style="width:12px;height:12px;border-radius:50%;background:${statusColor};display:inline-block;flex-shrink:0"></span>
+                <span style="font-size:16px;font-weight:800;color:${statusColor}">${statusLabel}</span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px">
+                ${infoCard('Endpoint', '/ai-profile', isScriptJs ? (aiLayerDisabled ? 'Disattivato' : 'Endpoint Supabase attivo') : isActive ? 'Leggibile dai crawler AI' : 'Non ancora attivo')}
+                ${(()=>{const vOk=!semverGt('1.9.2',site?.plugin_version||'0');return infoCard('Versione plugin',site?.plugin_version||'—',isScriptJs?'Script JS (CDN)':vOk?'Versione OK':'Richiesta v1.9.2+');})()}
+                ${infoCard('Ultimo heartbeat', site?.last_heartbeat ? timeAgo(site.last_heartbeat) : '—', '')}
+            </div>
+            ${isScriptJs ? `
+            <div style="display:flex;align-items:center;gap:12px;padding:8px 12px;background:#e8ecf7;border:1px solid #C1CBE8;border-radius:4px;margin-bottom:${aiLayerDisabled?'0':'12px'}">
+                <span style="font-size:15px;flex-shrink:0">${aiLayerDisabled?'⚠':'✓'}</span>
+                <span style="font-size:14px;color:#0D5F75;flex:1">
+                    ${aiLayerDisabled ? 'AI Layer disattivato — eletta.js non pubblica il profilo' : 'AI Layer attivo — eletta.js pubblica il profilo hotel ai crawler AI'}
+                    ${!aiLayerDisabled ? ' &nbsp;<a href="'+esc(scriptAiUrl)+'" target="_blank" style="color:#0D5F75;font-size:13px;text-decoration:underline">Visualizza profilo</a>' : ''}
+                </span>
+                <button id="hbtn-toggle-ai-layer" class="${aiLayerDisabled?'btn-update':'btn-ping'}" style="margin-left:0;padding:6px 14px;font-size:13px;flex-shrink:0;${aiLayerDisabled?'':'background:white'}">
+                    ${aiLayerDisabled ? 'Attiva' : 'Disattiva'}
+                </button>
+            </div>
+            ` : isActive ? `<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:#e8ecf7;border:1px solid #C1CBE8;border-radius:4px;margin-bottom:12px">
+                <span style="font-size:15px;flex-shrink:0">✓</span>
+                <span style="font-size:14px;color:#0D5F75;flex:1">AI Layer attivo — endpoint leggibile dai crawler AI &nbsp;<a href="${esc(aiProfileUrl)}" target="_blank" style="color:#0D5F75;font-size:13px;text-decoration:underline">Visualizza profilo</a></span>
+                <button id="hbtn-toggle-ai-layer" class="btn-ping" style="margin-left:0;padding:6px 14px;font-size:13px;flex-shrink:0">Disattiva</button>
+            </div>` : `<div style="padding:12px 16px;background:#e8ecf7;border:1px solid #C1CBE8;border-radius:4px;margin-bottom:16px;font-size:14px;color:#0D5F75;font-weight:600">
+                ⚠ AI Layer non attivo. Vai in Configurazione, abilita LLM Ready Layer e clicca SINCRONIZZA — il plugin applicherà le impostazioni automaticamente.
+            </div>`}
+        </div>
+    </div>
+    <div class="card" style="border-radius:8px;border:1px solid #e4e4ec;box-shadow:none;margin-bottom:20px">
+        <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
+            <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Checklist AI Layer</div></div>
+        </div>
+        <div style="padding:16px 20px">
+            ${isScriptJs ? `<div style="display:flex;flex-direction:column;gap:0">
+                ${[
+                    {label:'eletta.js installato e attivo', ok: site?.last_heartbeat && ((new Date()-new Date(site.last_heartbeat))/3600000)<25},
+                    {label:'AI Layer abilitato', ok: !aiLayerDisabled},
+                    {label:'Schema.org compilato', ok: !!(site?.schema_data?.name||hp.nome_hotel)},
+                    {label:'Profilo hotel compilato', ok: !!(hp.nome_hotel||hp.nome)},
+                    {label:'FAQ configurate', ok: (site?.faq_data?.items||[]).length > 0},
+                ].map(({label,ok})=>'<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f4f4f8"><span style="color:#0D5F75;font-size:15px;font-weight:800">'+(ok?'✓':'✗')+'</span><span style="font-size:14px;color:'+(ok?'#35364f':'#4b4d68')+'">'+esc(label)+'</span></div>').join('')}
+            </div>` : [
+                {label:'Plugin versione ≥ 1.9.2', ok: !semverGt('1.9.2', site?.plugin_version||'0')},
+                {label:'Heartbeat attivo (< 25h)', ok: site?.last_heartbeat && ((new Date()-new Date(site.last_heartbeat))/3600000)<25},
+                {label:'Endpoint /ai-profile attivo', ok: isActive},
+                {label:'AI Readiness ≥ 40', ok: (geo.ai_readiness??-1) >= 40},
+                {label:'FAQ configurate (coverage > 0)', ok: (geo.coverage_pct??0) > 0},
+                {label:'Schema.org compilato', ok: (site?.schema_data?.name||hp.nome_hotel) != null},
+                {label:'Profilo hotel compilato', ok: !!(hp.nome_hotel||hp.nome)},
+            ].map(({label,ok})=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f4f4f8">
+                <span style="color:#0D5F75;font-size:15px;font-weight:800">${ok?'✓':'✗'}</span>
+                <span style="font-size:14px;color:${ok?'#35364f':'#4b4d68'}">${esc(label)}</span>
+            </div>`).join('')}
+        </div>
+    </div>`;
+
+    const toggleAiBtn = document.getElementById('hbtn-toggle-ai-layer');
+    if (toggleAiBtn) {
+        toggleAiBtn.addEventListener('click', async () => {
+            toggleAiBtn.disabled = true; toggleAiBtn.textContent = '⏳';
+            const newHp = { ...(site.hotel_profile || {}), ai_layer_disabled: !aiLayerDisabled };
+            await _SBq.from('isi_sites').update({ hotel_profile: newHp }).eq('site_id', site.site_id);
+            _aiLayerInited = false;
+            const { data: fresh } = await _SBq.from('isi_sites').select('*').eq('site_id', site.site_id).single();
+            if (fresh) { _site = fresh; initAiLayerPanel(fresh); }
+        });
+    }
+}
+
+// ─── GSC HELPERS ──────────────────────────────────────────────────────────────
+async function _loadGisScript() {
+    if (window.google?.accounts?.oauth2) return;
+    await new Promise((res, rej) => {
+        const s = document.createElement('script');
+        s.src = 'https://accounts.google.com/gsi/client';
+        s.onload = res; s.onerror = rej;
+        document.head.appendChild(s);
+    });
+}
+
+async function _refreshGscTokenSilently(siteId, siteObj) {
+    const clientId = localStorage.getItem('isi_gsc_client_id');
+    if (!clientId) throw new Error('client_id_mancante');
+    await _loadGisScript();
+    return new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => reject(new Error('timeout')), 8000);
+        const tc = window.google.accounts.oauth2.initTokenClient({
+            client_id: clientId,
+            scope: 'https://www.googleapis.com/auth/webmasters.readonly',
+            callback: async (resp) => {
+                clearTimeout(timeout);
+                if (resp.error) { reject(new Error(resp.error)); return; }
+                try {
+                    const { data: fresh } = await _SBq.from('isi_sites').select('hotel_profile').eq('site_id', siteId).single();
+                    const hp = fresh?.hotel_profile || siteObj?.hotel_profile || {};
+                    const newCfg = { ...(hp.isi_config || {}), gsc_token: resp.access_token };
+                    await _SBq.from('isi_sites').update({ hotel_profile: { ...hp, isi_config: newCfg } }).eq('site_id', siteId);
+                    if (siteObj?.hotel_profile?.isi_config) siteObj.hotel_profile.isi_config.gsc_token = resp.access_token;
+                } catch { /* salvataggio fallito, usiamo il token in memoria */ }
+                resolve(resp.access_token);
+            }
+        });
+        tc.requestAccessToken({ prompt: 'none' });
+    });
+}
+
 // ─── UTIL ─────────────────────────────────────────────────────────────────────
 function timeAgo(d) {
     const s=(new Date()-new Date(d))/1000;
@@ -1406,7 +2434,121 @@ function esc(str) {
     return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
+function semverGt(a,b) {
+    if (!a||!b) return false;
+    if (String(a).startsWith('js-')||String(b).startsWith('js-')) return false;
+    const pa=a.split('.').map(Number), pb=b.split('.').map(Number);
+    for (let i=0;i<3;i++) { if ((pa[i]||0)>(pb[i]||0)) return true; if ((pa[i]||0)<(pb[i]||0)) return false; }
+    return false;
+}
+
+function showToast(msg) {
+    let t = document.getElementById('isi-toast-h');
+    if (!t) {
+        t = document.createElement('div');
+        t.id = 'isi-toast-h';
+        t.style.cssText = 'position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:12px 22px;border-radius:10px;font-size:14px;font-weight:600;z-index:9999;box-shadow:0 4px 18px rgba(0,0,0,.25);pointer-events:none;opacity:0;transition:opacity .25s;font-family:\'Source Code Pro\',monospace';
+        document.body.appendChild(t);
+    }
+    t.textContent = msg;
+    t.style.opacity = '1';
+    clearTimeout(t._timer);
+    t._timer = setTimeout(() => { t.style.opacity = '0'; }, 3500);
+}
+
+function isiConfirm(msg, confirmLabel) {
+    return new Promise(resolve => {
+        const ov = document.createElement('div');
+        ov.style.cssText = 'position:fixed;inset:0;background:rgba(23,27,51,.45);z-index:9999;display:flex;align-items:center;justify-content:center';
+        ov.innerHTML = `<div style="background:white;border-radius:10px;padding:28px 28px 20px;max-width:400px;width:90%;box-shadow:0 8px 32px rgba(23,27,51,.18);font-family:'Source Code Pro',monospace">
+            <div style="font-size:15px;color:#171b33;margin-bottom:20px;font-weight:400;line-height:1.5">${msg}</div>
+            <div style="display:flex;gap:8px;justify-content:flex-end">
+                <button id="hisi-confirm-no" class="btn-ping" style="padding:7px 18px;font-size:14px">Annulla</button>
+                <button id="hisi-confirm-yes" class="btn-update" style="padding:7px 18px;font-size:14px;background:#0D5F75;border-color:#0D5F75">${confirmLabel||'Elimina'}</button>
+            </div>
+        </div>`;
+        document.body.appendChild(ov);
+        const close = (val) => { document.body.removeChild(ov); resolve(val); };
+        ov.querySelector('#hisi-confirm-yes').addEventListener('click', () => close(true));
+        ov.querySelector('#hisi-confirm-no').addEventListener('click', () => close(false));
+        ov.addEventListener('click', e => { if (e.target === ov) close(false); });
+    });
+}
+
+// Tooltip per .tip-q — appeso al body
+(function() {
+    const tipEl = document.createElement('div');
+    tipEl.id = '_h-tip-el';
+    tipEl.style.cssText = 'position:fixed;z-index:99999;background:#fff;color:#171b33;border:1.5px solid #0D5F75;font-size:12px;font-weight:500;line-height:1.6;padding:10px 13px;border-radius:8px;width:210px;white-space:normal;pointer-events:none;box-shadow:0 4px 18px rgba(13,95,117,.18);display:none;font-family:\'Source Code Pro\',monospace';
+    document.body.appendChild(tipEl);
+    document.addEventListener('mouseover', e => {
+        const t = e.target.closest('.tip-q');
+        if (!t) return;
+        tipEl.textContent = t.dataset.tip;
+        tipEl.style.display = 'block';
+    });
+    document.addEventListener('mousemove', e => {
+        if (tipEl.style.display === 'none') return;
+        const x = e.clientX, y = e.clientY;
+        const w = tipEl.offsetWidth, h = tipEl.offsetHeight;
+        tipEl.style.left = (x + 14 + w > window.innerWidth ? x - w - 10 : x + 14) + 'px';
+        tipEl.style.top  = (y - 10 + h > window.innerHeight ? y - h + 10 : y - 10) + 'px';
+    });
+    document.addEventListener('mouseout', e => {
+        if (e.target.closest('.tip-q')) tipEl.style.display = 'none';
+    });
+})();
+
 init();
+
+// ─── MODALI COERENZA ───────────────────────────────────────────────────────────
+(function() {
+    // Modal: aggiungi canale
+    const mCanale = document.createElement('div');
+    mCanale.id = 'hmodal-canale';
+    mCanale.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(23,27,51,.45);z-index:9999;align-items:center;justify-content:center';
+    mCanale.innerHTML = `<div style="background:white;border-radius:10px;padding:28px 24px 20px;max-width:420px;width:90%;box-shadow:0 8px 32px rgba(23,27,51,.18);font-family:'Source Code Pro',monospace">
+        <div style="font-size:15px;font-weight:600;color:#171b33;margin-bottom:16px">Aggiungi canale</div>
+        <input id="hinput-nuovo-canale" type="text" placeholder="Es: TripAdvisor, Hotelbeds…" style="width:100%;box-sizing:border-box;border:1px solid #e4e4ec;border-radius:6px;padding:9px 12px;font-size:13px;color:#171b33;outline:none;margin-bottom:14px">
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+            <button class="btn-ping" style="padding:7px 18px" onclick="document.getElementById('hmodal-canale').style.display='none'">Annulla</button>
+            <button class="btn-update" style="padding:7px 18px;margin-left:0" onclick="window._hDoAggiungiCanale&&window._hDoAggiungiCanale()">Aggiungi</button>
+        </div>
+    </div>`;
+    mCanale.addEventListener('click', e => { if (e.target === mCanale) mCanale.style.display = 'none'; });
+    document.body.appendChild(mCanale);
+
+    // Modal: elimina canale
+    const mDelCanale = document.createElement('div');
+    mDelCanale.id = 'hmodal-del-canale';
+    mDelCanale.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(23,27,51,.45);z-index:9999;align-items:center;justify-content:center';
+    mDelCanale.innerHTML = `<div style="background:white;border-radius:10px;padding:28px 24px 20px;max-width:380px;width:90%;box-shadow:0 8px 32px rgba(23,27,51,.18);font-family:'Source Code Pro',monospace">
+        <div id="hmodal-del-canale-msg" style="font-size:15px;color:#171b33;margin-bottom:20px;font-weight:400;line-height:1.5">Rimuovere il canale?</div>
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+            <button class="btn-ping" style="padding:7px 18px" onclick="document.getElementById('hmodal-del-canale').style.display='none'">Annulla</button>
+            <button id="hbtn-ok-del-canale" class="btn-update" style="padding:7px 18px;margin-left:0;background:#d82d6b;border-color:#d82d6b">Rimuovi</button>
+        </div>
+    </div>`;
+    mDelCanale.addEventListener('click', e => { if (e.target === mDelCanale) mDelCanale.style.display = 'none'; });
+    document.body.appendChild(mDelCanale);
+
+    // Modal: report coerenza
+    const mReport = document.createElement('div');
+    mReport.id = 'hmodal-report-coerenza';
+    mReport.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(23,27,51,.45);z-index:9999;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto';
+    mReport.innerHTML = `<div style="background:white;border-radius:12px;padding:28px 24px 24px;max-width:860px;width:100%;box-shadow:0 16px 48px rgba(0,0,0,.18);font-family:'Source Code Pro',monospace;position:relative">
+        <button onclick="document.getElementById('hmodal-report-coerenza').style.display='none'" style="position:absolute;right:14px;top:12px;border:0;background:none;font-size:22px;cursor:pointer;color:#999;line-height:1">×</button>
+        <div style="font-size:17px;font-weight:700;color:#171b33;margin-bottom:4px" id="hmodal-report-title"></div>
+        <div style="font-size:12px;color:#9ca3af;margin-bottom:20px" id="hmodal-report-sub"></div>
+        <div id="hmodal-report-body"></div>
+        <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap">
+            <button class="btn-update" style="margin-left:0" onclick="window._printHCoerenzaReport&&window._printHCoerenzaReport()">Stampa / PDF</button>
+            <button class="btn-ping" onclick="document.getElementById('hmodal-report-coerenza').style.display='none'">Chiudi</button>
+        </div>
+    </div>`;
+    mReport.addEventListener('click', e => { if (e.target === mReport) mReport.style.display = 'none'; });
+    document.body.appendChild(mReport);
+})();
 
 // ─── GUIDA ─────────────────────────────────────────────────────────────────────
 (function() {
