@@ -547,7 +547,7 @@ function renderContent(site, pseData, now) {
     const regIl = site.created_at ? new Date(site.created_at).toLocaleDateString('it-IT',{day:'2-digit',month:'long',year:'numeric'}) : '—';
 
     const geoTips = {ai_readiness:'Prontezza complessiva del sito per essere letto e citato dai sistemi AI.',answer_extraction:'Capacità del sito di fornire risposte dirette ed estraibili dai motori AI.',quality_safety:'Qualità e sicurezza dei contenuti — testo chiaro, non ambiguo.',ai_visibility:'Visibilità stimata del sito sui principali sistemi AI come ChatGPT, Perplexity ecc.',entity_authority:"Autorevolezza delle entità semantiche del sito.",chunk_avg:'Media della citabilità dei singoli blocchi di contenuto.',citation_avg:'Media del punteggio Citation Engine.'};
-    const geoRows = [{k:'ai_readiness',l:'AI Readiness'},{k:'answer_extraction',l:'Answer Extraction'},{k:'quality_safety',l:'Quality Safety'},{k:'ai_visibility',l:'AI Visibility'},{k:'entity_authority',l:'Entity Authority'},{k:'chunk_avg',l:'Chunk Citation'},{k:'citation_avg',l:'Citation Engine'}].map(({k,l})=>{const v=geo[k]??null;const vc=v===null?'#ead0dc':'#0D5F75';const bg='white';const br='#e4e4ec';const st=v===null?'nessun dato':v>=70?'ottimizzato':v>=40?'da migliorare':'critico';return `<div style="background:${bg};border:1px solid ${br};border-radius:8px;padding:16px 18px"><div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:4px">${l} <span class='tip-q' data-tip='${geoTips[k]}'>?</span></div><div style="font-size:32px;font-weight:800;line-height:1;color:${v!==null?'#171b33':'#ead0dc'}">${v!==null?v:'—'}</div><div style="font-size:11px;font-weight:600;color:${vc};margin-top:6px">${st}</div></div>`;}).join('');
+    const geoRows = [{k:'ai_readiness',l:'AI Readiness'},{k:'answer_extraction',l:'Answer Extraction'},{k:'quality_safety',l:'Quality Safety'},{k:'ai_visibility',l:'AI Visibility'},{k:'entity_authority',l:'Entity Authority'},{k:'chunk_avg',l:'Chunk Citation'},{k:'citation_avg',l:'Citation Engine'}].map(({k,l})=>{const v=geo[k]??null;const vc=v===null?'#ead0dc':'#0D5F75';const bg='white';const br='#e4e4ec';const st=v===null?'nessun dato':v>=70?'ottimizzato':v>=40?'da migliorare':'critico';return `<div style="background:${bg};border:1px solid ${br};border-radius:14px;padding:16px 18px"><div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:4px">${l} <span class='tip-q' data-tip='${geoTips[k]}'>?</span></div><div style="font-size:32px;font-weight:800;line-height:1;color:${v!==null?'#171b33':'#ead0dc'}">${v!==null?v:'—'}</div><div style="font-size:11px;font-weight:600;color:${vc};margin-top:6px">${st}</div></div>`;}).join('');
 
     const dtabInact = 'padding:10px 20px;border:none;background:none;font-size:12px;font-weight:700;letter-spacing:.05em;cursor:pointer;white-space:nowrap;color:#666b84;border-bottom:2px solid transparent;margin-bottom:-2px';
     const dtabAct   = 'padding:10px 20px;border:none;background:none;font-size:12px;font-weight:700;letter-spacing:.05em;cursor:pointer;white-space:nowrap;color:#0D5F75;border-bottom:2px solid #0D5F75;margin-bottom:-2px';
@@ -668,7 +668,7 @@ function renderContent(site, pseData, now) {
                     </div>
                 </div>
                 <div class="h-card" id="h-card-notifiche" style="margin-bottom:0">
-                    <div class="h-card-hdr" style="justify-content:flex-start;gap:12px"><div style="width:34px;height:34px;border-radius:50%;background:white;border:1.5px solid rgba(13,95,117,0.25);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round"><line x1="12" y1="3" x2="12" y2="21"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="5.6" y1="5.6" x2="18.4" y2="18.4"/><line x1="18.4" y1="5.6" x2="5.6" y2="18.4"/></svg></div><span class="h-card-hdr-t" style="font-size:18px;font-weight:700">Notifiche</span>${notifCount>0?`<span style="background:#d82d6b;color:white;border-radius:50%;width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700">${notifCount}</span>`:''}</div>
+                    <div class="h-card-hdr" style="justify-content:flex-start;gap:12px"><div style="width:34px;height:34px;border-radius:50%;background:white;border:1.5px solid rgba(13,95,117,0.25);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round"><line x1="12" y1="3" x2="12" y2="21"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="5.6" y1="5.6" x2="18.4" y2="18.4"/><line x1="18.4" y1="5.6" x2="5.6" y2="18.4"/></svg></div><span class="h-card-hdr-t" style="font-size:18px;font-weight:700">Notifiche</span>${notifCount>0?`<span style="background:#ff6b2b;color:white;border-radius:50%;width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700">${notifCount}</span>`:''}</div>
                     <div class="h-card-body" style="padding:6px 14px 10px">
                         ${hrs>=48?`<div style="display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid #f4f4f8"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;flex-shrink:0;margin-top:3px;display:inline-block"></span><span style="font-size:12px;color:#4b4d68">Plugin non connesso — nessun segnale ricevuto da ${Math.round(hrs)}h</span></div>`:''}
                         ${(geoAvg!==null&&geoAvg<70)?`<div style="display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid #f4f4f8"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;flex-shrink:0;margin-top:3px;display:inline-block"></span><span style="font-size:12px;color:#4b4d68">GEO Score ${geoAvg<40?'critico':'basso'} (${geoAvg}/100) — ottimizza il profilo hotel per migliorare la visibilità AI</span></div>`:''}
@@ -681,23 +681,24 @@ function renderContent(site, pseData, now) {
               <!-- Informazioni sito (full width) -->
               <div class="h-card" id="h-card-pacchetto" style="margin-top:28px">
                   <div class="h-card-hdr" style="justify-content:flex-start;gap:12px"><div style="width:34px;height:34px;border-radius:50%;background:white;border:1.5px solid rgba(13,95,117,0.25);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="8" stroke-width="2.5"/><line x1="12" y1="12" x2="12" y2="16"/></svg></div><span class="h-card-hdr-t" style="font-size:18px;font-weight:700">Informazioni sito</span></div>
-                  <div class="h-card-body" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:10px 14px">
-                      <div style="background:#f8f9fc;border-radius:8px;padding:10px 12px"><div style="font-size:11px;color:#0D5F75;font-weight:400;margin-bottom:3px">Nome sito web</div><div style="font-size:12px;font-weight:400;color:rgba(13,95,117,0.6)">${esc(site.site_name||'—')}</div></div>
-                      <div style="background:#f8f9fc;border-radius:8px;padding:10px 12px"><div style="font-size:11px;color:#0D5F75;font-weight:400;margin-bottom:3px">URL sito web</div><div style="font-size:11px;font-weight:600;color:#35364f;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc((site.site_url||'').replace(/^https?:\/\//,'').replace(/\/$/,'')||'—')}</div></div>
-                      <div style="background:#f8f9fc;border-radius:8px;padding:10px 12px"><div style="font-size:11px;color:#0D5F75;font-weight:400;margin-bottom:3px">Pacchetto</div><div style="font-size:12px;font-weight:400;color:rgba(13,95,117,0.6)">${site.tier==='plus'?'Plus':'Standard'}</div></div>
-                      <div style="background:#f8f9fc;border-radius:8px;padding:10px 12px"><div style="font-size:11px;color:#0D5F75;font-weight:400;margin-bottom:3px">Installato il</div><div style="font-size:12px;font-weight:400;color:rgba(13,95,117,0.6)">${regIl}</div></div>
-                      <div style="background:#f8f9fc;border-radius:8px;padding:10px 12px"><div style="font-size:11px;color:#0D5F75;font-weight:400;margin-bottom:3px">Versione plugin</div><div style="font-size:12px;font-weight:400;color:rgba(13,95,117,0.6)">${esc(site.plugin_version||'—')}</div></div>
-                      <div style="background:#f8f9fc;border-radius:8px;padding:10px 12px"><div style="font-size:11px;color:#0D5F75;font-weight:400;margin-bottom:3px">Versione WordPress</div><div style="font-size:12px;font-weight:400;color:rgba(13,95,117,0.6)">${esc(site.wp_version||'—')}</div></div>
-                      <div style="background:#f8f9fc;border-radius:8px;padding:10px 12px"><div style="font-size:11px;color:#0D5F75;font-weight:400;margin-bottom:3px">Versione PHP</div><div style="font-size:12px;font-weight:400;color:rgba(13,95,117,0.6)">${esc(site.hotel_profile?.php_version||'—')}</div></div>
-                      <div style="background:#f8f9fc;border-radius:8px;padding:10px 12px"><div style="font-size:11px;color:#0D5F75;font-weight:400;margin-bottom:3px">Hotel ID</div><div style="font-size:10px;font-weight:600;color:#35364f;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(site.site_id||'—')}">${esc(site.site_id||'—')}</div></div>
+                  <div class="h-card-body" style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;padding:10px 14px">
+                      <div style="padding:8px 12px 10px 0;border-right:1px solid #e4e4ec"><div style="font-size:12px;color:#0D5F75;font-weight:400;margin-bottom:3px">Nome sito web</div><div style="font-size:12px;font-weight:400;color:rgba(13,95,117,0.6)">${esc(site.site_name||'—')}</div></div>
+                      <div style="padding:8px 12px 10px 12px;border-right:1px solid #e4e4ec"><div style="font-size:12px;color:#0D5F75;font-weight:400;margin-bottom:3px">URL sito web</div><div style="font-size:11px;font-weight:600;color:#35364f;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc((site.site_url||'').replace(/^https?:\/\//,'').replace(/\/$/,'')||'—')}</div></div>
+                      <div style="padding:8px 12px 10px 12px;border-right:1px solid #e4e4ec"><div style="font-size:12px;color:#0D5F75;font-weight:400;margin-bottom:3px">Pacchetto</div><div style="font-size:12px;font-weight:400;color:rgba(13,95,117,0.6)">${site.tier==='plus'?'Plus':'Standard'}</div></div>
+                      <div style="padding:8px 0 10px 12px"><div style="font-size:12px;color:#0D5F75;font-weight:400;margin-bottom:3px">Installato il</div><div style="font-size:12px;font-weight:400;color:rgba(13,95,117,0.6)">${regIl}</div></div>
+                      <div style="grid-column:1/-1;height:1px;background:#e4e4ec"></div>
+                      <div style="padding:10px 12px 8px 0;border-right:1px solid #e4e4ec"><div style="font-size:12px;color:#0D5F75;font-weight:400;margin-bottom:3px">Versione plugin</div><div style="font-size:12px;font-weight:400;color:rgba(13,95,117,0.6)">${esc(site.plugin_version||'—')}</div></div>
+                      <div style="padding:10px 12px 8px 12px;border-right:1px solid #e4e4ec"><div style="font-size:12px;color:#0D5F75;font-weight:400;margin-bottom:3px">Versione WordPress</div><div style="font-size:12px;font-weight:400;color:rgba(13,95,117,0.6)">${esc(site.wp_version||'—')}</div></div>
+                      <div style="padding:10px 12px 8px 12px;border-right:1px solid #e4e4ec"><div style="font-size:12px;color:#0D5F75;font-weight:400;margin-bottom:3px">Versione PHP</div><div style="font-size:12px;font-weight:400;color:rgba(13,95,117,0.6)">${esc(site.hotel_profile?.php_version||'—')}</div></div>
+                      <div style="padding:10px 0 8px 12px"><div style="font-size:12px;color:#0D5F75;font-weight:400;margin-bottom:3px">Hotel ID</div><div style="font-size:10px;font-weight:600;color:#35364f;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(site.site_id||'—')}">${esc(site.site_id||'—')}</div></div>
                   </div>
               </div>
 
             <!-- Punteggi AI -->
             <div class="h-card">
-                <div class="h-card-hdr"><span class="h-card-hdr-t">Punteggi AI</span></div>
+                <div class="h-card-hdr" style="justify-content:flex-start;gap:12px"><div style="width:34px;height:34px;border-radius:50%;background:white;border:1.5px solid rgba(13,95,117,0.25);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round"><line x1="12" y1="3" x2="12" y2="21"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="5.6" y1="5.6" x2="18.4" y2="18.4"/><line x1="18.4" y1="5.6" x2="5.6" y2="18.4"/></svg></div><span class="h-card-hdr-t" style="font-size:18px;font-weight:700">Punteggi AI</span></div>
                 <div class="h-card-body" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
-                    <div style="background:#edf7fa;border:1.5px solid #0D5F75;border-radius:10px;padding:14px 16px">
+                    <div style="background:#edf7fa;border:1.5px solid #0D5F75;border-radius:14px;padding:14px 16px">
                         <div style="font-size:9px;font-weight:700;letter-spacing:.06em;color:#0D5F75;text-transform:uppercase;margin-bottom:6px">MEDIA</div>
                         <div style="font-size:34px;font-weight:800;line-height:1;color:${geoAvg!==null?'#171b33':'#C1CBE8'}">${geoAvg!==null?geoAvg:'—'}</div>
                         <div style="font-size:10px;font-weight:600;color:#0D5F75;margin-top:5px">${geoAvg!==null?(geoAvg>=70?'ottimizzato':geoAvg>=40?'da migliorare':'critico'):'nessun dato'}</div>
@@ -709,7 +710,7 @@ function renderContent(site, pseData, now) {
             <!-- Storico punteggi AI (4 metriche) -->
             <div class="h-card" style="margin-top:12px">
                 <div class="h-card-hdr">
-                    <span class="h-card-hdr-t">Storico punteggi AI</span>
+                    <div style="display:flex;align-items:center;gap:12px"><div style="width:34px;height:34px;border-radius:50%;background:white;border:1.5px solid rgba(13,95,117,0.25);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round"><line x1="12" y1="3" x2="12" y2="21"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="5.6" y1="5.6" x2="18.4" y2="18.4"/><line x1="18.4" y1="5.6" x2="5.6" y2="18.4"/></svg></div><span class="h-card-hdr-t" style="font-size:18px;font-weight:700">Storico punteggi AI</span></div>
                     <div style="display:flex;gap:10px">
                         <span class="hsc-range active-range" data-days="30" style="font-size:11px;font-weight:700;cursor:pointer;color:#0D5F75;border-bottom:2px solid #0D5F75;padding-bottom:2px">1M</span>
                         <span class="hsc-range" data-days="180" style="font-size:11px;font-weight:700;cursor:pointer;color:#9ca3af">6M</span>
@@ -746,7 +747,7 @@ function renderContent(site, pseData, now) {
             <!-- GEO Score Mini Chart -->
             <div class="h-card" style="margin-top:12px">
                 <div class="h-card-hdr">
-                    <span class="h-card-hdr-t">GEO Score nel tempo</span>
+                    <div style="display:flex;align-items:center;gap:12px"><div style="width:34px;height:34px;border-radius:50%;background:white;border:1.5px solid rgba(13,95,117,0.25);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round"><line x1="12" y1="3" x2="12" y2="21"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="5.6" y1="5.6" x2="18.4" y2="18.4"/><line x1="18.4" y1="5.6" x2="5.6" y2="18.4"/></svg></div><span class="h-card-hdr-t" style="font-size:18px;font-weight:700">GEO Score nel tempo</span></div>
                     <div style="display:flex;gap:10px">
                         <span class="hgeo-mini-range active-range" data-days="30" style="font-size:11px;font-weight:700;cursor:pointer;color:#0D5F75;border-bottom:2px solid #0D5F75;padding-bottom:2px">1M</span>
                         <span class="hgeo-mini-range" data-days="180" style="font-size:11px;font-weight:700;cursor:pointer;color:#9ca3af">6M</span>
@@ -759,7 +760,7 @@ function renderContent(site, pseData, now) {
             </div>
 
             ${cs !== null ? `<div class="h-card" id="h-card-suggerimenti">
-                <div class="h-card-hdr"><span class="h-card-hdr-t">Completezza profilo AI</span></div>
+                <div class="h-card-hdr" style="justify-content:flex-start;gap:12px"><div style="width:34px;height:34px;border-radius:50%;background:white;border:1.5px solid rgba(13,95,117,0.25);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round"><line x1="12" y1="3" x2="12" y2="21"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="5.6" y1="5.6" x2="18.4" y2="18.4"/><line x1="18.4" y1="5.6" x2="5.6" y2="18.4"/></svg></div><span class="h-card-hdr-t" style="font-size:18px;font-weight:700">Completezza profilo AI</span></div>
                 <div class="h-card-body">
                     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:${checklist.length?'16px':'0'}">
                         <div style="background:${cs<60?'#fef0f0':'#edf7fa'};border:1px solid ${cs<60?'#f5c8c8':'#b8e4f0'};border-radius:10px;padding:14px"><div style="font-size:9px;font-weight:700;letter-spacing:.06em;color:#888;text-transform:uppercase;margin-bottom:6px">PUNTEGGIO</div><div style="font-size:28px;font-weight:800;line-height:1;color:#171b33">${cs}/100</div><div style="font-size:10px;font-weight:600;color:${cs>=80?'#0D5F75':'#d82d6b'};margin-top:5px">${cs>=80?'ottimizzato':cs>=60?'da migliorare':'incompleto'}</div></div>
@@ -773,7 +774,7 @@ function renderContent(site, pseData, now) {
 
             <div class="h-card" style="margin-top:12px">
                 <div class="h-card-hdr">
-                    <span class="h-card-hdr-t">Andamento nel tempo</span>
+                    <div style="display:flex;align-items:center;gap:12px"><div style="width:34px;height:34px;border-radius:50%;background:white;border:1.5px solid rgba(13,95,117,0.25);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round"><line x1="12" y1="3" x2="12" y2="21"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="5.6" y1="5.6" x2="18.4" y2="18.4"/><line x1="18.4" y1="5.6" x2="5.6" y2="18.4"/></svg></div><span class="h-card-hdr-t" style="font-size:18px;font-weight:700">Andamento nel tempo</span></div>
                     <div style="display:flex;gap:10px">
                         <span class="h-range-btn h-and-btn active-range" data-days="30">1 mese</span>
                         <span class="h-range-btn h-and-btn" data-days="180">6 mesi</span>
@@ -784,7 +785,7 @@ function renderContent(site, pseData, now) {
             </div>
 
             <div class="h-card" style="margin-top:12px">
-                <div class="h-card-hdr"><span class="h-card-hdr-t">Risposte FAQ mancanti</span></div>
+                <div class="h-card-hdr" style="justify-content:flex-start;gap:12px"><div style="width:34px;height:34px;border-radius:50%;background:white;border:1.5px solid rgba(13,95,117,0.25);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round"><line x1="12" y1="3" x2="12" y2="21"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="5.6" y1="5.6" x2="18.4" y2="18.4"/><line x1="18.4" y1="5.6" x2="5.6" y2="18.4"/></svg></div><span class="h-card-hdr-t" style="font-size:18px;font-weight:700">Risposte FAQ mancanti</span></div>
                 <div class="h-card-body" style="padding:16px 20px">
                     <div style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap">
                         <div style="background:#f8f9fc;border-radius:12px;padding:16px;min-width:180px;text-align:center;flex-shrink:0">
@@ -958,7 +959,7 @@ function renderContent(site, pseData, now) {
         <div class="card" style="border-radius:8px;border:1px solid #e4e4ec;box-shadow:none;margin:0;margin-bottom:20px">
             <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Riepilogo PSE</div></div></div>
             <div style="padding:16px 20px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
-                ${(()=>{const tot=pseData.length;const totCost=pseData.reduce((a,r)=>a+(parseFloat(r.cost_usd)||0),0);const cited=pseData.filter(r=>r.result?.cited||r.result?.found||r.result?.match_found).length;const pct=tot>0?Math.round(cited/tot*100):null;const bx=(l,v,s,vc)=>'<div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:16px 18px"><div style="font-size:10px;color:#aaa;font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px">'+l+'</div><div style="font-size:28px;font-weight:800;color:#171b33;line-height:1">'+v+'</div><div style="font-size:11px;font-weight:600;color:'+vc+';margin-top:5px">'+s+'</div></div>';return bx('QUERY TOTALI',tot,'eseguite','#0D5F75')+bx('CITAZIONI',cited,'trovate','#0D5F75')+bx('TASSO CITAZIONE',pct!==null?pct+'%':'—',pct!==null?(pct>=50?'buona visibilità':'da migliorare'):'nessun dato',pct!==null?'#0D5F75':'#ead0dc')+bx('COSTO TOTALE','€'+totCost.toFixed(4),'speso','#666b84');})()}
+                ${(()=>{const tot=pseData.length;const totCost=pseData.reduce((a,r)=>a+(parseFloat(r.cost_usd)||0),0);const cited=pseData.filter(r=>r.result?.cited||r.result?.found||r.result?.match_found).length;const pct=tot>0?Math.round(cited/tot*100):null;const bx=(l,v,s,vc)=>'<div style="background:white;border:1px solid #e4e4ec;border-radius:14px;padding:16px 18px"><div style="font-size:10px;color:#aaa;font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px">'+l+'</div><div style="font-size:28px;font-weight:800;color:#171b33;line-height:1">'+v+'</div><div style="font-size:11px;font-weight:600;color:'+vc+';margin-top:5px">'+s+'</div></div>';return bx('QUERY TOTALI',tot,'eseguite','#0D5F75')+bx('CITAZIONI',cited,'trovate','#0D5F75')+bx('TASSO CITAZIONE',pct!==null?pct+'%':'—',pct!==null?(pct>=50?'buona visibilità':'da migliorare'):'nessun dato',pct!==null?'#0D5F75':'#ead0dc')+bx('COSTO TOTALE','€'+totCost.toFixed(4),'speso','#666b84');})()}
             </div>
         </div>
         <div class="card" style="border-radius:8px;border:1px solid #e4e4ec;box-shadow:none;margin:0">
@@ -3171,7 +3172,8 @@ async function initScoreHistoryChart(site, geoAvg, cs, covPct) {
 
     function render(days) {
         const raw = filtered(days);
-        const data = aggregateWeekly(raw);
+        let data = aggregateWeekly(raw);
+        while (data.length > 1 && KEYS.every(k => data[data.length - 1][k] == null)) data = data.slice(0, -1);
         const labels = data.map(h => fmtDate(h.date));
         updateSummary(data);
         const datasets = KEYS.map((k, i) => ({
@@ -3279,7 +3281,8 @@ function initGeoScoreMiniChart(site) {
 
     function renderMini(days) {
         const raw = filteredMini(days).length ? filteredMini(days) : history;
-        const data = aggregateMiniWeekly(raw);
+        let data = aggregateMiniWeekly(raw);
+        while (data.length > 1 && ['geo','completeness','coverage'].every(k => data[data.length-1][k] == null)) data = data.slice(0,-1);
         const labels = data.map(h => { const dt = new Date(h.date+'T00:00:00'); return dt.toLocaleDateString('it-IT',{day:'2-digit',month:'short'}); });
         const datasets = [
             { label:'GEO Score',    data:data.map(h=>h.geo??null),        borderColor:'#0D5F75', backgroundColor:'transparent', fill:false, tension:0.35, pointRadius:0, pointHoverRadius:3.5, pointBackgroundColor:'#0D5F75', pointBorderColor:'#0D5F75', borderWidth:2.5, spanGaps:true },
