@@ -656,7 +656,7 @@ function renderContent(site, pseData, now) {
               <button id="btn-hotel-sync" style="display:none">SINCRONIZZA</button>
 
               <!-- Semafori + Notifiche -->
-              <div style="display:grid;grid-template-columns:1fr 1.5fr;gap:12px;margin-bottom:12px">
+              <div style="display:grid;grid-template-columns:1fr 1.2fr;gap:24px;margin-bottom:12px">
                 <div class="h-card" id="h-card-semafori" style="margin-bottom:0">
                     <div class="h-card-hdr" style="justify-content:flex-start;gap:12px"><div style="width:34px;height:34px;border-radius:50%;background:white;border:1.5px solid rgba(13,95,117,0.25);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round"><line x1="12" y1="3" x2="12" y2="21"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="5.6" y1="5.6" x2="18.4" y2="18.4"/><line x1="18.4" y1="5.6" x2="5.6" y2="18.4"/></svg></div><span class="h-card-hdr-t" style="font-size:18px;font-weight:700">Stato semafori</span></div>
                     <div class="h-card-body" style="display:grid;grid-template-columns:1fr 1fr;gap:0;padding:12px 14px">
@@ -695,7 +695,7 @@ function renderContent(site, pseData, now) {
               </div>
 
             <!-- Punteggi AI -->
-            <div class="h-card">
+            <div class="h-card" style="margin-top:28px">
                 <div class="h-card-hdr" style="justify-content:flex-start;gap:12px"><div style="width:34px;height:34px;border-radius:50%;background:white;border:1.5px solid rgba(13,95,117,0.25);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round"><line x1="12" y1="3" x2="12" y2="21"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="5.6" y1="5.6" x2="18.4" y2="18.4"/><line x1="18.4" y1="5.6" x2="5.6" y2="18.4"/></svg></div><span class="h-card-hdr-t" style="font-size:18px;font-weight:700">Punteggi AI</span></div>
                 <div class="h-card-body" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
                     <div style="background:#edf7fa;border:1.5px solid #0D5F75;border-radius:14px;padding:14px 16px">
@@ -708,7 +708,7 @@ function renderContent(site, pseData, now) {
             </div>
 
             <!-- Storico punteggi AI (4 metriche) -->
-            <div class="h-card" style="margin-top:12px">
+            <div class="h-card" style="margin-top:28px">
                 <div class="h-card-hdr">
                     <div style="display:flex;align-items:center;gap:12px"><div style="width:34px;height:34px;border-radius:50%;background:white;border:1.5px solid rgba(13,95,117,0.25);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round"><line x1="12" y1="3" x2="12" y2="21"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="5.6" y1="5.6" x2="18.4" y2="18.4"/><line x1="18.4" y1="5.6" x2="5.6" y2="18.4"/></svg></div><span class="h-card-hdr-t" style="font-size:18px;font-weight:700">Storico punteggi AI</span></div>
                     <div style="display:flex;gap:10px">
@@ -745,7 +745,7 @@ function renderContent(site, pseData, now) {
             </div>
 
             <!-- GEO Score Mini Chart -->
-            <div class="h-card" style="margin-top:12px">
+            <div class="h-card" style="margin-top:28px">
                 <div class="h-card-hdr">
                     <div style="display:flex;align-items:center;gap:12px"><div style="width:34px;height:34px;border-radius:50%;background:white;border:1.5px solid rgba(13,95,117,0.25);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round"><line x1="12" y1="3" x2="12" y2="21"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="5.6" y1="5.6" x2="18.4" y2="18.4"/><line x1="18.4" y1="5.6" x2="5.6" y2="18.4"/></svg></div><span class="h-card-hdr-t" style="font-size:18px;font-weight:700">GEO Score nel tempo</span></div>
                     <div style="display:flex;gap:10px">
@@ -759,20 +759,20 @@ function renderContent(site, pseData, now) {
                 </div>
             </div>
 
-            ${cs !== null ? `<div class="h-card" id="h-card-suggerimenti">
+            ${cs !== null ? `<div class="h-card" id="h-card-suggerimenti" style="margin-top:28px">
                 <div class="h-card-hdr" style="justify-content:flex-start;gap:12px"><div style="width:34px;height:34px;border-radius:50%;background:white;border:1.5px solid rgba(13,95,117,0.25);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round"><line x1="12" y1="3" x2="12" y2="21"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="5.6" y1="5.6" x2="18.4" y2="18.4"/><line x1="18.4" y1="5.6" x2="5.6" y2="18.4"/></svg></div><span class="h-card-hdr-t" style="font-size:18px;font-weight:700">Completezza profilo AI</span></div>
                 <div class="h-card-body">
-                    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:${checklist.length?'16px':'0'}">
-                        <div style="background:${cs<60?'#fef0f0':'#edf7fa'};border:1px solid ${cs<60?'#f5c8c8':'#b8e4f0'};border-radius:10px;padding:14px"><div style="font-size:9px;font-weight:700;letter-spacing:.06em;color:#888;text-transform:uppercase;margin-bottom:6px">PUNTEGGIO</div><div style="font-size:28px;font-weight:800;line-height:1;color:#171b33">${cs}/100</div><div style="font-size:10px;font-weight:600;color:${cs>=80?'#0D5F75':'#d82d6b'};margin-top:5px">${cs>=80?'ottimizzato':cs>=60?'da migliorare':'incompleto'}</div></div>
-                        <div style="background:#f8f9fc;border:1px solid #e4e4ec;border-radius:10px;padding:14px"><div style="font-size:9px;font-weight:700;letter-spacing:.06em;color:#888;text-transform:uppercase;margin-bottom:6px">TOTALI</div><div style="font-size:28px;font-weight:800;line-height:1;color:#171b33">12</div><div style="font-size:10px;font-weight:600;color:#0D5F75;margin-top:5px">campi</div></div>
-                        <div style="background:#f8f9fc;border:1px solid #e4e4ec;border-radius:10px;padding:14px"><div style="font-size:9px;font-weight:700;letter-spacing:.06em;color:#888;text-transform:uppercase;margin-bottom:6px">COMPILATI</div><div style="font-size:28px;font-weight:800;line-height:1;color:#171b33">${12-checklist.length}</div><div style="font-size:10px;font-weight:600;color:#0D5F75;margin-top:5px">di 12</div></div>
-                        <div style="background:${checklist.length>0?'#fef0f0':'#edf7fa'};border:1px solid ${checklist.length>0?'#f5c8c8':'#b8e4f0'};border-radius:10px;padding:14px"><div style="font-size:9px;font-weight:700;letter-spacing:.06em;color:#888;text-transform:uppercase;margin-bottom:6px">MANCANTI</div><div style="font-size:28px;font-weight:800;line-height:1;color:#171b33">${checklist.length}</div><div style="font-size:10px;font-weight:600;color:${checklist.length>0?'#d82d6b':'#0D5F75'};margin-top:5px">${checklist.length>0?'da completare':'completo'}</div></div>
+                    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-bottom:${checklist.length?'16px':'0'};padding:4px 0">
+                        <div style="padding:8px 12px 10px 0;border-right:1px solid #e4e4ec"><div style="font-size:12px;color:#0D5F75;font-weight:400;margin-bottom:6px">Punteggio</div><div style="font-size:28px;font-weight:800;line-height:1;color:#171b33">${cs}/100</div><div style="font-size:11px;font-weight:600;color:${cs>=80?'#0D5F75':'#d82d6b'};margin-top:5px">${cs>=80?'ottimizzato':cs>=60?'da migliorare':'incompleto'}</div></div>
+                        <div style="padding:8px 12px 10px 12px;border-right:1px solid #e4e4ec"><div style="font-size:12px;color:#0D5F75;font-weight:400;margin-bottom:6px">Totali</div><div style="font-size:28px;font-weight:800;line-height:1;color:#171b33">12</div><div style="font-size:11px;font-weight:600;color:rgba(13,95,117,0.6);margin-top:5px">campi</div></div>
+                        <div style="padding:8px 12px 10px 12px;border-right:1px solid #e4e4ec"><div style="font-size:12px;color:#0D5F75;font-weight:400;margin-bottom:6px">Compilati</div><div style="font-size:28px;font-weight:800;line-height:1;color:#171b33">${12-checklist.length}</div><div style="font-size:11px;font-weight:600;color:rgba(13,95,117,0.6);margin-top:5px">di 12</div></div>
+                        <div style="padding:8px 0 10px 12px"><div style="font-size:12px;color:#0D5F75;font-weight:400;margin-bottom:6px">Mancanti</div><div style="font-size:28px;font-weight:800;line-height:1;color:#171b33">${checklist.length}</div><div style="font-size:11px;font-weight:600;color:${checklist.length>0?'#d82d6b':'rgba(13,95,117,0.6)'};margin-top:5px">${checklist.length>0?'da completare':'completo'}</div></div>
                     </div>
                     ${checklist.length ? '<div style="font-size:10px;font-weight:700;color:#888;letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px">COSA MANCA</div>'+checklist.map(item=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #f4f4f8"><span style="color:#d82d6b;font-weight:800;font-size:11px">✗</span><span style="font-size:12px;color:#4b4d68">${esc(item)}</span></div>`).join('') : ''}
                 </div>
             </div>` : ''}
 
-            <div class="h-card" style="margin-top:12px">
+            <div class="h-card" style="margin-top:28px">
                 <div class="h-card-hdr">
                     <div style="display:flex;align-items:center;gap:12px"><div style="width:34px;height:34px;border-radius:50%;background:white;border:1.5px solid rgba(13,95,117,0.25);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round"><line x1="12" y1="3" x2="12" y2="21"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="5.6" y1="5.6" x2="18.4" y2="18.4"/><line x1="18.4" y1="5.6" x2="5.6" y2="18.4"/></svg></div><span class="h-card-hdr-t" style="font-size:18px;font-weight:700">Andamento nel tempo</span></div>
                     <div style="display:flex;gap:10px">
@@ -784,7 +784,7 @@ function renderContent(site, pseData, now) {
                 <div class="h-card-body" style="padding:12px 14px;min-height:290px"><canvas id="hchart-andamento" style="width:100%;height:290px"></canvas></div>
             </div>
 
-            <div class="h-card" style="margin-top:12px">
+            <div class="h-card" style="margin-top:28px">
                 <div class="h-card-hdr" style="justify-content:flex-start;gap:12px"><div style="width:34px;height:34px;border-radius:50%;background:white;border:1.5px solid rgba(13,95,117,0.25);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round"><line x1="12" y1="3" x2="12" y2="21"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="5.6" y1="5.6" x2="18.4" y2="18.4"/><line x1="18.4" y1="5.6" x2="5.6" y2="18.4"/></svg></div><span class="h-card-hdr-t" style="font-size:18px;font-weight:700">Risposte FAQ mancanti</span></div>
                 <div class="h-card-body" style="padding:16px 20px">
                     <div style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap">
