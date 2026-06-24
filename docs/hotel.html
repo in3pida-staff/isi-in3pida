@@ -525,7 +525,7 @@ function renderContent(site, pseData, now) {
     const geo = site.geo_scores || {};
     const hrs = site.last_heartbeat ? (now - new Date(site.last_heartbeat))/3600000 : 9999;
     const rawFallback = [geo.chunk_avg, geo.citation_avg].filter(v=>v!=null);
-    const geoAvg = geo.completeness_score != null ? geo.completeness_score : (geo.ai_readiness != null ? geo.ai_readiness : (rawFallback.length ? Math.round(rawFallback.reduce((a,b)=>a+b,0)/rawFallback.length) : null));
+    const geoAvg = geo.ai_readiness != null ? geo.ai_readiness : (geo.completeness_score != null ? geo.completeness_score : (rawFallback.length ? Math.round(rawFallback.reduce((a,b)=>a+b,0)/rawFallback.length) : null));
     const cs = geo.completeness_score ?? null;
     const checklist = geo.checklist || [];
     const covPct = geo.coverage_pct ?? null;
