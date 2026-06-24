@@ -1019,7 +1019,7 @@ function renderContent(site, pseData, now) {
                 responsive:true, maintainAspectRatio:false,
                 plugins:{
                     legend:{ display:true, position:'bottom', labels:{ usePointStyle:true, pointStyle:'circle', font:{family:"'Source Code Pro',monospace",size:13,weight:'400'}, color:'#0D5F75', padding:24, boxWidth:16 } },
-                    tooltip:{ mode:'index', intersect:false, backgroundColor:'#0D5F75', titleColor:'#fff', bodyColor:'rgba(255,255,255,0.85)', callbacks:{ label: c => ` ${c.dataset.label}: ${c.parsed.y??'—'}` } }
+                    tooltip:{ mode:'index', intersect:false, backgroundColor:'#0D5F75', titleColor:'#fff', bodyColor:'rgba(255,255,255,0.85)', usePointStyle:true, callbacks:{ label: c => ` ${c.dataset.label}: ${c.parsed.y??'—'}` } }
                 },
                 scales:{
                     x:{ grid:{display:false}, ticks:{font:{family:"'Source Code Pro',monospace",size:13},color:'#0D5F75'} },
