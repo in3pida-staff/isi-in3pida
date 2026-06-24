@@ -7,7 +7,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Eletta — Posiziona il tuo sito nelle ricerche AI</title>
-    <script>var _V='v1782309409';if(localStorage.getItem('_hv')!==_V){localStorage.setItem('_hv',_V);location.reload(true);}</script>
+    <script>var _V='v1782309731';if(localStorage.getItem('_hv')!==_V){localStorage.setItem('_hv',_V);location.reload(true);}</script>
     <link rel="icon" type="image/png" href="images/favicon.png?v=2">
     <link rel="stylesheet" href="css/style.css?v=20260622q">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -83,6 +83,7 @@
 
         /* ═══ MAIN GRID: sinistra + destra ═══ */
         .h-main-grid{display:grid;grid-template-columns:1fr 285px;gap:12px;align-items:start;}
+        #htab-faq,#htab-schema,#htab-mappa,#htab-coerenza,#htab-config,#htab-pse{padding-left:5%;padding-right:35px;}
 
         /* ═══ CARD UNIVERSALE ═══ */
         .h-card{background:white;border-radius:16px;box-shadow:0 2px 14px rgba(0,0,0,.06);overflow:hidden;margin-bottom:12px;}
@@ -855,16 +856,16 @@ function renderContent(site, pseData, now) {
         <div class="card" style="margin-bottom:20px;border-radius:8px;border:1px solid #e4e4ec;box-shadow:none">
             <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
                 <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span>
-                    <div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">FAQ <span id="faq-hotel-count" style="font-weight:400;text-transform:none;letter-spacing:0;font-size:11px;color:var(--grey)"></span></div>
+                    <div style="font-size:11px;font-weight:700;color:#0D5F75;letter-spacing:.05em;text-transform:uppercase;font-family:'Commissioner',sans-serif">FAQ <span id="faq-hotel-count" style="font-weight:400;text-transform:none;letter-spacing:0;font-size:11px;color:var(--grey)"></span></div>
                 </div>
                 <button id="btn-add-faq-hotel" class="btn-update" style="margin-left:0">+ Aggiungi FAQ</button>
             </div>
             <div style="padding:10px 20px;border-bottom:1px solid #ececf2;display:flex;gap:6px;align-items:center;flex-wrap:wrap">
-                <button class="hfaq-f-btn hfaq-f-active" data-f="all" style="padding:5px 14px;border-radius:20px;border:1px solid #0D5F75;background:#fce8ef;color:#0D5F75;font-size:11px;font-weight:700;cursor:pointer">Tutti</button>
-                <button class="hfaq-f-btn" data-f="publish" style="padding:5px 14px;border-radius:20px;border:1px solid #e4e4ec;background:white;color:#666b84;font-size:11px;font-weight:700;cursor:pointer">Pubblicato</button>
-                <button class="hfaq-f-btn" data-f="draft" style="padding:5px 14px;border-radius:20px;border:1px solid #e4e4ec;background:white;color:#666b84;font-size:11px;font-weight:700;cursor:pointer">Bozze</button>
-                <button class="hfaq-f-btn" data-f="solo_ai" style="padding:5px 14px;border-radius:20px;border:1px solid #e4e4ec;background:white;color:#666b84;font-size:11px;font-weight:700;cursor:pointer">Solo AI</button>
-                <input type="text" id="hfaq-search" placeholder="Cerca FAQ..." style="margin-left:auto;border:1px solid #e4e4ec;border-radius:6px;padding:6px 12px;font-size:12px;outline:none;width:220px;color:#171b33">
+                <button class="hfaq-f-btn hfaq-f-active" data-f="all" style="padding:5px 14px;border-radius:20px;border:1px solid #0D5F75;background:rgba(13,95,117,0.08);color:#0D5F75;font-size:11px;font-weight:700;cursor:pointer">Tutti</button>
+                <button class="hfaq-f-btn" data-f="publish" style="padding:5px 14px;border-radius:20px;border:1px solid #e4e4ec;background:white;color:rgba(13,95,117,0.5);font-size:11px;font-weight:700;cursor:pointer">Pubblicato</button>
+                <button class="hfaq-f-btn" data-f="draft" style="padding:5px 14px;border-radius:20px;border:1px solid #e4e4ec;background:white;color:rgba(13,95,117,0.5);font-size:11px;font-weight:700;cursor:pointer">Bozze</button>
+                <button class="hfaq-f-btn" data-f="solo_ai" style="padding:5px 14px;border-radius:20px;border:1px solid #e4e4ec;background:white;color:rgba(13,95,117,0.5);font-size:11px;font-weight:700;cursor:pointer">Solo AI</button>
+                <input type="text" id="hfaq-search" placeholder="Cerca FAQ..." style="margin-left:auto;border:1px solid #e4e4ec;border-radius:6px;padding:6px 12px;font-size:12px;outline:none;width:220px;color:#0D5F75">
             </div>
             <div style="display:grid;grid-template-columns:1fr auto auto auto;gap:0;padding:8px 20px;background:#fafafa;border-bottom:1px solid #e4e4ec;font-size:10px;font-weight:700;color:#aaa;letter-spacing:.05em;text-transform:uppercase">
                 <div>Titolo</div><div style="text-align:center;padding:0 16px">Data</div><div style="text-align:center;padding:0 12px">Ordine</div><div style="text-align:center;padding:0 8px">Visibilità</div>
@@ -877,13 +878,13 @@ function renderContent(site, pseData, now) {
         <div id="htab-schema" style="display:none">
         <div class="card" style="margin-bottom:20px;border-radius:8px;border:1px solid #e4e4ec;box-shadow:none">
             <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
-                <div><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Profilo Hotel / Schema.org</div></div>
+                <div><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#0D5F75;letter-spacing:.05em;text-transform:uppercase;font-family:'Commissioner',sans-serif">Profilo Hotel / Schema.org</div></div>
                 <div style="font-size:11px;margin-top:3px" id="hschema-source"></div></div>
                 <button id="btn-toggle-hschema" class="btn-ping">✏️ Modifica</button>
             </div>
             <div id="hschema-view" style="padding:16px 20px"></div>
             <div id="hschema-edit" style="display:none;padding:16px 20px">
-                <div style="background:#fbf4f7;border:1px solid #e4e4ec;border-radius:8px;padding:12px 16px;font-size:13px;color:#0D5F75;font-weight:600;margin-bottom:20px;line-height:1.5">ℹ️ Salva qui il profilo — le modifiche vengono inviate al plugin WordPress.</div>
+                <div style="background:#EDEEF5;border:1px solid #e4e4ec;border-radius:8px;padding:12px 16px;font-size:13px;color:#0D5F75;font-weight:600;margin-bottom:20px;line-height:1.5">ℹ️ Salva qui il profilo — le modifiche vengono inviate al plugin WordPress.</div>
                 <div id="hschema-form"></div>
                 <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;align-items:center">
                     <button id="btn-save-hschema" class="btn-update" style="margin-left:0">Salva e invia al plugin</button>
@@ -901,7 +902,7 @@ function renderContent(site, pseData, now) {
         <div id="htab-mappa" style="display:none">
         <div class="card" style="margin-bottom:20px;border-radius:8px;border:1px solid #e4e4ec;box-shadow:none">
             <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
-                <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Mappa Query — Gestione</div></div>
+                <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#0D5F75;letter-spacing:.05em;text-transform:uppercase;font-family:'Commissioner',sans-serif">Mappa Query — Gestione</div></div>
             </div>
             <div id="hmappa-content" style="padding:16px 20px"><div class="loading"><div class="spinner"></div></div></div>
         </div>
@@ -914,7 +915,7 @@ function renderContent(site, pseData, now) {
             <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
                 <div style="display:flex;align-items:center;gap:8px">
                     <span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span>
-                    <div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Coerenza Contenuti — Confronto Canali</div>
+                    <div style="font-size:11px;font-weight:700;color:#0D5F75;letter-spacing:.05em;text-transform:uppercase;font-family:'Commissioner',sans-serif">Coerenza Contenuti — Confronto Canali</div>
                 </div>
                 <div style="display:flex;gap:8px;align-items:center">
                     <button id="btn-aggiungi-canale" class="btn-ping" style="font-size:11px;padding:5px 12px" onclick="document.getElementById('hmodal-canale').style.display='flex';document.getElementById('hinput-nuovo-canale').value='';document.getElementById('hinput-nuovo-canale').focus()">+ Aggiungi canale</button>
@@ -922,7 +923,7 @@ function renderContent(site, pseData, now) {
                     <button id="btn-esporta-report-h" class="btn-ping" style="font-size:11px;padding:5px 12px">📋 Report</button>
                 </div>
             </div>
-            <div style="padding:12px 20px;border-bottom:1px solid #ececf2;font-size:12px;color:#666b84">
+            <div style="padding:12px 20px;border-bottom:1px solid #ececf2;font-size:12px;color:rgba(13,95,117,0.5)">
                 Inserisci il link del tuo hotel su ogni portale e clicca Scansiona per confrontare automaticamente nome, stelle, indirizzo, telefono, check-in/out con i tuoi dati ufficiali.
             </div>
             <div id="hcoerenza-content" style="padding:14px 20px"><div class="loading" style="padding:20px"><div class="spinner"></div></div></div>
@@ -939,12 +940,12 @@ function renderContent(site, pseData, now) {
         <div id="htab-pse" style="display:none">
         <div class="card" style="margin-bottom:20px;border-radius:8px;border:1px solid #e4e4ec;box-shadow:none">
             <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
-                <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Simulatore Query AI</div></div>
+                <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#0D5F75;letter-spacing:.05em;text-transform:uppercase;font-family:'Commissioner',sans-serif">Simulatore Query AI</div></div>
             </div>
             <div style="padding:16px 20px">
-                <div style="font-size:12px;color:#666b84;margin-bottom:10px">Testa se il tuo hotel compare nelle risposte AI per una query specifica.</div>
+                <div style="font-size:12px;color:rgba(13,95,117,0.5);margin-bottom:10px">Testa se il tuo hotel compare nelle risposte AI per una query specifica.</div>
                 <div style="display:flex;gap:8px;align-items:center">
-                    <input type="text" id="hpse-query-input" placeholder="Es: hotel con piscina a Rimini per famiglie..." style="flex:1;border:1px solid #e4e4ec;border-radius:6px;padding:9px 12px;font-size:13px;color:#171b33;outline:none;font-family:'Source Code Pro',monospace" onkeydown="if(event.key==='Enter')runHotelPseQuery()">
+                    <input type="text" id="hpse-query-input" placeholder="Es: hotel con piscina a Rimini per famiglie..." style="flex:1;border:1px solid #e4e4ec;border-radius:6px;padding:9px 12px;font-size:13px;color:#0D5F75;outline:none;font-family:'Source Code Pro',monospace" onkeydown="if(event.key==='Enter')runHotelPseQuery()">
                     <button id="hpse-run-btn" class="btn-update" style="margin-left:0;white-space:nowrap" onclick="runHotelPseQuery()">✦ Analizza</button>
                 </div>
                 <div id="hpse-run-result" style="margin-top:14px;display:none"></div>
@@ -952,25 +953,25 @@ function renderContent(site, pseData, now) {
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px">
             <div class="card" style="border-radius:8px;border:1px solid #e4e4ec;box-shadow:none;margin:0">
-                <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Presenza nei risultati AI</div></div></div>
+                <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#0D5F75;letter-spacing:.05em;text-transform:uppercase;font-family:'Commissioner',sans-serif">Presenza nei risultati AI</div></div></div>
                 <div style="padding:20px;display:flex;flex-direction:column;align-items:center;min-height:260px;justify-content:center">
                     <canvas id="hchart-pse-donut" style="max-width:200px;max-height:200px"></canvas>
-                    <div id="hpse-donut-legend" style="margin-top:12px;font-size:12px;color:#666b84;text-align:center"></div>
+                    <div id="hpse-donut-legend" style="margin-top:12px;font-size:12px;color:rgba(13,95,117,0.5);text-align:center"></div>
                 </div>
             </div>
             <div class="card" style="border-radius:8px;border:1px solid #e4e4ec;box-shadow:none;margin:0">
-                <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Query nel tempo (ultimi 30 giorni)</div></div></div>
+                <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#0D5F75;letter-spacing:.05em;text-transform:uppercase;font-family:'Commissioner',sans-serif">Query nel tempo (ultimi 30 giorni)</div></div></div>
                 <div style="padding:20px"><canvas id="hchart-pse-bar" style="max-height:200px"></canvas></div>
             </div>
         </div>
         <div class="card" style="border-radius:8px;border:1px solid #e4e4ec;box-shadow:none;margin:0;margin-bottom:20px">
-            <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Riepilogo PSE</div></div></div>
+            <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#0D5F75;letter-spacing:.05em;text-transform:uppercase;font-family:'Commissioner',sans-serif">Riepilogo PSE</div></div></div>
             <div style="padding:16px 20px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
-                ${(()=>{const tot=pseData.length;const totCost=pseData.reduce((a,r)=>a+(parseFloat(r.cost_usd)||0),0);const cited=pseData.filter(r=>r.result?.cited||r.result?.found||r.result?.match_found).length;const pct=tot>0?Math.round(cited/tot*100):null;const bx=(l,v,s,vc)=>'<div style="background:white;border:1px solid #e4e4ec;border-radius:14px;padding:16px 18px"><div style="font-size:10px;color:#aaa;font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px">'+l+'</div><div style="font-size:28px;font-weight:800;color:#171b33;line-height:1">'+v+'</div><div style="font-size:11px;font-weight:600;color:'+vc+';margin-top:5px">'+s+'</div></div>';return bx('QUERY TOTALI',tot,'eseguite','#0D5F75')+bx('CITAZIONI',cited,'trovate','#0D5F75')+bx('TASSO CITAZIONE',pct!==null?pct+'%':'—',pct!==null?(pct>=50?'buona visibilità':'da migliorare'):'nessun dato',pct!==null?'#0D5F75':'#ead0dc')+bx('COSTO TOTALE','€'+totCost.toFixed(4),'speso','#666b84');})()}
+                ${(()=>{const tot=pseData.length;const totCost=pseData.reduce((a,r)=>a+(parseFloat(r.cost_usd)||0),0);const cited=pseData.filter(r=>r.result?.cited||r.result?.found||r.result?.match_found).length;const pct=tot>0?Math.round(cited/tot*100):null;const bx=(l,v,s,vc)=>'<div style="background:white;border:1px solid #e4e4ec;border-radius:14px;padding:16px 18px"><div style="font-size:10px;color:#aaa;font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px">'+l+'</div><div style="font-size:28px;font-weight:800;color:#0D5F75;line-height:1">'+v+'</div><div style="font-size:11px;font-weight:600;color:'+vc+';margin-top:5px">'+s+'</div></div>';return bx('QUERY TOTALI',tot,'eseguite','#0D5F75')+bx('CITAZIONI',cited,'trovate','#0D5F75')+bx('TASSO CITAZIONE',pct!==null?pct+'%':'—',pct!==null?(pct>=50?'buona visibilità':'da migliorare'):'nessun dato',pct!==null?'#0D5F75':'#ead0dc')+bx('COSTO TOTALE','€'+totCost.toFixed(4),'speso','#666b84');})()}
             </div>
         </div>
         <div class="card" style="border-radius:8px;border:1px solid #e4e4ec;box-shadow:none;margin:0">
-            <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Distribuzione per LLM</div></div></div>
+            <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#0D5F75;letter-spacing:.05em;text-transform:uppercase;font-family:'Commissioner',sans-serif">Distribuzione per LLM</div></div></div>
             <div id="hpse-llm-bars" style="padding:16px 20px;display:none"></div>
         </div>
         </div><!-- /htab-pse -->
@@ -1086,7 +1087,7 @@ function renderContent(site, pseData, now) {
     el.querySelectorAll('.hfaq-f-btn').forEach(b => {
         b.addEventListener('click', () => {
             el.querySelectorAll('.hfaq-f-btn').forEach(x => { x.style.background='white'; x.style.borderColor='#e4e4ec'; x.style.color='#666b84'; });
-            b.style.background='#fce8ef'; b.style.borderColor='#0D5F75'; b.style.color='#0D5F75';
+            b.style.background='rgba(13,95,117,0.08)'; b.style.borderColor='#0D5F75'; b.style.color='#0D5F75';
             _faqFilter = b.dataset.f;
             renderHotelFaqList(document.getElementById('faq-hotel-list'));
         });
@@ -1224,12 +1225,12 @@ function renderHotelFaqList(el) {
     if (!items.length) { el.innerHTML='<div style="padding:20px;color:var(--grey);font-size:13px">Nessuna FAQ corrisponde ai filtri.</div>'; return; }
     const fmt = d => { if(!d) return '—'; const dt=new Date(d); return dt.toLocaleDateString('it-IT',{day:'2-digit',month:'short',year:'numeric'})+'\n'+dt.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'}); };
     el.innerHTML = items.map((f,i) => {
-        const pub = f.status==='draft'?'<span style="background:#fbf4f7;color:#0D5F75;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px">Bozza</span>':'<span style="background:#fbf4f7;color:#0D5F75;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px">Pubblicato</span>';
-        const ai  = f.solo_ai?'<span style="background:#fce8ef;color:#0D5F75;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:4px">Solo AI</span>':'';
+        const pub = f.status==='draft'?'<span style="background:#EDEEF5;color:#0D5F75;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px">Bozza</span>':'<span style="background:#EDEEF5;color:#0D5F75;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px">Pubblicato</span>';
+        const ai  = f.solo_ai?'<span style="background:rgba(13,95,117,0.08);color:#0D5F75;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:4px">Solo AI</span>':'';
         return `<div style="display:grid;grid-template-columns:1fr auto auto auto;gap:0;align-items:center;padding:12px 20px;border-bottom:1px solid #f4f4f8">
-            <div style="min-width:0"><div style="font-size:13px;font-weight:700;color:#171b33;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${i+1}. ${esc(f.question)}</div><div style="font-size:11px;color:#aaa;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc((f.answer||'').substring(0,80))}${(f.answer||'').length>80?'…':''}</div></div>
-            <div style="padding:0 16px;text-align:center;font-size:11px;color:#666b84;white-space:pre-line;line-height:1.4">${fmt(f.date||f.created_at)}</div>
-            <div style="padding:0 12px;text-align:center;font-size:13px;font-weight:700;color:#171b33">${f.menu_order??f.order??0}</div>
+            <div style="min-width:0"><div style="font-size:13px;font-weight:700;color:#0D5F75;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${i+1}. ${esc(f.question)}</div><div style="font-size:11px;color:#aaa;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc((f.answer||'').substring(0,80))}${(f.answer||'').length>80?'…':''}</div></div>
+            <div style="padding:0 16px;text-align:center;font-size:11px;color:rgba(13,95,117,0.5);white-space:pre-line;line-height:1.4">${fmt(f.date||f.created_at)}</div>
+            <div style="padding:0 12px;text-align:center;font-size:13px;font-weight:700;color:#0D5F75">${f.menu_order??f.order??0}</div>
             <div style="padding:0 8px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px">${pub}${ai}<div style="display:flex;gap:4px;margin-top:4px"><button class="btn-ping" style="font-size:11px;padding:3px 8px" onclick="openHotelFaqModal(${f.id})">✏️</button><button class="btn-ping" style="font-size:11px;padding:3px 8px;color:#b00020" onclick="deleteHotelFaq(${f.id})">🗑️</button></div></div>
         </div>`;
     }).join('');
@@ -1255,7 +1256,7 @@ document.getElementById('faq-hotel-modal').addEventListener('click', e => { if(e
 document.getElementById('fhm-save').addEventListener('click', async () => {
     const btn=document.getElementById('fhm-save'), msg=document.getElementById('fhm-msg');
     const id=document.getElementById('fhm-id').value, q=document.getElementById('fhm-q').value.trim(), a=document.getElementById('fhm-a').value.trim(), sa=document.getElementById('fhm-solo-ai').checked;
-    if (!q) { msg.style.display='block'; msg.style.background='#fce8ef'; msg.style.color='#b00020'; msg.textContent='Inserisci la domanda.'; return; }
+    if (!q) { msg.style.display='block'; msg.style.background='rgba(13,95,117,0.08)'; msg.style.color='#b00020'; msg.textContent='Inserisci la domanda.'; return; }
     btn.disabled=true; btn.textContent='Salvataggio...';
     try {
         const action=id?'update':'add', faq={question:q,answer:a,solo_ai:sa,order:0};
@@ -1271,7 +1272,7 @@ document.getElementById('fhm-save').addEventListener('click', async () => {
             if(r.ok&&d.ok){ document.getElementById('faq-hotel-modal').style.display='none'; _faqItems=[]; await initHotelFaq(); }
             else throw new Error(d.message||'Errore '+r.status);
         }
-    } catch(e){ msg.style.display='block'; msg.style.background='#fce8ef'; msg.style.color='#b00020'; msg.textContent='Errore: '+e.message; }
+    } catch(e){ msg.style.display='block'; msg.style.background='rgba(13,95,117,0.08)'; msg.style.color='#b00020'; msg.textContent='Errore: '+e.message; }
     finally { btn.disabled=false; btn.textContent='Salva FAQ'; }
 });
 
@@ -1316,10 +1317,10 @@ async function initHotelSchema(site) {
 
 function renderHotelSchemaView(s) {
     const el=document.getElementById('hschema-view'); if(!el) return;
-    const f=(label,val)=>!val?'':'<div><div style="font-size:10px;color:var(--grey);font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:3px">'+label+'</div><div style="font-size:14px;font-weight:600;color:#171b33">'+esc(String(val))+'</div></div>';
+    const f=(label,val)=>!val?'':'<div><div style="font-size:10px;color:var(--grey);font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:3px">'+label+'</div><div style="font-size:14px;font-weight:600;color:#0D5F75">'+esc(String(val))+'</div></div>';
     if(!s.name&&!s.telephone&&!s.email&&!s.description){el.innerHTML='<div style="color:var(--grey);font-size:13px">Nessun dato Schema.org. Clicca ✏️ Modifica o sincronizza dal plugin.</div>';return;}
     const addr=[s.street,s.city,s.postal_code,s.region,s.country].filter(Boolean).join(', ');
-    el.innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px">'+f('Nome',s.name)+f('Tipo struttura',s.type)+f('Stelle',s.official_rating?s.official_rating+' ★':null)+'</div>'+(s.description?'<div style="margin-bottom:14px;padding:12px 14px;background:#fbf4f7;border-radius:8px"><div style="font-size:10px;color:var(--grey);font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px">DESCRIZIONE</div><div style="font-size:13px;color:#35364f;line-height:1.6">'+esc(s.description)+'</div></div>':'')+
+    el.innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px">'+f('Nome',s.name)+f('Tipo struttura',s.type)+f('Stelle',s.official_rating?s.official_rating+' ★':null)+'</div>'+(s.description?'<div style="margin-bottom:14px;padding:12px 14px;background:#EDEEF5;border-radius:8px"><div style="font-size:10px;color:var(--grey);font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px">DESCRIZIONE</div><div style="font-size:13px;color:rgba(13,95,117,0.7);line-height:1.6">'+esc(s.description)+'</div></div>':'')+
         '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:14px">'+f('Indirizzo',addr)+f('Telefono',s.telephone)+f('Email',s.email)+'</div>'+
         '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:14px">'+f('Sito web',s.url)+f('Check-in',s.checkin_time)+f('Check-out',s.checkout_time)+f('Animali',s.pets_allowed)+'</div>';
 }
@@ -1373,8 +1374,8 @@ function buildHotelSchemaForm(s) {
         '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">'+inp('checkin_time','Check-in dalle',s.checkin_time,'14:00')+inp('checkout_time','Check-out dalle',s.checkout_time,'11:00')+inp('pets_allowed','Animali ammessi',s.pets_allowed,'Sì / No')+'</div>'+
 
         sec('STILE DI COMUNICAZIONE')+
-        '<div style="font-size:14px;color:#666b84;margin-bottom:14px">Analizza automaticamente il sito web e imposta il tono per le risposte FAQ generate dall\'AI.</div>'+
-        (()=>{const ws=hp.writing_style||{};if(ws.tono){const badges=[ws.tono,ws.persona?'usa "'+ws.persona+'"':'',ws.personalita].filter(Boolean).map(b=>'<span style="background:#e8f4f7;color:#0D5F75;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:700">'+esc(b)+'</span>').join('');return '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px" id="stile-badges">'+badges+'</div>'+(ws.esempio?'<div style="background:#f7f8fc;border-radius:6px;padding:10px 14px;font-size:13px;color:#4b4d68;font-style:italic;margin-bottom:12px;line-height:1.6">"'+esc(ws.esempio)+'"</div>':'');}return '<div style="font-size:13px;color:#9698a8;margin-bottom:12px" id="stile-badges">Stile non ancora rilevato.</div>';})() +
+        '<div style="font-size:14px;color:rgba(13,95,117,0.5);margin-bottom:14px">Analizza automaticamente il sito web e imposta il tono per le risposte FAQ generate dall\'AI.</div>'+
+        (()=>{const ws=hp.writing_style||{};if(ws.tono){const badges=[ws.tono,ws.persona?'usa "'+ws.persona+'"':'',ws.personalita].filter(Boolean).map(b=>'<span style="background:#e8f4f7;color:#0D5F75;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:700">'+esc(b)+'</span>').join('');return '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px" id="stile-badges">'+badges+'</div>'+(ws.esempio?'<div style="background:#f7f8fc;border-radius:6px;padding:10px 14px;font-size:13px;color:rgba(13,95,117,0.6);font-style:italic;margin-bottom:12px;line-height:1.6">"'+esc(ws.esempio)+'"</div>':'');}return '<div style="font-size:13px;color:#9698a8;margin-bottom:12px" id="stile-badges">Stile non ancora rilevato.</div>';})() +
         '<div id="stile-status" style="font-size:13px;margin-bottom:10px"></div>'+
         '<button type="button" id="btn-rileva-stile" onclick="rilevaStiloSito(\''+esc((_site&&_site.site_id)||'')+'\');" style="background:#0D5F75;color:white;border:none;border-radius:6px;padding:8px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">Rileva stile dal sito</button>'+
 
@@ -1382,18 +1383,18 @@ function buildHotelSchemaForm(s) {
         '<div style="margin-bottom:12px">'+inp('foto_principale','URL foto principale',hp.foto_principale||s.image,'https://hotel.it/foto.jpg','url')+'</div>'+
         '<div><label class="profile-label">Galleria foto</label><div id="schema-gallery-list"></div>'+
         '<div style="display:flex;gap:8px;margin-top:8px;align-items:center">'+
-        '<input type="url" id="new-gallery-input" placeholder="https://hotel.it/foto.jpg" style="flex:1;border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:13px;font-family:var(--font);outline:none;color:#171b33" onkeydown="if(event.key===\'Enter\'){event.preventDefault();addGalleryFromInput()}">'+
+        '<input type="url" id="new-gallery-input" placeholder="https://hotel.it/foto.jpg" style="flex:1;border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:13px;font-family:var(--font);outline:none;color:#0D5F75" onkeydown="if(event.key===\'Enter\'){event.preventDefault();addGalleryFromInput()}">'+
         '<button type="button" onclick="addGalleryFromInput()" style="background:#0D5F75;color:white;border:none;border-radius:6px;padding:7px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);white-space:nowrap">Aggiungi</button>'+
         '</div></div>'+
 
         sec('SERVIZI E AMENITIES')+
-        '<div style="font-size:14px;color:#666b84;margin-bottom:14px">Seleziona i servizi già presenti oppure aggiungi servizi specifici della struttura.</div>'+
+        '<div style="font-size:14px;color:rgba(13,95,117,0.5);margin-bottom:14px">Seleziona i servizi già presenti oppure aggiungi servizi specifici della struttura.</div>'+
         '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">'+
-        (()=>{const sv=(hp.servizi||'').split(',').map(x=>x.trim().toLowerCase());return['Wi-Fi gratuito','Colazione','Aria condizionata','Parcheggio','Ristorante','Camere familiari','Ascensore','Self check-in','Piscina','Bar','Camere non fumatori','Reception','Reception 24 ore','Late check-in','Accessibilità per ospiti con disabilità','Ricarica auto elettriche'].map(item=>'<label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;font-weight:400;color:#4b4d68;font-family:var(--font)"><input type="checkbox" class="pf-servizi-chk" value="'+esc(item)+'" '+(sv.includes(item.toLowerCase())?'checked':'')+' style="width:16px;height:16px;accent-color:#0D5F75;cursor:pointer;flex-shrink:0">'+esc(item)+'</label>').join('');})() +
+        (()=>{const sv=(hp.servizi||'').split(',').map(x=>x.trim().toLowerCase());return['Wi-Fi gratuito','Colazione','Aria condizionata','Parcheggio','Ristorante','Camere familiari','Ascensore','Self check-in','Piscina','Bar','Camere non fumatori','Reception','Reception 24 ore','Late check-in','Accessibilità per ospiti con disabilità','Ricarica auto elettriche'].map(item=>'<label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;font-weight:400;color:rgba(13,95,117,0.6);font-family:var(--font)"><input type="checkbox" class="pf-servizi-chk" value="'+esc(item)+'" '+(sv.includes(item.toLowerCase())?'checked':'')+' style="width:16px;height:16px;accent-color:#0D5F75;cursor:pointer;flex-shrink:0">'+esc(item)+'</label>').join('');})() +
         '</div>'+
         '<div id="schema-servizi-custom-list"></div>'+
         '<div style="display:flex;gap:8px;margin-top:10px;align-items:center">'+
-        '<input type="text" id="new-servizio-input" placeholder="Es: Jacuzzi, Sauna, Idromassaggio..." style="flex:1;border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:13px;font-family:var(--font);outline:none;color:#171b33" onkeydown="if(event.key===\'Enter\'){event.preventDefault();addServiziFromInput()}">'+
+        '<input type="text" id="new-servizio-input" placeholder="Es: Jacuzzi, Sauna, Idromassaggio..." style="flex:1;border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:13px;font-family:var(--font);outline:none;color:#0D5F75" onkeydown="if(event.key===\'Enter\'){event.preventDefault();addServiziFromInput()}">'+
         '<button type="button" onclick="addServiziFromInput()" style="background:#0D5F75;color:white;border:none;border-radius:6px;padding:7px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);white-space:nowrap">Aggiungi</button>'+
         '</div>'+
         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px">'+
@@ -1402,7 +1403,7 @@ function buildHotelSchemaForm(s) {
         '</div>'+
 
         sec('AUDIENCE E POSIZIONAMENTO AI')+
-        '<div style="font-size:14px;color:#666b84;margin-bottom:14px">Aiuta i motori di ricerca e gli assistenti AI a capire per chi è adatta la struttura e su quali temi è rilevante.</div>'+
+        '<div style="font-size:14px;color:rgba(13,95,117,0.5);margin-bottom:14px">Aiuta i motori di ricerca e gli assistenti AI a capire per chi è adatta la struttura e su quali temi è rilevante.</div>'+
         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">'+
         inp('lingue_parlate','Lingue parlate',hp.lingue_parlate,'italiano, inglese')+
         inp('zone_turistiche','Zone turistiche collegate',hp.zone_turistiche,'Riviera Adriatica...')+
@@ -1413,20 +1414,20 @@ function buildHotelSchemaForm(s) {
         '</div>'+
         '<div style="font-size:10px;font-weight:700;color:#4a4a6a;margin-bottom:10px;text-transform:uppercase;letter-spacing:.05em">Target clienti</div>'+
         '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px">'+
-        (()=>{const sv=(hp.target_clientela||'').split(',').map(x=>x.trim().toLowerCase());return['Famiglie','Coppie','Business traveler','Turisti internazionali','Gruppi','Cicloturisti','Digital nomad'].map(item=>'<label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;font-weight:400;color:#4b4d68;font-family:var(--font)"><input type="checkbox" class="pf-target-chk" value="'+esc(item)+'" '+(sv.includes(item.toLowerCase())?'checked':'')+' style="width:16px;height:16px;accent-color:#0D5F75;cursor:pointer;flex-shrink:0">'+esc(item)+'</label>').join('');})() +
+        (()=>{const sv=(hp.target_clientela||'').split(',').map(x=>x.trim().toLowerCase());return['Famiglie','Coppie','Business traveler','Turisti internazionali','Gruppi','Cicloturisti','Digital nomad'].map(item=>'<label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;font-weight:400;color:rgba(13,95,117,0.6);font-family:var(--font)"><input type="checkbox" class="pf-target-chk" value="'+esc(item)+'" '+(sv.includes(item.toLowerCase())?'checked':'')+' style="width:16px;height:16px;accent-color:#0D5F75;cursor:pointer;flex-shrink:0">'+esc(item)+'</label>').join('');})() +
         '</div>'+
         '<div id="schema-target-custom-list"></div>'+
         '<div style="display:flex;gap:8px;margin-top:10px;margin-bottom:16px;align-items:center">'+
-        '<input type="text" id="new-target-input" placeholder="Es: Anziani, Sportivi, Pellegrinaggi..." style="flex:1;border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:13px;font-family:var(--font);outline:none;color:#171b33" onkeydown="if(event.key===\'Enter\'){event.preventDefault();addTargetFromInput()}">'+
+        '<input type="text" id="new-target-input" placeholder="Es: Anziani, Sportivi, Pellegrinaggi..." style="flex:1;border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:13px;font-family:var(--font);outline:none;color:#0D5F75" onkeydown="if(event.key===\'Enter\'){event.preventDefault();addTargetFromInput()}">'+
         '<button type="button" onclick="addTargetFromInput()" style="background:#0D5F75;color:white;border:none;border-radius:6px;padding:7px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);white-space:nowrap">Aggiungi</button>'+
         '</div>'+
         '<div style="font-size:10px;font-weight:700;color:#4a4a6a;margin-bottom:10px;text-transform:uppercase;letter-spacing:.05em">Temi di pertinenza</div>'+
         '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px">'+
-        (()=>{const ka=Array.isArray(hp.knowsabout)?hp.knowsabout:(hp.knowsabout||'').split(',').map(x=>x.trim()).filter(Boolean);const sv=ka.map(x=>x.toLowerCase());return['Vacanze in famiglia','Weekend romantici','Viaggi business','Turismo locale','Soggiorni con parcheggio','Hotel con colazione','Soggiorni vicino ad attrazioni'].map(item=>'<label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;font-weight:400;color:#4b4d68;font-family:var(--font)"><input type="checkbox" class="pf-knowsabout-chk" value="'+esc(item)+'" '+(sv.includes(item.toLowerCase())?'checked':'')+' style="width:16px;height:16px;accent-color:#0D5F75;cursor:pointer;flex-shrink:0">'+esc(item)+'</label>').join('');})() +
+        (()=>{const ka=Array.isArray(hp.knowsabout)?hp.knowsabout:(hp.knowsabout||'').split(',').map(x=>x.trim()).filter(Boolean);const sv=ka.map(x=>x.toLowerCase());return['Vacanze in famiglia','Weekend romantici','Viaggi business','Turismo locale','Soggiorni con parcheggio','Hotel con colazione','Soggiorni vicino ad attrazioni'].map(item=>'<label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;font-weight:400;color:rgba(13,95,117,0.6);font-family:var(--font)"><input type="checkbox" class="pf-knowsabout-chk" value="'+esc(item)+'" '+(sv.includes(item.toLowerCase())?'checked':'')+' style="width:16px;height:16px;accent-color:#0D5F75;cursor:pointer;flex-shrink:0">'+esc(item)+'</label>').join('');})() +
         '</div>'+
         '<div id="schema-knowsabout-custom-list"></div>'+
         '<div style="display:flex;gap:8px;margin-top:10px;margin-bottom:16px;align-items:center">'+
-        '<input type="text" id="new-knowsabout-input" placeholder="Es: Turismo gastronomico, Wellness..." style="flex:1;border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:13px;font-family:var(--font);outline:none;color:#171b33" onkeydown="if(event.key===\'Enter\'){event.preventDefault();addKnowsaboutFromInput()}">'+
+        '<input type="text" id="new-knowsabout-input" placeholder="Es: Turismo gastronomico, Wellness..." style="flex:1;border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:13px;font-family:var(--font);outline:none;color:#0D5F75" onkeydown="if(event.key===\'Enter\'){event.preventDefault();addKnowsaboutFromInput()}">'+
         '<button type="button" onclick="addKnowsaboutFromInput()" style="background:#0D5F75;color:white;border:none;border-radius:6px;padding:7px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);white-space:nowrap">Aggiungi</button>'+
         '</div>'+
         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px">'+
@@ -1478,9 +1479,9 @@ function buildHotelSchemaForm(s) {
         '</div>'+
         '<div style="margin-bottom:8px;display:flex;align-items:center;gap:10px">'+
         '<button type="button" id="btn-detect-ratings" onclick="_detectRatings()" style="background:none;border:1px solid #0D5F75;border-radius:6px;padding:7px 14px;font-size:13px;font-weight:700;color:#0D5F75;cursor:pointer;font-family:var(--font)">Rileva automaticamente</button>'+
-        '<span id="detect-ratings-status" style="font-size:12px;color:#666b84"></span>'+
+        '<span id="detect-ratings-status" style="font-size:12px;color:rgba(13,95,117,0.5)"></span>'+
         '</div>'+
-        '<div id="ratings-last-check-label" style="font-size:11px;color:#666b84;margin-bottom:16px">'+(hp.ratings_last_check?'Ultimo controllo: '+new Date(hp.ratings_last_check).toLocaleDateString('it-IT',{day:'2-digit',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'}):'')+'</div>'+
+        '<div id="ratings-last-check-label" style="font-size:11px;color:rgba(13,95,117,0.5);margin-bottom:16px">'+(hp.ratings_last_check?'Ultimo controllo: '+new Date(hp.ratings_last_check).toLocaleDateString('it-IT',{day:'2-digit',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'}):'')+'</div>'+
 
         sec('SOCIAL E PROFILI ESTERNI')+
         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">'+
@@ -1489,8 +1490,8 @@ function buildHotelSchemaForm(s) {
         '</div>'+
         '<div id="schema-social-custom-list"></div>'+
         '<div style="display:flex;gap:8px;margin-top:10px;align-items:center">'+
-        '<input type="text" id="new-social-nome" placeholder="Nome (es: YouTube)" style="width:140px;border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:13px;font-family:var(--font);outline:none;color:#171b33">'+
-        '<input type="url" id="new-social-url" placeholder="https://..." style="flex:1;border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:13px;font-family:var(--font);outline:none;color:#171b33">'+
+        '<input type="text" id="new-social-nome" placeholder="Nome (es: YouTube)" style="width:140px;border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:13px;font-family:var(--font);outline:none;color:#0D5F75">'+
+        '<input type="url" id="new-social-url" placeholder="https://..." style="flex:1;border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:13px;font-family:var(--font);outline:none;color:#0D5F75">'+
         '<button type="button" onclick="confirmSocialCustom()" style="background:#0D5F75;color:white;border:none;border-radius:6px;padding:7px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);white-space:nowrap">Aggiungi</button>'+
         '</div>'+
 
@@ -1534,7 +1535,7 @@ function renderCameraRows() {
             '<div style="margin-bottom:10px"><input type="text" value="'+esc(c.vista||'')+'" oninput="_camereTmp['+i+'].vista=this.value" placeholder="Vista" style="width:33%;border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:13px;font-family:var(--font);box-sizing:border-box"></div>'+
             '<div style="font-size:12px;font-weight:700;color:#4a4a6a;margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em">Servizi camera</div>'+
             '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:8px">'+
-            _camServPreset.map(item=>'<label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;font-weight:400;color:#4b4d68;font-family:var(--font);border:1px solid #e4e4ec;border-radius:4px;padding:6px 8px"><input type="checkbox" class="cam-servizi-chk" data-idx="'+i+'" value="'+esc(item)+'" '+(saved.includes(item.toLowerCase())?'checked':'')+' onchange="updateCameraServizi('+i+')" style="width:14px;height:14px;accent-color:#0D5F75;cursor:pointer;flex-shrink:0">'+esc(item)+'</label>').join('') +
+            _camServPreset.map(item=>'<label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;font-weight:400;color:rgba(13,95,117,0.6);font-family:var(--font);border:1px solid #e4e4ec;border-radius:4px;padding:6px 8px"><input type="checkbox" class="cam-servizi-chk" data-idx="'+i+'" value="'+esc(item)+'" '+(saved.includes(item.toLowerCase())?'checked':'')+' onchange="updateCameraServizi('+i+')" style="width:14px;height:14px;accent-color:#0D5F75;cursor:pointer;flex-shrink:0">'+esc(item)+'</label>').join('') +
             '</div>'+
             '<input type="text" id="cam-custom-svz-'+i+'" value="'+esc(customSvz)+'" oninput="updateCameraServizi('+i+')" placeholder="Servizi aggiuntivi (separati da virgola)" style="width:100%;border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:13px;font-family:var(--font);box-sizing:border-box;margin-bottom:10px">'+
             '<div style="display:flex;justify-content:flex-end"><button type="button" onclick="removeCamera('+i+')" style="background:none;border:1px solid #0D5F75;border-radius:6px;padding:6px 14px;cursor:pointer;color:#0D5F75;font-size:13px;font-weight:700;font-family:var(--font)">RIMUOVI CAMERA/APPARTAMENTO</button></div>'+
@@ -1553,13 +1554,13 @@ function renderOfferteRows() {
     const el = document.getElementById('schema-offerte-list');
     if (!el) return;
     if (!_offerteTmp.length) { el.innerHTML = '<div style="color:#aaa;font-size:13px;padding:4px 0">Nessuna offerta speciale.</div>'; return; }
-    const inpS = 'border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:13px;font-family:var(--font);width:100%;box-sizing:border-box;outline:none;color:#171b33';
-    const lbS = 'font-size:12px;font-weight:700;color:#666b84;display:block;margin-bottom:4px;font-family:var(--font)';
+    const inpS = 'border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:13px;font-family:var(--font);width:100%;box-sizing:border-box;outline:none;color:#0D5F75';
+    const lbS = 'font-size:12px;font-weight:700;color:rgba(13,95,117,0.5);display:block;margin-bottom:4px;font-family:var(--font)';
     const tipiOff = ['Early Booking','Last Minute','Weekend','Lungo Soggiorno','Pacchetto','Offerta Speciale','Promozione'];
     el.innerHTML = _offerteTmp.map((o,i)=>
         '<div style="border:1px solid #e4e4ec;border-radius:8px;padding:14px 16px;margin-bottom:12px;background:#fafafa">'+
         '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">'+
-        '<div style="font-size:13px;font-weight:700;color:#4b4d68;font-family:var(--font)">Offerta '+(i+1)+'</div>'+
+        '<div style="font-size:13px;font-weight:700;color:rgba(13,95,117,0.6);font-family:var(--font)">Offerta '+(i+1)+'</div>'+
         '<button type="button" onclick="removeOfferta('+i+')" style="background:none;border:1px solid #C1CBE8;border-radius:6px;padding:4px 10px;cursor:pointer;color:#b00020;font-size:13px;font-family:var(--font)">Rimuovi</button>'+
         '</div>'+
         '<div style="display:grid;grid-template-columns:2fr 1fr;gap:10px;margin-bottom:10px">'+
@@ -1589,7 +1590,7 @@ function renderSocialCustomRows() {
     if (!_socialCustomTmp.length) { el.innerHTML = ''; return; }
     el.innerHTML = _socialCustomTmp.map((s,i)=>
         '<div style="display:grid;grid-template-columns:140px 1fr auto;gap:8px;align-items:center;margin-bottom:6px;padding:6px 0;border-bottom:1px solid #f4f4f8">'+
-        '<span style="font-size:13px;font-weight:600;color:#4b4d68;font-family:var(--font);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(s.nome||'—')+'</span>'+
+        '<span style="font-size:13px;font-weight:600;color:rgba(13,95,117,0.6);font-family:var(--font);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(s.nome||'—')+'</span>'+
         '<a href="'+esc(s.url||'#')+'" target="_blank" style="font-size:13px;color:#C1CBE8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--font)">'+esc(s.url||'')+'</a>'+
         '<button type="button" onclick="removeSocialCustom('+i+')" style="background:none;border:1px solid #C1CBE8;border-radius:6px;padding:5px 9px;cursor:pointer;color:#b00020;font-size:13px;font-family:var(--font)">✕</button>'+
         '</div>'
@@ -1633,7 +1634,7 @@ function _renderCheckboxCustomList(elId, arr, removeFn, chkClass) {
     el.innerHTML = '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:4px">' +
         arr.map((v,i) =>
             '<div style="display:flex;align-items:center;gap:4px">'+
-            '<label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;font-weight:400;color:#4b4d68;font-family:var(--font);flex:1;min-width:0">'+
+            '<label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;font-weight:400;color:rgba(13,95,117,0.6);font-family:var(--font);flex:1;min-width:0">'+
             '<input type="checkbox" class="'+chkClass+'" value="'+esc(v)+'" checked style="width:16px;height:16px;accent-color:#0D5F75;cursor:pointer;flex-shrink:0">'+
             '<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(v)+'</span>'+
             '</label>'+
@@ -1723,7 +1724,7 @@ async function rilevaStiloSito(siteId) {
         if (badgesEl) {
             const badges = [ws.tono, ws.persona ? 'usa "'+ws.persona+'"' : '', ws.personalita].filter(Boolean)
                 .map(b => '<span style="background:#e8f4f7;color:#0D5F75;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:700">'+esc(b)+'</span>').join('');
-            badgesEl.innerHTML = badges + (ws.esempio ? '<div style="background:#f7f8fc;border-radius:6px;padding:10px 14px;font-size:13px;color:#4b4d68;font-style:italic;margin-top:10px;line-height:1.6">"'+esc(ws.esempio)+'"</div>' : '');
+            badgesEl.innerHTML = badges + (ws.esempio ? '<div style="background:#f7f8fc;border-radius:6px;padding:10px 14px;font-size:13px;color:rgba(13,95,117,0.6);font-style:italic;margin-top:10px;line-height:1.6">"'+esc(ws.esempio)+'"</div>' : '');
         }
         if (statusEl) { statusEl.style.color = '#0D5F75'; statusEl.textContent = '✓ Stile rilevato e salvato.'; }
     } catch(e) {
@@ -2090,7 +2091,7 @@ function applySignalBoost(priorityScores, signals) {
 const PRIORITY_ORDER = { 'alta':0, 'media':1, 'bassa':2, 'non_rilevante':3 };
 const PRIORITY_BADGE = {
     'alta':          '<span style="font-size:10px;font-weight:700;color:#0D5F75;background:#e8f4f7;border:1px solid #C1CBE8;border-radius:20px;padding:2px 8px;white-space:nowrap">ALTA PRIORITÀ</span>',
-    'media':         '<span style="font-size:10px;font-weight:700;color:#666b84;background:#f4f4f8;border:1px solid #e4e4ec;border-radius:20px;padding:2px 8px;white-space:nowrap">MEDIA PRIORITÀ</span>',
+    'media':         '<span style="font-size:10px;font-weight:700;color:rgba(13,95,117,0.5);background:#f4f4f8;border:1px solid #e4e4ec;border-radius:20px;padding:2px 8px;white-space:nowrap">MEDIA PRIORITÀ</span>',
     'bassa':         '<span style="font-size:10px;font-weight:700;color:#9ca3af;background:#fafafa;border:1px solid #e4e4ec;border-radius:20px;padding:2px 8px;white-space:nowrap">BASSA PRIORITÀ</span>',
     'non_rilevante': '<span style="font-size:10px;font-weight:700;color:#c4c4c4;background:#fafafa;border:1px solid #f0f0f0;border-radius:20px;padding:2px 8px;white-space:nowrap">NON RILEVANTE</span>',
 };
@@ -2165,7 +2166,7 @@ async function _initHotelMappaInner(site, cont) {
         return `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 20px;border-top:1px solid #f4f4f8">
             <div style="display:flex;align-items:center;gap:10px;min-width:0">
                 <span style="font-size:15px;color:${isCov?'#0D5F75':'#C1CBE8'};font-weight:800;flex-shrink:0">${isCov?'✓':'✗'}</span>
-                <span style="font-size:13px;color:#171b33;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(q)}</span>
+                <span style="font-size:13px;color:#0D5F75;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(q)}</span>
             </div>
             <div style="display:flex;align-items:center;gap:6px;margin-left:12px;flex-shrink:0">
                 ${isCov ? '<span style="font-size:11px;color:#0D5F75;font-weight:700;white-space:nowrap">Coperta ✓</span>' : ''}
@@ -2194,7 +2195,7 @@ async function _initHotelMappaInner(site, cont) {
             catIntents.forEach((item, idx) => {
                 const activeIntentQs = item.queries.filter(q => !dismissedSet.has(q));
                 if (!activeIntentQs.length) return;
-                bodyHtml += `<div style="font-size:10px;font-weight:700;color:#666b84;text-transform:uppercase;padding:8px 20px 4px${idx>0?';border-top:1px solid #ececf2':''}">${esc(item.intent.label)}</div>`;
+                bodyHtml += `<div style="font-size:10px;font-weight:700;color:rgba(13,95,117,0.5);text-transform:uppercase;padding:8px 20px 4px${idx>0?';border-top:1px solid #ececf2':''}">${esc(item.intent.label)}</div>`;
                 bodyHtml += activeIntentQs.map(q => renderQueryRow(q, cat, coveredSet.has(q)||coveredSet.has(q.toLowerCase()), site.site_id)).join('');
             });
             const intentQs = new Set(catIntents.flatMap(i => i.queries));
@@ -2214,8 +2215,8 @@ async function _initHotelMappaInner(site, cont) {
         }
         return `<div class="card" style="margin-bottom:12px;border:1px solid #e4e4ec;box-shadow:none${prio==='non_rilevante'?';opacity:.45':''}">
             <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
-                <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:${dotColor};display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">${esc(label)}</div>${PRIORITY_BADGE[prio]}</div>
-                <span style="background:white;border:1px solid #e4e4ec;border-radius:20px;font-size:10px;font-weight:700;color:#666b84;padding:3px 10px;white-space:nowrap">${covQ}/${activeQs.length} COPERTE</span>
+                <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:${dotColor};display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#0D5F75;letter-spacing:.05em;text-transform:uppercase;font-family:'Commissioner',sans-serif">${esc(label)}</div>${PRIORITY_BADGE[prio]}</div>
+                <span style="background:white;border:1px solid #e4e4ec;border-radius:20px;font-size:10px;font-weight:700;color:rgba(13,95,117,0.5);padding:3px 10px;white-space:nowrap">${covQ}/${activeQs.length} COPERTE</span>
             </div>
             ${bodyHtml}${dismissedHtml}
         </div>`;
@@ -2230,7 +2231,7 @@ async function _initHotelMappaInner(site, cont) {
             <div style="flex:1;background:#e4e4ec;border-radius:4px;height:6px;overflow:hidden"><div style="height:100%;background:#0D5F75;border-radius:4px;width:${pct}%"></div></div>
             <span style="font-size:12px;font-weight:700;color:#0D5F75;white-space:nowrap">${pct}% coperta</span>
         </div>
-        <span style="font-size:11px;color:#666b84">${coveredQ}/${totalQ} query coperte</span>
+        <span style="font-size:11px;color:rgba(13,95,117,0.5)">${coveredQ}/${totalQ} query coperte</span>
         ${dismissedQ ? `<span style="font-size:11px;color:#9ca3af">${dismissedQ} ignorate</span>` : ''}
     </div>` +
     relevantCats.map(renderCat).join('') +
@@ -2318,7 +2319,7 @@ window.apriModaleFaqHotel = function(query, prefillAnswer, errorMsg) {
     document.getElementById('fhm-a').value    = prefillAnswer || '';
     document.getElementById('fhm-solo-ai').checked = true;
     const msgEl = document.getElementById('fhm-msg');
-    if (errorMsg) { msgEl.textContent = errorMsg; msgEl.style.background='#fce8ef'; msgEl.style.color='#b00020'; msgEl.style.display='block'; }
+    if (errorMsg) { msgEl.textContent = errorMsg; msgEl.style.background='rgba(13,95,117,0.08)'; msgEl.style.color='#b00020'; msgEl.style.display='block'; }
     else { msgEl.style.display='none'; }
     document.getElementById('faq-hotel-modal').style.display = 'flex';
 };
@@ -2387,7 +2388,7 @@ async function initHotelCoerenza(site) {
             } else if (d.error) {
                 statusHtml = '<span style="font-size:13px;color:#b00020">⚠ ' + esc(d.error) + '</span>';
             } else if (!hasResults) {
-                statusHtml = '<span style="font-size:13px;color:#666b84">Non ancora scansionato</span>';
+                statusHtml = '<span style="font-size:13px;color:rgba(13,95,117,0.5)">Non ancora scansionato</span>';
             } else if (incoerCount === 0) {
                 const nf = notFoundCount > 0 ? ' · '+notFoundCount+' non trovati' : '';
                 statusHtml = '<span style="font-size:13px;color:#0D5F75">✓ '+matchCount+'/'+totalCount+' campi allineati'+nf+'</span>';
@@ -2421,8 +2422,8 @@ async function initHotelCoerenza(site) {
                         '</div>' +
                         d.results.map(r =>
                             `<div style="display:grid;grid-template-columns:130px 1fr 1fr 28px;gap:8px;align-items:start;padding:5px 0;border-bottom:1px solid #f4f4f8">
-                                <div style="font-size:12px;font-weight:700;color:#666b84;padding-top:1px">${esc(r.field)}</div>
-                                <div style="font-size:13px;color:#4b4d68">${esc(r.our_value || '—')}</div>
+                                <div style="font-size:12px;font-weight:700;color:rgba(13,95,117,0.5);padding-top:1px">${esc(r.field)}</div>
+                                <div style="font-size:13px;color:rgba(13,95,117,0.6)">${esc(r.our_value || '—')}</div>
                                 <div style="font-size:13px;color:${r.match ? '#4b4d68' : (r.found_value ? '#b00020' : '#9ca3af')};font-weight:${r.match ? '400' : (r.found_value ? '700' : '400')}">${esc(r.found_value || '—')}</div>
                                 <div style="font-size:15px;text-align:center;padding-top:1px">${r.match ? '<span style="color:#C1CBE8">✓</span>' : (r.found_value ? '<span style="color:#b00020">✗</span>' : '<span style="color:#9ca3af">○</span>')}</div>
                             </div>`
@@ -2436,10 +2437,10 @@ async function initHotelCoerenza(site) {
 
             return `<div style="border:1px solid #e4e4ec;border-radius:8px;padding:14px 16px;margin-bottom:12px">
                 <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-                    <div style="font-size:14px;font-weight:700;color:#171b33;flex-shrink:0">${esc(ch)}</div>
-                    <input type="url" class="hcoer-url-inp" data-channel="${esc(ch)}" value="${esc(d.url||'')}" placeholder="https://..." style="flex:1;min-width:0;border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:13px;outline:none;color:#171b33;background:#fff">
+                    <div style="font-size:14px;font-weight:700;color:#0D5F75;flex-shrink:0">${esc(ch)}</div>
+                    <input type="url" class="hcoer-url-inp" data-channel="${esc(ch)}" value="${esc(d.url||'')}" placeholder="https://..." style="flex:1;min-width:0;border:1px solid #e4e4ec;border-radius:6px;padding:7px 10px;font-size:13px;outline:none;color:#0D5F75;background:#fff">
                     <button type="button" class="hbtn-scan-ch" data-channel="${esc(ch)}" style="background:#0D5F75;color:white;border:none;border-radius:6px;padding:7px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Source Code Pro',monospace;white-space:nowrap;flex-shrink:0">Scansiona</button>
-                    <button type="button" class="hbtn-save-ch" data-channel="${esc(ch)}" style="background:transparent;color:#171b33;border:1.5px solid #e4e4ec;border-radius:4px;padding:7px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Source Code Pro',monospace;white-space:nowrap;flex-shrink:0">Salva</button>
+                    <button type="button" class="hbtn-save-ch" data-channel="${esc(ch)}" style="background:transparent;color:#0D5F75;border:1.5px solid #e4e4ec;border-radius:4px;padding:7px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Source Code Pro',monospace;white-space:nowrap;flex-shrink:0">Salva</button>
                     <button type="button" class="hbtn-remove-ch" data-channel="${esc(ch)}" style="background:none;border:1px solid #e4e4ec;border-radius:4px;padding:5px 8px;cursor:pointer;color:#9ca3af;font-size:13px;line-height:1">✕</button>
                 </div>
                 <div class="${hasDetail ? 'hcoer-status-row' : ''}" data-channel="${esc(ch)}" style="${hasDetail ? 'cursor:pointer;' : ''}display:inline-flex;align-items:center;gap:5px">
@@ -2577,14 +2578,14 @@ async function initHotelCoerenza(site) {
     };
 
     function buildHReportRows() {
-        const thS = 'padding:7px 14px;font-size:10px;font-weight:700;color:#666b84;text-align:left;text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid #e4e4ec;background:#fafafa';
+        const thS = 'padding:7px 14px;font-size:10px;font-weight:700;color:rgba(13,95,117,0.5);text-align:left;text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid #e4e4ec;background:#fafafa';
         let html = '';
         channelList.forEach(ch => {
             const d = channels[ch]; if (!d) return;
             const shortUrl = d.url ? (d.url.length > 55 ? d.url.slice(0,53)+'…' : d.url) : '';
             html += `<div style="border:1px solid #e4e4ec;border-radius:8px;margin-bottom:12px;overflow:hidden">`;
             html += `<div style="background:#f7f7fb;padding:10px 14px;border-bottom:1px solid #e4e4ec;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">
-                <span style="font-weight:700;font-size:14px;color:#171b33">${esc(ch)}</span>
+                <span style="font-weight:700;font-size:14px;color:#0D5F75">${esc(ch)}</span>
                 ${shortUrl ? `<span style="font-size:12px;color:#C1CBE8">${esc(shortUrl)}</span>` : ''}
             </div>`;
             if (!d.url) {
@@ -2592,7 +2593,7 @@ async function initHotelCoerenza(site) {
             } else if (d.error) {
                 html += `<div style="padding:10px 14px;font-size:13px;color:#b00020">⚠ ${esc(d.error)}</div>`;
             } else if (!d.results?.length) {
-                html += `<div style="padding:10px 14px;font-size:13px;color:#666b84">Non ancora scansionato</div>`;
+                html += `<div style="padding:10px 14px;font-size:13px;color:rgba(13,95,117,0.5)">Non ancora scansionato</div>`;
             } else {
                 html += `<table style="width:100%;border-collapse:collapse">
                     <thead><tr>
@@ -2605,8 +2606,8 @@ async function initHotelCoerenza(site) {
                     const icon = r.match ? '✓' : (r.found_value ? '✗' : '○');
                     const iconColor = r.match ? '#C1CBE8' : (r.found_value ? '#b00020' : '#9ca3af');
                     html += `<tr>
-                        <td style="padding:8px 14px;font-size:13px;font-weight:600;color:#4b4d68;border-bottom:1px solid #f4f4f8">${esc(r.field)}</td>
-                        <td style="padding:8px 14px;font-size:13px;color:#171b33;border-bottom:1px solid #f4f4f8">${esc(r.our_value||'—')}</td>
+                        <td style="padding:8px 14px;font-size:13px;font-weight:600;color:rgba(13,95,117,0.6);border-bottom:1px solid #f4f4f8">${esc(r.field)}</td>
+                        <td style="padding:8px 14px;font-size:13px;color:#0D5F75;border-bottom:1px solid #f4f4f8">${esc(r.our_value||'—')}</td>
                         <td style="padding:8px 14px;font-size:13px;border-bottom:1px solid #f4f4f8;color:${r.match?'#171b33':(r.found_value?'#b00020':'#9ca3af')};font-weight:${!r.match&&r.found_value?'700':'400'}">${esc(r.found_value||'—')}</td>
                         <td style="padding:8px 14px;font-size:15px;text-align:center;border-bottom:1px solid #f4f4f8;color:${iconColor}">${icon}</td>
                     </tr>`;
@@ -2628,7 +2629,7 @@ async function initHotelCoerenza(site) {
         const rows = buildHReportRows();
         const w = window.open('', '_blank');
         if (!w) { showToast('Consenti i popup per stampare.'); return; }
-        w.document.write(`<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><title>Report Confronto Canali — ${esc(hotelNome)}</title><style>body{font-family:Arial,Helvetica,sans-serif;color:#171b33;padding:32px;max-width:900px;margin:0 auto}h2{margin:0 0 4px;font-size:22px;color:#0D5F75}.sub{font-size:14px;color:#666b84;margin:0 0 24px}table{width:100%;border-collapse:collapse;margin-top:0}@media print{button{display:none!important}}.footer{margin-top:24px;font-size:12px;color:#9ca3af;border-top:1px solid #e4e4ec;padding-top:12px}</style></head><body><h2>Report Confronto Canali</h2><p class="sub">${esc(hotelNome)} &nbsp;·&nbsp; ${oggi}</p>${rows}<p class="footer">Generato da Eletta — isi.in3pida.it &nbsp;·&nbsp; ${oggi}</p><br><button onclick="window.print()" style="background:#0D5F75;color:white;border:none;padding:10px 24px;font-size:15px;font-weight:700;border-radius:6px;cursor:pointer">Stampa / Salva PDF</button></body></html>`);
+        w.document.write(`<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><title>Report Confronto Canali — ${esc(hotelNome)}</title><style>body{font-family:Arial,Helvetica,sans-serif;color:#0D5F75;padding:32px;max-width:900px;margin:0 auto}h2{margin:0 0 4px;font-size:22px;color:#0D5F75}.sub{font-size:14px;color:rgba(13,95,117,0.5);margin:0 0 24px}table{width:100%;border-collapse:collapse;margin-top:0}@media print{button{display:none!important}}.footer{margin-top:24px;font-size:12px;color:#9ca3af;border-top:1px solid #e4e4ec;padding-top:12px}</style></head><body><h2>Report Confronto Canali</h2><p class="sub">${esc(hotelNome)} &nbsp;·&nbsp; ${oggi}</p>${rows}<p class="footer">Generato da Eletta — isi.in3pida.it &nbsp;·&nbsp; ${oggi}</p><br><button onclick="window.print()" style="background:#0D5F75;color:white;border:none;padding:10px 24px;font-size:15px;font-weight:700;border-radius:6px;cursor:pointer">Stampa / Salva PDF</button></body></html>`);
         w.document.close();
     };
 
@@ -2666,9 +2667,9 @@ async function initHotelConfig(site) {
     const cont = document.getElementById('hconfig-content'); if (!cont) return;
     const hp = site.hotel_profile || {}, cfg = hp.isi_config || {}, geo = site.geo_scores || {};
     const cardH = '<div class="card" style="margin-bottom:20px;border-radius:8px;border:1px solid #e4e4ec;box-shadow:none">';
-    const chH = (dot,title) => '<div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:'+dot+';display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">'+title+'</div></div></div>';
-    const row = (l,v) => '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f4f4f8"><span style="font-size:13px;font-weight:600;color:#4b4d68">'+l+'</span><span style="font-size:13px;color:#171b33;font-weight:700">'+v+'</span></div>';
-    const toggl = (id,label,checked) => '<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #f4f4f8"><span style="font-size:13px;font-weight:600;color:#4b4d68">'+label+'</span><label style="display:inline-flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="hcfg-'+id+'" '+(checked?'checked':'')+' style="width:16px;height:16px;accent-color:#0D5F75"><span style="font-size:12px;color:#aaa">'+(checked?'Attivo':'Disattivo')+'</span></label></div>';
+    const chH = (dot,title) => '<div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:'+dot+';display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#0D5F75;letter-spacing:.05em;text-transform:uppercase;font-family:'Commissioner',sans-serif">'+title+'</div></div></div>';
+    const row = (l,v) => '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f4f4f8"><span style="font-size:13px;font-weight:600;color:rgba(13,95,117,0.6)">'+l+'</span><span style="font-size:13px;color:#0D5F75;font-weight:700">'+v+'</span></div>';
+    const toggl = (id,label,checked) => '<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #f4f4f8"><span style="font-size:13px;font-weight:600;color:rgba(13,95,117,0.6)">'+label+'</span><label style="display:inline-flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="hcfg-'+id+'" '+(checked?'checked':'')+' style="width:16px;height:16px;accent-color:#0D5F75"><span style="font-size:12px;color:#aaa">'+(checked?'Attivo':'Disattivo')+'</span></label></div>';
 
     const hb = site.last_heartbeat, hbHrs = hb ? (Date.now()-new Date(hb).getTime())/3600000 : Infinity;
     const isScriptMode = (site.plugin_version||'').startsWith('js-') || hp.site_mode === 'script';
@@ -2678,7 +2679,7 @@ async function initHotelConfig(site) {
     const scriptTag = '<script src="' + scriptSrc + '" async><\/script>';
     const neverConnected = hbHrs >= 9999;
     const installBanner = neverConnected
-        ? '<div style="margin:12px 0 4px;padding:10px 12px;background:#e8ecf7;border:1px solid #C1CBE8;border-radius:4px;display:flex;align-items:flex-start;gap:8px"><span style="font-size:15px;line-height:1.4">⚠</span><div><div style="font-size:13px;color:#0D5F75;margin-bottom:2px">'+(isScriptMode?'Script':'Plugin')+' non installato</div><div style="font-size:12px;color:#4b4d68">'+(isScriptMode?'Nessun segnale. Copia lo script qui sotto e incollalo nel &lt;head&gt; del sito.':'Nessun segnale. Installa il plugin sul sito WordPress.')+'</div></div></div>'
+        ? '<div style="margin:12px 0 4px;padding:10px 12px;background:#e8ecf7;border:1px solid #C1CBE8;border-radius:4px;display:flex;align-items:flex-start;gap:8px"><span style="font-size:15px;line-height:1.4">⚠</span><div><div style="font-size:13px;color:#0D5F75;margin-bottom:2px">'+(isScriptMode?'Script':'Plugin')+' non installato</div><div style="font-size:12px;color:rgba(13,95,117,0.6)">'+(isScriptMode?'Nessun segnale. Copia lo script qui sotto e incollalo nel &lt;head&gt; del sito.':'Nessun segnale. Installa il plugin sul sito WordPress.')+'</div></div></div>'
         : hbHrs < 25
             ? '<div style="margin:12px 0 4px;padding:9px 12px;background:#e8ecf7;border:1px solid #C1CBE8;border-radius:4px;font-size:13px;color:#0D5F75">✓ '+(isScriptMode?'Script':'Plugin')+' installato e attivo</div>'
             : '<div style="margin:12px 0 4px;padding:9px 12px;background:#e8ecf7;border:1px solid #C1CBE8;border-radius:4px;font-size:13px;color:#0D5F75">⚠ '+(isScriptMode?'Script':'Plugin')+' installato ma nessun segnale recente</div>';
@@ -2696,7 +2697,7 @@ async function initHotelConfig(site) {
             '<div style="padding:10px 20px 16px;border-top:1px solid #f4f4f8">' +
             '<div style="font-size:11px;color:#aaa;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Script da incollare nel sito</div>' +
             '<div style="display:flex;gap:8px;align-items:center">' +
-            '<code id="hcfg-script-tag" style="flex:1;background:#f4f4f8;border-radius:6px;padding:10px 12px;font-size:12px;color:#4b4d68;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;border:1px solid #e4e4ec;font-family:monospace">' + esc(scriptTag) + '</code>' +
+            '<code id="hcfg-script-tag" style="flex:1;background:#f4f4f8;border-radius:6px;padding:10px 12px;font-size:12px;color:rgba(13,95,117,0.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;border:1px solid #e4e4ec;font-family:monospace">' + esc(scriptTag) + '</code>' +
             '<button id="hcfg-copy-script" class="btn-update" style="flex-shrink:0;font-size:12px;padding:6px 14px;margin-left:0;white-space:nowrap">Copia</button>' +
             '</div></div>'
         ) : '') +
@@ -2710,7 +2711,7 @@ async function initHotelConfig(site) {
             '<button id="hbtn-gsc-disconnect" class="btn-ping" style="margin-left:0;font-size:12px">Disconnetti</button>' +
             '<div id="hgsc-data-container" style="margin-top:14px"></div>';
         } else {
-            return '<div style="padding:9px 12px;background:#f4f4f8;border:1px solid #e4e4ec;border-radius:4px;font-size:13px;color:#666b84;margin-bottom:14px">○ Search Console non collegata</div>' +
+            return '<div style="padding:9px 12px;background:#f4f4f8;border:1px solid #e4e4ec;border-radius:4px;font-size:13px;color:rgba(13,95,117,0.5);margin-bottom:14px">○ Search Console non collegata</div>' +
             `<button id="hbtn-connect-gsc" class="btn-update" style="margin-left:0;display:flex;align-items:center;gap:8px"><svg width="16" height="16" viewBox="0 0 48 48"><path fill="#4285F4" d="M45.12 24.5c0-1.56-.14-3.06-.4-4.5H24v8.51h11.84c-.51 2.75-2.06 5.08-4.39 6.64v5.52h7.11c4.16-3.83 6.56-9.47 6.56-16.17z"/><path fill="#34A853" d="M24 46c5.94 0 10.92-1.97 14.56-5.33l-7.11-5.52c-1.97 1.32-4.49 2.1-7.45 2.1-5.73 0-10.58-3.87-12.31-9.07H4.34v5.7C7.96 41.07 15.4 46 24 46z"/><path fill="#FBBC05" d="M11.69 28.18C11.25 26.86 11 25.45 11 24s.25-2.86.69-4.18v-5.7H4.34C2.85 17.09 2 20.45 2 24c0 3.55.85 6.91 2.34 9.88l7.35-5.7z"/><path fill="#EA4335" d="M24 10.75c3.23 0 6.13 1.11 8.41 3.29l6.31-6.31C34.91 4.18 29.93 2 24 2 15.4 2 7.96 6.93 4.34 14.12l7.35 5.7c1.73-5.2 6.58-9.07 12.31-9.07z"/></svg> Collega con Google</button>` +
             '<div id="hgsc-msg" style="font-size:13px;color:#9ca3af;margin-top:8px"></div>';
         }
@@ -2785,10 +2786,10 @@ async function initHotelConfig(site) {
         if (!gc) return;
         const rows = data.rows || [];
         if (!rows.length) { gc.innerHTML = '<div style="font-size:13px;color:#9ca3af">Nessun dato disponibile negli ultimi 28 giorni.</div>'; return; }
-        gc.innerHTML = `<div style="font-size:11px;font-weight:700;color:#666b84;margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em">Top query (ultimi 28 gg)</div>` +
+        gc.innerHTML = `<div style="font-size:11px;font-weight:700;color:rgba(13,95,117,0.5);margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em">Top query (ultimi 28 gg)</div>` +
             `<table style="width:100%;border-collapse:collapse;font-size:12px">` +
             `<tr style="color:#9ca3af;border-bottom:1px solid #f0f0f5"><td style="padding:4px 8px 4px 0">Query</td><td style="padding:4px 8px;text-align:right">Click</td><td style="padding:4px 8px;text-align:right">Impr.</td><td style="padding:4px 8px;text-align:right">CTR</td><td style="padding:4px 0;text-align:right">Pos.</td></tr>` +
-            rows.map(r => `<tr style="border-bottom:1px solid #f4f4f8"><td style="padding:5px 8px 5px 0;color:#171b33;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.keys[0])}</td><td style="padding:5px 8px;text-align:right;color:#0D5F75;font-weight:600">${r.clicks}</td><td style="padding:5px 8px;text-align:right;color:#666b84">${r.impressions}</td><td style="padding:5px 8px;text-align:right;color:#666b84">${(r.ctr*100).toFixed(1)}%</td><td style="padding:5px 0;text-align:right;color:#666b84">${r.position.toFixed(1)}</td></tr>`).join('') +
+            rows.map(r => `<tr style="border-bottom:1px solid #f4f4f8"><td style="padding:5px 8px 5px 0;color:#0D5F75;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.keys[0])}</td><td style="padding:5px 8px;text-align:right;color:#0D5F75;font-weight:600">${r.clicks}</td><td style="padding:5px 8px;text-align:right;color:rgba(13,95,117,0.5)">${r.impressions}</td><td style="padding:5px 8px;text-align:right;color:rgba(13,95,117,0.5)">${(r.ctr*100).toFixed(1)}%</td><td style="padding:5px 0;text-align:right;color:rgba(13,95,117,0.5)">${r.position.toFixed(1)}</td></tr>`).join('') +
             '</table>';
     }
 
@@ -2804,9 +2805,9 @@ async function initHotelConfig(site) {
                         const ov = document.createElement('div');
                         ov.style.cssText = 'position:fixed;inset:0;background:rgba(23,27,51,.45);z-index:9999;display:flex;align-items:center;justify-content:center';
                         ov.innerHTML = `<div style="background:white;border-radius:10px;padding:24px;max-width:520px;width:90%;box-shadow:0 8px 32px rgba(23,27,51,.18)">
-                            <div style="font-size:15px;font-weight:600;color:#171b33;margin-bottom:16px">Configura Google Search Console</div>
-                            <div style="font-size:13px;color:#666b84;margin-bottom:14px;line-height:1.6">Serve un <strong>Google OAuth Client ID</strong> — si crea una volta sola e vale per tutti gli hotel.</div>
-                            <ol style="font-size:13px;color:#171b33;margin:0 0 16px 16px;padding:0;line-height:2.2">
+                            <div style="font-size:15px;font-weight:600;color:#0D5F75;margin-bottom:16px">Configura Google Search Console</div>
+                            <div style="font-size:13px;color:rgba(13,95,117,0.5);margin-bottom:14px;line-height:1.6">Serve un <strong>Google OAuth Client ID</strong> — si crea una volta sola e vale per tutti gli hotel.</div>
+                            <ol style="font-size:13px;color:#0D5F75;margin:0 0 16px 16px;padding:0;line-height:2.2">
                                 <li>Vai su <a href="https://console.cloud.google.com/apis/credentials" target="_blank" style="color:#0D5F75">console.cloud.google.com/apis/credentials</a></li>
                                 <li>Abilita la <strong>Google Search Console API</strong></li>
                                 <li>Crea credenziali → <strong>ID client OAuth 2.0</strong> → Applicazione web</li>
@@ -2861,9 +2862,9 @@ async function initHotelConfig(site) {
                 const siteUrl = await new Promise((resolve, reject) => {
                     const ov = document.createElement('div');
                     ov.style.cssText = 'position:fixed;inset:0;background:rgba(23,27,51,.45);z-index:9999;display:flex;align-items:center;justify-content:center';
-                    const opts = sitesData.sites.map((s,i) => `<label style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #f4f4f8;cursor:pointer"><input type="radio" name="hgsc-site-pick" value="${esc(s.siteUrl)}" ${i===0?'checked':''}><span style="font-size:13px;color:#171b33">${esc(s.siteUrl)}</span></label>`).join('');
+                    const opts = sitesData.sites.map((s,i) => `<label style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #f4f4f8;cursor:pointer"><input type="radio" name="hgsc-site-pick" value="${esc(s.siteUrl)}" ${i===0?'checked':''}><span style="font-size:13px;color:#0D5F75">${esc(s.siteUrl)}</span></label>`).join('');
                     ov.innerHTML = `<div style="background:white;border-radius:10px;padding:24px;max-width:480px;width:90%;box-shadow:0 8px 32px rgba(23,27,51,.18)">
-                        <div style="font-size:15px;color:#171b33;font-weight:600;margin-bottom:14px">Seleziona la proprietà da collegare</div>
+                        <div style="font-size:15px;color:#0D5F75;font-weight:600;margin-bottom:14px">Seleziona la proprietà da collegare</div>
                         <div style="max-height:240px;overflow-y:auto;margin-bottom:16px">${opts}</div>
                         <div style="display:flex;gap:8px;justify-content:flex-end">
                             <button id="_hgsc-cancel" class="btn-ping" style="padding:7px 18px">Annulla</button>
@@ -2966,11 +2967,11 @@ function _renderLlmBars(items, elId) {
     const gemAvgProb = gemProbs.length ? Math.round(gemProbs.reduce((a,b)=>a+b,0)/gemProbs.length) : null;
     const groqCitedPct = groqTotal > 0 ? Math.round(groqCited/groqTotal*100) : 0;
     const gemCitedPct  = gemTotal  > 0 ? Math.round(gemCited/gemTotal*100)  : 0;
-    const mkRow = (name, barPct, pctLabel, count) => `<div style="display:flex;align-items:center;gap:12px;margin-bottom:14px"><div style="width:120px;font-size:13px;color:#171b33;font-weight:500;flex-shrink:0">${name}</div><div style="flex:1;background:#f0f0f4;border-radius:3px;height:8px;overflow:hidden"><div style="height:100%;width:${Math.max(0,Math.min(100,barPct))}%;background:#0D5F75;border-radius:3px"></div></div><div style="width:44px;text-align:right;font-size:13px;color:#171b33;font-weight:500">${pctLabel}</div><div style="width:36px;text-align:right;font-size:13px;font-weight:700;color:#0D5F75">${count}</div></div>`;
+    const mkRow = (name, barPct, pctLabel, count) => `<div style="display:flex;align-items:center;gap:12px;margin-bottom:14px"><div style="width:120px;font-size:13px;color:#0D5F75;font-weight:500;flex-shrink:0">${name}</div><div style="flex:1;background:#f0f0f4;border-radius:3px;height:8px;overflow:hidden"><div style="height:100%;width:${Math.max(0,Math.min(100,barPct))}%;background:#0D5F75;border-radius:3px"></div></div><div style="width:44px;text-align:right;font-size:13px;color:#0D5F75;font-weight:500">${pctLabel}</div><div style="width:36px;text-align:right;font-size:13px;font-weight:700;color:#0D5F75">${count}</div></div>`;
     const noGem = '<div style="font-size:12px;color:#C1CBE8;padding:4px 0 2px">Gemini Flash — dati disponibili dopo le prossime query</div>';
     const citedRows = mkRow('Groq Llama 3.1', groqCitedPct, groqCitedPct+'%', groqCited) + (gemTotal>0 ? mkRow('Gemini Flash', gemCitedPct, gemCitedPct+'%', gemCited) : noGem);
     const probRows  = mkRow('Groq Llama 3.1', groqAvgProb??0, groqAvgProb!=null?groqAvgProb+'%':'—', groqAvgProb!=null?groqAvgProb+'%':'—') + (gemAvgProb!=null ? mkRow('Gemini Flash', gemAvgProb, gemAvgProb+'%', gemAvgProb+'%') : noGem);
-    el.innerHTML = `<div style="font-size:15px;font-weight:700;color:#171b33;margin-bottom:14px">Distribuzione per LLM</div><div style="display:inline-flex;border:1px solid #e4e4ec;border-radius:6px;overflow:hidden;margin-bottom:18px"><button data-llmtab="cited" style="padding:6px 16px;font-size:13px;background:#e8ecf7;border:none;cursor:pointer;color:#0D5F75;font-weight:600">Citazioni</button><button data-llmtab="prob" style="padding:6px 16px;font-size:13px;background:white;border:none;border-left:1px solid #e4e4ec;cursor:pointer;color:#666b84;font-weight:400">Probabilità media</button></div><div class="llm-tab-pane" data-pane="cited">${citedRows}</div><div class="llm-tab-pane" data-pane="prob" style="display:none">${probRows}</div>`;
+    el.innerHTML = `<div style="font-size:15px;font-weight:700;color:#0D5F75;margin-bottom:14px">Distribuzione per LLM</div><div style="display:inline-flex;border:1px solid #e4e4ec;border-radius:6px;overflow:hidden;margin-bottom:18px"><button data-llmtab="cited" style="padding:6px 16px;font-size:13px;background:#e8ecf7;border:none;cursor:pointer;color:#0D5F75;font-weight:600">Citazioni</button><button data-llmtab="prob" style="padding:6px 16px;font-size:13px;background:white;border:none;border-left:1px solid #e4e4ec;cursor:pointer;color:rgba(13,95,117,0.5);font-weight:400">Probabilità media</button></div><div class="llm-tab-pane" data-pane="cited">${citedRows}</div><div class="llm-tab-pane" data-pane="prob" style="display:none">${probRows}</div>`;
     el.style.display = 'block';
     el.querySelectorAll('[data-llmtab]').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -3337,7 +3338,7 @@ function renderJsonPreview(p) {
     const el = document.getElementById('hjson-preview-content');
     if (!el) return;
     const json = JSON.stringify(buildSchemaJsonLd(p||{}), null, 2);
-    el.innerHTML = `<pre style="background:#f8f8fc;border:1px solid #e4e4ec;border-radius:6px;padding:14px;font-size:12px;overflow:auto;max-height:280px;max-width:100%;color:#35364f;line-height:1.5;margin:0">${esc(json)}</pre>`;
+    el.innerHTML = `<pre style="background:#f8f8fc;border:1px solid #e4e4ec;border-radius:6px;padding:14px;font-size:12px;overflow:auto;max-height:280px;max-width:100%;color:rgba(13,95,117,0.7);line-height:1.5;margin:0">${esc(json)}</pre>`;
 }
 
 function copyJsonLd() {
@@ -3358,13 +3359,13 @@ async function initDatiSito(site, pseData) {
     if (!cont) return;
     const cfg = site?.hotel_profile?.isi_config || {};
     const cardStyle = 'border:1px solid #e4e4ec;box-shadow:none;margin-bottom:20px';
-    const cardH = (dot, title) => `<div class="card" style="${cardStyle}"><div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:${dot};display:inline-block;flex-shrink:0"></span><div style="font-size:12px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">${esc(title)}</div></div></div>`;
+    const cardH = (dot, title) => `<div class="card" style="${cardStyle}"><div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:${dot};display:inline-block;flex-shrink:0"></span><div style="font-size:12px;font-weight:700;color:#0D5F75;letter-spacing:.05em;text-transform:uppercase">${esc(title)}</div></div></div>`;
 
     let html = '';
 
     if (cfg.gsc_email && cfg.gsc_site && cfg.gsc_token) {
         html += cardH('#0D5F75', 'Analisi SEO Google') +
-            '<div id="hdati-gsc-container" style="padding:0"><div style="padding:16px 20px;font-size:13px;color:#666b84">Caricamento dati GSC...</div></div></div>';
+            '<div id="hdati-gsc-container" style="padding:0"><div style="padding:16px 20px;font-size:13px;color:rgba(13,95,117,0.5)">Caricamento dati GSC...</div></div></div>';
     }
 
     const gscSignals = site?.gsc_signals;
@@ -3385,7 +3386,7 @@ async function initDatiSito(site, pseData) {
         };
         const rows = Object.keys(gscSignals).map(k => {
             const info = labelMap[k] || { l: k, d: '' };
-            return `<tr style="border-bottom:1px solid #f4f4f8"><td style="padding:6px 8px 6px 0"><span style="color:#0D5F75;font-size:13px">✓</span></td><td style="padding:6px 8px 6px 0;color:#171b33;font-size:13px;font-weight:600">${esc(info.l)}</td><td style="padding:6px 0;color:#666b84;font-size:12px">${esc(info.d)}</td></tr>`;
+            return `<tr style="border-bottom:1px solid #f4f4f8"><td style="padding:6px 8px 6px 0"><span style="color:#0D5F75;font-size:13px">✓</span></td><td style="padding:6px 8px 6px 0;color:#0D5F75;font-size:13px;font-weight:600">${esc(info.l)}</td><td style="padding:6px 0;color:rgba(13,95,117,0.5);font-size:12px">${esc(info.d)}</td></tr>`;
         }).join('');
         html += cardH('#0D5F75', 'Segnali rilevati sul sito') +
             '<div style="padding:16px 20px"><table style="width:100%;border-collapse:collapse">' +
@@ -3407,13 +3408,13 @@ async function initDatiSito(site, pseData) {
             '<tr style="color:#9ca3af;border-bottom:1px solid #f0f0f5"><td style="padding:4px 8px 4px 0">Pagina</td><td style="padding:4px 8px">Evento</td><td style="padding:4px 0;text-align:right">N.</td></tr>' +
             sorted.map(([key, count]) => {
                 const [page_url, event_type] = key.split('||');
-                return `<tr style="border-bottom:1px solid #f4f4f8"><td style="padding:5px 8px 5px 0;color:#171b33;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(page_url)}</td><td style="padding:5px 8px;color:#666b84">${esc(event_type)}</td><td style="padding:5px 0;text-align:right;color:#0D5F75;font-weight:600">${count}</td></tr>`;
+                return `<tr style="border-bottom:1px solid #f4f4f8"><td style="padding:5px 8px 5px 0;color:#0D5F75;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(page_url)}</td><td style="padding:5px 8px;color:rgba(13,95,117,0.5)">${esc(event_type)}</td><td style="padding:5px 0;text-align:right;color:#0D5F75;font-weight:600">${count}</td></tr>`;
             }).join('') +
             '</table></div></div>';
     }
 
     if (!html) {
-        html = `<div class="card" style="${cardStyle}"><div style="padding:20px 24px;font-size:14px;color:#666b84">Nessun dato. Collega Google Search Console dalla sezione Configurazione.</div></div>`;
+        html = `<div class="card" style="${cardStyle}"><div style="padding:20px 24px;font-size:14px;color:rgba(13,95,117,0.5)">Nessun dato. Collega Google Search Console dalla sezione Configurazione.</div></div>`;
     }
 
     cont.innerHTML = html;
@@ -3458,17 +3459,17 @@ async function initDatiSito(site, pseData) {
             if (!datiGscCont) return;
             const { queries: qRows = [], pages: pRows = [], totals = {} } = data;
             const fmt = n => n >= 1000 ? (n/1000).toFixed(1)+'K' : String(n);
-            const bx = (label, value, sub) => `<div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:14px 16px;text-align:center"><div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">${label}</div><div style="font-size:28px;font-weight:800;color:#171b33;line-height:1">${value}</div><div style="font-size:11px;color:#666b84;margin-top:4px">${sub}</div></div>`;
-            const tbl = (rows, col1) => `<table style="width:100%;border-collapse:collapse;font-size:12px"><tr style="color:#9ca3af;border-bottom:1px solid #f0f0f5"><td style="padding:4px 8px 4px 0">${col1}</td><td style="padding:4px 8px;text-align:right">Click</td><td style="padding:4px 8px;text-align:right">Impr.</td><td style="padding:4px 8px;text-align:right">CTR</td><td style="padding:4px 0;text-align:right">Pos.</td></tr>${rows.map(r=>`<tr style="border-bottom:1px solid #f4f4f8"><td style="padding:5px 8px 5px 0;color:#171b33;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.keys[0])}</td><td style="padding:5px 8px;text-align:right;color:#0D5F75;font-weight:600">${r.clicks}</td><td style="padding:5px 8px;text-align:right;color:#666b84">${r.impressions}</td><td style="padding:5px 8px;text-align:right;color:#666b84">${(r.ctr*100).toFixed(1)}%</td><td style="padding:5px 0;text-align:right;color:#666b84">${r.position.toFixed(1)}</td></tr>`).join('')}</table>`;
+            const bx = (label, value, sub) => `<div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:14px 16px;text-align:center"><div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">${label}</div><div style="font-size:28px;font-weight:800;color:#0D5F75;line-height:1">${value}</div><div style="font-size:11px;color:rgba(13,95,117,0.5);margin-top:4px">${sub}</div></div>`;
+            const tbl = (rows, col1) => `<table style="width:100%;border-collapse:collapse;font-size:12px"><tr style="color:#9ca3af;border-bottom:1px solid #f0f0f5"><td style="padding:4px 8px 4px 0">${col1}</td><td style="padding:4px 8px;text-align:right">Click</td><td style="padding:4px 8px;text-align:right">Impr.</td><td style="padding:4px 8px;text-align:right">CTR</td><td style="padding:4px 0;text-align:right">Pos.</td></tr>${rows.map(r=>`<tr style="border-bottom:1px solid #f4f4f8"><td style="padding:5px 8px 5px 0;color:#0D5F75;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.keys[0])}</td><td style="padding:5px 8px;text-align:right;color:#0D5F75;font-weight:600">${r.clicks}</td><td style="padding:5px 8px;text-align:right;color:rgba(13,95,117,0.5)">${r.impressions}</td><td style="padding:5px 8px;text-align:right;color:rgba(13,95,117,0.5)">${(r.ctr*100).toFixed(1)}%</td><td style="padding:5px 0;text-align:right;color:rgba(13,95,117,0.5)">${r.position.toFixed(1)}</td></tr>`).join('')}</table>`;
             const rangeLabel = _gscActiveDays===28?'ultimi 28 gg':_gscActiveDays===180?'ultimi 6 mesi':'tutti i dati';
             datiGscCont.innerHTML =
                 `<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px 8px;border-bottom:1px solid #f4f4f8">` +
-                `<div style="font-size:11px;color:#666b84">Dati GSC — ${rangeLabel}</div>` +
+                `<div style="font-size:11px;color:rgba(13,95,117,0.5)">Dati GSC — ${rangeLabel}</div>` +
                 `<div style="display:flex;gap:14px">${[{d:28,l:'1M'},{d:180,l:'6M'},{d:9999,l:'Sempre'}].map(r=>`<span class="hgsc-range-btn" data-days="${r.d}" style="font-size:12px;font-weight:700;cursor:pointer;${_gscActiveDays===r.d?'color:#0D5F75;border-bottom:2px solid #0D5F75;padding-bottom:2px':'color:#9ca3af'}">${r.l}</span>`).join('')}</div>` +
                 `</div>` +
                 `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:14px 20px">${bx('CLICK TOTALI',fmt(totals.clicks||0),'clic organici')}${bx('IMPRESSION TOTALI',fmt(totals.impressions||0),'visualizzazioni')}${bx('CTR MEDIO',totals.impressions?((totals.ctr||0)*100).toFixed(1)+'%':'—','click-through rate')}${bx('POSIZIONE MEDIA',totals.impressions?(totals.position||0).toFixed(1):'—','posizione media SERP')}</div>` +
-                (qRows.length ? `<div style="padding:0 20px 14px"><div style="font-size:11px;font-weight:700;color:#666b84;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">TOP QUERY</div>${tbl(qRows,'Query')}</div>` : '') +
-                (pRows.length ? `<div style="padding:0 20px 14px;border-top:1px solid #f4f4f8"><div style="font-size:11px;font-weight:700;color:#666b84;text-transform:uppercase;letter-spacing:.05em;margin:14px 0 8px">TOP PAGINE</div>${tbl(pRows,'Pagina')}</div>` : '');
+                (qRows.length ? `<div style="padding:0 20px 14px"><div style="font-size:11px;font-weight:700;color:rgba(13,95,117,0.5);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">TOP QUERY</div>${tbl(qRows,'Query')}</div>` : '') +
+                (pRows.length ? `<div style="padding:0 20px 14px;border-top:1px solid #f4f4f8"><div style="font-size:11px;font-weight:700;color:rgba(13,95,117,0.5);text-transform:uppercase;letter-spacing:.05em;margin:14px 0 8px">TOP PAGINE</div>${tbl(pRows,'Pagina')}</div>` : '');
             datiGscCont.querySelectorAll('.hgsc-range-btn').forEach(btn => {
                 btn.addEventListener('click', () => { _gscActiveDays = parseInt(btn.dataset.days); _loadGscData(); });
             });
@@ -3530,7 +3531,7 @@ async function initDatiSito(site, pseData) {
             const clientId = localStorage.getItem('isi_gsc_client_id');
             datiGscCont.innerHTML =
                 '<div style="display:flex;align-items:center;gap:12px;padding:16px 20px">' +
-                '<span style="font-size:13px;color:#666b84">Aggiorna la sessione Google per vedere i dati.</span>' +
+                '<span style="font-size:13px;color:rgba(13,95,117,0.5)">Aggiorna la sessione Google per vedere i dati.</span>' +
                 '<button id="hbtn-gsc-reconnect" style="background:#0D5F75;color:white;border:none;border-radius:6px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Riconnetti Google</button>' +
                 '</div>';
             const btn = document.getElementById('hbtn-gsc-reconnect');
@@ -3552,7 +3553,7 @@ async function initDatiSito(site, pseData) {
         }
 
         async function _loadGscData() {
-            if (datiGscCont) datiGscCont.innerHTML = '<div style="padding:16px 20px;font-size:13px;color:#666b84">Caricamento...</div>';
+            if (datiGscCont) datiGscCont.innerHTML = '<div style="padding:16px 20px;font-size:13px;color:rgba(13,95,117,0.5)">Caricamento...</div>';
             let token = _activeToken;
             if (tokenAgeSec >= 3000) {
                 try { token = await _silentRefresh(); } catch { /* usa token esistente */ }
@@ -3563,11 +3564,11 @@ async function initDatiSito(site, pseData) {
             } catch(e) {
                 if (e.message?.includes('token_expired')) {
                     try { token = await _silentRefresh(); const data = await _fetchGscData(token, _gscActiveDays); _renderGscFull(data); return; } catch {}
-                    if (datiGscCont) datiGscCont.innerHTML = '<div style="padding:16px 20px;font-size:13px;color:#666b84">Aggiornamento sessione Google...</div>';
+                    if (datiGscCont) datiGscCont.innerHTML = '<div style="padding:16px 20px;font-size:13px;color:rgba(13,95,117,0.5)">Aggiornamento sessione Google...</div>';
                     try { token = await _autoReconnect(); const data = await _fetchGscData(token, _gscActiveDays); _renderGscFull(data); return; } catch {}
                     _showReconnectBtn();
                 }
-                else if (datiGscCont) datiGscCont.innerHTML = '<div style="padding:16px 20px;font-size:13px;color:#666b84">Errore nel caricamento dati GSC.</div>';
+                else if (datiGscCont) datiGscCont.innerHTML = '<div style="padding:16px 20px;font-size:13px;color:rgba(13,95,117,0.5)">Errore nel caricamento dati GSC.</div>';
             }
         }
 
@@ -3615,13 +3616,13 @@ window.runHotelPseQuery = async function() {
             <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px">
                 <div style="font-size:36px;font-weight:800;line-height:1;color:${color}">${avgP !== null ? avgP+'%' : '—'}</div>
                 <div>
-                    <div style="font-size:15px;font-weight:700;color:#171b33">${verdict}</div>
-                    <div style="font-size:12px;color:#666b84;margin-top:2px">${gemP !== null ? 'Groq: '+groqP+'% &nbsp;•&nbsp; Gemini: '+gemP+'%' : 'Groq: '+(groqP ?? '—')+'%'}</div>
+                    <div style="font-size:15px;font-weight:700;color:#0D5F75">${verdict}</div>
+                    <div style="font-size:12px;color:rgba(13,95,117,0.5);margin-top:2px">${gemP !== null ? 'Groq: '+groqP+'% &nbsp;•&nbsp; Gemini: '+gemP+'%' : 'Groq: '+(groqP ?? '—')+'%'}</div>
                 </div>
             </div>`;
-        if (d.why) html += `<div style="font-size:13px;color:#4b4d68;line-height:1.6;margin-bottom:10px">${esc(d.why)}</div>`;
-        if (d.sample_answer) html += `<div style="font-size:13px;color:#171b33;background:white;border-left:3px solid #0D5F75;padding:8px 12px;border-radius:0 4px 4px 0;font-style:italic;margin-bottom:10px;line-height:1.6">"${esc(d.sample_answer)}"</div>`;
-        if (d.suggestions?.length) html += `<div style="font-size:12px;color:#0D5F75;font-weight:600;margin-bottom:4px">Suggerimenti:</div><ul style="margin:0;padding-left:18px;font-size:13px;color:#4b4d68;line-height:1.7">${d.suggestions.map(s=>`<li>${esc(s)}</li>`).join('')}</ul>`;
+        if (d.why) html += `<div style="font-size:13px;color:rgba(13,95,117,0.6);line-height:1.6;margin-bottom:10px">${esc(d.why)}</div>`;
+        if (d.sample_answer) html += `<div style="font-size:13px;color:#0D5F75;background:white;border-left:3px solid #0D5F75;padding:8px 12px;border-radius:0 4px 4px 0;font-style:italic;margin-bottom:10px;line-height:1.6">"${esc(d.sample_answer)}"</div>`;
+        if (d.suggestions?.length) html += `<div style="font-size:12px;color:#0D5F75;font-weight:600;margin-bottom:4px">Suggerimenti:</div><ul style="margin:0;padding-left:18px;font-size:13px;color:rgba(13,95,117,0.6);line-height:1.7">${d.suggestions.map(s=>`<li>${esc(s)}</li>`).join('')}</ul>`;
         html += '</div>';
         if(res){ res.innerHTML = html; res.style.display = 'block'; }
         setTimeout(() => { _pseChartsInited = false; }, 1200);
@@ -3651,14 +3652,14 @@ function initAiLayerPanel(site) {
     const infoCard = (label, val, note) =>
         `<div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:14px 16px">
             <div style="font-size:12px;color:#9ca3af;font-weight:500;letter-spacing:.05em;text-transform:uppercase;margin-bottom:5px">${label}</div>
-            <div style="font-size:15px;font-weight:700;color:#171b33">${esc(String(val||'—'))}</div>
-            ${note ? '<div style="font-size:12px;color:#666b84;margin-top:4px">'+esc(note)+'</div>' : ''}
+            <div style="font-size:15px;font-weight:700;color:#0D5F75">${esc(String(val||'—'))}</div>
+            ${note ? '<div style="font-size:12px;color:rgba(13,95,117,0.5);margin-top:4px">'+esc(note)+'</div>' : ''}
          </div>`;
 
     cont.innerHTML = `
     <div class="card" style="margin-bottom:20px;border-radius:8px;border:1px solid #e4e4ec;box-shadow:none">
         <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
-            <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Stato AI Layer</div></div>
+            <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#0D5F75;letter-spacing:.05em;text-transform:uppercase;font-family:'Commissioner',sans-serif">Stato AI Layer</div></div>
         </div>
         <div style="padding:20px">
             <div style="display:inline-flex;align-items:center;gap:10px;background:white;border:1px solid #e4e4ec;border-radius:10px;padding:14px 20px;margin-bottom:20px">
@@ -3692,7 +3693,7 @@ function initAiLayerPanel(site) {
     </div>
     <div class="card" style="border-radius:8px;border:1px solid #e4e4ec;box-shadow:none;margin-bottom:20px">
         <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
-            <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#171b33;letter-spacing:.05em;text-transform:uppercase">Checklist AI Layer</div></div>
+            <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:700;color:#0D5F75;letter-spacing:.05em;text-transform:uppercase;font-family:'Commissioner',sans-serif">Checklist AI Layer</div></div>
         </div>
         <div style="padding:16px 20px">
             ${isScriptJs ? `<div style="display:flex;flex-direction:column;gap:0">
@@ -3807,7 +3808,7 @@ function isiConfirm(msg, confirmLabel) {
         const ov = document.createElement('div');
         ov.style.cssText = 'position:fixed;inset:0;background:rgba(23,27,51,.45);z-index:9999;display:flex;align-items:center;justify-content:center';
         ov.innerHTML = `<div style="background:white;border-radius:10px;padding:28px 28px 20px;max-width:400px;width:90%;box-shadow:0 8px 32px rgba(23,27,51,.18);font-family:'Source Code Pro',monospace">
-            <div style="font-size:15px;color:#171b33;margin-bottom:20px;font-weight:400;line-height:1.5">${msg}</div>
+            <div style="font-size:15px;color:#0D5F75;margin-bottom:20px;font-weight:400;line-height:1.5">${msg}</div>
             <div style="display:flex;gap:8px;justify-content:flex-end">
                 <button id="hisi-confirm-no" class="btn-ping" style="padding:7px 18px;font-size:14px">Annulla</button>
                 <button id="hisi-confirm-yes" class="btn-update" style="padding:7px 18px;font-size:14px;background:#0D5F75;border-color:#0D5F75">${confirmLabel||'Elimina'}</button>
@@ -3825,7 +3826,7 @@ function isiConfirm(msg, confirmLabel) {
 (function() {
     const tipEl = document.createElement('div');
     tipEl.id = '_h-tip-el';
-    tipEl.style.cssText = 'position:fixed;z-index:99999;background:#fff;color:#171b33;border:1.5px solid #0D5F75;font-size:12px;font-weight:500;line-height:1.6;padding:10px 13px;border-radius:8px;width:210px;white-space:normal;pointer-events:none;box-shadow:0 4px 18px rgba(13,95,117,.18);display:none;font-family:\'Source Code Pro\',monospace';
+    tipEl.style.cssText = 'position:fixed;z-index:99999;background:#fff;color:#0D5F75;border:1.5px solid #0D5F75;font-size:12px;font-weight:500;line-height:1.6;padding:10px 13px;border-radius:8px;width:210px;white-space:normal;pointer-events:none;box-shadow:0 4px 18px rgba(13,95,117,.18);display:none;font-family:\'Source Code Pro\',monospace';
     document.body.appendChild(tipEl);
     document.addEventListener('mouseover', e => {
         const t = e.target.closest('.tip-q');
@@ -3854,8 +3855,8 @@ init();
     mCanale.id = 'hmodal-canale';
     mCanale.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(23,27,51,.45);z-index:9999;align-items:center;justify-content:center';
     mCanale.innerHTML = `<div style="background:white;border-radius:10px;padding:28px 24px 20px;max-width:420px;width:90%;box-shadow:0 8px 32px rgba(23,27,51,.18);font-family:'Source Code Pro',monospace">
-        <div style="font-size:15px;font-weight:600;color:#171b33;margin-bottom:16px">Aggiungi canale</div>
-        <input id="hinput-nuovo-canale" type="text" placeholder="Es: TripAdvisor, Hotelbeds…" style="width:100%;box-sizing:border-box;border:1px solid #e4e4ec;border-radius:6px;padding:9px 12px;font-size:13px;color:#171b33;outline:none;margin-bottom:14px">
+        <div style="font-size:15px;font-weight:600;color:#0D5F75;margin-bottom:16px">Aggiungi canale</div>
+        <input id="hinput-nuovo-canale" type="text" placeholder="Es: TripAdvisor, Hotelbeds…" style="width:100%;box-sizing:border-box;border:1px solid #e4e4ec;border-radius:6px;padding:9px 12px;font-size:13px;color:#0D5F75;outline:none;margin-bottom:14px">
         <div style="display:flex;gap:8px;justify-content:flex-end">
             <button class="btn-ping" style="padding:7px 18px" onclick="document.getElementById('hmodal-canale').style.display='none'">Annulla</button>
             <button class="btn-update" style="padding:7px 18px;margin-left:0" onclick="window._hDoAggiungiCanale&&window._hDoAggiungiCanale()">Aggiungi</button>
@@ -3869,7 +3870,7 @@ init();
     mDelCanale.id = 'hmodal-del-canale';
     mDelCanale.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(23,27,51,.45);z-index:9999;align-items:center;justify-content:center';
     mDelCanale.innerHTML = `<div style="background:white;border-radius:10px;padding:28px 24px 20px;max-width:380px;width:90%;box-shadow:0 8px 32px rgba(23,27,51,.18);font-family:'Source Code Pro',monospace">
-        <div id="hmodal-del-canale-msg" style="font-size:15px;color:#171b33;margin-bottom:20px;font-weight:400;line-height:1.5">Rimuovere il canale?</div>
+        <div id="hmodal-del-canale-msg" style="font-size:15px;color:#0D5F75;margin-bottom:20px;font-weight:400;line-height:1.5">Rimuovere il canale?</div>
         <div style="display:flex;gap:8px;justify-content:flex-end">
             <button class="btn-ping" style="padding:7px 18px" onclick="document.getElementById('hmodal-del-canale').style.display='none'">Annulla</button>
             <button id="hbtn-ok-del-canale" class="btn-update" style="padding:7px 18px;margin-left:0;background:#d82d6b;border-color:#d82d6b">Rimuovi</button>
@@ -3884,7 +3885,7 @@ init();
     mReport.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(23,27,51,.45);z-index:9999;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto';
     mReport.innerHTML = `<div style="background:white;border-radius:12px;padding:28px 24px 24px;max-width:860px;width:100%;box-shadow:0 16px 48px rgba(0,0,0,.18);font-family:'Source Code Pro',monospace;position:relative">
         <button onclick="document.getElementById('hmodal-report-coerenza').style.display='none'" style="position:absolute;right:14px;top:12px;border:0;background:none;font-size:22px;cursor:pointer;color:#999;line-height:1">×</button>
-        <div style="font-size:17px;font-weight:700;color:#171b33;margin-bottom:4px" id="hmodal-report-title"></div>
+        <div style="font-size:17px;font-weight:700;color:#0D5F75;margin-bottom:4px" id="hmodal-report-title"></div>
         <div style="font-size:12px;color:#9ca3af;margin-bottom:20px" id="hmodal-report-sub"></div>
         <div id="hmodal-report-body"></div>
         <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap">
@@ -3905,7 +3906,7 @@ init();
       <div style="background:#fff;border-radius:16px;padding:32px 28px 24px;max-width:520px;width:90%;position:relative;font-family:'Source Code Pro',monospace;color:#0D5F75">
         <button onclick="document.getElementById('guida-overlay').style.display='none'" style="position:absolute;right:14px;top:10px;border:0;background:none;font-size:22px;cursor:pointer;color:#999;line-height:1">×</button>
         <div style="font-size:20px;font-weight:600;margin-bottom:18px;color:#0D5F75">Guida Eletta</div>
-        <div style="font-size:13px;line-height:1.7;color:#35364f;max-height:65vh;overflow-y:auto;padding-right:4px">
+        <div style="font-size:13px;line-height:1.7;color:rgba(13,95,117,0.7);max-height:65vh;overflow-y:auto;padding-right:4px">
           <div style="font-size:11px;font-weight:700;color:#0D5F75;letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid #e8ecf7">Panoramica</div>
           <p style="margin:0 0 12px">Eletta è la piattaforma per la visibilità nelle intelligenze artificiali, che aumenta la presenza del sito del tuo hotel nelle risposte di ChatGPT, Google Gemini, Claude, Perplexity e delle principali intelligenze artificiali.</p>
           <p style="margin:0 0 12px">Il <strong>GEO Score</strong> è l'indicatore principale di Eletta. Va da 0 a 100 e indica quanto il tuo hotel è pronto per essere trovato dalle intelligenze artificiali. Un punteggio pari o superiore a 70 indica che il sito è ottimizzato per competere nelle nuove modalità di ricerca.</p>
@@ -3949,16 +3950,16 @@ init();
     overlay.innerHTML = `
         <div style="background:white;border-radius:12px;padding:28px 28px 24px;max-width:440px;width:calc(100% - 32px);box-shadow:0 16px 48px rgba(0,0,0,.18);position:relative">
             <button onclick="document.getElementById('feedback-overlay').style.display='none'" style="position:absolute;right:14px;top:10px;border:0;background:none;font-size:22px;cursor:pointer;color:#999;line-height:1">×</button>
-            <div style="font-size:15px;font-weight:600;color:#171b33;margin-bottom:16px;line-height:1.4;padding-right:20px">Inviaci i tuoi suggerimenti o comunicaci un eventuale problema</div>
+            <div style="font-size:15px;font-weight:600;color:#0D5F75;margin-bottom:16px;line-height:1.4;padding-right:20px">Inviaci i tuoi suggerimenti o comunicaci un eventuale problema</div>
             <textarea id="fb-msg" placeholder="Scrivi qui..." style="width:100%;height:110px;border:1.5px solid #C1CBE8;border-radius:8px;padding:10px 12px;font-size:14px;font-family:inherit;resize:none;box-sizing:border-box;outline:none"></textarea>
             <div style="margin-top:12px">
-                <div style="font-size:12px;font-weight:600;color:#666b84;margin-bottom:6px">Rispondi all'e-mail</div>
+                <div style="font-size:12px;font-weight:600;color:rgba(13,95,117,0.5);margin-bottom:6px">Rispondi all'e-mail</div>
                 <input id="fb-email" type="email" style="width:100%;border:1.5px solid #C1CBE8;border-radius:8px;padding:9px 12px;font-size:14px;font-family:inherit;box-sizing:border-box;outline:none">
             </div>
             <div id="fb-msg-status" style="font-size:13px;margin-top:10px;display:none"></div>
             <div style="display:flex;gap:10px;margin-top:18px">
                 <button id="fb-submit" style="background:#0D5F75;color:white;border:none;border-radius:8px;padding:10px 22px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Invia feedback</button>
-                <button onclick="document.getElementById('feedback-overlay').style.display='none'" style="background:none;border:1.5px solid #C1CBE8;border-radius:8px;padding:10px 18px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;color:#171b33">Annulla</button>
+                <button onclick="document.getElementById('feedback-overlay').style.display='none'" style="background:none;border:1.5px solid #C1CBE8;border-radius:8px;padding:10px 18px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;color:#0D5F75">Annulla</button>
             </div>
         </div>`;
     overlay.addEventListener('click', e => { if (e.target === overlay) overlay.style.display = 'none'; });
