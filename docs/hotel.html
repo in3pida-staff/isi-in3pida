@@ -7,7 +7,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Eletta — Posiziona il tuo sito nelle ricerche AI</title>
-    <script>var _V='v1782375692';if(localStorage.getItem('_hv')!==_V){localStorage.setItem('_hv',_V);location.reload(true);}</script>
+    <script>var _V='v1782375833';if(localStorage.getItem('_hv')!==_V){localStorage.setItem('_hv',_V);location.reload(true);}</script>
     <link rel="icon" type="image/png" href="images/favicon.png?v=2">
     <link rel="stylesheet" href="css/style.css?v=20260622q">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -723,29 +723,7 @@ function renderContent(site, pseData, now) {
                     </div>
                 </div>
                 <div class="h-card-body">
-                    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px">
-                        <div class="hsc-metric" data-idx="0" style="cursor:pointer">
-                            <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px"><span style="width:10px;height:10px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><span style="font-size:11px;color:#0D5F75;font-weight:400;font-family:'Source Code Pro',monospace">AI Readiness</span></div>
-                            <div style="font-size:26px;font-weight:500;color:#0D5F75;line-height:1;font-family:Commissioner,sans-serif" id="hsc-val-0">—</div>
-                            <div style="font-size:12px;font-weight:400;margin-top:3px;font-family:'Source Code Pro',monospace;color:#C1CBE8" id="hsc-delta-0"></div>
-                        </div>
-                        <div class="hsc-metric" data-idx="1" style="cursor:pointer">
-                            <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px"><span style="width:10px;height:10px;border-radius:50%;background:#2a8a9e;display:inline-block;flex-shrink:0"></span><span style="font-size:11px;color:#0D5F75;font-weight:400;font-family:'Source Code Pro',monospace">Answer Extraction</span></div>
-                            <div style="font-size:26px;font-weight:500;color:#0D5F75;line-height:1;font-family:Commissioner,sans-serif" id="hsc-val-1">—</div>
-                            <div style="font-size:12px;font-weight:400;margin-top:3px;font-family:'Source Code Pro',monospace;color:#C1CBE8" id="hsc-delta-1"></div>
-                        </div>
-                        <div class="hsc-metric" data-idx="2" style="cursor:pointer">
-                            <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px"><span style="width:10px;height:10px;border-radius:50%;background:#8aa8bc;display:inline-block;flex-shrink:0"></span><span style="font-size:11px;color:#0D5F75;font-weight:400;font-family:'Source Code Pro',monospace">Quality Safety</span></div>
-                            <div style="font-size:26px;font-weight:500;color:#0D5F75;line-height:1;font-family:Commissioner,sans-serif" id="hsc-val-2">—</div>
-                            <div style="font-size:12px;font-weight:400;margin-top:3px;font-family:'Source Code Pro',monospace;color:#C1CBE8" id="hsc-delta-2"></div>
-                        </div>
-                        <div class="hsc-metric" data-idx="3" style="cursor:pointer">
-                            <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px"><span style="width:10px;height:10px;border-radius:50%;background:#666b84;display:inline-block;flex-shrink:0"></span><span style="font-size:11px;color:#0D5F75;font-weight:400;font-family:'Source Code Pro',monospace">AI Visibility</span></div>
-                            <div style="font-size:26px;font-weight:500;color:#0D5F75;line-height:1;font-family:Commissioner,sans-serif" id="hsc-val-3">—</div>
-                            <div style="font-size:12px;font-weight:400;margin-top:3px;font-family:'Source Code Pro',monospace;color:#C1CBE8" id="hsc-delta-3"></div>
-                        </div>
-                    </div>
-                    <div style="position:relative;height:180px;background:white;border-radius:4px;overflow:hidden"><canvas id="hchart-score-history" style="width:100%;height:180px"></canvas></div>
+                    <div style="position:relative;height:220px;background:white;border-radius:4px;overflow:hidden"><canvas id="hchart-score-history" style="width:100%;height:220px"></canvas></div>
                 </div>
             </div>
 
@@ -3226,7 +3204,7 @@ async function initScoreHistoryChart(site, geoAvg, cs, covPct) {
     history.sort((a, b) => a.date.localeCompare(b.date));
     faqData.score_history = history;
 
-    const COLORS  = ['#0D5F75', '#2a8a9e', '#8aa8bc', '#666b84'];
+    const COLORS  = ['#0D5F75', '#C1CBE8', '#7a8fa0', '#bdc8d4'];
     const KEYS    = ['ai_readiness', 'answer_extraction', 'quality_safety', 'ai_visibility'];
     const SUFFIXES = ['', '', '', ''];
     let currentDays = 30;
@@ -3284,42 +3262,37 @@ async function initScoreHistoryChart(site, geoAvg, cs, covPct) {
         let data = aggregateWeekly(raw);
         while (data.length > 1 && KEYS.every(k => data[data.length - 1][k] == null)) data = data.slice(0, -1);
         const labels = data.map(h => fmtDate(h.date));
-        updateSummary(data);
         const datasets = KEYS.map((k, i) => ({
             label: ['AI Readiness', 'Answer Extraction', 'Quality Safety', 'AI Visibility'][i],
             data: data.map(h => h[k] ?? null),
             borderColor: COLORS[i],
             backgroundColor: 'transparent',
             fill: false,
-            tension: 0.35,
-            pointRadius: 0,
+            tension: 0.4,
+            pointRadius: 3,
             pointHoverRadius: 4.5,
             pointBackgroundColor: COLORS[i],
             pointBorderColor: COLORS[i],
-            borderWidth: 2.5,
+            borderWidth: 2,
             spanGaps: true,
             hidden: !visible[i],
         }));
+        var dashedPlugin = {id:'dashedSH',beforeDraw:function(chart){var c=chart.ctx,y=chart.scales.y,ca=chart.chartArea;if(!y||!ca)return;c.save();y.ticks.forEach(function(_,i){var yp=y.getPixelForTick(i);var isBase=Math.abs(yp-ca.bottom)<2;c.setLineDash(isBase?[]:[10,5]);c.strokeStyle='#0D5F75';c.lineWidth=0.5;c.beginPath();c.moveTo(ca.left,yp);c.lineTo(ca.right,yp);c.stroke();});c.restore();}};
         if (_hScoreChartInstance) _hScoreChartInstance.destroy();
         _hScoreChartInstance = new Chart(canvas, {
             type: 'line',
             data: { labels, datasets },
+            plugins: [dashedPlugin],
             options: {
                 responsive: true, maintainAspectRatio: false,
                 interaction: { mode: 'index', intersect: false },
                 plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        backgroundColor: 'white', titleColor: '#171b33', bodyColor: '#4b4d68',
-                        borderColor: '#e4e4ec', borderWidth: 1, padding: 9,
-                        usePointStyle: true,
-                        bodyFont: { size: 11 }, titleFont: { size: 11 },
-                        callbacks: { label: ctx => ' ' + ctx.dataset.label + ': ' + (ctx.parsed.y ?? '—') }
-                    }
+                    legend: { display: true, position: 'bottom', labels: { usePointStyle: true, pointStyle: 'circle', font: { family: "'Source Code Pro',monospace", size: 13, weight: '400' }, color: '#0D5F75', padding: 24, boxWidth: 16 } },
+                    tooltip: { mode: 'index', intersect: false, backgroundColor: '#0D5F75', titleColor: '#fff', bodyColor: 'rgba(255,255,255,0.85)', usePointStyle: true, callbacks: { label: ctx => ' ' + ctx.dataset.label + ': ' + (ctx.parsed.y ?? '—') } }
                 },
                 scales: {
-                    x: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#9ca3af', maxTicksLimit: 8 } },
-                    y: { min: 0, max: 100, grid: { color: '#f0f0f5', drawBorder: false }, ticks: { font: { size: 11 }, color: '#9ca3af', stepSize: 25 } }
+                    x: { grid: { display: false }, ticks: { font: { family: "'Source Code Pro',monospace", size: 13 }, color: '#0D5F75', maxTicksLimit: 8 } },
+                    y: { min: 0, max: 100, grid: { display: false }, ticks: { font: { family: "'Source Code Pro',monospace", size: 13 }, color: '#0D5F75', stepSize: 25 } }
                 }
             }
         });
@@ -3340,17 +3313,6 @@ async function initScoreHistoryChart(site, geoAvg, cs, covPct) {
         });
     });
 
-    document.querySelectorAll('.hsc-metric').forEach(el => {
-        el.addEventListener('click', () => {
-            const idx = parseInt(el.dataset.idx);
-            visible[idx] = !visible[idx];
-            el.style.opacity = visible[idx] ? '1' : '0.35';
-            if (_hScoreChartInstance) {
-                _hScoreChartInstance.data.datasets[idx].hidden = !visible[idx];
-                _hScoreChartInstance.update();
-            }
-        });
-    });
 }
 
 // ─── GEO MINI CHART ───────────────────────────────────────────────────────────
