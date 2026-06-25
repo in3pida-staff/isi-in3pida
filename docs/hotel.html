@@ -7,7 +7,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Eletta — Posiziona il tuo sito nelle ricerche AI</title>
-    <script>var _V='v1782382176';if(localStorage.getItem('_hv')!==_V){localStorage.setItem('_hv',_V);location.reload(true);}</script>
+    <script>var _V='v1782382274';if(localStorage.getItem('_hv')!==_V){localStorage.setItem('_hv',_V);location.reload(true);}</script>
     <link rel="icon" type="image/png" href="images/favicon.png?v=2">
     <link rel="stylesheet" href="css/style.css?v=20260622q">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1113,10 +1113,8 @@ function renderContent(site, pseData, now) {
         });
     })();
 
-    // ── Score History Chart (storico 4 metriche)
-    initScoreHistoryChart(site, geoAvg, cs, covPct);
-    // ── GEO Score Mini Chart (KPI banner)
-    initGeoScoreMiniChart(site);
+    // ── Score History Chart (storico 4 metriche) + GEO Mini (aspetta che la history venga aggiornata)
+    initScoreHistoryChart(site, geoAvg, cs, covPct).then(() => initGeoScoreMiniChart(site));
 
     // ── Andamento nel tempo (line chart)
     (function() {
