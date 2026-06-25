@@ -7,7 +7,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Eletta — Posiziona il tuo sito nelle ricerche AI</title>
-    <script>var _V='v1782381852';if(localStorage.getItem('_hv')!==_V){localStorage.setItem('_hv',_V);location.reload(true);}</script>
+    <script>var _V='v1782382009';if(localStorage.getItem('_hv')!==_V){localStorage.setItem('_hv',_V);location.reload(true);}</script>
     <link rel="icon" type="image/png" href="images/favicon.png?v=2">
     <link rel="stylesheet" href="css/style.css?v=20260622q">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1216,10 +1216,8 @@ function renderContent(site, pseData, now) {
 window.elettaClick = function(type) {
     const ids = {notifiche:'h-card-notifiche', suggerimenti:'h-card-suggerimenti', semafori:'h-card-semafori', pacchetto:'h-card-pacchetto'};
     const target = document.getElementById(ids[type]);
-    if (target) {
-        const top = target.getBoundingClientRect().top + window.scrollY - 80;
-        window.scrollTo({top: top, behavior: 'smooth'});
-    }
+    if (!target) return;
+    target.scrollIntoView({behavior:'smooth', block:'start'});
 };
 
 // ─── FAQ ──────────────────────────────────────────────────────────────────────
