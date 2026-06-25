@@ -7,7 +7,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Eletta — Posiziona il tuo sito nelle ricerche AI</title>
-    <script>var _V='v1782375555';if(localStorage.getItem('_hv')!==_V){localStorage.setItem('_hv',_V);location.reload(true);}</script>
+    <script>var _V='v1782375692';if(localStorage.getItem('_hv')!==_V){localStorage.setItem('_hv',_V);location.reload(true);}</script>
     <link rel="icon" type="image/png" href="images/favicon.png?v=2">
     <link rel="stylesheet" href="css/style.css?v=20260622q">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -713,7 +713,7 @@ function renderContent(site, pseData, now) {
 
             <!-- Storico punteggi AI + GEO Score nel tempo affiancati -->
             <div style="display:flex;gap:12px;margin-top:28px;align-items:stretch">
-            <div class="h-card" style="flex:1;min-width:0;margin-top:0">
+            <div class="h-card" style="flex:65;min-width:0;margin-top:0">
                 <div class="h-card-hdr">
                     <div style="display:flex;align-items:center;gap:12px"><div style="width:34px;height:34px;border-radius:50%;background:white;border:1.5px solid rgba(13,95,117,0.25);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round"><line x1="12" y1="3" x2="12" y2="21"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="5.6" y1="5.6" x2="18.4" y2="18.4"/><line x1="18.4" y1="5.6" x2="5.6" y2="18.4"/></svg></div><span class="h-card-hdr-t" style="font-size:18px;font-weight:500">Storico punteggi AI</span></div>
                     <div style="display:flex;gap:10px">
@@ -750,7 +750,7 @@ function renderContent(site, pseData, now) {
             </div>
 
             <!-- GEO Score Mini Chart -->
-            <div class="h-card" style="flex:1;min-width:0;margin-top:0">
+            <div class="h-card" style="flex:35;min-width:0;margin-top:0">
                 <div class="h-card-hdr">
                     <div style="display:flex;align-items:center;gap:12px"><div style="width:34px;height:34px;border-radius:50%;background:white;border:1.5px solid rgba(13,95,117,0.25);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round"><line x1="12" y1="3" x2="12" y2="21"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="5.6" y1="5.6" x2="18.4" y2="18.4"/><line x1="18.4" y1="5.6" x2="5.6" y2="18.4"/></svg></div><span class="h-card-hdr-t" style="font-size:18px;font-weight:500">GEO Score nel tempo</span></div>
                     <div style="display:flex;gap:10px">
@@ -3394,9 +3394,7 @@ function initGeoScoreMiniChart(site) {
         while (data.length > 1 && ['geo','completeness','coverage'].every(k => data[data.length-1][k] == null)) data = data.slice(0,-1);
         const labels = data.map(h => { const dt = new Date(h.date+'T00:00:00'); return dt.toLocaleDateString('it-IT',{day:'2-digit',month:'short'}); });
         const datasets = [
-            { label:'GEO Score',    data:data.map(h=>h.geo??null),        borderColor:'#0D5F75', backgroundColor:'transparent', fill:false, tension:0.35, pointRadius:0, pointHoverRadius:3.5, pointBackgroundColor:'#0D5F75', pointBorderColor:'#0D5F75', borderWidth:2.5, spanGaps:true },
-            { label:'Completezza',  data:data.map(h=>h.completeness??null),borderColor:'#5c6ac4', backgroundColor:'transparent', fill:false, tension:0.35, pointRadius:0, pointHoverRadius:3.5, pointBackgroundColor:'#5c6ac4', pointBorderColor:'#5c6ac4', borderWidth:2.5, spanGaps:true },
-            { label:'Coverage FAQ', data:data.map(h=>h.coverage??null),   borderColor:'#a29bfe', backgroundColor:'transparent', fill:false, tension:0.35, pointRadius:0, pointHoverRadius:3.5, pointBackgroundColor:'#a29bfe', pointBorderColor:'#a29bfe', borderWidth:2.5, spanGaps:true },
+            { label:'GEO Score', data:data.map(h=>h.geo??null), borderColor:'#0D5F75', backgroundColor:'transparent', fill:false, tension:0.35, pointRadius:0, pointHoverRadius:3.5, pointBackgroundColor:'#0D5F75', pointBorderColor:'#0D5F75', borderWidth:2.5, spanGaps:true },
         ];
         if (_geoMiniChartInst) _geoMiniChartInst.destroy();
         _geoMiniChartInst = new Chart(canvas, {
