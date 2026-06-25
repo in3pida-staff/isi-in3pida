@@ -7,7 +7,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Eletta — Posiziona il tuo sito nelle ricerche AI</title>
-    <script>var _V='v1782378094';if(localStorage.getItem('_hv')!==_V){localStorage.setItem('_hv',_V);location.reload(true);}</script>
+    <script>var _V='v1782378173';if(localStorage.getItem('_hv')!==_V){localStorage.setItem('_hv',_V);location.reload(true);}</script>
     <link rel="icon" type="image/png" href="images/favicon.png?v=2">
     <link rel="stylesheet" href="css/style.css?v=20260622q">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -561,6 +561,7 @@ function renderContent(site, pseData, now) {
         if(geoAvg!==null&&geoAvg<40) n++;
         else if(geoAvg!==null&&geoAvg<70) n++;
         if(geo.has_ai_profile===false) n++;
+        if(checklist.length>0) n++;
         return n;
     })();
     const suggestCount = (geo.checklist||[]).length + (geo.missing_answers||0);
@@ -676,7 +677,8 @@ function renderContent(site, pseData, now) {
                     <div class="h-card-body" style="padding:6px 14px 10px">
                         ${hrs>=48?`<div style="display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid #f4f4f8"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;flex-shrink:0;margin-top:3px;display:inline-block"></span><span style="font-size:12px;color:#4b4d68">Plugin non connesso — nessun segnale ricevuto da ${Math.round(hrs)}h</span></div>`:''}
                         ${(geoAvg!==null&&geoAvg<70)?`<div style="display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid #f4f4f8"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;flex-shrink:0;margin-top:3px;display:inline-block"></span><span style="font-size:12px;color:#4b4d68">GEO Score ${geoAvg<40?'critico':'basso'} (${geoAvg}/100) — ottimizza il profilo hotel per migliorare la visibilità AI</span></div>`:''}
-                        ${geo.has_ai_profile===false?`<div style="display:flex;align-items:flex-start;gap:8px;padding:7px 0"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;flex-shrink:0;margin-top:3px;display:inline-block"></span><span style="font-size:12px;color:#4b4d68">/ai-profile disabilitato — attiva il profilo AI nel plugin</span></div>`:''}
+                        ${geo.has_ai_profile===false?`<div style="display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid #f4f4f8"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;flex-shrink:0;margin-top:3px;display:inline-block"></span><span style="font-size:12px;color:#4b4d68">/ai-profile disabilitato — attiva il profilo AI nel plugin</span></div>`:''}
+                        ${checklist.length>0?`<div style="display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid #f4f4f8"><span style="width:8px;height:8px;border-radius:50%;background:#ff6b2b;flex-shrink:0;margin-top:3px;display:inline-block"></span><span style="font-size:12px;color:#4b4d68"><strong style="font-weight:600">Profilo AI incompleto</strong> — ${checklist.length} campo/i mancante/i: ${checklist.join(', ')}</span></div>`:''}
                         ${notifCount===0?`<div style="font-size:12px;color:#aaa;padding:7px 0">Nessuna notifica</div>`:''}
                     </div>
                 </div>
