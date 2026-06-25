@@ -7,7 +7,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Eletta — Posiziona il tuo sito nelle ricerche AI</title>
-    <script>var _V='v1782380788';if(localStorage.getItem('_hv')!==_V){localStorage.setItem('_hv',_V);location.reload(true);}</script>
+    <script>var _V='v1782380937';if(localStorage.getItem('_hv')!==_V){localStorage.setItem('_hv',_V);location.reload(true);}</script>
     <link rel="icon" type="image/png" href="images/favicon.png?v=2">
     <link rel="stylesheet" href="css/style.css?v=20260622q">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -780,7 +780,10 @@ function renderContent(site, pseData, now) {
                     <div style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap">
                         <div style="background:white;border:1px solid #e4e4ec;border-radius:12px;padding:16px;min-width:180px;text-align:center;flex-shrink:0;overflow:hidden">
                             <div style="font-size:11px;color:#0D5F75;font-weight:400;margin-bottom:10px;letter-spacing:.06em;font-family:'Source Code Pro',monospace">Copertura FAQ</div>
-                            <canvas id="hchart-faq-gauge" width="160" height="90" style="display:block;margin:0 auto"></canvas>
+                            <div style="position:relative;width:160px;height:90px;margin:0 auto">
+                              <canvas id="hchart-faq-gauge-bg" width="160" height="90" style="position:absolute;top:0;left:0"></canvas>
+                              <canvas id="hchart-faq-gauge" width="160" height="90" style="position:absolute;top:0;left:0"></canvas>
+                            </div>
                             <div style="font-size:26px;font-weight:500;color:#0D5F75;margin-top:-18px;font-family:Commissioner,sans-serif">${covPct!==null ? covPct+'%' : '—'}</div>
                             <div style="font-size:12px;font-weight:400;color:#C1CBE8;margin-top:4px;font-family:'Source Code Pro',monospace">${covPct!==null ? (covPct>=80 ? 'ottimizzato' : covPct>=60 ? 'da migliorare' : 'critico') : 'nessun dato'}</div>
                             <div style="display:flex;justify-content:space-between;font-size:9px;color:#aaa;margin-top:6px;padding:0 8px"><span>0</span><span>100</span></div>
@@ -1136,8 +1139,9 @@ function renderContent(site, pseData, now) {
     (function() {
         var canvas = document.getElementById('hchart-faq-gauge');
         if (!canvas || !window.Chart || covPct===null) return;
-        var gaugeBgPlugin={id:'gaugeBg',beforeDatasetsDraw:function(chart){var meta=chart.getDatasetMeta(0);if(!meta||!meta.data||!meta.data[0])return;var arc=meta.data[0];var oR=arc.outerRadius,iR=arc.innerRadius,x=arc.x,y=arc.y;if(!oR||!x)return;var ctx=chart.ctx;ctx.save();var midR=(oR+iR)/2,lw=oR-iR,capR=lw/2;ctx.beginPath();ctx.arc(x,y,midR,Math.PI,0,true);ctx.strokeStyle='#C1CBE8';ctx.lineWidth=lw;ctx.lineCap='butt';ctx.stroke();ctx.fillStyle='#C1CBE8';ctx.beginPath();ctx.arc(x-midR,y,capR,0,2*Math.PI);ctx.fill();ctx.beginPath();ctx.arc(x+midR,y,capR,0,2*Math.PI);ctx.fill();ctx.restore();}};
-        new window.Chart(canvas.getContext('2d'),{type:'doughnut',plugins:[gaugeBgPlugin],data:{datasets:[{data:[covPct,100-covPct],backgroundColor:['#0D5F75','transparent'],borderWidth:0,circumference:180,rotation:-90,borderRadius:[{outerStart:20,innerStart:20,outerEnd:20,innerEnd:20},{outerStart:0,innerStart:0,outerEnd:0,innerEnd:0}],borderSkipped:false}]},options:{responsive:false,plugins:{legend:{display:false},tooltip:{enabled:false}},cutout:'72%'}});
+        var bgCanvas=document.getElementById('hchart-faq-gauge-bg');
+        if(bgCanvas&&window.Chart){new window.Chart(bgCanvas.getContext('2d'),{type:'doughnut',data:{datasets:[{data:[100],backgroundColor:['#C1CBE8'],borderWidth:0,circumference:180,rotation:-90,borderRadius:{outerStart:20,innerStart:20,outerEnd:20,innerEnd:20},borderSkipped:false}]},options:{responsive:false,plugins:{legend:{display:false},tooltip:{enabled:false}},cutout:'72%'}});}
+        new window.Chart(canvas.getContext('2d'),{type:'doughnut',data:{datasets:[{data:[covPct,100-covPct],backgroundColor:['#0D5F75','transparent'],borderWidth:0,circumference:180,rotation:-90,borderRadius:[{outerStart:20,innerStart:20,outerEnd:20,innerEnd:20},{outerStart:0,innerStart:0,outerEnd:0,innerEnd:0}],borderSkipped:false}]},options:{responsive:false,plugins:{legend:{display:false},tooltip:{enabled:false}},cutout:'72%'}});
     })();
 
     // ── FAQ filter + search
