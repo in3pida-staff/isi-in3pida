@@ -7,7 +7,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Eletta — Posiziona il tuo sito nelle ricerche AI</title>
-    <script>var _V='v1782379096';if(localStorage.getItem('_hv')!==_V){localStorage.setItem('_hv',_V);location.reload(true);}</script>
+    <script>var _V='v1782379990';if(localStorage.getItem('_hv')!==_V){localStorage.setItem('_hv',_V);location.reload(true);}</script>
     <link rel="icon" type="image/png" href="images/favicon.png?v=2">
     <link rel="stylesheet" href="css/style.css?v=20260622q">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1136,7 +1136,7 @@ function renderContent(site, pseData, now) {
     (function() {
         var canvas = document.getElementById('hchart-faq-gauge');
         if (!canvas || !window.Chart || covPct===null) return;
-        var gaugeBgPlugin={id:'gaugeBg',beforeDatasetsDraw:function(chart){var meta=chart.getDatasetMeta(0);if(!meta||!meta.data||!meta.data[0])return;var arc=meta.data[0];var oR=arc.outerRadius,iR=arc.innerRadius,x=arc.x,y=arc.y;if(!oR||!x)return;var ctx=chart.ctx;ctx.save();ctx.beginPath();ctx.arc(x,y,(oR+iR)/2,Math.PI,0,true);ctx.strokeStyle='#C1CBE8';ctx.lineWidth=oR-iR;ctx.lineCap='butt';ctx.stroke();ctx.restore();}};
+        var gaugeBgPlugin={id:'gaugeBg',beforeDatasetsDraw:function(chart){var meta=chart.getDatasetMeta(0);if(!meta||!meta.data||!meta.data[0])return;var arc=meta.data[0];var oR=arc.outerRadius,iR=arc.innerRadius,x=arc.x,y=arc.y;if(!oR||!x)return;var ctx=chart.ctx;ctx.save();var gapStart=Math.PI*(1-covPct/100);ctx.beginPath();ctx.arc(x,y,(oR+iR)/2,gapStart,0,true);ctx.strokeStyle='#C1CBE8';ctx.lineWidth=oR-iR;ctx.lineCap='round';ctx.stroke();ctx.restore();}};
         new window.Chart(canvas.getContext('2d'),{type:'doughnut',plugins:[gaugeBgPlugin],data:{datasets:[{data:[covPct,100-covPct],backgroundColor:['#0D5F75','transparent'],borderWidth:0,circumference:180,rotation:-90,borderRadius:[{outerStart:20,innerStart:20,outerEnd:20,innerEnd:20},{outerStart:0,innerStart:0,outerEnd:0,innerEnd:0}],borderSkipped:false}]},options:{responsive:false,plugins:{legend:{display:false},tooltip:{enabled:false}},cutout:'72%'}});
     })();
 
