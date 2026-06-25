@@ -7,7 +7,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Eletta — Posiziona il tuo sito nelle ricerche AI</title>
-    <script>var _V='v1782382423';if(localStorage.getItem('_hv')!==_V){localStorage.setItem('_hv',_V);location.reload(true);}</script>
+    <script>var _V='v1782382452';if(localStorage.getItem('_hv')!==_V){localStorage.setItem('_hv',_V);location.reload(true);}</script>
     <link rel="icon" type="image/png" href="images/favicon.png?v=2">
     <link rel="stylesheet" href="css/style.css?v=20260622q">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1130,7 +1130,7 @@ function renderContent(site, pseData, now) {
         ]; };
         var curN=4, curG='week';
         var plugin={id:'dashedA',beforeDraw:function(chart){var ctx=chart.ctx,y=chart.scales.y,ca=chart.chartArea;if(!y||!ca)return;ctx.save();y.ticks.forEach(function(_,i){var yp=y.getPixelForTick(i);var isBase=Math.abs(yp-ca.bottom)<2;ctx.setLineDash(isBase?[]:[10,5]);ctx.strokeStyle='#0D5F75';ctx.lineWidth=0.5;ctx.beginPath();ctx.moveTo(ca.left,yp);ctx.lineTo(ca.right,yp);ctx.stroke();});ctx.restore();}};
-        var ac = new window.Chart(canvas.getContext('2d'),{type:'line',data:{labels:mkL(curN,curG),datasets:buildDs(curN)},plugins:[plugin],options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'right',labels:{usePointStyle:true,pointStyle:'circle',font:{family:"'Source Code Pro',monospace",size:13,weight:'400'},color:'#0D5F75',padding:24,boxWidth:16}},tooltip:{mode:'index',intersect:false,backgroundColor:'#0D5F75',titleColor:'#fff',bodyColor:'rgba(255,255,255,0.85)',usePointStyle:true,boxWidth:8}},scales:{x:{grid:{display:false},ticks:{font:{family:"'Source Code Pro',monospace",size:13},color:'#0D5F75'}},y:{min:0,max:150,grid:{display:false},ticks:{font:{family:"'Source Code Pro',monospace",size:13},color:'#0D5F75',stepSize:50}}}}});
+        var ac = new window.Chart(canvas.getContext('2d'),{type:'line',data:{labels:mkL(curN,curG),datasets:buildDs(curN)},plugins:[plugin],options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'right',align:'start',labels:{usePointStyle:true,pointStyle:'circle',font:{family:"'Source Code Pro',monospace",size:12,weight:'400'},color:'#0D5F75',padding:24,boxWidth:16}},tooltip:{mode:'index',intersect:false,backgroundColor:'#0D5F75',titleColor:'#fff',bodyColor:'rgba(255,255,255,0.85)',usePointStyle:true,boxWidth:8}},scales:{x:{grid:{display:false},ticks:{font:{family:"'Source Code Pro',monospace",size:13},color:'#0D5F75'}},y:{min:0,max:150,grid:{display:false},ticks:{font:{family:"'Source Code Pro',monospace",size:13},color:'#0D5F75',stepSize:50}}}}});
         document.querySelectorAll('.h-and-btn').forEach(function(btn){btn.addEventListener('click',function(){document.querySelectorAll('.h-and-btn').forEach(function(b){b.classList.remove('active-range');});btn.classList.add('active-range');var days=+btn.dataset.days;curG=days<=30?'week':'month';curN=days>=9999?12:days>=180?6:4;ac.data.labels=mkL(curN,curG);ac.data.datasets=buildDs(curN);ac.update();});});
     })();
 
