@@ -7,7 +7,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Eletta — Posiziona il tuo sito nelle ricerche AI</title>
-    <script>var _V='v1782381514';if(localStorage.getItem('_hv')!==_V){localStorage.setItem('_hv',_V);location.reload(true);}</script>
+    <script>var _V='v1782381622';if(localStorage.getItem('_hv')!==_V){localStorage.setItem('_hv',_V);location.reload(true);}</script>
     <link rel="icon" type="image/png" href="images/favicon.png?v=2">
     <link rel="stylesheet" href="css/style.css?v=20260622q">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -787,7 +787,7 @@ function renderContent(site, pseData, now) {
                               <span style="position:absolute;bottom:-2px;right:3px;font-size:9px;color:#aaa;line-height:1">100</span>
                             </div>
                             <div style="font-size:26px;font-weight:500;color:#0D5F75;margin-top:-18px;font-family:Commissioner,sans-serif">${covPct!==null ? covPct+'%' : '—'}</div>
-                            <div style="font-size:12px;font-weight:400;color:#C1CBE8;margin-top:4px;font-family:'Source Code Pro',monospace">${covPct!==null ? (covPct>=80 ? 'ottimizzato' : covPct>=60 ? 'da migliorare' : 'critico') : 'nessun dato'}</div>
+                            <div style="font-size:12px;font-weight:400;color:#C1CBE8;margin-top:4px;font-family:'Source Code Pro',monospace">${covPct!==null ? (covPct>=70 ? 'ottimizzato' : covPct>=40 ? 'da migliorare' : 'critico') : 'nessun dato'}</div>
                         </div>
                         <div style="flex:1;min-width:280px">
                             <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
@@ -1132,7 +1132,7 @@ function renderContent(site, pseData, now) {
         ]; };
         var curN=4, curG='week';
         var plugin={id:'dashedA',beforeDraw:function(chart){var ctx=chart.ctx,y=chart.scales.y,ca=chart.chartArea;if(!y||!ca)return;ctx.save();y.ticks.forEach(function(_,i){var yp=y.getPixelForTick(i);var isBase=Math.abs(yp-ca.bottom)<2;ctx.setLineDash(isBase?[]:[10,5]);ctx.strokeStyle='#0D5F75';ctx.lineWidth=0.5;ctx.beginPath();ctx.moveTo(ca.left,yp);ctx.lineTo(ca.right,yp);ctx.stroke();});ctx.restore();}};
-        var ac = new window.Chart(canvas.getContext('2d'),{type:'line',data:{labels:mkL(curN,curG),datasets:buildDs(curN)},plugins:[plugin],options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'bottom',labels:{usePointStyle:true,pointStyle:'circle',font:{family:"'Source Code Pro',monospace",size:13,weight:'400'},color:'#0D5F75',padding:24,boxWidth:16}},tooltip:{mode:'index',intersect:false,backgroundColor:'#0D5F75',titleColor:'#fff',bodyColor:'rgba(255,255,255,0.85)'}},scales:{x:{grid:{display:false},ticks:{font:{family:"'Source Code Pro',monospace",size:13},color:'#0D5F75'}},y:{min:0,max:150,grid:{display:false},ticks:{font:{family:"'Source Code Pro',monospace",size:13},color:'#0D5F75',stepSize:50}}}}});
+        var ac = new window.Chart(canvas.getContext('2d'),{type:'line',data:{labels:mkL(curN,curG),datasets:buildDs(curN)},plugins:[plugin],options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'bottom',labels:{usePointStyle:true,pointStyle:'circle',font:{family:"'Source Code Pro',monospace",size:13,weight:'400'},color:'#0D5F75',padding:24,boxWidth:16}},tooltip:{mode:'index',intersect:false,backgroundColor:'#0D5F75',titleColor:'#fff',bodyColor:'rgba(255,255,255,0.85)',usePointStyle:true,boxWidth:8}},scales:{x:{grid:{display:false},ticks:{font:{family:"'Source Code Pro',monospace",size:13},color:'#0D5F75'}},y:{min:0,max:150,grid:{display:false},ticks:{font:{family:"'Source Code Pro',monospace",size:13},color:'#0D5F75',stepSize:50}}}}});
         document.querySelectorAll('.h-and-btn').forEach(function(btn){btn.addEventListener('click',function(){document.querySelectorAll('.h-and-btn').forEach(function(b){b.classList.remove('active-range');});btn.classList.add('active-range');var days=+btn.dataset.days;curG=days<=30?'week':'month';curN=days>=9999?12:days>=180?6:4;ac.data.labels=mkL(curN,curG);ac.data.datasets=buildDs(curN);ac.update();});});
     })();
 
@@ -3198,13 +3198,16 @@ async function initScoreHistoryChart(site, geoAvg, cs, covPct) {
 
     const todayEntry = history.find(h => h.date === todayStr);
     if (todayEntry) {
+        todayEntry.geo = geoAvg;
+        todayEntry.completeness = cs;
+        todayEntry.coverage = covPct;
         if (todayEntry.ai_readiness === undefined) {
             todayEntry.ai_readiness = geoSub.ai_readiness ?? null;
             todayEntry.answer_extraction = geoSub.answer_extraction ?? null;
             todayEntry.quality_safety = geoSub.quality_safety ?? null;
             todayEntry.ai_visibility = geoSub.ai_visibility ?? null;
-            _SBq.from('isi_sites').update({ faq_data: { ...faqData, score_history: history } }).eq('site_id', site.site_id).then(() => {});
         }
+        _SBq.from('isi_sites').update({ faq_data: { ...faqData, score_history: history } }).eq('site_id', site.site_id).then(() => {});
     } else if (geoAvg !== null || cs !== null || covPct !== null) {
         history.push({ date: todayStr, geo: geoAvg, completeness: cs, coverage: covPct,
             ai_readiness: geoSub.ai_readiness ?? null, answer_extraction: geoSub.answer_extraction ?? null,
