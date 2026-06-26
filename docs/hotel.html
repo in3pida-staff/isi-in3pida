@@ -920,8 +920,8 @@ function renderContent(site, pseData, now) {
         </div>
         <!-- Lista FAQ -->
         <div class="card" style="margin-bottom:20px;border-radius:8px;border:1px solid #e4e4ec;box-shadow:none">
-            <div class="card-header" style="justify-content:flex-end">
-                <div style="display:flex;gap:8px;align-items:center">
+            <div class="card-header" style="justify-content:flex-end;flex-wrap:nowrap">
+                <div style="display:flex;gap:8px;align-items:center;flex-wrap:nowrap;flex-shrink:0">
                     <input type="text" id="hfaq-search" placeholder="Cerca FAQ..." style="background:#fff;border:1px solid #e4e4ec;border-radius:24px;padding:6px 14px;font-size:12px;outline:none;width:180px;color:#0D5F75;font-family:'Source Code Pro',monospace">
                     <button id="btn-open-faq-page" onclick="window.open(window._pluginBase+'/faq','_blank')" style="background:#C1CBE8;color:#fff;border:none;border-radius:24px;padding:6px 16px;font-family:'Source Code Pro',monospace;font-size:12px;font-weight:600;cursor:pointer">↗ Apri pagina FAQ</button>
                     <button id="btn-faq-settings-toggle" style="background:#C1CBE8;color:#fff;border:none;border-radius:24px;padding:6px 16px;font-family:'Source Code Pro',monospace;font-size:12px;font-weight:600;cursor:pointer">⚙ Impostazioni</button>
