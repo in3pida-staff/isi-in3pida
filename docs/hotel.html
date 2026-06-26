@@ -4229,7 +4229,7 @@ init();
   const path = document.getElementById('h-divider-path');
   if (!path) return;
   const vh = window.innerHeight;
-  const heroY = 110;
+  const heroY = 120;
   const tiltX = (Math.tan(10 * Math.PI / 180) * heroY).toFixed(1);
   path.setAttribute('d', `M 3 ${vh} L 3 ${heroY} L ${(3 - parseFloat(tiltX)).toFixed(1)} 0`);
 })();
@@ -4249,7 +4249,7 @@ window.addEventListener('resize', function() {
   const path = document.getElementById('h-divider-path');
   if (!path) return;
   const vh = window.innerHeight;
-  const heroY = 110;
+  const heroY = 120;
   const tiltX = (Math.tan(10 * Math.PI / 180) * heroY).toFixed(1);
   path.setAttribute('d', `M 3 ${vh} L 3 ${heroY} L ${(3 - parseFloat(tiltX)).toFixed(1)} 0`);
 });
