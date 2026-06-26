@@ -4061,7 +4061,7 @@ init();
   const vh = window.innerHeight;
   const heroY = 100;
   const tiltX = (Math.tan(10 * Math.PI / 180) * heroY).toFixed(1);
-  path.setAttribute('d', `M 3 ${vh} L 3 ${heroY} L ${(3 + parseFloat(tiltX)).toFixed(1)} 0`);
+  path.setAttribute('d', `M 3 ${vh} L 3 ${heroY} L ${(3 - parseFloat(tiltX)).toFixed(1)} 0`);
 })();
 window.addEventListener('scroll', function() {
   var scrolled = window.scrollY > 30;
@@ -4081,7 +4081,7 @@ window.addEventListener('resize', function() {
   const vh = window.innerHeight;
   const heroY = 100;
   const tiltX = (Math.tan(10 * Math.PI / 180) * heroY).toFixed(1);
-  path.setAttribute('d', `M 3 ${vh} L 3 ${heroY} L ${(3 + parseFloat(tiltX)).toFixed(1)} 0`);
+  path.setAttribute('d', `M 3 ${vh} L 3 ${heroY} L ${(3 - parseFloat(tiltX)).toFixed(1)} 0`);
 });
 </script>
 </body>
