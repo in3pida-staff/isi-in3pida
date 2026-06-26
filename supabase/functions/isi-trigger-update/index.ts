@@ -100,13 +100,18 @@ Deno.serve(async (req) => {
         signal: AbortSignal.timeout(90000),
       });
       const body = await res.json().catch(() => ({}));
+      const resolvedVersion = body.skipped ? (body.current || verData.version) : verData.version;
+      // Aggiorna plugin_version in Supabase con la versione reale
+      if (res.ok) {
+        await admin.from('isi_sites').update({ plugin_version: resolvedVersion }).eq('site_id', site.site_id);
+      }
       return {
         site_id:   site.site_id,
         site_name: site.site_name,
         ok:        res.ok,
         status:    res.status,
         skipped:   body.skipped ?? false,
-        message:   body.error || body.message || (body.skipped ? `Già alla v${body.current}` : `Aggiornato a v${verData.version}`),
+        message:   body.error || body.message || (body.skipped ? `Già alla v${resolvedVersion}` : `Aggiornato a v${verData.version}`),
       };
     } catch (e) {
       return {
