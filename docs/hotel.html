@@ -170,15 +170,15 @@
     <div class="h-sidebar-sep"></div>
     <nav class="h-sidebar-nav">
       <button class="h-nav-item active" data-htab="panoramica">
-        <span class="h-nav-icon"><img src="icons/panoramica-active.svg" width="46" height="46" data-inactive="icons/panoramica.svg" data-active="icons/panoramica-active.svg"></span>
+        <span class="h-nav-icon"><img src="icons/panoramica.svg" width="46" height="46"></span>
         Panoramica
       </button>
       <button class="h-nav-item" data-htab="faq">
-        <span class="h-nav-icon"><img src="icons/faq.svg" width="46" height="46" data-inactive="icons/faq.svg" data-active="icons/faq-active.svg"></span>
+        <span class="h-nav-icon"><img src="icons/faq.svg" width="46" height="46"></span>
         FAQ
       </button>
       <button class="h-nav-item" data-htab="schema">
-        <span class="h-nav-icon"><img src="icons/schema.svg" width="46" height="46" data-inactive="icons/schema.svg" data-active="icons/schema-active.svg"></span>
+        <span class="h-nav-icon"><img src="icons/schema.svg" width="46" height="46"></span>
         Schema.org
       </button>
       <button class="h-nav-item" data-htab="mappa">
@@ -188,15 +188,15 @@
         Mappa
       </button>
       <button class="h-nav-item" data-htab="coerenza">
-        <span class="h-nav-icon"><img src="icons/ai.svg" width="46" height="46" data-inactive="icons/ai.svg" data-active="icons/ai-active.svg"></span>
+        <span class="h-nav-icon"><img src="icons/ai.svg" width="46" height="46"></span>
         AI
       </button>
       <button class="h-nav-item" data-htab="pse">
-        <span class="h-nav-icon"><img src="icons/statistiche.svg" width="46" height="46" data-inactive="icons/statistiche.svg" data-active="icons/statistiche-active.svg"></span>
+        <span class="h-nav-icon"><img src="icons/statistiche.svg" width="46" height="46"></span>
         Statistiche
       </button>
       <button class="h-nav-item" data-htab="config">
-        <span class="h-nav-icon"><img src="icons/config.svg" width="46" height="46" data-inactive="icons/config.svg" data-active="icons/config-active.svg"></span>
+        <span class="h-nav-icon"><img src="icons/config.svg" width="46" height="46"></span>
         Configurazione
       </button>
     </nav>
@@ -400,12 +400,7 @@ async function init() {
         btn.addEventListener('click', () => {
             const tab = btn.dataset.htab;
             document.querySelectorAll('.h-nav-item[data-htab]').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.h-nav-item[data-htab] .h-nav-icon img[data-inactive]').forEach(img => {
-              img.src = img.dataset.inactive;
-            });
             btn.classList.add('active');
-            const activeImg = btn.querySelector('.h-nav-icon img[data-active]');
-            if (activeImg) activeImg.src = activeImg.dataset.active;
             document.querySelectorAll('[id^="htab-"]').forEach(p => p.style.display = 'none');
             const pane = document.getElementById('htab-' + tab);
             if (pane) pane.style.display = '';
