@@ -826,7 +826,7 @@ function renderContent(site, pseData, now) {
         <!-- Section heading FAQ -->
         <div class="h-sec-hdr">
           <div class="h-sec-icon">
-            <svg viewBox="0 0 74.8 74.26" width="28" height="28"><path fill="none" stroke="#fff" stroke-miterlimit="10" stroke-width="1.12" d="M41.27,38.77h-5.77v9.77h9.89c.07,0,.14.03.19.07l4.66,4.27v-4.06c0-.16.13-.29.29-.29h4.76v-14.83h-13.73v4.78c0,.16-.13.29-.29.29Z"/><path fill="none" stroke="#fff" stroke-miterlimit="10" stroke-width="1.12" d="M35.21,33.14h5.77v-9.77h-19.79v14.83h4.76c.16,0,.29.13.29.29v4.06l4.66-4.27c.05-.05.12-.07.19-.07h3.84v-4.78c0-.16.13-.29.29-.29Z"/><path fill="#ffffff" stroke="#ffffff" stroke-miterlimit="10" d="M31.09,38.2c-.07,0-.14.03-.19.07l-4.66,4.27v-4.06c0-.16-.13-.29-.29-.29h-4.76v-14.83h19.79v9.77h.57v-10.05c0-.16-.13-.29-.29-.29h-20.36c-.16,0-.29.13-.29.29v15.4c0,.16.13.29.29.29h4.76v4.42c0,.11.07.22.17.26.04.02.08.02.11.02.07,0,.14-.03.19-.07l5.05-4.63h3.73v-.57h-3.84Z"/><path fill="#ffffff" stroke="#ffffff" stroke-miterlimit="10" d="M55.57,33.14h-14.02v.57h13.73v14.83h-4.76c-.16,0-.29.13-.29.29v4.06l-4.66-4.27c-.05-.05-.12-.07-.19-.07h-9.89v-9.77h-.57v10.05c0,.16.13.29.29.29h10.07l5.05,4.63c.05.05.12.07.19.07.04,0,.08,0,.11-.02.1-.05.17-.15.17-.26v-4.42h4.76c.16,0,.29-.13.29-.29v-15.4c0-.16-.13-.29-.29-.29Z"/></svg>
+            <svg viewBox="0 0 74.8 74.26" width="44" height="44"><path fill="none" stroke="#fff" stroke-miterlimit="10" stroke-width="1.12" d="M41.27,38.77h-5.77v9.77h9.89c.07,0,.14.03.19.07l4.66,4.27v-4.06c0-.16.13-.29.29-.29h4.76v-14.83h-13.73v4.78c0,.16-.13.29-.29.29Z"/><path fill="none" stroke="#fff" stroke-miterlimit="10" stroke-width="1.12" d="M35.21,33.14h5.77v-9.77h-19.79v14.83h4.76c.16,0,.29.13.29.29v4.06l4.66-4.27c.05-.05.12-.07.19-.07h3.84v-4.78c0-.16.13-.29.29-.29Z"/><path fill="#ffffff" stroke="#ffffff" stroke-miterlimit="10" d="M31.09,38.2c-.07,0-.14.03-.19.07l-4.66,4.27v-4.06c0-.16-.13-.29-.29-.29h-4.76v-14.83h19.79v9.77h.57v-10.05c0-.16-.13-.29-.29-.29h-20.36c-.16,0-.29.13-.29.29v15.4c0,.16.13.29.29.29h4.76v4.42c0,.11.07.22.17.26.04.02.08.02.11.02.07,0,.14-.03.19-.07l5.05-4.63h3.73v-.57h-3.84Z"/><path fill="#ffffff" stroke="#ffffff" stroke-miterlimit="10" d="M55.57,33.14h-14.02v.57h13.73v14.83h-4.76c-.16,0-.29.13-.29.29v4.06l-4.66-4.27c-.05-.05-.12-.07-.19-.07h-9.89v-9.77h-.57v10.05c0,.16.13.29.29.29h10.07l5.05,4.63c.05.05.12.07.19.07.04,0,.08,0,.11-.02.1-.05.17-.15.17-.26v-4.42h4.76c.16,0,.29-.13.29-.29v-15.4c0-.16-.13-.29-.29-.29Z"/></svg>
           </div>
           <div class="h-sec-texts">
             <div class="h-sec-title">FAQ</div>
@@ -834,31 +834,39 @@ function renderContent(site, pseData, now) {
           </div>
         </div>
         <!-- Impostazioni Plugin FAQ (sopra la lista, hidden di default) -->
-        <div id="card-faq-settings" style="display:none;margin-bottom:14px;flex-direction:column;gap:12px">
-            <div class="card" style="border:1px solid #e4e4ec;box-shadow:none">
-                <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
-                    <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><div style="font-size:12px;font-weight:700;color:#0D5F75;letter-spacing:.05em;text-transform:uppercase">Impostazioni Plugin FAQ</div></div>
+        <div id="card-faq-settings" style="display:none;margin-bottom:14px;flex-direction:column;gap:14px">
+            <div class="h-card" style="margin-bottom:0">
+                <div class="h-card-hdr">
+                    <div style="display:flex;align-items:center;gap:12px"><div style="width:34px;height:34px;border-radius:50%;background:white;border:1.5px solid rgba(13,95,117,0.25);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></div><span class="h-card-hdr-t" style="font-size:18px;font-weight:500">Impostazioni Plugin FAQ</span></div>
                     <div style="display:flex;gap:8px">
                         <button id="btn-close-faq-settings" class="btn-ping">✕ Chiudi</button>
                         <button id="btn-save-faq-settings" class="btn-update" style="margin-left:0">Salva impostazioni</button>
                     </div>
                 </div>
             </div>
-            <div class="card" style="border:1px solid #e4e4ec;box-shadow:none">
-                <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
-                    <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><div style="font-size:12px;font-weight:700;color:#0D5F75;letter-spacing:.05em;text-transform:uppercase">Contenuto pagina</div></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+                <div class="h-card" style="margin-bottom:0">
+                    <div class="h-card-hdr" style="justify-content:flex-start;gap:12px"><div style="width:34px;height:34px;border-radius:50%;background:white;border:1.5px solid rgba(13,95,117,0.25);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div><span class="h-card-hdr-t" style="font-size:18px;font-weight:500">Contenuto pagina</span></div>
+                    <div class="h-card-body" style="display:flex;flex-direction:column;gap:12px">
+                        <div><label class="profile-label">Titolo pagina FAQ</label><input id="faq-setting-title" type="text" placeholder="Domande frequenti" class="profile-input"></div>
+                        <div><label class="profile-label">Testo sotto il titolo</label><textarea id="faq-setting-subtitle" rows="2" placeholder="Trova rapidamente le risposte alle domande più comuni." class="profile-input" style="resize:vertical"></textarea></div>
+                    </div>
                 </div>
-                <div style="padding:14px 20px;display:flex;flex-direction:column;gap:12px">
-                    <div><label class="profile-label">Titolo pagina FAQ</label><input id="faq-setting-title" type="text" placeholder="Domande frequenti" class="profile-input"></div>
-                    <div><label class="profile-label">Testo sotto il titolo</label><textarea id="faq-setting-subtitle" rows="2" placeholder="Trova rapidamente le risposte alle domande più comuni." class="profile-input" style="resize:vertical"></textarea></div>
+                <div class="h-card" style="margin-bottom:0">
+                    <div class="h-card-hdr" style="justify-content:flex-start;gap:12px"><div style="width:34px;height:34px;border-radius:50%;background:white;border:1.5px solid rgba(13,95,117,0.25);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></div><span class="h-card-hdr-t" style="font-size:18px;font-weight:500">Ordinamento FAQ</span></div>
+                    <div class="h-card-body">
+                        <div style="font-size:13px;color:#666b84;margin-bottom:12px">Per l'ordine manuale usa il drag &amp; drop nella lista FAQ.</div>
+                        <div style="display:flex;gap:8px;flex-wrap:wrap">
+                            <label style="display:flex;align-items:center;gap:6px;padding:8px 16px;border:1px solid #e4e4ec;border-radius:4px;cursor:pointer;font-size:14px;color:#4b4d68"><input id="faq-order-manual" type="radio" name="faq-order" value="manual" checked style="margin:0;accent-color:#0D5F75"> Ordine manuale</label>
+                            <label style="display:flex;align-items:center;gap:6px;padding:8px 16px;border:1px solid #e4e4ec;border-radius:4px;cursor:pointer;font-size:14px;color:#4b4d68"><input id="faq-order-asc" type="radio" name="faq-order" value="asc" style="margin:0;accent-color:#0D5F75"> Crescente</label>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="card" style="border:1px solid #e4e4ec;box-shadow:none">
-                <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
-                    <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><div style="font-size:12px;font-weight:700;color:#0D5F75;letter-spacing:.05em;text-transform:uppercase">Stile grafico</div></div>
-                </div>
-                <div style="padding:14px 20px;display:flex;flex-direction:column;gap:14px">
-                    <div style="font-size:13px;color:#666b84">Imposta i colori principali. Se lasci vuoto il font, il plugin eredita il font del tema.</div>
+            <div class="h-card">
+                <div class="h-card-hdr" style="justify-content:flex-start;gap:12px"><div style="width:34px;height:34px;border-radius:50%;background:white;border:1.5px solid rgba(13,95,117,0.25);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12l2 2 4-4"/></svg></div><span class="h-card-hdr-t" style="font-size:18px;font-weight:500">Stile grafico</span></div>
+                <div class="h-card-body">
+                    <div style="font-size:13px;color:#666b84;margin-bottom:14px">Imposta i colori principali. Se lasci vuoto il font, il plugin eredita il font del tema.</div>
                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
                         <div><label class="profile-label">Colore principale</label><div style="display:flex;align-items:center;gap:8px"><input id="faq-setting-color1" type="color" value="#171b33" style="width:40px;height:32px;border:1px solid #e4e4ec;border-radius:4px;padding:2px;cursor:pointer"><label style="display:flex;align-items:center;gap:4px;font-size:12px;color:#666b84;cursor:pointer"><input id="faq-setting-color1-inherit" type="checkbox" style="margin:0"> Eredita dal sito</label></div></div>
                         <div><label class="profile-label">Colore dettagli/interazioni</label><div style="display:flex;align-items:center;gap:8px"><input id="faq-setting-color2" type="color" value="#0D5F75" style="width:40px;height:32px;border:1px solid #e4e4ec;border-radius:4px;padding:2px;cursor:pointer"><label style="display:flex;align-items:center;gap:4px;font-size:12px;color:#666b84;cursor:pointer"><input id="faq-setting-color2-inherit" type="checkbox" style="margin:0"> Eredita dal sito</label></div><div style="font-size:12px;color:#666b84;margin-top:4px">Controlla dettagli come etichetta FAQ, icona + e micro-interazioni.</div></div>
@@ -871,23 +879,9 @@ function renderContent(site, pseData, now) {
                     </div>
                 </div>
             </div>
-            <div class="card" style="border:1px solid #e4e4ec;box-shadow:none">
-                <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
-                    <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><div style="font-size:12px;font-weight:700;color:#0D5F75;letter-spacing:.05em;text-transform:uppercase">Ordinamento FAQ</div></div>
-                </div>
-                <div style="padding:14px 20px">
-                    <div style="font-size:13px;color:#666b84;margin-bottom:12px">Per l'ordine manuale usa il drag &amp; drop nella lista FAQ.</div>
-                    <div style="display:flex;gap:8px">
-                        <label style="display:flex;align-items:center;gap:6px;padding:8px 16px;border:1px solid #e4e4ec;border-radius:4px;cursor:pointer;font-size:14px;color:#4b4d68"><input id="faq-order-manual" type="radio" name="faq-order" value="manual" checked style="margin:0;accent-color:#0D5F75"> Ordine manuale</label>
-                        <label style="display:flex;align-items:center;gap:6px;padding:8px 16px;border:1px solid #e4e4ec;border-radius:4px;cursor:pointer;font-size:14px;color:#4b4d68"><input id="faq-order-asc" type="radio" name="faq-order" value="asc" style="margin:0;accent-color:#0D5F75"> Crescente</label>
-                    </div>
-                </div>
-            </div>
-            <div class="card" style="border:1px solid #e4e4ec;box-shadow:none">
-                <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
-                    <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><div style="font-size:12px;font-weight:700;color:#0D5F75;letter-spacing:.05em;text-transform:uppercase">Comportamento</div></div>
-                </div>
-                <div style="padding:14px 20px">
+            <div class="h-card">
+                <div class="h-card-hdr" style="justify-content:flex-start;gap:12px"><div style="width:34px;height:34px;border-radius:50%;background:white;border:1.5px solid rgba(13,95,117,0.25);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><span class="h-card-hdr-t" style="font-size:18px;font-weight:500">Comportamento</span></div>
+                <div class="h-card-body">
                     <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px">
                         <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;color:#4b4d68"><input id="faq-setting-open-first" type="checkbox" style="margin:0;width:15px;height:15px;accent-color:#0D5F75;flex-shrink:0"> Apri la prima FAQ</label>
                         <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;color:#4b4d68"><input id="faq-setting-schema-seo" type="checkbox" checked style="margin:0;width:15px;height:15px;accent-color:#0D5F75;flex-shrink:0"> Aggiungi dati strutturati FAQPage per SEO nella pagina FAQ</label>
@@ -904,7 +898,13 @@ function renderContent(site, pseData, now) {
         </div>
         <!-- Lista FAQ -->
         <div class="card" style="margin-bottom:20px;border-radius:8px;border:1px solid #e4e4ec;box-shadow:none">
-            <div class="card-header" style="justify-content:flex-end;flex-wrap:nowrap">
+            <div class="card-header" style="justify-content:space-between;flex-wrap:nowrap">
+                <div style="display:flex;gap:6px;align-items:center;flex-wrap:nowrap">
+                    <button class="hfaq-f-btn hfaq-f-active" data-f="all" style="padding:5px 14px;border-radius:20px;border:1px solid #0D5F75;background:rgba(13,95,117,0.08);color:#0D5F75;font-size:11px;font-weight:700;cursor:pointer">Tutti</button>
+                    <button class="hfaq-f-btn" data-f="publish" style="padding:5px 14px;border-radius:20px;border:1px solid #e4e4ec;background:white;color:rgba(13,95,117,0.5);font-size:11px;font-weight:700;cursor:pointer">Pubblicato</button>
+                    <button class="hfaq-f-btn" data-f="draft" style="padding:5px 14px;border-radius:20px;border:1px solid #e4e4ec;background:white;color:rgba(13,95,117,0.5);font-size:11px;font-weight:700;cursor:pointer">Bozze</button>
+                    <button class="hfaq-f-btn" data-f="solo_ai" style="padding:5px 14px;border-radius:20px;border:1px solid #e4e4ec;background:white;color:rgba(13,95,117,0.5);font-size:11px;font-weight:700;cursor:pointer">Solo AI</button>
+                </div>
                 <div style="display:flex;gap:8px;align-items:center;flex-wrap:nowrap;flex-shrink:0">
                     <input type="text" id="hfaq-search" placeholder="Cerca FAQ..." style="background:#fff;border:1px solid #e4e4ec;border-radius:24px;padding:6px 14px;font-size:12px;outline:none;width:180px;color:#0D5F75;font-family:'Source Code Pro',monospace">
                     <button id="btn-open-faq-page" onclick="window.open(window._pluginBase+'/faq','_blank')" style="background:#C1CBE8;color:#fff;border:none;border-radius:24px;padding:6px 16px;font-family:'Source Code Pro',monospace;font-size:12px;font-weight:600;cursor:pointer">↗ Apri pagina FAQ</button>
@@ -912,13 +912,7 @@ function renderContent(site, pseData, now) {
                     <button id="btn-add-faq-hotel" style="background:#EFF020;color:#0D5F75;border:none;border-radius:24px;padding:6px 16px;font-family:'Source Code Pro',monospace;font-size:12px;font-weight:600;cursor:pointer">+ Aggiungi FAQ</button>
                 </div>
             </div>
-            <div style="padding:10px 20px;border-bottom:1px solid #ececf2;display:flex;gap:6px;align-items:center;flex-wrap:nowrap">
-                <button class="hfaq-f-btn hfaq-f-active" data-f="all" style="padding:5px 14px;border-radius:20px;border:1px solid #0D5F75;background:rgba(13,95,117,0.08);color:#0D5F75;font-size:11px;font-weight:700;cursor:pointer">Tutti</button>
-                <button class="hfaq-f-btn" data-f="publish" style="padding:5px 14px;border-radius:20px;border:1px solid #e4e4ec;background:white;color:rgba(13,95,117,0.5);font-size:11px;font-weight:700;cursor:pointer">Pubblicato</button>
-                <button class="hfaq-f-btn" data-f="draft" style="padding:5px 14px;border-radius:20px;border:1px solid #e4e4ec;background:white;color:rgba(13,95,117,0.5);font-size:11px;font-weight:700;cursor:pointer">Bozze</button>
-                <button class="hfaq-f-btn" data-f="solo_ai" style="padding:5px 14px;border-radius:20px;border:1px solid #e4e4ec;background:white;color:rgba(13,95,117,0.5);font-size:11px;font-weight:700;cursor:pointer">Solo AI</button>
-            </div>
-            <div style="display:grid;grid-template-columns:1fr auto auto auto;gap:0;padding:8px 20px;background:#fafafa;border-bottom:1px solid #e4e4ec;font-size:10px;font-weight:700;color:#aaa;letter-spacing:.05em;text-transform:uppercase">
+            <div style="display:grid;grid-template-columns:1fr auto auto auto;gap:0;padding:8px 20px;border-bottom:1px solid #e4e4ec;font-size:10px;font-weight:700;color:#aaa;letter-spacing:.05em;text-transform:uppercase">
                 <div>Titolo</div><div style="text-align:center;padding:0 16px">Data</div><div style="text-align:center;padding:0 12px">Ordine</div><div style="text-align:center;padding:0 8px">Visibilità</div>
             </div>
             <div id="faq-hotel-list" style="padding:0"><div class="loading" style="padding:20px"><div class="spinner"></div></div></div>
