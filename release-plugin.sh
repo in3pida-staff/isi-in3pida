@@ -39,12 +39,9 @@ const sb = createClient('${SUPABASE_URL}','${SERVICE_KEY}',{auth:{persistSession
   // 1. Azzera tutte le versioni
   const r1 = await sb.from('isi_plugin_versions').update({is_current:false}).gte('version','0');
   if(r1.error){console.error('ERRORE step1:',r1.error.message);process.exit(1);}
-  // 2. Inserisci o aggiorna la nuova versione (is_current ancora false)
-  const r2 = await sb.from('isi_plugin_versions').upsert({version:'${VERSION}',changelog:'${CHANGELOG}',download_url:'https://isi.in3pida.it/in3pida-faq-${VERSION}.zip',is_current:false,released_at:new Date().toISOString()},{onConflict:'version'});
+  // 2. Inserisci o aggiorna la nuova versione con is_current:true direttamente
+  const r2 = await sb.from('isi_plugin_versions').upsert({version:'${VERSION}',changelog:'${CHANGELOG}',download_url:'https://isi.in3pida.it/in3pida-faq-${VERSION}.zip',is_current:true,released_at:new Date().toISOString()},{onConflict:'version'});
   if(r2.error){console.error('ERRORE step2:',r2.error.message);process.exit(1);}
-  // 3. Imposta is_current=true solo per questa versione
-  const r3 = await sb.from('isi_plugin_versions').update({is_current:true}).eq('version','${VERSION}');
-  if(r3.error){console.error('ERRORE step3:',r3.error.message);process.exit(1);}
   console.log('Supabase OK');
 })();
 "
@@ -55,24 +52,9 @@ git add "docs/in3pida-faq-${VERSION}.zip"
 git commit -m "Plugin v${VERSION}: ${CHANGELOG}"
 git push
 
-echo "→ [4/4] Trigger aggiornamento automatico su tutti i siti"
-node -e "
-fetch('${SUPABASE_URL}/functions/v1/isi-trigger-update', {
-  method: 'POST',
-  headers: { 'Authorization': 'Bearer ${SERVICE_KEY}', 'apikey': '${SERVICE_KEY}', 'Content-Type': 'application/json' },
-  body: JSON.stringify({ all: true })
-}).then(r=>r.json()).then(d=>{
-  if (!d.results) { console.log('Trigger risposta:', JSON.stringify(d)); return; }
-  d.results.forEach(s => {
-    const stato = s.ok ? 'OK' : ('ERRORE: ' + (s.error || s.message || ''));
-    console.log('  ' + (s.site_name||s.site_id) + ' → ' + stato);
-  });
-}).catch(e=>console.log('Trigger fallito (non bloccante):', e.message));
-"
-
 echo ""
 echo "✓ Release ${VERSION} completata:"
 echo "  ZIP:      docs/in3pida-faq-${VERSION}.zip"
 echo "  Supabase: is_current = true"
 echo "  GitHub:   pushed"
-echo "  Siti:     aggiornamento inviato a tutti"
+echo "  Siti:     aggiornamento NON inviato automaticamente — premi 'Aggiorna' dalla dashboard per ogni sito"
