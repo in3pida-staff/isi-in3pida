@@ -837,6 +837,16 @@ function renderContent(site, pseData, now) {
 
         <!-- ═══ TAB: FAQ ═══ -->
         <div id="htab-faq" style="display:none">
+        <!-- Section heading FAQ -->
+        <div class="h-sec-hdr">
+          <div class="h-sec-icon">
+            <svg viewBox="0 0 74.8 74.26" width="28" height="28"><path fill="none" stroke="#fff" stroke-miterlimit="10" stroke-width="1.12" d="M41.27,38.77h-5.77v9.77h9.89c.07,0,.14.03.19.07l4.66,4.27v-4.06c0-.16.13-.29.29-.29h4.76v-14.83h-13.73v4.78c0,.16-.13.29-.29.29Z"/><path fill="none" stroke="#fff" stroke-miterlimit="10" stroke-width="1.12" d="M35.21,33.14h5.77v-9.77h-19.79v14.83h4.76c.16,0,.29.13.29.29v4.06l4.66-4.27c.05-.05.12-.07.19-.07h3.84v-4.78c0-.16.13-.29.29-.29Z"/><path fill="#ffffff" stroke="#ffffff" stroke-miterlimit="10" d="M31.09,38.2c-.07,0-.14.03-.19.07l-4.66,4.27v-4.06c0-.16-.13-.29-.29-.29h-4.76v-14.83h19.79v9.77h.57v-10.05c0-.16-.13-.29-.29-.29h-20.36c-.16,0-.29.13-.29.29v15.4c0,.16.13.29.29.29h4.76v4.42c0,.11.07.22.17.26.04.02.08.02.11.02.07,0,.14-.03.19-.07l5.05-4.63h3.73v-.57h-3.84Z"/><path fill="#ffffff" stroke="#ffffff" stroke-miterlimit="10" d="M55.57,33.14h-14.02v.57h13.73v14.83h-4.76c-.16,0-.29.13-.29.29v4.06l-4.66-4.27c-.05-.05-.12-.07-.19-.07h-9.89v-9.77h-.57v10.05c0,.16.13.29.29.29h10.07l5.05,4.63c.05.05.12.07.19.07.04,0,.08,0,.11-.02.1-.05.17-.15.17-.26v-4.42h4.76c.16,0,.29-.13.29-.29v-15.4c0-.16-.13-.29-.29-.29Z"/></svg>
+          </div>
+          <div class="h-sec-texts">
+            <div class="h-sec-title">FAQ</div>
+            <div class="h-sec-sub">Le tue domande frequenti</div>
+          </div>
+        </div>
         <!-- Impostazioni Plugin FAQ (sopra la lista, hidden di default) -->
         <div id="card-faq-settings" style="display:none;margin-bottom:14px;flex-direction:column;gap:12px">
             <div class="card" style="border:1px solid #e4e4ec;box-shadow:none">
@@ -908,14 +918,11 @@ function renderContent(site, pseData, now) {
         </div>
         <!-- Lista FAQ -->
         <div class="card" style="margin-bottom:20px;border-radius:8px;border:1px solid #e4e4ec;box-shadow:none">
-            <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
-                <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span>
-                    <div style="font-size:11px;font-weight:500;color:#0D5F75;letter-spacing:.05em;text-transform:uppercase;font-family:Commissioner,sans-serif">FAQ <span id="faq-hotel-count" style="font-weight:400;text-transform:none;letter-spacing:0;font-size:11px;color:var(--grey)"></span></div>
-                </div>
+            <div class="card-header" style="justify-content:flex-end">
                 <div style="display:flex;gap:8px;align-items:center">
-                    <button id="btn-open-faq-page" class="btn-ping" style="font-size:12px;padding:5px 12px" onclick="window.open(window._pluginBase+'/faq','_blank')">↗ Apri pagina FAQ</button>
-                    <button id="btn-faq-settings-toggle" class="btn-ping" style="font-size:12px;padding:5px 12px">⚙ Impostazioni</button>
-                    <button id="btn-add-faq-hotel" class="btn-update" style="margin-left:0">+ Aggiungi FAQ</button>
+                    <button id="btn-open-faq-page" onclick="window.open(window._pluginBase+'/faq','_blank')" style="background:#C1CBE8;color:#0D5F75;border:none;border-radius:24px;padding:6px 16px;font-family:'Source Code Pro',monospace;font-size:12px;font-weight:600;cursor:pointer">↗ Apri pagina FAQ</button>
+                    <button id="btn-faq-settings-toggle" style="background:#C1CBE8;color:#0D5F75;border:none;border-radius:24px;padding:6px 16px;font-family:'Source Code Pro',monospace;font-size:12px;font-weight:600;cursor:pointer">⚙ Impostazioni</button>
+                    <button id="btn-add-faq-hotel" style="background:#EFF020;color:#0D5F75;border:none;border-radius:24px;padding:6px 16px;font-family:'Source Code Pro',monospace;font-size:12px;font-weight:600;cursor:pointer">+ Aggiungi FAQ</button>
                 </div>
             </div>
             <div style="padding:10px 20px;border-bottom:1px solid #ececf2;display:flex;gap:6px;align-items:center;flex-wrap:wrap">
