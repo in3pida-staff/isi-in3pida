@@ -6407,24 +6407,36 @@ ${rows}
     async function callTriggerUpdate(siteIds, btns) {
         btns.forEach(b => { if (b) { b.disabled = true; b.textContent = '...'; } });
         try {
-            const ver   = await getLatestVersion();
-            const sites = (siteIds ? allSiti.filter(s => siteIds.includes(s.site_id)) : allSiti)
-                .filter(s => !((s.plugin_version||'').startsWith('js-') || s.hotel_profile?.site_mode === 'script'));
-            const results = await Promise.all(sites.map(s => callWpUpdate(s, ver)));
+            const { data: { session } } = await _SB.auth.getSession();
+            const token = session?.access_token || SUPABASE_ANON_KEY;
+            const payload = siteIds ? { site_id: siteIds[0] } : { all: true };
 
+            const res = await fetch(`${SUPABASE_URL}/functions/v1/isi-trigger-update`, {
+                method: 'POST',
+                headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+
+            const results = data.results || [];
+            const ver     = data.version || '?';
             const ok      = results.filter(r => r.ok && !r.skipped).length;
             const skipped = results.filter(r => r.skipped).length;
             const fail    = results.filter(r => !r.ok).length;
 
             let msg = '';
-            if (ok > 0)      msg += `${ok} sito${ok !== 1 ? 'i' : ''} aggiornato${ok !== 1 ? 'i' : ''} a v${ver.version}. `;
+            if (ok > 0)      msg += `${ok} sito${ok !== 1 ? 'i' : ''} aggiornato${ok !== 1 ? 'i' : ''} a v${ver}. `;
             if (skipped > 0) msg += `${skipped} già aggiornato${skipped !== 1 ? 'i' : ''}. `;
             if (fail > 0)    msg += `${fail} sito${fail !== 1 ? 'i' : ''} non aggiornato${fail !== 1 ? 'i' : ''} — vedi dettagli.`;
             showToast(msg.trim() || 'Nessun risultato.');
 
-            if (fail > 0) showUpdateErrorModal(results.filter(r => !r.ok), ver.download_url, ver.version);
+            if (fail > 0) {
+                const latestVer = await getLatestVersion().catch(() => ({ version: ver, download_url: '' }));
+                showUpdateErrorModal(results.filter(r => !r.ok), latestVer.download_url, latestVer.version);
+            }
 
-            btns.forEach(b => { if (b) { b.disabled = true; b.textContent = '...'; } });
+            btns.forEach(b => { if (b) { b.disabled = false; b.textContent = 'Aggiorna'; } });
             await loadPanoramica();
             if (currentTab === 'siti') await loadSitiTab();
         } catch(e) {
