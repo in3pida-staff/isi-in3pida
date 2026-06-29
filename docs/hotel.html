@@ -7,7 +7,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Eletta — Posiziona il tuo sito nelle ricerche AI</title>
-    <script>var _V='v1782382739';if(localStorage.getItem('_hv')!==_V){localStorage.setItem('_hv',_V);location.reload(true);}</script>
+    <script>var _V='v1782382741';if(localStorage.getItem('_hv')!==_V){localStorage.setItem('_hv',_V);location.reload(true);}</script>
     <link rel="icon" type="image/png" href="images/favicon.png?v=2">
     <link rel="stylesheet" href="css/style.css?v=20260622q">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -52,7 +52,7 @@
         .h-header-right{display:flex;align-items:center;gap:8px;margin-left:auto;}
         .h-bell{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#fff;border:1.5px solid #e4e8f0;box-shadow:0 1px 4px rgba(0,0,0,.06);cursor:pointer;color:#C1CBE8;transition:background .15s;position:relative;}
         .h-bell:hover{background:#f9fafc;}
-        .h-bell-dot{position:absolute;top:5px;right:5px;width:8px;height:8px;border-radius:50%;background:#ff6b2b;border:1.5px solid white;}
+        .h-bell-dot{position:absolute;top:5px;right:5px;width:8px;height:8px;border-radius:50%;background:#d82d6b;border:1.5px solid white;}
 
         /* ═══ HERO ═══ */
         .h-hero{background:#C1CBE8;padding:33px 28px 32px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;border-radius:16px;box-shadow:0 0 0 3px #C1CBE8;margin:25px 5% 30px 5%;position:relative;overflow:visible;}
@@ -274,14 +274,21 @@
 </div><!-- /h-layout -->
 
 <!-- Modal cambio nome -->
-<div id="profile-modal" style="display:none;position:fixed;inset:0;background:rgba(23,27,51,.45);z-index:99999;align-items:center;justify-content:center">
-  <div style="background:#fff;border-radius:14px;padding:25px 22px 18px;max-width:324px;width:90%;position:relative;font-family:'Source Code Pro',monospace;color:#0D5F75">
-    <button onclick="document.getElementById('profile-modal').style.display='none'" style="position:absolute;right:12px;top:9px;border:0;background:none;font-size:20px;cursor:pointer;color:#999;line-height:1">×</button>
-    <div style="font-size:15px;font-weight:600;margin-bottom:14px">Cambia nome</div>
-    <input id="profile-name-input" type="text" placeholder="Il tuo nome" style="width:100%;box-sizing:border-box;border:1.5px solid #C1CBE8;border-radius:9px;padding:9px 13px;font-size:13px;font-family:'Source Code Pro',monospace;color:#0D5F75;outline:none;margin-bottom:14px">
-    <div style="display:flex;gap:9px;justify-content:flex-end">
-      <button onclick="document.getElementById('profile-modal').style.display='none'" style="background:none;border:1.5px solid #C1CBE8;border-radius:18px;padding:7px 16px;font-size:12px;cursor:pointer;font-family:'Source Code Pro',monospace;color:#0D5F75">Annulla</button>
-      <button id="profile-save-btn" style="background:#C1CBE8;border:none;border-radius:18px;padding:7px 16px;font-size:12px;font-weight:600;color:#fff;cursor:pointer;font-family:'Source Code Pro',monospace">Salva</button>
+<div id="profile-modal" class="info-overlay" style="display:none">
+  <div class="info-card" style="max-width:380px">
+    <div class="info-card-header">
+      <span>Cambia nome</span>
+      <button onclick="document.getElementById('profile-modal').style.display='none'" class="info-close">✕</button>
+    </div>
+    <div class="info-card-body">
+      <div class="profile-field">
+        <label class="profile-label">Nome</label>
+        <input id="profile-name-input" type="text" class="profile-input" placeholder="Il tuo nome">
+      </div>
+      <div class="profile-actions" style="display:flex;justify-content:flex-end;gap:8px;align-items:center">
+        <button onclick="document.getElementById('profile-modal').style.display='none'" class="btn-ping">Annulla</button>
+        <button id="profile-save-btn" class="btn-update" style="margin-left:0">Salva</button>
+      </div>
     </div>
   </div>
 </div>
@@ -658,12 +665,12 @@ function renderContent(site, pseData, now) {
                     </div>
                 </div>
                 <div class="h-card" id="h-card-notifiche" style="margin-bottom:0">
-                    <div class="h-card-hdr" style="justify-content:flex-start;gap:12px"><div style="width:34px;height:34px;border-radius:50%;background:white;border:1.5px solid #0D5F75;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg viewBox="22 24 29 24" width="16" height="16"><path fill="#0D5F75" d="M50.03,44.24c-.11-.61-.69-1.08-1.35-1.08h-1.07c-1.41,0-2.56-1.15-2.56-2.56v-6.8c0-4.3-3.5-7.81-7.81-7.81s-7.81,3.5-7.81,7.81v6.8c0,1.41-1.15,2.56-2.56,2.56h-.68c-.73,0-1.33.54-1.36,1.24-.02.36.11.71.36.97.25.26.59.41.95.41h3.6s4.74.43,4.74.43c.03,1.49,1.25,2.7,2.75,2.7s2.72-1.21,2.75-2.7l4.71-.43h4.02c.39,0,.75-.17,1-.47.25-.3.35-.69.29-1.08ZM37.25,48.23c-1.11,0-2.01-.87-2.07-1.96l.69.06c.46.04.92.06,1.39.06s.93-.02,1.39-.06l.69-.06c-.06,1.09-.97,1.96-2.08,1.96ZM49.23,44.88c-.12.14-.3.23-.49.23h-4.05s-6.11.55-6.11.55c-.88.08-1.77.08-2.65,0l-6.14-.55h-3.63c-.18,0-.34-.07-.46-.2-.12-.13-.18-.29-.17-.47.02-.33.33-.6.69-.6h.68c1.79,0,3.24-1.45,3.24-3.24v-6.8c0-3.93,3.2-7.13,7.13-7.13s7.13,3.2,7.13,7.13v6.8c0,1.79,1.45,3.24,3.24,3.24h1.07c.34,0,.63.22.68.52.03.19-.02.38-.14.52Z"/></svg></div><span class="h-card-hdr-t" style="font-size:18px;font-weight:500">Notifiche</span>${notifCount>0?`<span style="background:#ff6b2b;color:white;border-radius:50%;width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700">${notifCount}</span>`:''}</div>
+                    <div class="h-card-hdr" style="justify-content:flex-start;gap:12px"><div style="width:34px;height:34px;border-radius:50%;background:white;border:1.5px solid #0D5F75;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg viewBox="22 24 29 24" width="16" height="16"><path fill="#0D5F75" d="M50.03,44.24c-.11-.61-.69-1.08-1.35-1.08h-1.07c-1.41,0-2.56-1.15-2.56-2.56v-6.8c0-4.3-3.5-7.81-7.81-7.81s-7.81,3.5-7.81,7.81v6.8c0,1.41-1.15,2.56-2.56,2.56h-.68c-.73,0-1.33.54-1.36,1.24-.02.36.11.71.36.97.25.26.59.41.95.41h3.6s4.74.43,4.74.43c.03,1.49,1.25,2.7,2.75,2.7s2.72-1.21,2.75-2.7l4.71-.43h4.02c.39,0,.75-.17,1-.47.25-.3.35-.69.29-1.08ZM37.25,48.23c-1.11,0-2.01-.87-2.07-1.96l.69.06c.46.04.92.06,1.39.06s.93-.02,1.39-.06l.69-.06c-.06,1.09-.97,1.96-2.08,1.96ZM49.23,44.88c-.12.14-.3.23-.49.23h-4.05s-6.11.55-6.11.55c-.88.08-1.77.08-2.65,0l-6.14-.55h-3.63c-.18,0-.34-.07-.46-.2-.12-.13-.18-.29-.17-.47.02-.33.33-.6.69-.6h.68c1.79,0,3.24-1.45,3.24-3.24v-6.8c0-3.93,3.2-7.13,7.13-7.13s7.13,3.2,7.13,7.13v6.8c0,1.79,1.45,3.24,3.24,3.24h1.07c.34,0,.63.22.68.52.03.19-.02.38-.14.52Z"/></svg></div><span class="h-card-hdr-t" style="font-size:18px;font-weight:500">Notifiche</span>${notifCount>0?`<span style="background:#d82d6b;color:white;border-radius:50%;width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700">${notifCount}</span>`:''}</div>
                     <div class="h-card-body" style="padding:6px 14px 10px">
                         ${hrs>=48?`<div style="display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid #f4f4f8"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;flex-shrink:0;margin-top:3px;display:inline-block"></span><span style="font-size:12px;color:#4b4d68">Plugin non connesso — nessun segnale ricevuto da ${Math.round(hrs)}h</span></div>`:''}
                         ${(geoAvg!==null&&geoAvg<70)?`<div style="display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid #f4f4f8"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;flex-shrink:0;margin-top:3px;display:inline-block"></span><span style="font-size:12px;color:#4b4d68">GEO Score ${geoAvg<40?'critico':'basso'} (${geoAvg}/100) — ottimizza il profilo hotel per migliorare la visibilità AI</span></div>`:''}
                         ${geo.has_ai_profile===false?`<div style="display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid #f4f4f8"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;flex-shrink:0;margin-top:3px;display:inline-block"></span><span style="font-size:12px;color:#4b4d68">/ai-profile disabilitato — attiva il profilo AI nel plugin</span></div>`:''}
-                        ${checklist.length>0?`<div style="display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid #f4f4f8"><span style="width:8px;height:8px;border-radius:50%;background:#ff6b2b;flex-shrink:0;margin-top:3px;display:inline-block"></span><span style="font-size:12px;color:#4b4d68"><strong style="font-weight:600">Profilo AI incompleto</strong> — ${checklist.length} campo/i mancante/i: ${checklist.join(', ')}</span></div>`:''}
+                        ${checklist.length>0?`<div style="display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid #f4f4f8"><span style="width:8px;height:8px;border-radius:50%;background:#d82d6b;flex-shrink:0;margin-top:3px;display:inline-block"></span><span style="font-size:12px;color:#4b4d68"><strong style="font-weight:600">Profilo AI incompleto</strong> — ${checklist.length} campo/i mancante/i: ${checklist.join(', ')}</span></div>`:''}
                         ${notifCount===0?`<div style="font-size:12px;color:#aaa;padding:7px 0">Nessuna notifica</div>`:''}
                     </div>
                 </div>
@@ -740,7 +747,7 @@ function renderContent(site, pseData, now) {
                         <div style="background:white;border:1px solid #e4e4ec;border-radius:16px;padding:16px 18px"><div style="font-size:11px;font-weight:400;letter-spacing:.06em;color:#0D5F75;text-transform:uppercase;margin-bottom:8px;font-family:'Source Code Pro',monospace">Compilati</div><div style="font-size:28px;font-weight:500;line-height:1;color:#0D5F75;font-family:Commissioner,sans-serif">${12-checklist.length}</div><div style="font-size:12px;font-weight:400;color:#C1CBE8;margin-top:6px;font-family:'Source Code Pro',monospace">di 12</div></div>
                         <div style="background:white;border:1px solid #e4e4ec;border-radius:16px;padding:16px 18px"><div style="font-size:11px;font-weight:400;letter-spacing:.06em;color:#0D5F75;text-transform:uppercase;margin-bottom:8px;font-family:'Source Code Pro',monospace">Mancanti</div><div style="font-size:28px;font-weight:500;line-height:1;color:#0D5F75;font-family:Commissioner,sans-serif">${checklist.length}</div><div style="font-size:12px;font-weight:400;color:#C1CBE8;margin-top:6px;font-family:'Source Code Pro',monospace">${checklist.length>0?'da completare':'completo'}</div></div>
                     </div>
-                    `+(checklist.length?'<div style="font-size:15px;font-weight:400;color:#0D5F75;margin-bottom:12px;font-family:\'Source Code Pro\',monospace">Cosa manca:</div><div style="display:grid;grid-template-columns:1fr 1px 1fr 1px 1fr 1px 1fr;gap:0">'+(()=>{const icon='<span style="width:14px;height:14px;border-radius:50%;border:1px solid #ff6b2b;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;font-size:7px;font-weight:400;color:#ff6b2b;line-height:1">✕</span>';const rows=[];for(let i=0;i<checklist.length;i+=4)rows.push(checklist.slice(i,i+4));return rows.map(function(row,ri){var out=ri>0?'<div style="grid-column:1/-1;height:1px;background:#e4e4ec"></div>':'';for(var j=0;j<4;j++){if(j>0)out+='<div style="background:#e4e4ec;margin:6px 0'+(j>=row.length?';visibility:hidden':'')+'">'+'</div>';out+=j<row.length?'<div style="padding:10px 16px;display:flex;align-items:center;gap:7px">'+icon+'<span style="font-size:12px;font-weight:400;color:#0D5F75;font-family:\'Source Code Pro\',monospace">'+esc(row[j])+'</span></div>':'<div></div>';}return out;}).join('');})()+'</div>':'')
+                    `+(checklist.length?'<div style="font-size:15px;font-weight:400;color:#0D5F75;margin-bottom:12px;font-family:\'Source Code Pro\',monospace">Cosa manca:</div><div style="display:grid;grid-template-columns:1fr 1px 1fr 1px 1fr 1px 1fr;gap:0">'+(()=>{const icon='<span style="width:14px;height:14px;border-radius:50%;border:1px solid #d82d6b;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;font-size:7px;font-weight:400;color:#d82d6b;line-height:1">✕</span>';const rows=[];for(let i=0;i<checklist.length;i+=4)rows.push(checklist.slice(i,i+4));return rows.map(function(row,ri){var out=ri>0?'<div style="grid-column:1/-1;height:1px;background:#e4e4ec"></div>':'';for(var j=0;j<4;j++){if(j>0)out+='<div style="background:#e4e4ec;margin:6px 0'+(j>=row.length?';visibility:hidden':'')+'">'+'</div>';out+=j<row.length?'<div style="padding:10px 16px;display:flex;align-items:center;gap:7px">'+icon+'<span style="font-size:12px;font-weight:400;color:#0D5F75;font-family:\'Source Code Pro\',monospace">'+esc(row[j])+'</span></div>':'<div></div>';}return out;}).join('');})()+'</div>':'')
                     +`
                 </div>
             </div>` : ''}
@@ -778,10 +785,10 @@ function renderContent(site, pseData, now) {
                                 <div style="background:white;border:1px solid #e4e4ec;border-radius:16px;padding:16px 18px"><div style="font-size:11px;font-weight:400;letter-spacing:.06em;color:#0D5F75;text-transform:uppercase;margin-bottom:8px;font-family:'Source Code Pro',monospace">Ultima FAQ</div><div style="font-size:28px;font-weight:500;line-height:1;color:#0D5F75;font-family:Commissioner,sans-serif">${daysFaq!==null ? daysFaq : '—'}</div><div style="font-size:12px;font-weight:400;color:#C1CBE8;margin-top:6px;font-family:'Source Code Pro',monospace">${daysFaq!==null ? 'giorno/i fa' : 'nessun dato'}</div></div>
                                 <div style="background:white;border:1px solid #e4e4ec;border-radius:16px;padding:16px 18px"><div style="font-size:11px;font-weight:400;letter-spacing:.06em;color:#0D5F75;text-transform:uppercase;margin-bottom:8px;font-family:'Source Code Pro',monospace">Ultimo schema</div><div style="font-size:28px;font-weight:500;line-height:1;color:#0D5F75;font-family:Commissioner,sans-serif">${daysSchema!==null ? daysSchema : '—'}</div><div style="font-size:12px;font-weight:400;color:#C1CBE8;margin-top:6px;font-family:'Source Code Pro',monospace">${daysSchema!==null ? 'giorno/i fa' : 'nessun dato'}</div></div>
                             </div>
-                            ${freshAlerts.length ? '<div style="margin-top:12px">'+freshAlerts.map(function(a){return '<span style="font-size:17px;color:#ff6b2b">⚠</span><span style="font-size:13px;color:#ff6b2b;font-family:\'Source Code Pro\',monospace"> '+esc(a)+'</span>';}).join('<br>')+'</div>' : ''}
+                            ${freshAlerts.length ? '<div style="margin-top:12px">'+freshAlerts.map(function(a){return '<span style="font-size:17px;color:#d82d6b">⚠</span><span style="font-size:13px;color:#d82d6b;font-family:\'Source Code Pro\',monospace"> '+esc(a)+'</span>';}).join('<br>')+'</div>' : ''}
                         </div>
                     </div>
-                    ${missingQueries.length ? '<div style="margin-top:14px"><span style="font-size:15px;font-weight:500;color:#0D5F75;font-family:\'Source Code Pro\',monospace">Risposte mancanti: </span>'+missingQueries.slice(0,5).map(function(q){return '<span style="display:inline-flex;align-items:center;gap:6px;margin-right:16px"><span style="width:14px;height:14px;border-radius:50%;border:1px solid #ff6b2b;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;font-size:7px;color:#ff6b2b;line-height:1">✕</span><span style="font-size:13px;color:#0D5F75;font-family:\'Source Code Pro\',monospace">'+esc(q)+'</span></span>';}).join('')+'</div>' : ''}
+                    ${missingQueries.length ? '<div style="margin-top:14px"><span style="font-size:15px;font-weight:500;color:#0D5F75;font-family:\'Source Code Pro\',monospace">Risposte mancanti: </span>'+missingQueries.slice(0,5).map(function(q){return '<span style="display:inline-flex;align-items:center;gap:6px;margin-right:16px"><span style="width:14px;height:14px;border-radius:50%;border:1px solid #d82d6b;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;font-size:7px;color:#d82d6b;line-height:1">✕</span><span style="font-size:13px;color:#0D5F75;font-family:\'Source Code Pro\',monospace">'+esc(q)+'</span></span>';}).join('')+'</div>' : ''}
                 </div>
             </div>
             </div><!-- /h-main-left -->
@@ -792,7 +799,7 @@ function renderContent(site, pseData, now) {
               <div class="h-eletta-row" id="eletta-btn-notifiche" onclick="elettaClick('notifiche')">
                   <div style="position:relative;flex-shrink:0;display:inline-flex">
                     <div class="h-eletta-ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="2" stroke-linecap="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg></div>
-                    ${notifCount>0?'<span style="position:absolute;top:-2px;right:-2px;width:9px;height:9px;border-radius:50%;background:#ff6b2b;border:1.5px solid #C1CBE8;display:block"></span>':''}
+                    ${notifCount>0?'<span style="position:absolute;top:-2px;right:-2px;width:9px;height:9px;border-radius:50%;background:#d82d6b;border:1.5px solid #C1CBE8;display:block"></span>':''}
                   </div>
                   <span>Notifiche</span>
                   <div class="h-eletta-chevron"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></div>
@@ -924,7 +931,7 @@ function renderContent(site, pseData, now) {
               <div class="h-eletta-row" onclick="elettaClick('notifiche')">
                   <div style="position:relative;flex-shrink:0;display:inline-flex">
                     <div class="h-eletta-ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="2" stroke-linecap="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg></div>
-                    ${notifCount>0?'<span style="position:absolute;top:-2px;right:-2px;width:9px;height:9px;border-radius:50%;background:#ff6b2b;border:1.5px solid #C1CBE8;display:block"></span>':''}
+                    ${notifCount>0?'<span style="position:absolute;top:-2px;right:-2px;width:9px;height:9px;border-radius:50%;background:#d82d6b;border:1.5px solid #C1CBE8;display:block"></span>':''}
                   </div>
                   <span>Notifiche</span>
                   <div class="h-eletta-chevron"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></div>
@@ -969,7 +976,7 @@ function renderContent(site, pseData, now) {
             <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
                 <div><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:500;color:#0D5F75;letter-spacing:.05em;text-transform:uppercase;font-family:Commissioner,sans-serif">Profilo Hotel / Schema.org</div></div>
                 <div style="font-size:11px;margin-top:3px" id="hschema-source"></div></div>
-                <button id="btn-toggle-hschema" class="btn-ping" style="display:inline-flex;align-items:center;gap:5px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Modifica</button>
+                <button id="btn-toggle-hschema" class="btn-ping" style="display:inline-flex;align-items:center;gap:5px;color:#0D5F75;border-color:#0D5F75"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Modifica</button>
             </div>
             <div id="hschema-view" style="padding:16px 20px"></div>
             <div id="hschema-edit" style="display:none;padding:16px 20px">
@@ -979,7 +986,7 @@ function renderContent(site, pseData, now) {
                     <button id="btn-save-hschema" class="btn-update" style="margin-left:0">Salva e invia al plugin</button>
                     <button id="btn-cancel-hschema" class="btn-ping">Annulla</button>
                     <button id="btn-preview-jsonld" class="btn-ping" style="font-size:12px;padding:5px 12px" onclick="renderJsonPreview(_schemaProfile)">Anteprima JSON-LD</button>
-                    <button id="btn-copy-jsonld" class="btn-ping" style="font-size:12px;padding:5px 12px" onclick="copyJsonLd()">📋 Copia JSON-LD</button>
+                    <button id="btn-copy-jsonld" class="btn-ping" style="font-size:12px;padding:5px 12px" onclick="copyJsonLd()">Copia JSON-LD</button>
                 </div>
                 <div id="hjson-preview-content" style="margin-top:14px"></div>
                 <div id="hschema-msg" style="margin-top:10px;font-size:13px;display:none"></div>
@@ -991,7 +998,7 @@ function renderContent(site, pseData, now) {
               <div class="h-eletta-row" onclick="elettaClick('notifiche')">
                   <div style="position:relative;flex-shrink:0;display:inline-flex">
                     <div class="h-eletta-ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="2" stroke-linecap="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg></div>
-                    ${notifCount>0?'<span style="position:absolute;top:-2px;right:-2px;width:9px;height:9px;border-radius:50%;background:#ff6b2b;border:1.5px solid #C1CBE8;display:block"></span>':''}
+                    ${notifCount>0?'<span style="position:absolute;top:-2px;right:-2px;width:9px;height:9px;border-radius:50%;background:#d82d6b;border:1.5px solid #C1CBE8;display:block"></span>':''}
                   </div>
                   <span>Notifiche</span>
                   <div class="h-eletta-chevron"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></div>
@@ -1044,7 +1051,7 @@ function renderContent(site, pseData, now) {
               <div class="h-eletta-row" onclick="elettaClick('notifiche')">
                   <div style="position:relative;flex-shrink:0;display:inline-flex">
                     <div class="h-eletta-ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="2" stroke-linecap="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg></div>
-                    ${notifCount>0?'<span style="position:absolute;top:-2px;right:-2px;width:9px;height:9px;border-radius:50%;background:#ff6b2b;border:1.5px solid #C1CBE8;display:block"></span>':''}
+                    ${notifCount>0?'<span style="position:absolute;top:-2px;right:-2px;width:9px;height:9px;border-radius:50%;background:#d82d6b;border:1.5px solid #C1CBE8;display:block"></span>':''}
                   </div>
                   <span>Notifiche</span>
                   <div class="h-eletta-chevron"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></div>
@@ -1109,7 +1116,7 @@ function renderContent(site, pseData, now) {
               <div class="h-eletta-row" onclick="elettaClick('notifiche')">
                   <div style="position:relative;flex-shrink:0;display:inline-flex">
                     <div class="h-eletta-ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="2" stroke-linecap="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg></div>
-                    ${notifCount>0?'<span style="position:absolute;top:-2px;right:-2px;width:9px;height:9px;border-radius:50%;background:#ff6b2b;border:1.5px solid #C1CBE8;display:block"></span>':''}
+                    ${notifCount>0?'<span style="position:absolute;top:-2px;right:-2px;width:9px;height:9px;border-radius:50%;background:#d82d6b;border:1.5px solid #C1CBE8;display:block"></span>':''}
                   </div>
                   <span>Notifiche</span>
                   <div class="h-eletta-chevron"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></div>
@@ -2401,13 +2408,13 @@ async function _initHotelMappaInner(site, cont) {
         return `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 20px;border-top:1px solid #f4f4f8">
             <div style="display:flex;align-items:center;gap:10px;min-width:0">
                 <span style="font-size:15px;color:${isCov?'#0D5F75':'#C1CBE8'};font-weight:800;flex-shrink:0">${isCov?'✓':'✗'}</span>
-                <span style="font-size:13px;color:#0D5F75;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(q)}</span>
+                <span style="font-size:13px;color:#0D5F75;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:Commissioner,sans-serif">${esc(q)}</span>
             </div>
             <div style="display:flex;align-items:center;gap:6px;margin-left:12px;flex-shrink:0">
                 ${isCov ? '<span style="font-size:11px;color:#0D5F75;font-weight:700;white-space:nowrap">Coperta ✓</span>' : ''}
-                <button class="btn-update" style="padding:4px 10px;font-size:11px" onclick="generaRispostaQuery(this,'${cE}','${qE}','${sE}')">✦ Genera</button>
-                <button class="btn-ping" style="padding:4px 8px;font-size:11px" onclick="apriModaleFaqHotel('${qE}')">✎ Scrivi</button>
-                <button style="padding:4px 8px;font-size:11px;font-weight:600;background:white;border:1px solid #e4e4ec;border-radius:8px;cursor:pointer;color:#9ca3af;font-family:'Source Code Pro',monospace;white-space:nowrap" onclick="dismissHotelQuery(this,'${cE}','${qE}','${sE}')">✕</button>
+                <button class="btn-update" style="padding:4px 10px;font-size:11px" onclick="generaRispostaQuery(this,'${cE}','${qE}','${sE}')">Genera</button>
+                <button class="btn-ping" style="padding:4px 8px;font-size:11px;color:#0D5F75;border-color:#0D5F75" onclick="apriModaleFaqHotel('${qE}')">Scrivi</button>
+                <button style="padding:4px 8px;font-size:11px;font-weight:600;background:white;border:1px solid #e4e4ec;border-radius:8px;cursor:pointer;color:#9ca3af;white-space:nowrap" onclick="dismissHotelQuery(this,'${cE}','${qE}','${sE}')">✕</button>
             </div>
         </div>`;
     };
@@ -2505,7 +2512,7 @@ window.generaRispostaQuery = async function(btn, cat, query, siteId) {
         await _SBq.from('isi_sites').update({ faq_data: { ...fd, items, query_map: qmSave } }).eq('site_id', siteId);
         if (_site) { _site.faq_data = { ...fd, items, query_map: qmSave }; _faqItems = []; }
         const wrapper = btn.closest('div[style*="gap:6px"]');
-        if (wrapper) wrapper.innerHTML = `<span style="font-size:11px;color:#0D5F75;font-weight:700">Coperta ✓</span><button class="btn-update" style="padding:4px 10px;font-size:11px" onclick="generaRispostaQuery(this,'${esc(cat)}','${esc(query).replace(/'/g,"\\'")}','${esc(siteId)}')">✦ Genera</button>`;
+        if (wrapper) wrapper.innerHTML = `<span style="font-size:11px;color:#0D5F75;font-weight:700">Coperta ✓</span><button class="btn-update" style="padding:4px 10px;font-size:11px" onclick="generaRispostaQuery(this,'${esc(cat)}','${esc(query).replace(/'/g,"\\'")}','${esc(siteId)}')">Genera</button>`;
         showToast('✓ FAQ generata e salvata');
     } catch(e) {
         showToast('⚠ ' + e.message);
@@ -3138,9 +3145,43 @@ async function initHotelConfig(site) {
             initHotelConfig(site);
         });
         if (cfg.gsc_token && cfg.gsc_site) {
-            hFetchGscData(cfg.gsc_token, cfg.gsc_site).then(hRenderGscData).catch(() => {
+            const _cfgToken = (() => { try { const ls=JSON.parse(localStorage.getItem('isi_gsc_tok_'+site.site_id)||'null'); return (ls&&ls.ts>(cfg.gsc_token_ts||0))?ls.token:cfg.gsc_token; } catch{return cfg.gsc_token;} })();
+            hFetchGscData(_cfgToken, cfg.gsc_site).then(hRenderGscData).catch(() => {
                 const gc = document.getElementById('hgsc-data-container');
-                if (gc) gc.innerHTML = `<div style="font-size:13px;color:#9ca3af">Token scaduto — disconnetti e ricollega.</div>`;
+                if (!gc) return;
+                const clientId = localStorage.getItem('isi_gsc_client_id');
+                if (clientId && window.google?.accounts?.oauth2) {
+                    gc.innerHTML = '<div style="font-size:13px;color:rgba(13,95,117,0.5);padding:4px 0">Aggiornamento sessione Google...</div>';
+                    window.google.accounts.oauth2.initTokenClient({
+                        client_id: clientId,
+                        scope: 'https://www.googleapis.com/auth/webmasters.readonly',
+                        hint: cfg.gsc_email || '',
+                        callback: async function(resp) {
+                            if (resp.error || !resp.access_token) {
+                                gc.innerHTML = '<div style="display:flex;align-items:center;gap:10px;padding:4px 0"><span style="font-size:13px;color:rgba(13,95,117,0.5)">Sessione scaduta.</span><button id="hgsc-cfg-rc" class="btn-update" style="margin-left:0;font-size:12px">Riconnetti Google</button></div>';
+                                const rcBtn = document.getElementById('hgsc-cfg-rc');
+                                if (rcBtn) rcBtn.addEventListener('click', function() {
+                                    rcBtn.textContent = 'Connessione...'; rcBtn.disabled = true;
+                                    window.google.accounts.oauth2.initTokenClient({ client_id: clientId, scope: 'https://www.googleapis.com/auth/webmasters.readonly',
+                                        callback: async function(r2) {
+                                            if (r2.error) { rcBtn.textContent = 'Riprova'; rcBtn.disabled = false; return; }
+                                            try { localStorage.setItem('isi_gsc_tok_'+site.site_id, JSON.stringify({token:r2.access_token,ts:Date.now()})); } catch {}
+                                            hFetchGscData(r2.access_token, cfg.gsc_site).then(hRenderGscData).catch(()=>{ rcBtn.textContent='Riprova'; rcBtn.disabled=false; });
+                                        }
+                                    }).requestAccessToken({ prompt: 'select_account' });
+                                });
+                                return;
+                            }
+                            try { localStorage.setItem('isi_gsc_tok_'+site.site_id, JSON.stringify({token:resp.access_token,ts:Date.now()})); } catch {}
+                            hFetchGscData(resp.access_token, cfg.gsc_site).then(hRenderGscData).catch(() => {
+                                gc.innerHTML = '<div style="display:flex;align-items:center;gap:10px;padding:4px 0"><span style="font-size:13px;color:rgba(13,95,117,0.5)">Sessione scaduta.</span><button id="hgsc-cfg-rc2" class="btn-update" style="margin-left:0;font-size:12px">Riconnetti Google</button></div>';
+                                document.getElementById('hgsc-cfg-rc2')?.addEventListener('click', ()=>location.reload());
+                            });
+                        }
+                    }).requestAccessToken({ prompt: 'none' });
+                } else {
+                    gc.innerHTML = '<div style="font-size:13px;color:rgba(13,95,117,0.5)">Token scaduto — disconnetti e ricollega.</div>';
+                }
             });
         }
     }
