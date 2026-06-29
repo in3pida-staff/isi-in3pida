@@ -7,7 +7,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Eletta — Posiziona il tuo sito nelle ricerche AI</title>
-    <script>var _V='v1782420011';if(localStorage.getItem('_hv')!==_V){localStorage.setItem('_hv',_V);location.reload(true);}</script>
+    <script>var _V='v1782420012';if(localStorage.getItem('_hv')!==_V){localStorage.setItem('_hv',_V);location.reload(true);}</script>
     <link rel="icon" type="image/png" href="images/favicon.png?v=2">
     <link rel="stylesheet" href="css/style.css?v=20260622q">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -131,7 +131,7 @@
 <div id="faq-hotel-modal" class="info-overlay" style="display:none">
     <div class="info-card" style="max-width:600px">
         <div class="info-card-header">
-            <span id="faq-hotel-modal-ttl">Aggiungi FAQ</span>
+            <span id="faq-hotel-modal-ttl" style="font-family:'Source Code Pro',monospace;font-size:16px;font-weight:700;color:#0D5F75">Aggiungi FAQ</span>
             <button class="info-close" id="faq-hotel-modal-close">✕</button>
         </div>
         <div class="info-card-body">
@@ -150,8 +150,8 @@
             </div>
             <div id="fhm-msg" style="font-size:13px;margin-top:10px;display:none;padding:8px 12px;border-radius:8px"></div>
             <div class="profile-actions" style="margin-top:16px;display:flex;justify-content:flex-end;gap:8px;align-items:center">
-                <button class="btn-ping" id="fhm-cancel">Annulla</button>
-                <button class="btn-update" id="fhm-save" style="margin-left:0">Salva FAQ</button>
+                <button id="fhm-cancel" style="background:white;color:#0D5F75;border:1px solid #e4e4ec;border-radius:24px;padding:6px 16px;font-family:'Source Code Pro',monospace;font-size:12px;font-weight:600;cursor:pointer">Annulla</button>
+                <button id="fhm-save" style="background:#C1CBE8;color:#fff;border:none;border-radius:24px;padding:6px 16px;font-family:'Source Code Pro',monospace;font-size:12px;font-weight:600;cursor:pointer">Salva FAQ</button>
             </div>
         </div>
     </div>
@@ -2453,7 +2453,7 @@ async function _initHotelMappaInner(site, cont) {
             </div>
             <div style="display:flex;align-items:center;gap:6px;margin-left:12px;flex-shrink:0">
                 ${isCov ? '<span style="font-size:11px;color:#0D5F75;font-weight:700;white-space:nowrap">Coperta ✓</span>' : ''}
-                <button style="padding:4px 10px;font-size:11px;font-weight:700;background:#C1CBE8;color:#fff;border:none;border-radius:6px;cursor:pointer;white-space:nowrap;font-family:'Source Code Pro',monospace" onclick="generaRispostaQuery(this,'${cE}','${qE}','${sE}')">Genera</button>
+                <button style="padding:4px 10px;font-size:11px;font-weight:700;background:#C1CBE8;color:#fff;border:none;border-radius:24px;cursor:pointer;white-space:nowrap;font-family:'Source Code Pro',monospace" onclick="generaRispostaQuery(this,'${cE}','${qE}','${sE}')">Genera</button>
                 <button style="background:white;color:#0D5F75;border:1px solid #e4e4ec;border-radius:24px;padding:4px 10px;font-family:'Source Code Pro',monospace;font-size:11px;font-weight:600;cursor:pointer" onclick="apriModaleFaqHotel('${qE}')">Scrivi</button>
                 <button style="padding:4px 8px;font-size:11px;font-weight:600;background:white;border:1px solid #e4e4ec;border-radius:8px;cursor:pointer;color:#9ca3af;white-space:nowrap" onclick="dismissHotelQuery(this,'${cE}','${qE}','${sE}')">✕</button>
             </div>
@@ -2565,7 +2565,7 @@ window.generaRispostaQuery = async function(btn, cat, query, siteId) {
             }).catch(() => {});
         }
         const wrapper = btn.closest('div[style*="gap:6px"]');
-        if (wrapper) wrapper.innerHTML = `<span style="font-size:11px;color:#0D5F75;font-weight:700">Coperta ✓</span><button style="padding:4px 10px;font-size:11px;font-weight:700;background:#C1CBE8;color:#fff;border:none;border-radius:6px;cursor:pointer;font-family:'Source Code Pro',monospace" onclick="generaRispostaQuery(this,'${esc(cat)}','${esc(query).replace(/'/g,"\\'")}','${esc(siteId)}')">Genera</button>`;
+        if (wrapper) wrapper.innerHTML = `<span style="font-size:11px;color:#0D5F75;font-weight:700">Coperta ✓</span><button style="padding:4px 10px;font-size:11px;font-weight:700;background:#C1CBE8;color:#fff;border:none;border-radius:24px;cursor:pointer;font-family:'Source Code Pro',monospace" onclick="generaRispostaQuery(this,'${esc(cat)}','${esc(query).replace(/'/g,"\\'")}','${esc(siteId)}')">Genera</button>`;
         showToast('✓ FAQ generata e salvata');
     } catch(e) {
         showToast('⚠ ' + e.message);
