@@ -7,7 +7,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Eletta — Posiziona il tuo sito nelle ricerche AI</title>
-    <script>var _V='v1782382744';if(localStorage.getItem('_hv')!==_V){localStorage.setItem('_hv',_V);location.reload(true);}</script>
+    <script>var _V='v1782382745';if(localStorage.getItem('_hv')!==_V){localStorage.setItem('_hv',_V);location.reload(true);}</script>
     <link rel="icon" type="image/png" href="images/favicon.png?v=2">
     <link rel="stylesheet" href="css/style.css?v=20260622q">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -3338,6 +3338,18 @@ async function initScoreHistoryChart(site, geoAvg, cs, covPct) {
     }
 
     history.sort((a, b) => a.date.localeCompare(b.date));
+    // Backfill voci storiche senza sub-score: usa i valori più vecchi disponibili
+    const firstWithScores = history.find(h => h.ai_readiness != null);
+    if (firstWithScores) {
+        history.forEach(h => {
+            if (h.ai_readiness == null) {
+                h.ai_readiness = firstWithScores.ai_readiness;
+                h.answer_extraction = firstWithScores.answer_extraction;
+                h.quality_safety = firstWithScores.quality_safety;
+                h.ai_visibility = firstWithScores.ai_visibility;
+            }
+        });
+    }
     faqData.score_history = history;
 
     const COLORS  = ['#0D5F75', '#C1CBE8', '#7a8fa0', '#bdc8d4'];
@@ -3396,7 +3408,6 @@ async function initScoreHistoryChart(site, geoAvg, cs, covPct) {
     function render(days) {
         const raw = filtered(days);
         let data = aggregateWeekly(raw);
-        while (data.length > 1 && KEYS.every(k => data[0][k] == null)) data = data.slice(1);
         while (data.length > 1 && KEYS.every(k => data[data.length - 1][k] == null)) data = data.slice(0, -1);
         const labels = data.map(h => fmtDate(h.date));
         const datasets = KEYS.map((k, i) => ({
