@@ -7,7 +7,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Eletta — Posiziona il tuo sito nelle ricerche AI</title>
-    <script>var _V='v1782382745';if(localStorage.getItem('_hv')!==_V){localStorage.setItem('_hv',_V);location.reload(true);}</script>
+    <script>var _V='v1782420000';if(localStorage.getItem('_hv')!==_V){localStorage.setItem('_hv',_V);location.reload(true);}</script>
     <link rel="icon" type="image/png" href="images/favicon.png?v=2">
     <link rel="stylesheet" href="css/style.css?v=20260622q">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -912,6 +912,7 @@ function renderContent(site, pseData, now) {
                     <button class="hfaq-f-btn" data-f="publish" style="padding:5px 14px;border-radius:20px;border:1px solid #e4e4ec;background:white;color:rgba(13,95,117,0.5);font-size:11px;font-weight:700;cursor:pointer">Pubblicato</button>
                     <button class="hfaq-f-btn" data-f="draft" style="padding:5px 14px;border-radius:20px;border:1px solid #e4e4ec;background:white;color:rgba(13,95,117,0.5);font-size:11px;font-weight:700;cursor:pointer">Bozze</button>
                     <button class="hfaq-f-btn" data-f="solo_ai" style="padding:5px 14px;border-radius:20px;border:1px solid #e4e4ec;background:white;color:rgba(13,95,117,0.5);font-size:11px;font-weight:700;cursor:pointer">Solo AI</button>
+                    <span id="faq-hotel-count" style="font-size:11px;color:#aaa;font-weight:400;margin-left:4px"></span>
                 </div>
                 <div style="display:flex;gap:8px;align-items:center;flex-wrap:nowrap;flex-shrink:0">
                     <input type="text" id="hfaq-search" placeholder="Cerca FAQ..." style="background:#fff;border:1px solid #e4e4ec;border-radius:24px;padding:6px 14px;font-size:12px;outline:none;width:180px;color:#0D5F75;font-family:'Source Code Pro',monospace">
@@ -920,8 +921,8 @@ function renderContent(site, pseData, now) {
                     <button id="btn-add-faq-hotel" style="background:#EFF020;color:#0D5F75;border:none;border-radius:24px;padding:6px 16px;font-family:'Source Code Pro',monospace;font-size:12px;font-weight:600;cursor:pointer">+ Aggiungi FAQ</button>
                 </div>
             </div>
-            <div style="display:grid;grid-template-columns:1fr auto auto;gap:0;padding:8px 20px;font-size:11px;font-weight:700;color:#aaa;letter-spacing:.05em;text-transform:uppercase">
-                <div>Titolo</div><div style="text-align:center;padding:0 16px">Data</div><div style="text-align:right;padding:0 8px">Visibilità</div>
+            <div style="display:grid;grid-template-columns:1fr auto auto auto;gap:0;padding:8px 20px;border-bottom:1px solid #e4e4ec;font-size:10px;font-weight:700;color:#aaa;letter-spacing:.05em;text-transform:uppercase">
+                <div>Titolo</div><div style="text-align:center;padding:0 16px">Data</div><div style="text-align:center;padding:0 12px">Ordine</div><div style="text-align:center;padding:0 8px">Visibilità</div>
             </div>
             <div id="faq-hotel-list" style="padding:0"><div class="loading" style="padding:20px"><div class="spinner"></div></div></div>
         </div>
@@ -1453,10 +1454,11 @@ function renderHotelFaqList(el) {
     el.innerHTML = items.map((f,i) => {
         const pub = f.status==='draft'?'<span style="background:#EDEEF5;color:#0D5F75;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px">Bozza</span>':'<span style="background:#EDEEF5;color:#0D5F75;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px">Pubblicato</span>';
         const ai  = f.solo_ai?'<span style="background:rgba(13,95,117,0.08);color:#0D5F75;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:4px">Solo AI</span>':'';
-        return `<div style="display:grid;grid-template-columns:1fr auto auto;gap:0;align-items:center;padding:12px 20px;border-bottom:1px solid #f4f4f8">
+        return `<div style="display:grid;grid-template-columns:1fr auto auto auto;gap:0;align-items:center;padding:12px 20px;border-bottom:1px solid #f4f4f8">
             <div style="min-width:0"><div style="font-size:13px;font-weight:700;color:#0D5F75;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${i+1}. ${esc(f.question)}</div><div style="font-size:11px;color:#aaa;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc((f.answer||'').substring(0,80))}${(f.answer||'').length>80?'…':''}</div></div>
             <div style="padding:0 16px;text-align:center;font-size:11px;color:rgba(13,95,117,0.5);white-space:pre-line;line-height:1.4">${fmt(f.date||f.created_at)}</div>
-            <div style="padding:0 8px;display:flex;align-items:center;gap:6px;flex-wrap:nowrap">${pub}${ai}<span style="font-size:12px;font-weight:700;color:#0D5F75;padding:0 4px">${f.menu_order??f.order??0}</span><button style="background:transparent;border:1.5px solid #e4e4ec;border-radius:4px;padding:4px 7px;cursor:pointer;display:inline-flex;align-items:center;color:#0D5F75;line-height:1" onclick="openHotelFaqModal(${f.id})"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button style="background:transparent;border:1.5px solid #e4e4ec;border-radius:4px;padding:4px 7px;cursor:pointer;display:inline-flex;align-items:center;color:#0D5F75;line-height:1" onclick="deleteHotelFaq(${f.id})"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg></button></div>
+            <div style="padding:0 12px;text-align:center;font-size:13px;font-weight:700;color:#0D5F75">${f.menu_order??f.order??0}</div>
+            <div style="padding:0 8px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px">${pub}${ai}<div style="display:flex;gap:4px;margin-top:4px"><button style="background:transparent;border:1.5px solid #e4e4ec;border-radius:4px;padding:4px 7px;cursor:pointer;display:inline-flex;align-items:center;color:#0D5F75;line-height:1" onclick="openHotelFaqModal(${f.id})"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button style="background:transparent;border:1.5px solid #e4e4ec;border-radius:4px;padding:4px 7px;cursor:pointer;display:inline-flex;align-items:center;color:#0D5F75;line-height:1" onclick="deleteHotelFaq(${f.id})"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg></button></div></div>
         </div>`;
     }).join('');
 }
