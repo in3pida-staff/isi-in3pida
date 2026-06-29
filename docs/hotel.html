@@ -7,7 +7,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Eletta — Posiziona il tuo sito nelle ricerche AI</title>
-    <script>var _V='v1782420013';if(localStorage.getItem('_hv')!==_V){localStorage.setItem('_hv',_V);location.reload(true);}</script>
+    <script>var _V='v1782420014';if(localStorage.getItem('_hv')!==_V){localStorage.setItem('_hv',_V);location.reload(true);}</script>
     <link rel="icon" type="image/png" href="images/favicon.png?v=2">
     <link rel="stylesheet" href="css/style.css?v=20260622q">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2388,6 +2388,30 @@ const PRIORITY_BADGE = {
 
 let _mappaCurrentSite = null, _mappaCurrentPseData = null;
 
+async function checkMappaWeeklyUpdate(site, allQueriesFlat) {
+    const cfg = site?.hotel_profile?.isi_config || {};
+    const stored = cfg.mappa_update || null;
+    const now = new Date();
+    const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+    const shouldUpdate = !stored || (now - new Date(stored.ts)) >= WEEK_MS;
+    let newQueries = [];
+    let ts = stored ? stored.ts : now.toISOString();
+    if (shouldUpdate) {
+        const prevSet = new Set(stored ? (stored.queries || []) : []);
+        newQueries = allQueriesFlat.filter(q => !prevSet.has(q));
+        ts = now.toISOString();
+        try {
+            const newCfg = { ...cfg, mappa_update: { ts, queries: allQueriesFlat, new_queries: newQueries, new_count: newQueries.length } };
+            const hp = { ...(site.hotel_profile || {}), isi_config: newCfg };
+            await _SBq.from('isi_sites').update({ hotel_profile: hp }).eq('site_id', site.site_id);
+            site.hotel_profile = hp;
+        } catch(e) {}
+    } else {
+        newQueries = stored.new_queries || [];
+    }
+    return { ts, new_queries: newQueries, isNew: shouldUpdate };
+}
+
 async function initHotelMappa(site) {
     if (_mappaInited) return; _mappaInited = true;
     const cont = document.getElementById('hmappa-content');
@@ -2403,6 +2427,8 @@ async function _initHotelMappaInner(site, cont) {
     const faqQuestions = new Set((faqData.items || []).map(f => (f.question || '').toLowerCase().trim()));
     const hotelFeatures = buildHotelFeatures(site);
     const hotelQueries  = generateQueriesForHotel(site);
+    const allQueriesFlat = Object.values(hotelQueries).flat();
+    const updateInfo = await checkMappaWeeklyUpdate(site, allQueriesFlat);
 
     const priorityScores = {};
     const allCats = [...new Set(INTENT_LIBRARY.map(i => i.category))];
@@ -2515,8 +2541,24 @@ async function _initHotelMappaInner(site, cont) {
     const relevantCats   = cats.filter(c => getPriorityForCategory(c, hotelFeatures, hotelQueries) !== 'non_rilevante');
     const irrelevantCats = cats.filter(c => getPriorityForCategory(c, hotelFeatures, hotelQueries) === 'non_rilevante');
 
+    // Banner aggiornamento automatico
+    const _bDays=['domenica','lunedì','martedì','mercoledì','giovedì','venerdì','sabato'];
+    const _bMonths=['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre'];
+    const _bD=new Date(updateInfo.ts);
+    const _bDateStr=`${_bDays[_bD.getDay()]} ${_bD.getDate()} ${_bMonths[_bD.getMonth()]} ${_bD.getFullYear()} ore ${String(_bD.getHours()).padStart(2,'0')}:${String(_bD.getMinutes()).padStart(2,'0')}`;
+    const _bNq=updateInfo.new_queries.length;
+    const _bannerHtml=`<div style="border-bottom:1px solid #e4e4ec;padding:14px 20px;display:flex;align-items:flex-start;gap:12px">
+        <div style="width:32px;height:32px;border-radius:50%;background:white;border:1.5px solid #0D5F75;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+        <div style="flex:1;min-width:0">
+            <div style="font-size:10px;font-weight:600;color:rgba(13,95,117,0.5);font-family:'Source Code Pro',monospace;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px">Aggiornamento automatico</div>
+            <div style="font-size:13px;color:#0D5F75;font-family:'Source Code Pro',monospace">${_bDateStr}</div>
+            <div style="font-size:12px;color:${_bNq>0?'#0D5F75':'rgba(13,95,117,0.5)'};margin-top:4px;font-family:'Source Code Pro',monospace">${_bNq>0?_bNq+' nuov'+(_bNq===1?'a':'e')+' quer'+(_bNq===1?'y':'ies')+' trovate':'Nessuna novità rispetto alla settimana scorsa'}</div>
+            ${_bNq>0?`<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:4px">${updateInfo.new_queries.slice(0,6).map(q=>`<span style="background:#EDEEF5;color:#0D5F75;border-radius:20px;padding:2px 10px;font-size:11px;font-family:'Source Code Pro',monospace">${esc(q)}</span>`).join('')}${_bNq>6?`<span style="color:rgba(13,95,117,0.5);font-size:11px;font-family:'Source Code Pro',monospace;padding:2px 4px">+${_bNq-6} altre</span>`:''}</div>`:''}
+        </div>
+    </div>`;
+
     // Summary bar
-    cont.innerHTML = `<div style="background:#fafafa;border-bottom:1px solid #e4e4ec;padding:12px 20px;display:flex;gap:20px;flex-wrap:wrap;align-items:center;margin-bottom:16px">
+    cont.innerHTML = _bannerHtml+`<div style="background:#fafafa;border-bottom:1px solid #e4e4ec;padding:12px 20px;display:flex;gap:20px;flex-wrap:wrap;align-items:center;margin-bottom:16px">
         <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:200px">
             <div style="flex:1;background:#e4e4ec;border-radius:4px;height:6px;overflow:hidden"><div style="height:100%;background:#0D5F75;border-radius:4px;width:${pct}%"></div></div>
             <span style="font-size:12px;font-weight:700;color:#0D5F75;white-space:nowrap">${pct}% coperta</span>
