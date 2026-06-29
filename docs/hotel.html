@@ -7,7 +7,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Eletta — Posiziona il tuo sito nelle ricerche AI</title>
-    <script>var _V='v1782420019';if(localStorage.getItem('_hv')!==_V){localStorage.setItem('_hv',_V);location.reload(true);}</script>
+    <script>var _V='v1782420020';if(localStorage.getItem('_hv')!==_V){localStorage.setItem('_hv',_V);location.reload(true);}</script>
     <link rel="icon" type="image/png" href="images/favicon.png?v=2">
     <link rel="stylesheet" href="css/style.css?v=20260622q">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2410,7 +2410,7 @@ function generateQueriesForHotel(site) {
 function getPriorityForCategory(category, features, hotelQueries) {
     const alwaysMedia = ['prenotazione_prezzi', 'check_in_out', 'trasporti_arrivo'];
     const score = INTENT_LIBRARY
-        .filter(i => i.category === category)
+        .filter(i => i.category === category && i.appliesWhen(features))
         .reduce((sum, i) => sum + i.priorityScore(features), 0);
     let prio;
     if (score >= 15) prio = 'alta';
@@ -2590,7 +2590,7 @@ async function _initHotelMappaInner(site, cont) {
         if (dismissedArr.length > 0) {
             const dId = 'hdism-' + cat.replace(/[^a-z0-9]/gi,'_');
             dismissedHtml = `<div style="border-top:1px solid #ececf2">
-                <button onclick="var c=document.getElementById('${dId}');var o=c.style.display!=='none';c.style.display=o?'none':'block';this.textContent=o?'▸ Mostra ${dismissedArr.length} non rilevanti':'▴ Nascondi non rilevanti';" style="width:100%;text-align:left;background:#fafafa;border:none;padding:8px 20px;font-size:10px;font-weight:600;color:#9ca3af;cursor:pointer;font-family:'Source Code Pro',monospace">▸ Mostra ${dismissedArr.length} non rilevanti</button>
+                <button onclick="var c=document.getElementById('${dId}');var o=c.style.display!=='none';c.style.display=o?'none':'block';this.textContent=o?'▸ Mostra ${dismissedArr.length} non rilevanti':'▴ Nascondi non rilevanti';" style="background:white;color:rgba(13,95,117,0.5);border:1px solid #e4e4ec;border-radius:24px;padding:5px 14px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Source Code Pro',monospace;margin:8px 20px;display:inline-block">▸ Mostra ${dismissedArr.length} non rilevanti</button>
                 <div id="${dId}" style="display:none">${dismissedArr.map(q=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 20px;border-top:1px solid #f4f4f8"><span style="font-size:12px;color:#9ca3af;text-decoration:line-through">${esc(q)}</span><button style="padding:4px 8px;font-size:11px;background:white;border:1px solid #e4e4ec;border-radius:6px;cursor:pointer;color:#0D5F75;font-family:'Source Code Pro',monospace" onclick="restoreHotelQuery(this,'${esc(cat)}','${esc(q).replace(/'/g,"\\'")}','${esc(site.site_id)}')">↩ Ripristina</button></div>`).join('')}</div>
             </div>`;
         }
@@ -2632,7 +2632,7 @@ async function _initHotelMappaInner(site, cont) {
         ${dismissedQ ? `<span style="font-size:11px;color:#9ca3af">${dismissedQ} ignorate</span>` : ''}
     </div>` +
     relevantCats.map(renderCat).join('') +
-    (irrelevantCats.length ? `<div style="margin-bottom:12px"><button class="btn-ping" style="font-size:11px;margin-left:0" onclick="var s=document.getElementById('hirrel-cats');var sh=s.style.display!=='none';s.style.display=sh?'none':'block';this.textContent=sh?'▸ Mostra ${irrelevantCats.length} non rilevanti':'▴ Nascondi non rilevanti';">▸ Mostra ${irrelevantCats.length} categorie non rilevanti per questo hotel</button></div><div id="hirrel-cats" style="display:none">${irrelevantCats.map(renderCat).join('')}</div>` : '');
+    (irrelevantCats.length ? `<div style="margin-bottom:12px"><button style="background:white;color:rgba(13,95,117,0.5);border:1px solid #e4e4ec;border-radius:24px;padding:6px 16px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Source Code Pro',monospace" onclick="var s=document.getElementById('hirrel-cats');var sh=s.style.display!=='none';s.style.display=sh?'none':'block';this.textContent=sh?'▸ Mostra ${irrelevantCats.length} categorie non rilevanti per questo hotel':'▴ Nascondi categorie non rilevanti';">▸ Mostra ${irrelevantCats.length} categorie non rilevanti per questo hotel</button></div><div id="hirrel-cats" style="display:none">${irrelevantCats.map(renderCat).join('')}</div>` : '');
 }
 
 window.generaRispostaQuery = async function(btn, cat, query, siteId) {
