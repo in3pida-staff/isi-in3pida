@@ -7,7 +7,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Eletta — Posiziona il tuo sito nelle ricerche AI</title>
-    <script>var _V='v1782420014';if(localStorage.getItem('_hv')!==_V){localStorage.setItem('_hv',_V);location.reload(true);}</script>
+    <script>var _V='v1782420015';if(localStorage.getItem('_hv')!==_V){localStorage.setItem('_hv',_V);location.reload(true);}</script>
     <link rel="icon" type="image/png" href="images/favicon.png?v=2">
     <link rel="stylesheet" href="css/style.css?v=20260622q">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -886,35 +886,79 @@ function renderContent(site, pseData, now) {
             </div>
             <div class="h-card">
                 <div class="h-card-hdr" style="justify-content:flex-start;gap:12px"><div style="width:34px;height:34px;border-radius:50%;background:white;border:1.5px solid #0D5F75;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12l2 2 4-4"/></svg></div><span class="h-card-hdr-t" style="font-size:18px;font-weight:500">Stile grafico</span></div>
-                <div class="h-card-body">
-                    <div style="font-size:13px;color:#666b84;margin-bottom:14px">Imposta i colori principali. Se lasci vuoto il font, il plugin eredita il font del tema.</div>
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
-                        <div><label class="profile-label">Colore principale</label><div style="display:flex;align-items:center;gap:8px"><input id="faq-setting-color1" type="color" value="#171b33" style="width:40px;height:32px;border:1px solid #e4e4ec;border-radius:4px;padding:2px;cursor:pointer"><label style="display:flex;align-items:center;gap:4px;font-size:12px;color:#666b84;cursor:pointer"><input id="faq-setting-color1-inherit" type="checkbox" style="margin:0"> Eredita dal sito</label></div></div>
-                        <div><label class="profile-label">Colore dettagli/interazioni</label><div style="display:flex;align-items:center;gap:8px"><input id="faq-setting-color2" type="color" value="#0D5F75" style="width:40px;height:32px;border:1px solid #e4e4ec;border-radius:4px;padding:2px;cursor:pointer"><label style="display:flex;align-items:center;gap:4px;font-size:12px;color:#666b84;cursor:pointer"><input id="faq-setting-color2-inherit" type="checkbox" style="margin:0"> Eredita dal sito</label></div><div style="font-size:12px;color:#666b84;margin-top:4px">Controlla dettagli come etichetta FAQ, icona + e micro-interazioni.</div></div>
-                        <div><label class="profile-label">Colore testo</label><div style="display:flex;align-items:center;gap:8px"><input id="faq-setting-color3" type="color" value="#171b33" style="width:40px;height:32px;border:1px solid #e4e4ec;border-radius:4px;padding:2px;cursor:pointer"><label style="display:flex;align-items:center;gap:4px;font-size:12px;color:#666b84;cursor:pointer"><input id="faq-setting-color3-inherit" type="checkbox" style="margin:0"> Eredita dal sito</label></div></div>
-                        <div><label class="profile-label">Sfondo sezione</label><div style="display:flex;align-items:center;gap:8px"><input id="faq-setting-color4" type="color" value="#ffffff" style="width:40px;height:32px;border:1px solid #e4e4ec;border-radius:4px;padding:2px;cursor:pointer"><label style="display:flex;align-items:center;gap:4px;font-size:12px;color:#666b84;cursor:pointer"><input id="faq-setting-color4-inherit" type="checkbox" style="margin:0"> Eredita dal sito</label></div></div>
-                        <div><label class="profile-label">Sfondo box FAQ</label><div style="display:flex;align-items:center;gap:8px"><input id="faq-setting-color5" type="color" value="#ffffff" style="width:40px;height:32px;border:1px solid #e4e4ec;border-radius:4px;padding:2px;cursor:pointer"><label style="display:flex;align-items:center;gap:4px;font-size:12px;color:#666b84;cursor:pointer"><input id="faq-setting-color5-inherit" type="checkbox" style="margin:0"> Eredita dal sito</label></div></div>
-                        <div><label class="profile-label">Raggio angoli</label><div style="display:flex;align-items:center;gap:8px"><input id="faq-setting-radius" type="number" value="16" min="0" max="40" style="width:80px;border:1px solid #e4e4ec;border-radius:4px;padding:6px 10px;font-size:14px;color:#0D5F75;outline:none"><span style="font-size:13px;color:#666b84">px</span></div></div>
-                        <div><label class="profile-label">Font family opzionale</label><input id="faq-setting-font" type="text" placeholder="es. Inter, Lato, Roboto" class="profile-input"><div style="font-size:12px;color:#666b84;margin-top:4px">Vuoto = eredita il font del tema</div></div>
-                        <div><label class="profile-label">Larghezza</label><div style="display:flex;align-items:center;gap:8px"><select id="faq-setting-width-type" style="border:1px solid #e4e4ec;border-radius:4px;padding:6px 10px;font-size:14px;color:#0D5F75;outline:none;background:white;cursor:pointer"><option value="custom">Personalizzata</option><option value="site">Adatta al sito</option></select><input id="faq-setting-width" type="number" value="920" min="400" max="1800" style="width:80px;border:1px solid #e4e4ec;border-radius:4px;padding:6px 10px;font-size:14px;color:#0D5F75;outline:none"><span style="font-size:13px;color:#666b84">px</span></div><div style="font-size:12px;color:#666b84;margin-top:4px">Adatta al sito = usa la larghezza del contenitore della pagina/tema.</div></div>
+                <div style="padding:10px 20px 12px;font-size:12px;color:rgba(13,95,117,0.4);font-family:'Source Code Pro',monospace">Imposta i colori principali. Se lasci vuoto il font, il plugin eredita il font del tema.</div>
+                <div style="height:1px;background:#e4e4ec"></div>
+                <div style="display:grid;grid-template-columns:1fr 1px 1fr">
+                    <div style="padding:12px 20px">
+                        <div style="font-size:12px;color:#0D5F75;font-weight:400;font-family:'Source Code Pro',monospace;margin-bottom:8px">Colore principale</div>
+                        <div style="display:flex;align-items:center;gap:10px"><input id="faq-setting-color1" type="color" value="#171b33" style="width:36px;height:26px;border:1px solid #e4e4ec;border-radius:20px;padding:2px;cursor:pointer"><label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;font-family:'Source Code Pro',monospace;color:rgba(13,95,117,0.5)"><input id="faq-setting-color1-inherit" type="checkbox" style="margin:0;accent-color:#0D5F75"> Eredita dal sito</label></div>
+                    </div>
+                    <div style="background:#e4e4ec;margin:8px 0"></div>
+                    <div style="padding:12px 20px">
+                        <div style="font-size:12px;color:#0D5F75;font-weight:400;font-family:'Source Code Pro',monospace;margin-bottom:8px">Colore dettagli/interazioni</div>
+                        <div style="display:flex;align-items:center;gap:10px"><input id="faq-setting-color2" type="color" value="#0D5F75" style="width:36px;height:26px;border:1px solid #e4e4ec;border-radius:20px;padding:2px;cursor:pointer"><label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;font-family:'Source Code Pro',monospace;color:rgba(13,95,117,0.5)"><input id="faq-setting-color2-inherit" type="checkbox" style="margin:0;accent-color:#0D5F75"> Eredita dal sito</label></div>
+                        <div style="font-size:11px;color:rgba(13,95,117,0.4);margin-top:5px;font-family:'Source Code Pro',monospace">Etichetta FAQ, icona + e micro-interazioni.</div>
+                    </div>
+                    <div style="grid-column:1/-1;height:1px;background:#e4e4ec"></div>
+                    <div style="padding:12px 20px">
+                        <div style="font-size:12px;color:#0D5F75;font-weight:400;font-family:'Source Code Pro',monospace;margin-bottom:8px">Colore testo</div>
+                        <div style="display:flex;align-items:center;gap:10px"><input id="faq-setting-color3" type="color" value="#171b33" style="width:36px;height:26px;border:1px solid #e4e4ec;border-radius:20px;padding:2px;cursor:pointer"><label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;font-family:'Source Code Pro',monospace;color:rgba(13,95,117,0.5)"><input id="faq-setting-color3-inherit" type="checkbox" style="margin:0;accent-color:#0D5F75"> Eredita dal sito</label></div>
+                    </div>
+                    <div style="background:#e4e4ec;margin:8px 0"></div>
+                    <div style="padding:12px 20px">
+                        <div style="font-size:12px;color:#0D5F75;font-weight:400;font-family:'Source Code Pro',monospace;margin-bottom:8px">Sfondo sezione</div>
+                        <div style="display:flex;align-items:center;gap:10px"><input id="faq-setting-color4" type="color" value="#ffffff" style="width:36px;height:26px;border:1px solid #e4e4ec;border-radius:20px;padding:2px;cursor:pointer"><label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;font-family:'Source Code Pro',monospace;color:rgba(13,95,117,0.5)"><input id="faq-setting-color4-inherit" type="checkbox" style="margin:0;accent-color:#0D5F75"> Eredita dal sito</label></div>
+                    </div>
+                    <div style="grid-column:1/-1;height:1px;background:#e4e4ec"></div>
+                    <div style="padding:12px 20px">
+                        <div style="font-size:12px;color:#0D5F75;font-weight:400;font-family:'Source Code Pro',monospace;margin-bottom:8px">Sfondo box FAQ</div>
+                        <div style="display:flex;align-items:center;gap:10px"><input id="faq-setting-color5" type="color" value="#ffffff" style="width:36px;height:26px;border:1px solid #e4e4ec;border-radius:20px;padding:2px;cursor:pointer"><label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;font-family:'Source Code Pro',monospace;color:rgba(13,95,117,0.5)"><input id="faq-setting-color5-inherit" type="checkbox" style="margin:0;accent-color:#0D5F75"> Eredita dal sito</label></div>
+                    </div>
+                    <div style="background:#e4e4ec;margin:8px 0"></div>
+                    <div style="padding:12px 20px">
+                        <div style="font-size:12px;color:#0D5F75;font-weight:400;font-family:'Source Code Pro',monospace;margin-bottom:8px">Raggio angoli</div>
+                        <div style="display:flex;align-items:center;gap:8px"><input id="faq-setting-radius" type="number" value="16" min="0" max="40" style="width:50px;border:none;outline:none;font-family:'Source Code Pro',monospace;font-size:13px;color:rgba(13,95,117,0.6);background:transparent;padding:0"><span style="font-size:12px;font-family:'Source Code Pro',monospace;color:rgba(13,95,117,0.4)">px</span></div>
+                    </div>
+                    <div style="grid-column:1/-1;height:1px;background:#e4e4ec"></div>
+                    <div style="grid-column:1/-1;padding:12px 20px">
+                        <div style="font-size:12px;color:#0D5F75;font-weight:400;font-family:'Source Code Pro',monospace;margin-bottom:6px">Font family opzionale</div>
+                        <input id="faq-setting-font" type="text" placeholder="es. Inter, Lato, Roboto" style="width:100%;box-sizing:border-box;border:none;outline:none;font-family:'Source Code Pro',monospace;font-size:13px;color:rgba(13,95,117,0.6);background:transparent;padding:0">
+                        <div style="font-size:11px;color:rgba(13,95,117,0.4);margin-top:4px;font-family:'Source Code Pro',monospace">Vuoto = eredita il font del tema</div>
+                    </div>
+                    <div style="grid-column:1/-1;height:1px;background:#e4e4ec"></div>
+                    <div style="grid-column:1/-1;padding:12px 20px 14px">
+                        <div style="font-size:12px;color:#0D5F75;font-weight:400;font-family:'Source Code Pro',monospace;margin-bottom:6px">Larghezza</div>
+                        <div style="display:flex;align-items:center;gap:10px">
+                            <select id="faq-setting-width-type" style="border:none;outline:none;font-family:'Source Code Pro',monospace;font-size:13px;color:rgba(13,95,117,0.6);background:transparent;cursor:pointer;padding:0"><option value="custom">Personalizzata</option><option value="site">Adatta al sito</option></select>
+                            <input id="faq-setting-width" type="number" value="920" min="400" max="1800" style="width:55px;border:none;outline:none;font-family:'Source Code Pro',monospace;font-size:13px;color:rgba(13,95,117,0.6);background:transparent;padding:0">
+                            <span style="font-size:12px;font-family:'Source Code Pro',monospace;color:rgba(13,95,117,0.4)">px</span>
+                        </div>
+                        <div style="font-size:11px;color:rgba(13,95,117,0.4);margin-top:4px;font-family:'Source Code Pro',monospace">Adatta al sito = usa la larghezza del contenitore della pagina/tema.</div>
                     </div>
                 </div>
             </div>
             <div class="h-card">
                 <div class="h-card-hdr" style="justify-content:flex-start;gap:12px"><div style="width:34px;height:34px;border-radius:50%;background:white;border:1.5px solid #0D5F75;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><span class="h-card-hdr-t" style="font-size:18px;font-weight:500">Comportamento</span></div>
-                <div class="h-card-body">
-                    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px">
-                        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;color:#4b4d68"><input id="faq-setting-open-first" type="checkbox" style="margin:0;width:15px;height:15px;accent-color:#0D5F75;flex-shrink:0"> Apri la prima FAQ</label>
-                        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;color:#4b4d68"><input id="faq-setting-schema-seo" type="checkbox" checked style="margin:0;width:15px;height:15px;accent-color:#0D5F75;flex-shrink:0"> Aggiungi dati strutturati FAQPage per SEO nella pagina FAQ</label>
+                <div style="height:1px;background:#e4e4ec"></div>
+                <div style="display:grid;grid-template-columns:1fr 1px 1fr">
+                    <div style="padding:14px 20px">
+                        <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input id="faq-setting-open-first" type="checkbox" style="margin:0;width:14px;height:14px;accent-color:#0D5F75;flex-shrink:0"><span style="font-size:13px;font-family:'Source Code Pro',monospace;color:rgba(13,95,117,0.6)">Apri la prima FAQ</span></label>
                     </div>
-                    <div id="faq-settings-msg" style="display:none;margin-bottom:12px;padding:8px 12px;border-radius:4px;font-size:13px;font-weight:600"></div>
-                    <div style="padding:10px 14px;background:#e8ecf7;border:1px solid #C1CBE8;border-radius:4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-                        <span style="font-size:12px;font-weight:700;color:#4b4d68">Shortcode da incollare nella pagina WordPress dove vuoi pubblicare le FAQ:</span>
-                        <code style="background:white;border:1px solid #e4e4ec;padding:2px 8px;border-radius:4px;font-size:13px;color:#0D5F75;font-weight:700">[in3pida_faq]</code>
-                        <span style="font-size:12px;color:#666b84">oppure</span>
-                        <code style="background:white;border:1px solid #e4e4ec;padding:2px 8px;border-radius:4px;font-size:13px;color:#0D5F75;font-weight:700">[site_faq]</code>
+                    <div style="background:#e4e4ec;margin:8px 0"></div>
+                    <div style="padding:14px 20px">
+                        <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input id="faq-setting-schema-seo" type="checkbox" checked style="margin:0;width:14px;height:14px;accent-color:#0D5F75;flex-shrink:0"><span style="font-size:13px;font-family:'Source Code Pro',monospace;color:rgba(13,95,117,0.6)">Dati strutturati FAQPage per SEO</span></label>
+                    </div>
+                    <div style="grid-column:1/-1;height:1px;background:#e4e4ec"></div>
+                    <div style="grid-column:1/-1;padding:12px 20px 14px">
+                        <div style="font-size:12px;color:rgba(13,95,117,0.4);font-family:'Source Code Pro',monospace;margin-bottom:8px">Shortcode da incollare nella pagina WordPress dove vuoi pubblicare le FAQ</div>
+                        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                            <code style="background:#EDEEF5;border-radius:20px;padding:3px 12px;font-size:13px;color:#0D5F75;font-weight:600;font-family:'Source Code Pro',monospace">[in3pida_faq]</code>
+                            <span style="font-size:12px;color:rgba(13,95,117,0.4);font-family:'Source Code Pro',monospace">oppure</span>
+                            <code style="background:#EDEEF5;border-radius:20px;padding:3px 12px;font-size:13px;color:#0D5F75;font-weight:600;font-family:'Source Code Pro',monospace">[site_faq]</code>
+                        </div>
                     </div>
                 </div>
+                <div id="faq-settings-msg" style="display:none;margin:0 20px 12px;padding:8px 12px;border-radius:4px;font-size:13px;font-weight:600"></div>
             </div>
         </div>
         <!-- Lista FAQ -->
@@ -992,7 +1036,7 @@ function renderContent(site, pseData, now) {
                     <div style="width:34px;height:34px;border-radius:50%;background:white;border:1.5px solid #0D5F75;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>
                     <div><span class="h-card-hdr-t" style="font-size:18px;font-weight:500">Profilo Hotel / Schema.org</span><div style="font-size:11px;color:rgba(13,95,117,0.5);margin-top:2px" id="hschema-source"></div></div>
                 </div>
-                <button id="btn-toggle-hschema" style="display:inline-flex;align-items:center;gap:6px;background:white;color:#0D5F75;border:1.5px solid #0D5F75;border-radius:24px;padding:6px 16px;font-family:'Source Code Pro',monospace;font-size:12px;font-weight:600;cursor:pointer"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Modifica</button>
+                <button id="btn-toggle-hschema" style="display:inline-flex;align-items:center;gap:6px;background:white;color:#0D5F75;border:1px solid #e4e4ec;border-radius:24px;padding:6px 16px;font-family:'Source Code Pro',monospace;font-size:12px;font-weight:600;cursor:pointer"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Modifica</button>
             </div>
             <div id="hschema-view"></div>
             <div id="hschema-edit" style="display:none;padding:16px 20px">
