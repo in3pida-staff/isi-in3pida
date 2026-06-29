@@ -7,7 +7,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Eletta — Posiziona il tuo sito nelle ricerche AI</title>
-    <script>var _V='v1782420000';if(localStorage.getItem('_hv')!==_V){localStorage.setItem('_hv',_V);location.reload(true);}</script>
+    <script>var _V='v1782420001';if(localStorage.getItem('_hv')!==_V){localStorage.setItem('_hv',_V);location.reload(true);}</script>
     <link rel="icon" type="image/png" href="images/favicon.png?v=2">
     <link rel="stylesheet" href="css/style.css?v=20260622q">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1452,7 +1452,7 @@ function renderHotelFaqList(el) {
     if (!items.length) { el.innerHTML='<div style="padding:20px;color:var(--grey);font-size:13px">Nessuna FAQ corrisponde ai filtri.</div>'; return; }
     const fmt = d => { if(!d) return '—'; const dt=new Date(d); return dt.toLocaleDateString('it-IT',{day:'2-digit',month:'short',year:'numeric'})+'\n'+dt.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'}); };
     el.innerHTML = items.map((f,i) => {
-        const pub = f.status==='draft'?'<span style="background:#EDEEF5;color:#0D5F75;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px">Bozza</span>':'<span style="background:#EDEEF5;color:#0D5F75;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px">Pubblicato</span>';
+        const pub = f.status==='draft'?'<span style="background:#EDEEF5;color:#0D5F75;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px">Bozza</span>':f.solo_ai?'':'<span style="background:#EDEEF5;color:#0D5F75;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px">Pubblicato</span>';
         const ai  = f.solo_ai?'<span style="background:rgba(13,95,117,0.08);color:#0D5F75;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:4px">Solo AI</span>':'';
         return `<div style="display:grid;grid-template-columns:1fr auto auto auto;gap:0;align-items:center;padding:12px 20px;border-bottom:1px solid #f4f4f8">
             <div style="min-width:0"><div style="font-size:13px;font-weight:700;color:#0D5F75;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${i+1}. ${esc(f.question)}</div><div style="font-size:11px;color:#aaa;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc((f.answer||'').substring(0,80))}${(f.answer||'').length>80?'…':''}</div></div>
