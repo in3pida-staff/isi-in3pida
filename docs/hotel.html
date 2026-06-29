@@ -7,7 +7,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Eletta — Posiziona il tuo sito nelle ricerche AI</title>
-    <script>var _V='v1782382742';if(localStorage.getItem('_hv')!==_V){localStorage.setItem('_hv',_V);location.reload(true);}</script>
+    <script>var _V='v1782382743';if(localStorage.getItem('_hv')!==_V){localStorage.setItem('_hv',_V);location.reload(true);}</script>
     <link rel="icon" type="image/png" href="images/favicon.png?v=2">
     <link rel="stylesheet" href="css/style.css?v=20260622q">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -3309,7 +3309,7 @@ async function initScoreHistoryChart(site, geoAvg, cs, covPct) {
 
     const faqData = site.faq_data || {};
     const todayStr = new Date().toISOString().slice(0, 10);
-    const geoSub = faqData.geo || {};
+    const geoSub = site.geo_scores || faqData.geo || {};
 
     let history = Array.isArray(faqData.score_history) ? [...faqData.score_history] : [];
     try {
@@ -3323,7 +3323,7 @@ async function initScoreHistoryChart(site, geoAvg, cs, covPct) {
         todayEntry.geo = geoAvg;
         todayEntry.completeness = cs;
         todayEntry.coverage = covPct;
-        if (todayEntry.ai_readiness === undefined) {
+        if (todayEntry.ai_readiness == null) {
             todayEntry.ai_readiness = geoSub.ai_readiness ?? null;
             todayEntry.answer_extraction = geoSub.answer_extraction ?? null;
             todayEntry.quality_safety = geoSub.quality_safety ?? null;
@@ -3423,12 +3423,12 @@ async function initScoreHistoryChart(site, geoAvg, cs, covPct) {
                 responsive: true, maintainAspectRatio: false,
                 interaction: { mode: 'index', intersect: false },
                 plugins: {
-                    legend: { display: true, position: 'right', align: 'start', labels: { usePointStyle: true, pointStyle: 'circle', font: { family: "'Source Code Pro',monospace", size: 10, weight: '400' }, color: '#0D5F75', padding: 20, boxWidth: 10 } },
+                    legend: { display: true, position: 'right', align: 'start', labels: { usePointStyle: true, pointStyle: 'circle', font: { family: "Commissioner,sans-serif", size: 10, weight: '400' }, color: '#0D5F75', padding: 20, boxWidth: 10 } },
                     tooltip: { mode: 'index', intersect: false, backgroundColor: '#0D5F75', titleColor: '#fff', bodyColor: 'rgba(255,255,255,0.85)', usePointStyle: true, callbacks: { label: ctx => ' ' + ctx.dataset.label + ': ' + (ctx.parsed.y ?? '—') } }
                 },
                 scales: {
-                    x: { grid: { display: false }, ticks: { font: { family: "'Source Code Pro',monospace", size: 13 }, color: '#0D5F75', maxTicksLimit: 8 } },
-                    y: { min: 0, max: 100, grid: { display: false }, ticks: { font: { family: "'Source Code Pro',monospace", size: 13 }, color: '#0D5F75', stepSize: 25 } }
+                    x: { grid: { display: false }, ticks: { font: { family: "Commissioner,sans-serif", size: 13 }, color: '#0D5F75', maxTicksLimit: 8 } },
+                    y: { min: 0, max: 100, grid: { display: false }, ticks: { font: { family: "Commissioner,sans-serif", size: 13 }, color: '#0D5F75', stepSize: 25 } }
                 }
             }
         });
@@ -3504,8 +3504,8 @@ function initGeoScoreMiniChart(site) {
                     tooltip: { mode:'index', intersect:false, backgroundColor:'#0D5F75', titleColor:'#fff', bodyColor:'rgba(255,255,255,0.85)', usePointStyle:true, callbacks:{ label: ctx => ' '+ctx.dataset.label+': '+(ctx.parsed.y??'—') } }
                 },
                 scales: {
-                    x: { grid:{ display:false }, ticks:{ font:{ family:"'Source Code Pro',monospace", size:13 }, color:'#0D5F75', maxTicksLimit:4 } },
-                    y: { min:0, max:100, grid:{ display:false }, ticks:{ font:{ family:"'Source Code Pro',monospace", size:13 }, color:'#0D5F75', stepSize:25 } }
+                    x: { grid:{ display:false }, ticks:{ font:{ family:"Commissioner,sans-serif", size:13 }, color:'#0D5F75', maxTicksLimit:4 } },
+                    y: { min:0, max:100, grid:{ display:false }, ticks:{ font:{ family:"Commissioner,sans-serif", size:13 }, color:'#0D5F75', stepSize:25 } }
                 }
             }
         });
