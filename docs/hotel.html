@@ -7,7 +7,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Eletta — Posiziona il tuo sito nelle ricerche AI</title>
-    <script>var _V='v1782420012';if(localStorage.getItem('_hv')!==_V){localStorage.setItem('_hv',_V);location.reload(true);}</script>
+    <script>var _V='v1782420013';if(localStorage.getItem('_hv')!==_V){localStorage.setItem('_hv',_V);location.reload(true);}</script>
     <link rel="icon" type="image/png" href="images/favicon.png?v=2">
     <link rel="stylesheet" href="css/style.css?v=20260622q">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -853,26 +853,33 @@ function renderContent(site, pseData, now) {
                 <div class="h-card-hdr">
                     <div style="display:flex;align-items:center;gap:12px"><div style="width:34px;height:34px;border-radius:50%;background:white;border:1.5px solid #0D5F75;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></div><span class="h-card-hdr-t" style="font-size:18px;font-weight:500">Impostazioni Plugin FAQ</span></div>
                     <div style="display:flex;gap:8px">
-                        <button id="btn-close-faq-settings" style="background:white;color:#0D5F75;border:1.5px solid #0D5F75;border-radius:24px;padding:6px 16px;font-family:'Source Code Pro',monospace;font-size:12px;font-weight:600;cursor:pointer">✕ Chiudi</button>
-                        <button id="btn-save-faq-settings" style="background:#0D5F75;color:#fff;border:none;border-radius:24px;padding:6px 16px;font-family:'Source Code Pro',monospace;font-size:12px;font-weight:600;cursor:pointer">Salva impostazioni</button>
+                        <button id="btn-close-faq-settings" style="background:white;color:#0D5F75;border:1px solid #e4e4ec;border-radius:24px;padding:6px 16px;font-family:'Source Code Pro',monospace;font-size:12px;font-weight:600;cursor:pointer">✕ Chiudi</button>
+                        <button id="btn-save-faq-settings" style="background:#C1CBE8;color:#fff;border:none;border-radius:24px;padding:6px 16px;font-family:'Source Code Pro',monospace;font-size:12px;font-weight:600;cursor:pointer">Salva impostazioni</button>
                     </div>
                 </div>
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
                 <div class="h-card" style="margin-bottom:0">
                     <div class="h-card-hdr" style="justify-content:flex-start;gap:12px"><div style="width:34px;height:34px;border-radius:50%;background:white;border:1.5px solid #0D5F75;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div><span class="h-card-hdr-t" style="font-size:18px;font-weight:500">Contenuto pagina</span></div>
-                    <div class="h-card-body" style="display:flex;flex-direction:column;gap:12px">
-                        <div><label class="profile-label">Titolo pagina FAQ</label><input id="faq-setting-title" type="text" placeholder="Domande frequenti" class="profile-input"></div>
-                        <div><label class="profile-label">Testo sotto il titolo</label><textarea id="faq-setting-subtitle" rows="2" placeholder="Trova rapidamente le risposte alle domande più comuni." class="profile-input" style="resize:vertical"></textarea></div>
+                    <div class="h-card-body" style="display:flex;flex-direction:column;gap:0">
+                        <div style="padding-bottom:12px">
+                            <div style="font-size:12px;color:#0D5F75;font-weight:400;margin-bottom:6px;font-family:'Source Code Pro',monospace">Titolo pagina FAQ</div>
+                            <input id="faq-setting-title" type="text" placeholder="Domande frequenti" style="width:100%;box-sizing:border-box;border:none;outline:none;font-family:'Source Code Pro',monospace;font-size:13px;font-weight:400;color:rgba(13,95,117,0.6);background:transparent;padding:0">
+                        </div>
+                        <div style="height:1px;background:#e4e4ec;margin:0 0 12px"></div>
+                        <div style="padding-bottom:4px">
+                            <div style="font-size:12px;color:#0D5F75;font-weight:400;margin-bottom:6px;font-family:'Source Code Pro',monospace">Testo sotto il titolo</div>
+                            <textarea id="faq-setting-subtitle" rows="2" placeholder="Trova rapidamente le risposte alle domande più comuni." style="width:100%;box-sizing:border-box;border:none;outline:none;resize:vertical;font-family:'Source Code Pro',monospace;font-size:13px;font-weight:400;color:rgba(13,95,117,0.6);background:transparent;padding:0"></textarea>
+                        </div>
                     </div>
                 </div>
                 <div class="h-card" style="margin-bottom:0">
                     <div class="h-card-hdr" style="justify-content:flex-start;gap:12px"><div style="width:34px;height:34px;border-radius:50%;background:white;border:1.5px solid #0D5F75;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></div><span class="h-card-hdr-t" style="font-size:18px;font-weight:500">Ordinamento FAQ</span></div>
                     <div class="h-card-body">
                         <div style="font-size:13px;color:#666b84;margin-bottom:12px">Per l'ordine manuale usa il drag &amp; drop nella lista FAQ.</div>
-                        <div style="display:flex;gap:8px;flex-wrap:wrap">
-                            <label style="display:flex;align-items:center;gap:6px;padding:8px 16px;border:1px solid #e4e4ec;border-radius:4px;cursor:pointer;font-size:14px;color:#4b4d68"><input id="faq-order-manual" type="radio" name="faq-order" value="manual" checked style="margin:0;accent-color:#0D5F75"> Ordine manuale</label>
-                            <label style="display:flex;align-items:center;gap:6px;padding:8px 16px;border:1px solid #e4e4ec;border-radius:4px;cursor:pointer;font-size:14px;color:#4b4d68"><input id="faq-order-asc" type="radio" name="faq-order" value="asc" style="margin:0;accent-color:#0D5F75"> Crescente</label>
+                        <div style="display:flex;gap:16px;flex-wrap:wrap">
+                            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;font-family:'Source Code Pro',monospace;color:rgba(13,95,117,0.6)"><input id="faq-order-manual" type="radio" name="faq-order" value="manual" checked style="margin:0;accent-color:#0D5F75"> Ordine manuale</label>
+                            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;font-family:'Source Code Pro',monospace;color:rgba(13,95,117,0.6)"><input id="faq-order-asc" type="radio" name="faq-order" value="asc" style="margin:0;accent-color:#0D5F75"> Crescente</label>
                         </div>
                     </div>
                 </div>
