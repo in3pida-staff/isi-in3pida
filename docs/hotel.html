@@ -7,7 +7,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Eletta — Posiziona il tuo sito nelle ricerche AI</title>
-    <script>var _V='v1782420006';if(localStorage.getItem('_hv')!==_V){localStorage.setItem('_hv',_V);location.reload(true);}</script>
+    <script>var _V='v1782420007';if(localStorage.getItem('_hv')!==_V){localStorage.setItem('_hv',_V);location.reload(true);}</script>
     <link rel="icon" type="image/png" href="images/favicon.png?v=2">
     <link rel="stylesheet" href="css/style.css?v=20260622q">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -416,7 +416,7 @@ async function init() {
             if (tab==='mappa')    initHotelMappa(site);
             if (tab==='coerenza') { initHotelCoerenza(site); initAiLayerPanel(site); }
             if (tab==='config')   { initHotelConfig(site); initDatiSito(site, pseData||[]); }
-            if (tab==='pse')      initHotelPseCharts(pseData||[]);
+            if (tab==='pse')      { initHotelPseCharts(pseData||[]); initGscPanel(site); }
         });
     });
 
@@ -1193,6 +1193,15 @@ function renderContent(site, pseData, now) {
         <div class="card" style="border-radius:8px;border:1px solid #e4e4ec;box-shadow:none;margin:0">
             <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:500;color:#0D5F75;letter-spacing:.05em;text-transform:uppercase;font-family:Commissioner,sans-serif">Distribuzione per LLM</div></div></div>
             <div id="hpse-llm-bars" style="padding:16px 20px;display:none"></div>
+        </div>
+        <div class="h-card" id="hdati-gsc-card" style="margin-top:20px;display:none">
+            <div class="h-card-hdr">
+                <div style="display:flex;align-items:center;gap:12px">
+                    <div style="width:34px;height:34px;border-radius:50%;background:white;border:1.5px solid #0D5F75;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+                    <span class="h-card-hdr-t" style="font-size:18px;font-weight:500">Analisi SEO Google</span>
+                </div>
+            </div>
+            <div id="hdati-gsc-container" style="padding:0"><div style="padding:16px 20px;font-size:13px;color:rgba(13,95,117,0.5)">Caricamento dati GSC...</div></div>
         </div>
         </div><!-- /htab-pse -->
     `;
@@ -3603,11 +3612,6 @@ async function initDatiSito(site, pseData) {
 
     let html = '';
 
-    if (cfg.gsc_email && cfg.gsc_site && cfg.gsc_token) {
-        html += cardH('#0D5F75', 'Analisi SEO Google') +
-            '<div id="hdati-gsc-container" style="padding:0"><div style="padding:16px 20px;font-size:13px;color:rgba(13,95,117,0.5)">Caricamento dati GSC...</div></div></div>';
-    }
-
     const gscSignals = site?.gsc_signals;
     if (gscSignals && typeof gscSignals === 'object' && Object.keys(gscSignals).length) {
         const labelMap = {
@@ -3659,161 +3663,169 @@ async function initDatiSito(site, pseData) {
 
     cont.innerHTML = html;
 
-    if (cfg.gsc_email && cfg.gsc_site && cfg.gsc_token) {
-        const datiGscCont = document.getElementById('hdati-gsc-container');
-        let _activeToken = cfg.gsc_token;
-        let _activeTokenTs = cfg.gsc_token_ts || 0;
-        try {
-            const _ls = JSON.parse(localStorage.getItem('isi_gsc_tok_' + site.site_id) || 'null');
-            if (_ls && _ls.ts && _ls.ts > _activeTokenTs) { _activeToken = _ls.token; _activeTokenTs = _ls.ts; }
-        } catch {}
-        const tokenAgeSec = _activeTokenTs ? (Date.now() - _activeTokenTs) / 1000 : Infinity;
-        let _gscActiveDays = 28;
+}
 
-        function _gscDateRange(days) {
-            const end = new Date();
-            const start = days >= 9999 ? new Date(end.getTime() - 16*30*86400000) : new Date(end.getTime() - days*86400000);
-            return { startDate: start.toISOString().slice(0,10), endDate: end.toISOString().slice(0,10) };
-        }
+// ─── ANALISI SEO GOOGLE (tab Statistiche) ─────────────────────────────────────
+function initGscPanel(site) {
+    const cfg = site?.hotel_profile?.isi_config || {};
+    const card = document.getElementById('hdati-gsc-card');
+    const datiGscCont = document.getElementById('hdati-gsc-container');
+    if (!card || !datiGscCont) return;
+    if (!cfg.gsc_email || !cfg.gsc_site || !cfg.gsc_token) { card.style.display = 'none'; return; }
+    card.style.display = '';
 
-        async function _fetchGscData(token, days) {
-            const { startDate, endDate } = _gscDateRange(days);
-            const base = `https://searchconsole.googleapis.com/webmasters/v3/sites/${encodeURIComponent(cfg.gsc_site)}/searchAnalytics/query`;
-            const headers = { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' };
-            const [qRes, pRes, totRes] = await Promise.all([
-                fetch(base, { method:'POST', headers, body: JSON.stringify({ startDate, endDate, dimensions:['query'], rowLimit:10 }) }),
-                fetch(base, { method:'POST', headers, body: JSON.stringify({ startDate, endDate, dimensions:['page'], rowLimit:10 }) }),
-                fetch(base, { method:'POST', headers, body: JSON.stringify({ startDate, endDate, dimensions:[], rowLimit:1 }) }),
-            ]);
-            if (!qRes.ok) throw new Error('token_expired_' + qRes.status);
-            const [qj, pj, tj] = await Promise.all([qRes.json(), pRes.json(), totRes.json()]);
-            const totRow = tj.rows?.[0] || {};
-            return {
-                queries: qj.rows || [],
-                pages: pj.rows || [],
-                totals: { clicks: totRow.clicks||0, impressions: totRow.impressions||0, ctr: totRow.ctr||0, position: totRow.position||0 }
-            };
-        }
+    let _activeToken = cfg.gsc_token;
+    let _activeTokenTs = cfg.gsc_token_ts || 0;
+    try {
+        const _ls = JSON.parse(localStorage.getItem('isi_gsc_tok_' + site.site_id) || 'null');
+        if (_ls && _ls.ts && _ls.ts > _activeTokenTs) { _activeToken = _ls.token; _activeTokenTs = _ls.ts; }
+    } catch {}
+    const tokenAgeSec = _activeTokenTs ? (Date.now() - _activeTokenTs) / 1000 : Infinity;
+    let _gscActiveDays = 28;
 
-        function _renderGscFull(data) {
-            if (!datiGscCont) return;
-            const { queries: qRows = [], pages: pRows = [], totals = {} } = data;
-            const fmt = n => n >= 1000 ? (n/1000).toFixed(1)+'K' : String(n);
-            const bx = (label, value, sub) => `<div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:14px 16px;text-align:center"><div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">${label}</div><div style="font-size:28px;font-weight:800;color:#0D5F75;line-height:1">${value}</div><div style="font-size:11px;color:rgba(13,95,117,0.5);margin-top:4px">${sub}</div></div>`;
-            const tbl = (rows, col1) => `<table style="width:100%;border-collapse:collapse;font-size:12px"><tr style="color:#9ca3af;border-bottom:1px solid #f0f0f5"><td style="padding:4px 8px 4px 0">${col1}</td><td style="padding:4px 8px;text-align:right">Click</td><td style="padding:4px 8px;text-align:right">Impr.</td><td style="padding:4px 8px;text-align:right">CTR</td><td style="padding:4px 0;text-align:right">Pos.</td></tr>${rows.map(r=>`<tr style="border-bottom:1px solid #f4f4f8"><td style="padding:5px 8px 5px 0;color:#0D5F75;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.keys[0])}</td><td style="padding:5px 8px;text-align:right;color:#0D5F75;font-weight:600">${r.clicks}</td><td style="padding:5px 8px;text-align:right;color:rgba(13,95,117,0.5)">${r.impressions}</td><td style="padding:5px 8px;text-align:right;color:rgba(13,95,117,0.5)">${(r.ctr*100).toFixed(1)}%</td><td style="padding:5px 0;text-align:right;color:rgba(13,95,117,0.5)">${r.position.toFixed(1)}</td></tr>`).join('')}</table>`;
-            const rangeLabel = _gscActiveDays===28?'ultimi 28 gg':_gscActiveDays===180?'ultimi 6 mesi':'tutti i dati';
-            datiGscCont.innerHTML =
-                `<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px 8px;border-bottom:1px solid #f4f4f8">` +
-                `<div style="font-size:11px;color:rgba(13,95,117,0.5)">Dati GSC — ${rangeLabel}</div>` +
-                `<div style="display:flex;gap:14px">${[{d:28,l:'1M'},{d:180,l:'6M'},{d:9999,l:'Sempre'}].map(r=>`<span class="hgsc-range-btn" data-days="${r.d}" style="font-size:12px;font-weight:700;cursor:pointer;${_gscActiveDays===r.d?'color:#0D5F75;border-bottom:2px solid #0D5F75;padding-bottom:2px':'color:#9ca3af'}">${r.l}</span>`).join('')}</div>` +
-                `</div>` +
-                `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:14px 20px">${bx('CLICK TOTALI',fmt(totals.clicks||0),'clic organici')}${bx('IMPRESSION TOTALI',fmt(totals.impressions||0),'visualizzazioni')}${bx('CTR MEDIO',totals.impressions?((totals.ctr||0)*100).toFixed(1)+'%':'—','click-through rate')}${bx('POSIZIONE MEDIA',totals.impressions?(totals.position||0).toFixed(1):'—','posizione media SERP')}</div>` +
-                (qRows.length ? `<div style="padding:0 20px 14px"><div style="font-size:11px;font-weight:700;color:rgba(13,95,117,0.5);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">TOP QUERY</div>${tbl(qRows,'Query')}</div>` : '') +
-                (pRows.length ? `<div style="padding:0 20px 14px;border-top:1px solid #f4f4f8"><div style="font-size:11px;font-weight:700;color:rgba(13,95,117,0.5);text-transform:uppercase;letter-spacing:.05em;margin:14px 0 8px">TOP PAGINE</div>${tbl(pRows,'Pagina')}</div>` : '');
-            datiGscCont.querySelectorAll('.hgsc-range-btn').forEach(btn => {
-                btn.addEventListener('click', () => { _gscActiveDays = parseInt(btn.dataset.days); _loadGscData(); });
-            });
-        }
-
-        async function _saveToken(token) {
-            const now = Date.now();
-            _activeToken = token; _activeTokenTs = now;
-            try { localStorage.setItem('isi_gsc_tok_' + site.site_id, JSON.stringify({ token, ts: now })); } catch {}
-            try {
-                const { data: fresh } = await _SBq.from('isi_sites').select('hotel_profile').eq('site_id', site.site_id).single();
-                const hp = fresh?.hotel_profile || site?.hotel_profile || {};
-                const nc = { ...(hp.isi_config || {}), gsc_token: token, gsc_token_ts: now };
-                await _SBq.from('isi_sites').update({ hotel_profile: { ...hp, isi_config: nc } }).eq('site_id', site.site_id);
-                if (site?.hotel_profile?.isi_config) { site.hotel_profile.isi_config.gsc_token = token; site.hotel_profile.isi_config.gsc_token_ts = now; }
-            } catch { /* token già in localStorage */ }
-        }
-
-        function _silentRefresh() {
-            const clientId = localStorage.getItem('isi_gsc_client_id');
-            if (!clientId || !window.google?.accounts?.oauth2) return Promise.reject(new Error('no_gis'));
-            return new Promise((resolve, reject) => {
-                const t = setTimeout(() => reject(new Error('timeout')), 6000);
-                window.google.accounts.oauth2.initTokenClient({
-                    client_id: clientId,
-                    scope: 'https://www.googleapis.com/auth/webmasters.readonly',
-                    hint: cfg.gsc_email || '',
-                    callback: async function(resp) {
-                        clearTimeout(t);
-                        if (resp.error) { reject(new Error(resp.error)); return; }
-                        await _saveToken(resp.access_token);
-                        resolve(resp.access_token);
-                    }
-                }).requestAccessToken({ prompt: 'none' });
-            });
-        }
-
-        function _autoReconnect() {
-            const clientId = localStorage.getItem('isi_gsc_client_id');
-            if (!clientId || !window.google?.accounts?.oauth2) return Promise.reject(new Error('no_gis'));
-            return new Promise((resolve, reject) => {
-                const t = setTimeout(() => reject(new Error('timeout')), 20000);
-                window.google.accounts.oauth2.initTokenClient({
-                    client_id: clientId,
-                    scope: 'https://www.googleapis.com/auth/webmasters.readonly',
-                    hint: cfg.gsc_email || '',
-                    callback: async function(resp) {
-                        clearTimeout(t);
-                        if (resp.error) { reject(new Error(resp.error)); return; }
-                        await _saveToken(resp.access_token);
-                        resolve(resp.access_token);
-                    }
-                }).requestAccessToken({ prompt: '' });
-            });
-        }
-
-        function _showReconnectBtn() {
-            if (!datiGscCont) return;
-            const clientId = localStorage.getItem('isi_gsc_client_id');
-            datiGscCont.innerHTML =
-                '<div style="display:flex;align-items:center;gap:12px;padding:16px 20px">' +
-                '<span style="font-size:13px;color:rgba(13,95,117,0.5)">Aggiorna la sessione Google per vedere i dati.</span>' +
-                '<button id="hbtn-gsc-reconnect" style="background:#0D5F75;color:white;border:none;border-radius:6px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Riconnetti Google</button>' +
-                '</div>';
-            const btn = document.getElementById('hbtn-gsc-reconnect');
-            if (!btn || !clientId || !window.google?.accounts?.oauth2) return;
-            btn.addEventListener('click', function() {
-                btn.textContent = 'Connessione in corso…';
-                btn.disabled = true;
-                window.google.accounts.oauth2.initTokenClient({
-                    client_id: clientId,
-                    scope: 'https://www.googleapis.com/auth/webmasters.readonly',
-                    callback: async function(resp) {
-                        if (resp.error) { btn.textContent = 'Riprova'; btn.disabled = false; return; }
-                        await _saveToken(resp.access_token);
-                        _loadGscData();
-                    }
-                }).requestAccessToken({ prompt: 'select_account' });
-                setTimeout(() => { if (btn.disabled) { btn.textContent = 'Riprova'; btn.disabled = false; } }, 20000);
-            });
-        }
-
-        async function _loadGscData() {
-            if (datiGscCont) datiGscCont.innerHTML = '<div style="padding:16px 20px;font-size:13px;color:rgba(13,95,117,0.5)">Caricamento...</div>';
-            let token = _activeToken;
-            if (tokenAgeSec >= 3000) {
-                try { token = await _silentRefresh(); } catch { /* usa token esistente */ }
-            }
-            try {
-                const data = await _fetchGscData(token, _gscActiveDays);
-                _renderGscFull(data);
-            } catch(e) {
-                if (e.message?.includes('token_expired')) {
-                    try { token = await _silentRefresh(); const data = await _fetchGscData(token, _gscActiveDays); _renderGscFull(data); return; } catch {}
-                    if (datiGscCont) datiGscCont.innerHTML = '<div style="padding:16px 20px;font-size:13px;color:rgba(13,95,117,0.5)">Aggiornamento sessione Google...</div>';
-                    try { token = await _autoReconnect(); const data = await _fetchGscData(token, _gscActiveDays); _renderGscFull(data); return; } catch {}
-                    _showReconnectBtn();
-                }
-                else if (datiGscCont) datiGscCont.innerHTML = '<div style="padding:16px 20px;font-size:13px;color:rgba(13,95,117,0.5)">Errore nel caricamento dati GSC.</div>';
-            }
-        }
-
-        _loadGscData();
+    function _gscDateRange(days) {
+        const end = new Date();
+        const start = days >= 9999 ? new Date(end.getTime() - 16*30*86400000) : new Date(end.getTime() - days*86400000);
+        return { startDate: start.toISOString().slice(0,10), endDate: end.toISOString().slice(0,10) };
     }
+
+    async function _fetchGscData(token, days) {
+        const { startDate, endDate } = _gscDateRange(days);
+        const base = `https://searchconsole.googleapis.com/webmasters/v3/sites/${encodeURIComponent(cfg.gsc_site)}/searchAnalytics/query`;
+        const headers = { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' };
+        const [qRes, pRes, totRes] = await Promise.all([
+            fetch(base, { method:'POST', headers, body: JSON.stringify({ startDate, endDate, dimensions:['query'], rowLimit:10 }) }),
+            fetch(base, { method:'POST', headers, body: JSON.stringify({ startDate, endDate, dimensions:['page'], rowLimit:10 }) }),
+            fetch(base, { method:'POST', headers, body: JSON.stringify({ startDate, endDate, dimensions:[], rowLimit:1 }) }),
+        ]);
+        if (!qRes.ok) throw new Error('token_expired_' + qRes.status);
+        const [qj, pj, tj] = await Promise.all([qRes.json(), pRes.json(), totRes.json()]);
+        const totRow = tj.rows?.[0] || {};
+        return {
+            queries: qj.rows || [],
+            pages: pj.rows || [],
+            totals: { clicks: totRow.clicks||0, impressions: totRow.impressions||0, ctr: totRow.ctr||0, position: totRow.position||0 }
+        };
+    }
+
+    function _renderGscFull(data) {
+        if (!datiGscCont) return;
+        const { queries: qRows = [], pages: pRows = [], totals = {} } = data;
+        const fmt = n => n >= 1000 ? (n/1000).toFixed(1)+'K' : String(n);
+        const bx = (label, value, sub) => `<div style="background:white;border:1px solid #e4e4ec;border-radius:8px;padding:14px 16px;text-align:center"><div style="font-size:10px;font-weight:600;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">${label}</div><div style="font-size:28px;font-weight:800;color:#0D5F75;line-height:1">${value}</div><div style="font-size:11px;color:rgba(13,95,117,0.5);margin-top:4px">${sub}</div></div>`;
+        const tbl = (rows, col1) => `<table style="width:100%;border-collapse:collapse;font-size:12px;font-family:'Source Code Pro',monospace"><tr style="color:#9ca3af;border-bottom:1px solid #f0f0f5"><td style="padding:4px 8px 4px 0">${col1}</td><td style="padding:4px 8px;text-align:right">Click</td><td style="padding:4px 8px;text-align:right">Impr.</td><td style="padding:4px 8px;text-align:right">CTR</td><td style="padding:4px 0;text-align:right">Pos.</td></tr>${rows.map(r=>`<tr style="border-bottom:1px solid #f4f4f8"><td style="padding:5px 8px 5px 0;color:#0D5F75;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.keys[0])}</td><td style="padding:5px 8px;text-align:right;color:#0D5F75;font-weight:600">${r.clicks}</td><td style="padding:5px 8px;text-align:right;color:rgba(13,95,117,0.5)">${r.impressions}</td><td style="padding:5px 8px;text-align:right;color:rgba(13,95,117,0.5)">${(r.ctr*100).toFixed(1)}%</td><td style="padding:5px 0;text-align:right;color:rgba(13,95,117,0.5)">${r.position.toFixed(1)}</td></tr>`).join('')}</table>`;
+        const rangeLabel = _gscActiveDays===28?'ultimi 28 gg':_gscActiveDays===180?'ultimi 6 mesi':'tutti i dati';
+        datiGscCont.innerHTML =
+            `<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px 8px;border-bottom:1px solid #f4f4f8">` +
+            `<div style="font-size:11px;color:rgba(13,95,117,0.5)">Dati GSC — ${rangeLabel}</div>` +
+            `<div style="display:flex;gap:6px">${[{d:28,l:'1M'},{d:180,l:'6M'},{d:9999,l:'Sempre'}].map(r=>`<button class="hgsc-range-btn" data-days="${r.d}" style="font-family:'Source Code Pro',monospace;font-size:11px;font-weight:600;cursor:pointer;border-radius:24px;padding:3px 12px;border:1.5px solid ${_gscActiveDays===r.d?'#0D5F75':'#e4e4ec'};background:${_gscActiveDays===r.d?'#0D5F75':'white'};color:${_gscActiveDays===r.d?'white':'#9ca3af'}">${r.l}</button>`).join('')}</div>` +
+            `</div>` +
+            `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:14px 20px">${bx('CLICK TOTALI',fmt(totals.clicks||0),'clic organici')}${bx('IMPRESSION TOTALI',fmt(totals.impressions||0),'visualizzazioni')}${bx('CTR MEDIO',totals.impressions?((totals.ctr||0)*100).toFixed(1)+'%':'—','click-through rate')}${bx('POSIZIONE MEDIA',totals.impressions?(totals.position||0).toFixed(1):'—','posizione media SERP')}</div>` +
+            (qRows.length ? `<div style="padding:0 20px 14px"><div style="font-size:11px;font-weight:600;color:rgba(13,95,117,0.5);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Top Query</div>${tbl(qRows,'Query')}</div>` : '') +
+            (pRows.length ? `<div style="padding:0 20px 14px;border-top:1px solid #f4f4f8"><div style="font-size:11px;font-weight:600;color:rgba(13,95,117,0.5);text-transform:uppercase;letter-spacing:.05em;margin:14px 0 8px">Top Pagine</div>${tbl(pRows,'Pagina')}</div>` : '');
+        datiGscCont.querySelectorAll('.hgsc-range-btn').forEach(btn => {
+            btn.addEventListener('click', () => { _gscActiveDays = parseInt(btn.dataset.days); _loadGscData(); });
+        });
+    }
+
+    async function _saveToken(token) {
+        const now = Date.now();
+        _activeToken = token; _activeTokenTs = now;
+        try { localStorage.setItem('isi_gsc_tok_' + site.site_id, JSON.stringify({ token, ts: now })); } catch {}
+        try {
+            const { data: fresh } = await _SBq.from('isi_sites').select('hotel_profile').eq('site_id', site.site_id).single();
+            const hp = fresh?.hotel_profile || site?.hotel_profile || {};
+            const nc = { ...(hp.isi_config || {}), gsc_token: token, gsc_token_ts: now };
+            await _SBq.from('isi_sites').update({ hotel_profile: { ...hp, isi_config: nc } }).eq('site_id', site.site_id);
+            if (site?.hotel_profile?.isi_config) { site.hotel_profile.isi_config.gsc_token = token; site.hotel_profile.isi_config.gsc_token_ts = now; }
+        } catch {}
+    }
+
+    function _silentRefresh() {
+        const clientId = localStorage.getItem('isi_gsc_client_id');
+        if (!clientId || !window.google?.accounts?.oauth2) return Promise.reject(new Error('no_gis'));
+        return new Promise((resolve, reject) => {
+            const t = setTimeout(() => reject(new Error('timeout')), 6000);
+            window.google.accounts.oauth2.initTokenClient({
+                client_id: clientId,
+                scope: 'https://www.googleapis.com/auth/webmasters.readonly',
+                hint: cfg.gsc_email || '',
+                callback: async function(resp) {
+                    clearTimeout(t);
+                    if (resp.error) { reject(new Error(resp.error)); return; }
+                    await _saveToken(resp.access_token);
+                    resolve(resp.access_token);
+                }
+            }).requestAccessToken({ prompt: 'none' });
+        });
+    }
+
+    function _autoReconnect() {
+        const clientId = localStorage.getItem('isi_gsc_client_id');
+        if (!clientId || !window.google?.accounts?.oauth2) return Promise.reject(new Error('no_gis'));
+        return new Promise((resolve, reject) => {
+            const t = setTimeout(() => reject(new Error('timeout')), 20000);
+            window.google.accounts.oauth2.initTokenClient({
+                client_id: clientId,
+                scope: 'https://www.googleapis.com/auth/webmasters.readonly',
+                hint: cfg.gsc_email || '',
+                callback: async function(resp) {
+                    clearTimeout(t);
+                    if (resp.error) { reject(new Error(resp.error)); return; }
+                    await _saveToken(resp.access_token);
+                    resolve(resp.access_token);
+                }
+            }).requestAccessToken({ prompt: '' });
+        });
+    }
+
+    function _showReconnectBtn() {
+        if (!datiGscCont) return;
+        const clientId = localStorage.getItem('isi_gsc_client_id');
+        datiGscCont.innerHTML =
+            '<div style="display:flex;align-items:center;gap:12px;padding:16px 20px">' +
+            '<span style="font-size:13px;color:rgba(13,95,117,0.5)">Aggiorna la sessione Google per vedere i dati.</span>' +
+            '<button id="hbtn-gsc-reconnect" style="background:#C1CBE8;color:white;border:none;border-radius:24px;padding:6px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:\'Source Code Pro\',monospace">Riconnetti Google</button>' +
+            '</div>';
+        const btn = document.getElementById('hbtn-gsc-reconnect');
+        if (!btn || !clientId || !window.google?.accounts?.oauth2) return;
+        btn.addEventListener('click', function() {
+            btn.textContent = 'Connessione in corso…';
+            btn.disabled = true;
+            window.google.accounts.oauth2.initTokenClient({
+                client_id: clientId,
+                scope: 'https://www.googleapis.com/auth/webmasters.readonly',
+                callback: async function(resp) {
+                    if (resp.error) { btn.textContent = 'Riprova'; btn.disabled = false; return; }
+                    await _saveToken(resp.access_token);
+                    _loadGscData();
+                }
+            }).requestAccessToken({ prompt: 'select_account' });
+            setTimeout(() => { if (btn.disabled) { btn.textContent = 'Riprova'; btn.disabled = false; } }, 20000);
+        });
+    }
+
+    async function _loadGscData() {
+        if (datiGscCont) datiGscCont.innerHTML = '<div style="padding:16px 20px;font-size:13px;color:rgba(13,95,117,0.5)">Caricamento...</div>';
+        let token = _activeToken;
+        if (tokenAgeSec >= 3000) {
+            try { token = await _silentRefresh(); } catch {}
+        }
+        try {
+            const data = await _fetchGscData(token, _gscActiveDays);
+            _renderGscFull(data);
+        } catch(e) {
+            if (e.message?.includes('token_expired')) {
+                try { token = await _silentRefresh(); const data = await _fetchGscData(token, _gscActiveDays); _renderGscFull(data); return; } catch {}
+                if (datiGscCont) datiGscCont.innerHTML = '<div style="padding:16px 20px;font-size:13px;color:rgba(13,95,117,0.5)">Aggiornamento sessione Google...</div>';
+                try { token = await _autoReconnect(); const data = await _fetchGscData(token, _gscActiveDays); _renderGscFull(data); return; } catch {}
+                _showReconnectBtn();
+            }
+            else if (datiGscCont) datiGscCont.innerHTML = '<div style="padding:16px 20px;font-size:13px;color:rgba(13,95,117,0.5)">Errore nel caricamento dati GSC.</div>';
+        }
+    }
+
+    _loadGscData();
 }
 
 // ─── PSE SIMULATORE ───────────────────────────────────────────────────────────
