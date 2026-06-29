@@ -7,7 +7,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Eletta — Posiziona il tuo sito nelle ricerche AI</title>
-    <script>var _V='v1782420017';if(localStorage.getItem('_hv')!==_V){localStorage.setItem('_hv',_V);location.reload(true);}</script>
+    <script>var _V='v1782420018';if(localStorage.getItem('_hv')!==_V){localStorage.setItem('_hv',_V);location.reload(true);}</script>
     <link rel="icon" type="image/png" href="images/favicon.png?v=2">
     <link rel="stylesheet" href="css/style.css?v=20260622q">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -311,6 +311,7 @@ let _site = null, _pluginBase = '', _pluginSecret = '', _appFeatures = {}, _site
 let _faqItems = [], _faqFilter = 'all', _faqSearch = '';
 let _pseChartsInited = false, _mappaInited = false, _coerenzaInited = false, _configInited = false;
 let _aiLayerInited = false;
+let _isAdmin = false;
 let _camereTmp = [], _offerteTmp = [], _socialCustomTmp = [];
 let _galleryTmp = [], _serviziCustomTmp = [], _targetCustomTmp = [], _knowsaboutCustomTmp = [];
 let _schemaProfile = {}, _currentHotelProfile = {};
@@ -327,6 +328,7 @@ async function init() {
     const urlParams = new URLSearchParams(location.search);
     const paramSiteId = urlParams.get('site_id');
     const isAdmin = user.user_metadata?.role === 'admin';
+    _isAdmin = isAdmin;
     if (isAdmin && !paramSiteId) { window.location.href = 'index.html'; return; }
 
     // Modalità admin: mostra freccia "← Hotels" nel brand sidebar
@@ -1219,40 +1221,47 @@ function renderContent(site, pseData, now) {
 
         <!-- ═══ TAB: STATISTICHE PSE ═══ -->
         <div id="htab-pse" style="display:none">
-        <div class="card" style="margin-bottom:20px;border-radius:8px;border:1px solid #e4e4ec;box-shadow:none">
-            <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa">
-                <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:500;color:#0D5F75;letter-spacing:.05em;text-transform:uppercase;font-family:Commissioner,sans-serif">Simulatore Query AI</div></div>
-            </div>
-            <div style="padding:16px 20px">
-                <div style="font-size:12px;color:rgba(13,95,117,0.5);margin-bottom:10px">Testa se il tuo hotel compare nelle risposte AI per una query specifica.</div>
+        <div class="h-card" style="margin-bottom:20px">
+            <div class="h-card-hdr" style="justify-content:flex-start;gap:12px"><div style="width:34px;height:34px;border-radius:50%;background:white;border:1.5px solid #0D5F75;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div><span class="h-card-hdr-t" style="font-size:18px;font-weight:500">Simulatore Query AI</span></div>
+            <div class="h-card-body" style="padding:16px 20px">
+                <div style="font-size:12px;color:rgba(13,95,117,0.5);margin-bottom:10px;font-family:'Source Code Pro',monospace">Testa se il tuo hotel compare nelle risposte AI per una query specifica.</div>
                 <div style="display:flex;gap:8px;align-items:center">
-                    <input type="text" id="hpse-query-input" placeholder="Es: hotel con piscina a Rimini per famiglie..." style="flex:1;border:1px solid #e4e4ec;border-radius:6px;padding:9px 12px;font-size:13px;color:#0D5F75;outline:none;font-family:'Source Code Pro',monospace" onkeydown="if(event.key==='Enter')runHotelPseQuery()">
-                    <button id="hpse-run-btn" class="btn-update" style="margin-left:0;white-space:nowrap" onclick="runHotelPseQuery()">Analizza</button>
+                    <input type="text" id="hpse-query-input" placeholder="Es: hotel con piscina a Rimini per famiglie..." style="flex:1;border:1px solid #e4e4ec;border-radius:24px;padding:9px 16px;font-size:13px;color:#0D5F75;outline:none;font-family:'Source Code Pro',monospace" onkeydown="if(event.key==='Enter')runHotelPseQuery()">
+                    <button id="hpse-run-btn" style="background:#C1CBE8;color:#fff;border:none;border-radius:24px;padding:9px 20px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Source Code Pro',monospace;white-space:nowrap" onclick="runHotelPseQuery()">Analizza</button>
                 </div>
                 <div id="hpse-run-result" style="margin-top:14px;display:none"></div>
             </div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px">
-            <div class="card" style="border-radius:8px;border:1px solid #e4e4ec;box-shadow:none;margin:0">
-                <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:500;color:#0D5F75;letter-spacing:.05em;text-transform:uppercase;font-family:Commissioner,sans-serif">Presenza nei risultati AI</div></div></div>
-                <div style="padding:20px;display:flex;flex-direction:column;align-items:center;min-height:260px;justify-content:center">
-                    <canvas id="hchart-pse-donut" style="max-width:200px;max-height:200px"></canvas>
-                    <div id="hpse-donut-legend" style="margin-top:12px;font-size:12px;color:rgba(13,95,117,0.5);text-align:center"></div>
+            <div class="h-card" style="margin-bottom:0">
+                <div class="h-card-hdr" style="justify-content:flex-start;gap:12px"><div style="width:34px;height:34px;border-radius:50%;background:white;border:1.5px solid #0D5F75;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 118 2.83"/><path d="M22 12A10 10 0 0012 2v10z"/></svg></div><span class="h-card-hdr-t" style="font-size:18px;font-weight:500">Presenza nei risultati AI</span></div>
+                <div class="h-card-body" style="padding:16px 20px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:240px">
+                    <div style="background:white;border:1px solid #e4e4ec;border-radius:12px;padding:16px;min-width:180px;text-align:center;flex-shrink:0;overflow:hidden">
+                        <div style="font-size:11px;color:#0D5F75;font-weight:400;margin-bottom:10px;letter-spacing:.06em;font-family:'Source Code Pro',monospace">Citazioni AI</div>
+                        <div style="position:relative;width:165px;height:93px;margin:0 auto">
+                            <canvas id="hchart-pse-gauge-bg" width="165" height="93" style="position:absolute;top:0;left:0"></canvas>
+                            <canvas id="hchart-pse-gauge" width="165" height="93" style="position:absolute;top:0;left:0"></canvas>
+                            <span style="position:absolute;bottom:-8px;left:3px;font-size:9px;color:#aaa;line-height:1">0</span>
+                            <span style="position:absolute;bottom:-8px;right:3px;font-size:9px;color:#aaa;line-height:1">100</span>
+                        </div>
+                        <div id="hpse-gauge-pct" style="font-size:26px;font-weight:500;color:#0D5F75;margin-top:-18px;font-family:Commissioner,sans-serif">—%</div>
+                        <div id="hpse-gauge-label" style="font-size:12px;font-weight:400;color:#C1CBE8;margin-top:4px;font-family:'Source Code Pro',monospace">nessun dato</div>
+                    </div>
                 </div>
             </div>
-            <div class="card" style="border-radius:8px;border:1px solid #e4e4ec;box-shadow:none;margin:0">
-                <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:500;color:#0D5F75;letter-spacing:.05em;text-transform:uppercase;font-family:Commissioner,sans-serif">Query nel tempo (ultimi 30 giorni)</div></div></div>
-                <div style="padding:20px"><canvas id="hchart-pse-bar" style="max-height:200px"></canvas></div>
+            <div class="h-card" style="margin-bottom:0">
+                <div class="h-card-hdr" style="justify-content:flex-start;gap:12px"><div style="width:34px;height:34px;border-radius:50%;background:white;border:1.5px solid #0D5F75;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><span class="h-card-hdr-t" style="font-size:18px;font-weight:500">Query nel tempo</span><div style="display:flex;gap:8px;margin-left:auto"><span class="hpse-bar-range h-range-btn active-range" data-days="30">1 mese</span><span class="hpse-bar-range h-range-btn" data-days="90">3 mesi</span><span class="hpse-bar-range h-range-btn" data-days="9999">Sempre</span></div></div>
+                <div class="h-card-body" style="padding:16px 20px"><canvas id="hchart-pse-bar" style="max-height:220px"></canvas></div>
             </div>
         </div>
-        <div class="card" style="border-radius:8px;border:1px solid #e4e4ec;box-shadow:none;margin:0;margin-bottom:20px">
-            <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:500;color:#0D5F75;letter-spacing:.05em;text-transform:uppercase;font-family:Commissioner,sans-serif">Riepilogo PSE</div></div></div>
-            <div style="padding:16px 20px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
-                ${(()=>{const tot=pseData.length;const totCost=pseData.reduce((a,r)=>a+(parseFloat(r.cost_usd)||0),0);const cited=pseData.filter(r=>r.result?.cited||r.result?.found||r.result?.match_found).length;const pct=tot>0?Math.round(cited/tot*100):null;const bx=(l,v,s,vc)=>'<div style="background:white;border:1px solid #e4e4ec;border-radius:14px;padding:16px 18px"><div style="font-size:10px;color:#aaa;font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px">'+l+'</div><div style="font-size:28px;font-weight:800;color:#0D5F75;line-height:1">'+v+'</div><div style="font-size:11px;font-weight:600;color:'+vc+';margin-top:5px">'+s+'</div></div>';return bx('QUERY TOTALI',tot,'eseguite','#0D5F75')+bx('CITAZIONI',cited,'trovate','#0D5F75')+bx('TASSO CITAZIONE',pct!==null?pct+'%':'—',pct!==null?(pct>=50?'buona visibilità':'da migliorare'):'nessun dato',pct!==null?'#0D5F75':'#ead0dc')+bx('COSTO TOTALE','€'+totCost.toFixed(4),'speso','#666b84');})()}
+        <div class="h-card" style="margin-bottom:20px">
+            <div class="h-card-hdr" style="justify-content:flex-start;gap:12px"><div style="width:34px;height:34px;border-radius:50%;background:white;border:1.5px solid #0D5F75;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="4" height="18" rx="1"/><rect x="10" y="8" width="4" height="13" rx="1"/><rect x="17" y="13" width="4" height="8" rx="1"/></svg></div><span class="h-card-hdr-t" style="font-size:18px;font-weight:500">Riepilogo PSE</span></div>
+            <div style="padding:16px 20px;display:grid;grid-template-columns:repeat(${_isAdmin?4:3},1fr);gap:12px">
+                ${(()=>{const tot=pseData.length;const totCost=pseData.reduce((a,r)=>a+(parseFloat(r.cost_usd)||0),0);const cited=pseData.filter(r=>r.result?.cited||r.result?.found||r.result?.match_found).length;const pct=tot>0?Math.round(cited/tot*100):null;const bx=(l,v,s,vc)=>'<div style="background:white;border:1px solid #e4e4ec;border-radius:14px;padding:16px 18px"><div style="font-size:10px;color:#aaa;font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px;font-family:\'Source Code Pro\',monospace">'+l+'</div><div style="font-size:28px;font-weight:500;color:#0D5F75;line-height:1;font-family:Commissioner,sans-serif">'+v+'</div><div style="font-size:12px;font-weight:400;color:'+vc+';margin-top:5px;font-family:\'Source Code Pro\',monospace">'+s+'</div></div>';return bx('QUERY TOTALI',tot,'eseguite','#C1CBE8')+bx('CITAZIONI',cited,'trovate','#C1CBE8')+bx('TASSO CITAZIONE',pct!==null?pct+'%':'—',pct!==null?(pct>=50?'buona visibilità':'da migliorare'):'nessun dato',pct!==null?'#0D5F75':'#C1CBE8')+(_isAdmin?bx('COSTO TOTALE','€'+totCost.toFixed(4),'speso','#C1CBE8'):'');})()}
             </div>
         </div>
-        <div class="card" style="border-radius:8px;border:1px solid #e4e4ec;box-shadow:none;margin:0">
-            <div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#0D5F75;display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:500;color:#0D5F75;letter-spacing:.05em;text-transform:uppercase;font-family:Commissioner,sans-serif">Distribuzione per LLM</div></div></div>
+        <div class="h-card" style="margin-bottom:20px">
+            <div class="h-card-hdr" style="justify-content:flex-start;gap:12px"><div style="width:34px;height:34px;border-radius:50%;background:white;border:1.5px solid #0D5F75;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg></div><span class="h-card-hdr-t" style="font-size:18px;font-weight:500">Distribuzione per LLM</span></div>
             <div id="hpse-llm-bars" style="padding:16px 20px;display:none"></div>
         </div>
         <div class="h-card" id="hdati-gsc-card" style="margin-top:20px;display:none">
@@ -3355,20 +3364,27 @@ function _renderLlmBars(items, elId) {
 
 function initHotelPseCharts(pseData) {
     if (_pseChartsInited) return; _pseChartsInited = true;
-    const items=pseData||[], cited=items.filter(r=>r.result?.cited||r.result?.found||r.result?.match_found).length, notCited=items.length-cited;
-    const donutCtx=document.getElementById('hchart-pse-donut');
-    if(donutCtx&&items.length>0){
-        new Chart(donutCtx,{type:'doughnut',data:{labels:['Citato','Non citato'],datasets:[{data:[cited,notCited],backgroundColor:['#0D5F75','#EDEEF5'],borderWidth:0}]},options:{cutout:'70%',plugins:{legend:{display:false}}}});
-        document.getElementById('hpse-donut-legend').innerHTML='<span style="color:#0D5F75;font-weight:700">'+cited+' citazioni</span> su '+items.length+' query';
-    } else if(donutCtx){
-        donutCtx.parentElement.innerHTML='<div style="color:#aaa;font-size:13px;text-align:center">Nessuna query PSE registrata.</div>';
+    const items=pseData||[], cited=items.filter(r=>r.result?.cited||r.result?.found||r.result?.match_found).length;
+    const pct = items.length > 0 ? Math.round(cited / items.length * 100) : null;
+    // Gauge Presenza AI (stile identico a Copertura FAQ in panoramica)
+    const gauBgCtx = document.getElementById('hchart-pse-gauge-bg');
+    const gauCtx = document.getElementById('hchart-pse-gauge');
+    if (gauBgCtx && window.Chart) {
+        new window.Chart(gauBgCtx.getContext('2d'), {type:'doughnut',data:{datasets:[{data:[100],backgroundColor:['#C1CBE8'],borderWidth:0,circumference:180,rotation:-90,borderRadius:{outerStart:20,innerStart:20,outerEnd:20,innerEnd:20},borderSkipped:false}]},options:{responsive:false,plugins:{legend:{display:false},tooltip:{enabled:false}},cutout:'72%'}});
     }
-    // Usa _buildPseWeeklyChart per il grafico a barre settimanale
+    if (gauCtx && window.Chart && pct !== null) {
+        new window.Chart(gauCtx.getContext('2d'), {type:'doughnut',data:{datasets:[{data:[pct,100-pct],backgroundColor:['#0D5F75','transparent'],borderWidth:0,circumference:180,rotation:-90,borderRadius:[{outerStart:20,innerStart:20,outerEnd:20,innerEnd:20},{outerStart:0,innerStart:0,outerEnd:0,innerEnd:0}],borderSkipped:false}]},options:{responsive:false,plugins:{legend:{display:false},tooltip:{enabled:false}},cutout:'72%'}});
+    }
+    const pctEl = document.getElementById('hpse-gauge-pct');
+    const lblEl = document.getElementById('hpse-gauge-label');
+    if (pctEl) pctEl.textContent = pct !== null ? pct + '%' : '—';
+    if (lblEl) lblEl.textContent = pct !== null ? (pct >= 50 ? 'buona visibilità' : 'da migliorare') : 'nessun dato';
+    // Grafico a barre settimanale
     _buildPseWeeklyChart('hchart-pse-bar', items, 30, '_hChartPseBar');
     document.querySelectorAll('.hpse-bar-range').forEach(btn => {
         btn.addEventListener('click', () => {
-            document.querySelectorAll('.hpse-bar-range').forEach(b => { b.style.color='#9ca3af'; b.style.borderBottom='none'; b.style.paddingBottom='0'; });
-            btn.style.color='#0D5F75'; btn.style.borderBottom='2px solid #0D5F75'; btn.style.paddingBottom='1px';
+            document.querySelectorAll('.hpse-bar-range').forEach(b => b.classList.remove('active-range'));
+            btn.classList.add('active-range');
             _buildPseWeeklyChart('hchart-pse-bar', items, parseInt(btn.dataset.days), '_hChartPseBar');
         });
     });
@@ -3829,13 +3845,17 @@ function initGscPanel(site) {
         datiGscCont.innerHTML =
             `<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px 8px;border-bottom:1px solid #f4f4f8">` +
             `<div style="font-size:11px;color:rgba(13,95,117,0.5)">Dati GSC — ${rangeLabel}</div>` +
-            `<div style="display:flex;gap:6px">${[{d:28,l:'1M'},{d:180,l:'6M'},{d:9999,l:'Sempre'}].map(r=>`<button class="hgsc-range-btn" data-days="${r.d}" style="font-family:'Source Code Pro',monospace;font-size:11px;font-weight:600;cursor:pointer;border-radius:24px;padding:3px 12px;border:1.5px solid ${_gscActiveDays===r.d?'#0D5F75':'#e4e4ec'};background:${_gscActiveDays===r.d?'#0D5F75':'white'};color:${_gscActiveDays===r.d?'white':'#9ca3af'}">${r.l}</button>`).join('')}</div>` +
+            `<div style="display:flex;gap:8px">${[{d:28,l:'1 mese'},{d:180,l:'6 mesi'},{d:9999,l:'Sempre'}].map(r=>`<span class="hgsc-range-btn h-range-btn${_gscActiveDays===r.d?' active-range':''}" data-days="${r.d}" style="cursor:pointer">${r.l}</span>`).join('')}</div>` +
             `</div>` +
             `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:14px 20px">${bx('CLICK TOTALI',fmt(totals.clicks||0),'clic organici')}${bx('IMPRESSION TOTALI',fmt(totals.impressions||0),'visualizzazioni')}${bx('CTR MEDIO',totals.impressions?((totals.ctr||0)*100).toFixed(1)+'%':'—','click-through rate')}${bx('POSIZIONE MEDIA',totals.impressions?(totals.position||0).toFixed(1):'—','posizione media SERP')}</div>` +
             (qRows.length ? `<div style="padding:0 20px 14px"><div style="font-size:11px;font-weight:600;color:rgba(13,95,117,0.5);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Top Query</div>${tbl(qRows,'Query')}</div>` : '') +
             (pRows.length ? `<div style="padding:0 20px 14px;border-top:1px solid #f4f4f8"><div style="font-size:11px;font-weight:600;color:rgba(13,95,117,0.5);text-transform:uppercase;letter-spacing:.05em;margin:14px 0 8px">Top Pagine</div>${tbl(pRows,'Pagina')}</div>` : '');
         datiGscCont.querySelectorAll('.hgsc-range-btn').forEach(btn => {
-            btn.addEventListener('click', () => { _gscActiveDays = parseInt(btn.dataset.days); _loadGscData(); });
+            btn.addEventListener('click', () => {
+                datiGscCont.querySelectorAll('.hgsc-range-btn').forEach(b => b.classList.remove('active-range'));
+                btn.classList.add('active-range');
+                _gscActiveDays = parseInt(btn.dataset.days); _loadGscData();
+            });
         });
     }
 
