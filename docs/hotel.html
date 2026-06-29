@@ -7,7 +7,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Eletta — Posiziona il tuo sito nelle ricerche AI</title>
-    <script>var _V='v1782420001';if(localStorage.getItem('_hv')!==_V){localStorage.setItem('_hv',_V);location.reload(true);}</script>
+    <script>var _V='v1782420002';if(localStorage.getItem('_hv')!==_V){localStorage.setItem('_hv',_V);location.reload(true);}</script>
     <link rel="icon" type="image/png" href="images/favicon.png?v=2">
     <link rel="stylesheet" href="css/style.css?v=20260622q">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2513,6 +2513,18 @@ window.generaRispostaQuery = async function(btn, cat, query, siteId) {
         qmSave[cat] = { ...catEntry, covered_queries: covQ2 };
         await _SBq.from('isi_sites').update({ faq_data: { ...fd, items, query_map: qmSave } }).eq('site_id', siteId);
         if (_site) { _site.faq_data = { ...fd, items, query_map: qmSave }; _faqItems = []; }
+        // Per siti plugin: salva anche su WP così la FAQ appare nella tab FAQ
+        if (_pluginBase && !_isScriptSite()) {
+            const existingWp = _faqItems.find(f => (f.question||'').trim().toLowerCase() === query.trim().toLowerCase());
+            const wpAction = existingWp ? 'update' : 'add';
+            const wpFaq = existingWp
+                ? { id: existingWp.id, question: query, answer: aiAnswer, solo_ai: true, order: existingWp.menu_order ?? 0 }
+                : { question: query, answer: aiAnswer, solo_ai: true, order: 0 };
+            fetch(_pluginBase + '/wp-json/in3pida/v1/faq', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ secret: _pluginSecret, action: wpAction, faq: wpFaq })
+            }).catch(() => {});
+        }
         const wrapper = btn.closest('div[style*="gap:6px"]');
         if (wrapper) wrapper.innerHTML = `<span style="font-size:11px;color:#0D5F75;font-weight:700">Coperta ✓</span><button class="btn-update" style="padding:4px 10px;font-size:11px" onclick="generaRispostaQuery(this,'${esc(cat)}','${esc(query).replace(/'/g,"\\'")}','${esc(siteId)}')">Genera</button>`;
         showToast('✓ FAQ generata e salvata');
