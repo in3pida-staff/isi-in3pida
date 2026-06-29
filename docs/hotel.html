@@ -7,7 +7,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Eletta — Posiziona il tuo sito nelle ricerche AI</title>
-    <script>var _V='v1782382741';if(localStorage.getItem('_hv')!==_V){localStorage.setItem('_hv',_V);location.reload(true);}</script>
+    <script>var _V='v1782382742';if(localStorage.getItem('_hv')!==_V){localStorage.setItem('_hv',_V);location.reload(true);}</script>
     <link rel="icon" type="image/png" href="images/favicon.png?v=2">
     <link rel="stylesheet" href="css/style.css?v=20260622q">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2950,8 +2950,7 @@ async function initHotelConfig(site) {
         const gscSite  = cfg.gsc_site  || '';
         if (gscEmail && gscSite) {
             return `<div style="padding:9px 12px;background:#e8ecf7;border:1px solid #C1CBE8;border-radius:4px;font-size:13px;color:#0D5F75;margin-bottom:12px">● Collegata — <strong>${esc(gscSite)}</strong> (${esc(gscEmail)})</div>` +
-            '<button id="hbtn-gsc-disconnect" class="btn-ping" style="margin-left:0;font-size:12px">Disconnetti</button>' +
-            '<div id="hgsc-data-container" style="margin-top:14px"></div>';
+            '<button id="hbtn-gsc-disconnect" class="btn-ping" style="margin-left:0;font-size:12px">Disconnetti</button>';
         } else {
             return '<div style="padding:9px 12px;background:#f4f4f8;border:1px solid #e4e4ec;border-radius:4px;font-size:13px;color:rgba(13,95,117,0.5);margin-bottom:14px">○ Search Console non collegata</div>' +
             `<button id="hbtn-connect-gsc" class="btn-update" style="margin-left:0;display:flex;align-items:center;gap:8px"><svg width="16" height="16" viewBox="0 0 48 48"><path fill="#4285F4" d="M45.12 24.5c0-1.56-.14-3.06-.4-4.5H24v8.51h11.84c-.51 2.75-2.06 5.08-4.39 6.64v5.52h7.11c4.16-3.83 6.56-9.47 6.56-16.17z"/><path fill="#34A853" d="M24 46c5.94 0 10.92-1.97 14.56-5.33l-7.11-5.52c-1.97 1.32-4.49 2.1-7.45 2.1-5.73 0-10.58-3.87-12.31-9.07H4.34v5.7C7.96 41.07 15.4 46 24 46z"/><path fill="#FBBC05" d="M11.69 28.18C11.25 26.86 11 25.45 11 24s.25-2.86.69-4.18v-5.7H4.34C2.85 17.09 2 20.45 2 24c0 3.55.85 6.91 2.34 9.88l7.35-5.7z"/><path fill="#EA4335" d="M24 10.75c3.23 0 6.13 1.11 8.41 3.29l6.31-6.31C34.91 4.18 29.93 2 24 2 15.4 2 7.96 6.93 4.34 14.12l7.35 5.7c1.73-5.2 6.58-9.07 12.31-9.07z"/></svg> Collega con Google</button>` +
@@ -3009,30 +3008,6 @@ async function initHotelConfig(site) {
         const newCfg3 = { ...(hp3.isi_config || cfg), gsc_email: email, gsc_site: gscSite, gsc_token: accessToken, gsc_token_ts: Date.now() };
         await _SBq.from('isi_sites').update({ hotel_profile: { ...hp3, isi_config: newCfg3 } }).eq('site_id', site.site_id);
         site.hotel_profile = { ...hp3, isi_config: newCfg3 };
-    }
-
-    async function hFetchGscData(accessToken, gscSite) {
-        const endDate = new Date().toISOString().slice(0,10);
-        const startDate = new Date(Date.now() - 28*86400000).toISOString().slice(0,10);
-        const res = await fetch(`https://searchconsole.googleapis.com/webmasters/v3/sites/${encodeURIComponent(gscSite)}/searchAnalytics/query`, {
-            method: 'POST',
-            headers: { 'Authorization': 'Bearer ' + accessToken, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ startDate, endDate, dimensions: ['query'], rowLimit: 10, startRow: 0 })
-        });
-        if (!res.ok) throw new Error('GSC API error ' + res.status);
-        return await res.json();
-    }
-
-    function hRenderGscData(data) {
-        const gc = document.getElementById('hgsc-data-container');
-        if (!gc) return;
-        const rows = data.rows || [];
-        if (!rows.length) { gc.innerHTML = '<div style="font-size:13px;color:#9ca3af">Nessun dato disponibile negli ultimi 28 giorni.</div>'; return; }
-        gc.innerHTML = `<div style="font-size:11px;font-weight:700;color:rgba(13,95,117,0.5);margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em">Top query (ultimi 28 gg)</div>` +
-            `<table style="width:100%;border-collapse:collapse;font-size:12px">` +
-            `<tr style="color:#9ca3af;border-bottom:1px solid #f0f0f5"><td style="padding:4px 8px 4px 0">Query</td><td style="padding:4px 8px;text-align:right">Click</td><td style="padding:4px 8px;text-align:right">Impr.</td><td style="padding:4px 8px;text-align:right">CTR</td><td style="padding:4px 0;text-align:right">Pos.</td></tr>` +
-            rows.map(r => `<tr style="border-bottom:1px solid #f4f4f8"><td style="padding:5px 8px 5px 0;color:#0D5F75;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.keys[0])}</td><td style="padding:5px 8px;text-align:right;color:#0D5F75;font-weight:600">${r.clicks}</td><td style="padding:5px 8px;text-align:right;color:rgba(13,95,117,0.5)">${r.impressions}</td><td style="padding:5px 8px;text-align:right;color:rgba(13,95,117,0.5)">${(r.ctr*100).toFixed(1)}%</td><td style="padding:5px 0;text-align:right;color:rgba(13,95,117,0.5)">${r.position.toFixed(1)}</td></tr>`).join('') +
-            '</table>';
     }
 
     const btnConnectGsc = document.getElementById('hbtn-connect-gsc');
@@ -3144,46 +3119,7 @@ async function initHotelConfig(site) {
             site.hotel_profile = { ...hp3, isi_config: newCfg3 };
             initHotelConfig(site);
         });
-        if (cfg.gsc_token && cfg.gsc_site) {
-            const _cfgToken = (() => { try { const ls=JSON.parse(localStorage.getItem('isi_gsc_tok_'+site.site_id)||'null'); return (ls&&ls.ts>(cfg.gsc_token_ts||0))?ls.token:cfg.gsc_token; } catch{return cfg.gsc_token;} })();
-            hFetchGscData(_cfgToken, cfg.gsc_site).then(hRenderGscData).catch(() => {
-                const gc = document.getElementById('hgsc-data-container');
-                if (!gc) return;
-                const clientId = localStorage.getItem('isi_gsc_client_id');
-                if (clientId && window.google?.accounts?.oauth2) {
-                    gc.innerHTML = '<div style="font-size:13px;color:rgba(13,95,117,0.5);padding:4px 0">Aggiornamento sessione Google...</div>';
-                    window.google.accounts.oauth2.initTokenClient({
-                        client_id: clientId,
-                        scope: 'https://www.googleapis.com/auth/webmasters.readonly',
-                        hint: cfg.gsc_email || '',
-                        callback: async function(resp) {
-                            if (resp.error || !resp.access_token) {
-                                gc.innerHTML = '<div style="display:flex;align-items:center;gap:10px;padding:4px 0"><span style="font-size:13px;color:rgba(13,95,117,0.5)">Sessione scaduta.</span><button id="hgsc-cfg-rc" class="btn-update" style="margin-left:0;font-size:12px">Riconnetti Google</button></div>';
-                                const rcBtn = document.getElementById('hgsc-cfg-rc');
-                                if (rcBtn) rcBtn.addEventListener('click', function() {
-                                    rcBtn.textContent = 'Connessione...'; rcBtn.disabled = true;
-                                    window.google.accounts.oauth2.initTokenClient({ client_id: clientId, scope: 'https://www.googleapis.com/auth/webmasters.readonly',
-                                        callback: async function(r2) {
-                                            if (r2.error) { rcBtn.textContent = 'Riprova'; rcBtn.disabled = false; return; }
-                                            try { localStorage.setItem('isi_gsc_tok_'+site.site_id, JSON.stringify({token:r2.access_token,ts:Date.now()})); } catch {}
-                                            hFetchGscData(r2.access_token, cfg.gsc_site).then(hRenderGscData).catch(()=>{ rcBtn.textContent='Riprova'; rcBtn.disabled=false; });
-                                        }
-                                    }).requestAccessToken({ prompt: 'select_account' });
-                                });
-                                return;
-                            }
-                            try { localStorage.setItem('isi_gsc_tok_'+site.site_id, JSON.stringify({token:resp.access_token,ts:Date.now()})); } catch {}
-                            hFetchGscData(resp.access_token, cfg.gsc_site).then(hRenderGscData).catch(() => {
-                                gc.innerHTML = '<div style="display:flex;align-items:center;gap:10px;padding:4px 0"><span style="font-size:13px;color:rgba(13,95,117,0.5)">Sessione scaduta.</span><button id="hgsc-cfg-rc2" class="btn-update" style="margin-left:0;font-size:12px">Riconnetti Google</button></div>';
-                                document.getElementById('hgsc-cfg-rc2')?.addEventListener('click', ()=>location.reload());
-                            });
-                        }
-                    }).requestAccessToken({ prompt: 'none' });
-                } else {
-                    gc.innerHTML = '<div style="font-size:13px;color:rgba(13,95,117,0.5)">Token scaduto — disconnetti e ricollega.</div>';
-                }
-            });
-        }
+
     }
 }
 
