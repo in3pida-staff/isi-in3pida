@@ -983,7 +983,6 @@ function renderContent(site, pseData, now) {
                     <button id="btn-add-faq-hotel" style="background:#EFF020;color:#0D5F75;border:none;border-radius:24px;padding:6px 16px;font-family:'Source Code Pro',monospace;font-size:12px;font-weight:600;cursor:pointer">+ Aggiungi FAQ</button>
                 </div>
             </div>
-            <div style="height:1px;background:#e4e4ec;margin:0 20px"></div>
             <div style="display:grid;grid-template-columns:1fr auto auto auto;gap:0;padding:8px 20px;border-bottom:1px solid #e4e4ec;font-size:10px;font-weight:700;color:#aaa;letter-spacing:.05em;text-transform:uppercase">
                 <div>Titolo</div><div style="text-align:center;padding:0 16px">Data</div><div style="text-align:center;padding:0 12px">Ordine</div><div style="text-align:center;padding:0 8px">Visibilità</div>
             </div>
@@ -1047,13 +1046,13 @@ function renderContent(site, pseData, now) {
             <div id="hschema-view"></div>
         </div>
         <div id="hschema-edit" style="display:none">
-            <div style="background:#EDEEF5;border:1px solid #e4e4ec;border-radius:8px;padding:12px 16px;font-size:13px;color:#0D5F75;font-family:'Source Code Pro',monospace;font-weight:600;margin-bottom:20px;line-height:1.5">ℹ️ Salva qui il profilo — le modifiche vengono inviate al plugin WordPress.</div>
+            <div style="background:#EDEEF5;border-radius:8px;padding:12px 16px;font-size:13px;color:#0D5F75;font-family:'Source Code Pro',monospace;font-weight:600;margin-bottom:20px;line-height:1.5">ℹ️ Salva qui il profilo — le modifiche vengono inviate al plugin WordPress.</div>
             <div id="hschema-form"></div>
             <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;align-items:center">
-                <button id="btn-save-hschema" style="background:#0D5F75;color:#fff;border:none;border-radius:24px;padding:9px 22px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Source Code Pro',monospace">Salva e invia al plugin</button>
-                <button id="btn-cancel-hschema" style="background:white;color:#0D5F75;border:1px solid #e4e4ec;border-radius:24px;padding:9px 22px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Source Code Pro',monospace">Annulla</button>
-                <button id="btn-preview-jsonld" style="background:white;color:#0D5F75;border:1px solid #e4e4ec;border-radius:24px;padding:9px 22px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Source Code Pro',monospace" onclick="renderJsonPreview(_schemaProfile)">Anteprima JSON-LD</button>
-                <button id="btn-copy-jsonld" style="background:white;color:#0D5F75;border:1px solid #e4e4ec;border-radius:24px;padding:9px 22px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Source Code Pro',monospace" onclick="copyJsonLd()">Copia JSON-LD</button>
+                <button id="btn-save-hschema" style="background:#C1CBE8;color:#fff;border:none;border-radius:24px;padding:9px 22px;font-size:13px;font-weight:600;cursor:pointer">Salva e invia al plugin</button>
+                <button id="btn-cancel-hschema" style="background:white;color:#0D5F75;border:1px solid #C1CBE8;border-radius:24px;padding:9px 22px;font-size:13px;font-weight:600;cursor:pointer">Annulla</button>
+                <button id="btn-preview-jsonld" style="background:white;color:#0D5F75;border:1px solid #C1CBE8;border-radius:24px;padding:9px 22px;font-size:13px;font-weight:600;cursor:pointer" onclick="renderJsonPreview(_schemaProfile)">Anteprima JSON-LD</button>
+                <button id="btn-copy-jsonld" style="background:white;color:#0D5F75;border:1px solid #C1CBE8;border-radius:24px;padding:9px 22px;font-size:13px;font-weight:600;cursor:pointer" onclick="copyJsonLd()">Copia JSON-LD</button>
             </div>
             <div id="hjson-preview-content" style="margin-top:14px"></div>
             <div id="hschema-msg" style="margin-top:10px;font-size:13px;display:none"></div>
@@ -1232,8 +1231,7 @@ function renderContent(site, pseData, now) {
                 <div id="hpse-run-result" style="margin-top:14px;display:none"></div>
             </div>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px">
-            <div class="h-card" style="margin-bottom:0">
+        <div class="h-card" style="margin-bottom:20px">
                 <div class="h-card-hdr" style="justify-content:flex-start;gap:12px"><div style="width:34px;height:34px;border-radius:50%;background:white;border:1.5px solid #0D5F75;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 118 2.83"/><path d="M22 12A10 10 0 0012 2v10z"/></svg></div><span class="h-card-hdr-t" style="font-size:18px;font-weight:500">Presenza nei risultati AI</span></div>
                 <div class="h-card-body" style="padding:16px 20px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:240px">
                     <div style="background:white;border:1px solid #e4e4ec;border-radius:12px;padding:16px;min-width:180px;text-align:center;flex-shrink:0;overflow:hidden">
@@ -1249,11 +1247,10 @@ function renderContent(site, pseData, now) {
                     </div>
                 </div>
             </div>
-            <div class="h-card" style="margin-bottom:0">
+        <div class="h-card" style="margin-bottom:20px">
                 <div class="h-card-hdr" style="justify-content:flex-start;gap:12px"><div style="width:34px;height:34px;border-radius:50%;background:white;border:1.5px solid #0D5F75;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><span class="h-card-hdr-t" style="font-size:18px;font-weight:500">Query nel tempo</span><div style="display:flex;gap:8px;margin-left:auto"><span class="hpse-bar-range h-range-btn active-range" data-days="30">1 mese</span><span class="hpse-bar-range h-range-btn" data-days="90">3 mesi</span><span class="hpse-bar-range h-range-btn" data-days="9999">Sempre</span></div></div>
-                <div class="h-card-body" style="padding:16px 20px"><canvas id="hchart-pse-bar" style="max-height:220px"></canvas></div>
+                <div class="h-card-body" style="padding:16px 20px"><canvas id="hchart-pse-bar" style="max-height:260px"></canvas></div>
             </div>
-        </div>
         <div class="h-card" style="margin-bottom:20px">
             <div class="h-card-hdr" style="justify-content:flex-start;gap:12px"><div style="width:34px;height:34px;border-radius:50%;background:white;border:1.5px solid #0D5F75;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="4" height="18" rx="1"/><rect x="10" y="8" width="4" height="13" rx="1"/><rect x="17" y="13" width="4" height="8" rx="1"/></svg></div><span class="h-card-hdr-t" style="font-size:18px;font-weight:500">Riepilogo PSE</span></div>
             <div style="padding:16px 20px;display:grid;grid-template-columns:repeat(${_isAdmin?4:3},1fr);gap:12px">
@@ -1413,8 +1410,21 @@ function renderContent(site, pseData, now) {
         const headerBtn = document.getElementById('btn-sync-header');
         if (headerBtn) { headerBtn.textContent = 'Sincronizzazione...'; headerBtn.disabled = true; }
         try {
+            const savedHistory = _site?.faq_data?.score_history;
+            const savedSiteId  = _site?.site_id;
             const r = await fetch(_pluginBase + '/wp-json/in3pida/v1/force-heartbeat', { method:'POST', headers:{'Content-Type':'application/json'}, signal:AbortSignal.timeout(20000) });
-            if (r.ok) { if(headerBtn) headerBtn.textContent='✓ Sincronizzato'; setTimeout(() => { window.location.reload(); }, 1500); }
+            if (r.ok) {
+                if(headerBtn) headerBtn.textContent='✓ Sincronizzato';
+                // Dopo il sync il plugin sovrascrive faq_data — ri-salva la score_history prima del reload
+                if (savedHistory && savedHistory.length && savedSiteId) {
+                    try {
+                        const { data: fresh } = await _SBq.from('isi_sites').select('faq_data').eq('site_id', savedSiteId).single();
+                        const merged = { ...(fresh?.faq_data || {}), score_history: savedHistory };
+                        await _SBq.from('isi_sites').update({ faq_data: merged }).eq('site_id', savedSiteId);
+                    } catch(_) {}
+                }
+                setTimeout(() => { window.location.reload(); }, 1500);
+            }
             else { if(headerBtn){headerBtn.textContent='✗ Errore '+r.status;setTimeout(()=>{headerBtn.textContent='Sincronizza';headerBtn.disabled=false;},3000);} }
         } catch(e) { if(headerBtn){headerBtn.textContent='✗ Non raggiungibile';setTimeout(()=>{headerBtn.textContent='Sincronizza';headerBtn.disabled=false;},3000);} }
     };
@@ -1704,7 +1714,7 @@ function buildHotelSchemaForm(s) {
 
     // ── Separator grid helpers ────────────────────────────────────────────────
     const _vs='<div style="background:#e4e4ec;margin:8px 0"></div>';
-    const _hs='<div style="height:1px;background:#e4e4ec;margin:0 -20px"></div>';
+    const _hs='<div style="height:1px;background:#e4e4ec;margin:0 16px"></div>';
     const _p1=c=>'<div style="padding:12px 10px 12px 0">'+c+'</div>';
     const _pm=c=>'<div style="padding:12px 10px">'+c+'</div>';
     const _pn=c=>'<div style="padding:12px 0 12px 10px">'+c+'</div>';
@@ -1780,7 +1790,7 @@ function buildHotelSchemaForm(s) {
         // ── STILE DI COMUNICAZIONE ────────────────────────────────────────────
         sec('STILE DI COMUNICAZIONE')+
         '<div style="font-size:12px;color:rgba(13,95,117,0.5);font-family:\'Source Code Pro\',monospace;margin-bottom:14px">Analizza automaticamente il sito web e imposta il tono per le risposte FAQ generate dall\'AI.</div>'+
-        (()=>{const ws=hp.writing_style||{};if(ws.tono){const badges=[ws.tono,ws.persona?'usa "'+ws.persona+'"':'',ws.personalita].filter(Boolean).map(b=>'<span style="background:#e8f4f7;color:#0D5F75;padding:3px 10px;border-radius:12px;font-size:12px;font-weight:600;font-family:\'Source Code Pro\',monospace">'+esc(b)+'</span>').join('');return '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px" id="stile-badges">'+badges+'</div>'+(ws.esempio?'<div style="background:#EDEEF5;border-radius:6px;padding:10px 14px;font-size:12px;color:rgba(13,95,117,0.6);font-style:italic;font-family:\'Source Code Pro\',monospace;margin-bottom:12px;line-height:1.6">"'+esc(ws.esempio)+'"</div>':'');}return '<div style="font-size:12px;color:#9698a8;font-family:\'Source Code Pro\',monospace;margin-bottom:12px" id="stile-badges">Stile non ancora rilevato.</div>';})() +
+        (()=>{const ws=hp.writing_style||{};if(ws.tono){const badges=[ws.tono,ws.persona?'usa "'+ws.persona+'"':'',ws.personalita].filter(Boolean).map(b=>'<span style="border:1px solid #C1CBE8;color:#0D5F75;padding:3px 10px;border-radius:12px;font-size:12px;font-weight:600;font-family:\'Source Code Pro\',monospace">'+esc(b)+'</span>').join('');return '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px" id="stile-badges">'+badges+'</div>'+(ws.esempio?'<div style="border:1px solid #C1CBE8;border-radius:6px;padding:10px 14px;font-size:12px;color:rgba(13,95,117,0.6);font-style:italic;font-family:\'Source Code Pro\',monospace;margin-bottom:12px;line-height:1.6">"'+esc(ws.esempio)+'"</div>':'');}return '<div style="font-size:12px;color:#9698a8;font-family:\'Source Code Pro\',monospace;margin-bottom:12px" id="stile-badges">Stile non ancora rilevato.</div>';})() +
         '<div id="stile-status" style="font-size:12px;font-family:\'Source Code Pro\',monospace;margin-bottom:10px"></div>'+
         '<button type="button" id="btn-rileva-stile" onclick="rilevaStiloSito(\''+esc((_site&&_site.site_id)||'')+'\');" style="'+_btnFior+'">Rileva stile dal sito</button>'+
 
@@ -1898,25 +1908,28 @@ function buildHotelSchemaForm(s) {
         // ── RECENSIONI ────────────────────────────────────────────────────────
         sec('RECENSIONI')+
         _subHdr('Google Business')+
-        '<div style="padding:4px 0 10px">'+_f('google_business_url','URL Google Business',hp.google_business_url,'https://g.page/hotel','url')+'</div>'+
-        _g2(
-            _p1(_f('google_rating','Rating Google',hp.google_rating,'4.5'))+
+        _gx('3fr 1px 1fr 1px 1fr',
+            _p1(_f('google_business_url','URL Google Business',hp.google_business_url,'https://g.page/hotel','url'))+
+            _vs+
+            _pm(_f('google_rating','Rating Google',hp.google_rating,'4.5'))+
             _vs+
             _pn(_f('google_n_recensioni','N° recensioni Google',hp.google_n_recensioni,''))
         )+
         _hs+
-        '<div style="padding:14px 0 10px">'+_subHdr('TripAdvisor')+'</div>'+
-        '<div style="padding:0 0 10px">'+_f('tripadvisor_url','URL TripAdvisor',hp.tripadvisor_url,'https://tripadvisor.com/Hotel_Review-...','url')+'</div>'+
-        _g2(
-            _p1(_f('tripadvisor_rating','Rating TripAdvisor',hp.tripadvisor_rating,''))+
+        '<div style="padding:14px 0 6px">'+_subHdr('TripAdvisor')+'</div>'+
+        _gx('3fr 1px 1fr 1px 1fr',
+            _p1(_f('tripadvisor_url','URL TripAdvisor',hp.tripadvisor_url,'https://tripadvisor.com/Hotel_Review-...','url'))+
+            _vs+
+            _pm(_f('tripadvisor_rating','Rating TripAdvisor',hp.tripadvisor_rating,''))+
             _vs+
             _pn(_f('tripadvisor_n_recensioni','N° recensioni TripAdvisor',hp.tripadvisor_n_recensioni,''))
         )+
         _hs+
-        '<div style="padding:14px 0 10px">'+_subHdr('Booking.com')+'</div>'+
-        '<div style="padding:0 0 10px">'+_f('url_recensioni','URL Booking',hp.url_recensioni,'https://www.booking.com/hotel/it/xxx.html','url')+'</div>'+
-        _g2(
-            _p1(_f('booking_rating','Rating Booking',hp.booking_rating,''))+
+        '<div style="padding:14px 0 6px">'+_subHdr('Booking.com')+'</div>'+
+        _gx('3fr 1px 1fr 1px 1fr',
+            _p1(_f('url_recensioni','URL Booking',hp.url_recensioni,'https://www.booking.com/hotel/it/xxx.html','url'))+
+            _vs+
+            _pm(_f('booking_rating','Rating Booking',hp.booking_rating,''))+
             _vs+
             _pn(_f('booking_n_recensioni','N° recensioni Booking',hp.booking_n_recensioni,''))
         )+
@@ -2174,8 +2187,8 @@ async function rilevaStiloSito(siteId) {
         await _SBq.from('isi_sites').update({ hotel_profile: { ...hp, writing_style: ws } }).eq('site_id', siteId);
         if (badgesEl) {
             const badges = [ws.tono, ws.persona ? 'usa "'+ws.persona+'"' : '', ws.personalita].filter(Boolean)
-                .map(b => '<span style="background:#e8f4f7;color:#0D5F75;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:700">'+esc(b)+'</span>').join('');
-            badgesEl.innerHTML = badges + (ws.esempio ? '<div style="background:#f7f8fc;border-radius:6px;padding:10px 14px;font-size:13px;color:rgba(13,95,117,0.6);font-style:italic;margin-top:10px;line-height:1.6">"'+esc(ws.esempio)+'"</div>' : '');
+                .map(b => '<span style="border:1px solid #C1CBE8;color:#0D5F75;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:600;font-family:\'Source Code Pro\',monospace">'+esc(b)+'</span>').join('');
+            badgesEl.innerHTML = badges + (ws.esempio ? '<div style="border:1px solid #C1CBE8;border-radius:6px;padding:10px 14px;font-size:13px;color:rgba(13,95,117,0.6);font-style:italic;margin-top:10px;line-height:1.6;font-family:\'Source Code Pro\',monospace">"'+esc(ws.esempio)+'"</div>' : '');
         }
         if (statusEl) { statusEl.style.color = '#0D5F75'; statusEl.textContent = '✓ Stile rilevato e salvato.'; }
     } catch(e) {
@@ -4367,12 +4380,12 @@ init();
     const mCanale = document.createElement('div');
     mCanale.id = 'hmodal-canale';
     mCanale.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(23,27,51,.45);z-index:9999;align-items:center;justify-content:center';
-    mCanale.innerHTML = `<div style="background:white;border-radius:10px;padding:28px 24px 20px;max-width:420px;width:90%;box-shadow:0 8px 32px rgba(23,27,51,.18);font-family:'Source Code Pro',monospace">
-        <div style="font-size:15px;font-weight:600;color:#0D5F75;margin-bottom:16px">Aggiungi canale</div>
-        <input id="hinput-nuovo-canale" type="text" placeholder="Es: TripAdvisor, Hotelbeds…" style="width:100%;box-sizing:border-box;border:1px solid #e4e4ec;border-radius:6px;padding:9px 12px;font-size:13px;color:#0D5F75;outline:none;margin-bottom:14px">
+    mCanale.innerHTML = `<div style="background:white;border-radius:16px;padding:28px 24px 20px;max-width:420px;width:90%;box-shadow:0 8px 32px rgba(23,27,51,.18)">
+        <div style="font-size:18px;font-weight:500;color:#0D5F75;font-family:Commissioner,sans-serif;margin-bottom:16px">Aggiungi canale</div>
+        <input id="hinput-nuovo-canale" type="text" placeholder="Es: TripAdvisor, Hotelbeds…" style="width:100%;box-sizing:border-box;border:1px solid #C1CBE8;border-radius:24px;padding:9px 16px;font-size:13px;color:#0D5F75;outline:none;margin-bottom:16px;font-family:'Source Code Pro',monospace">
         <div style="display:flex;gap:8px;justify-content:flex-end">
-            <button class="btn-ping" style="padding:7px 18px" onclick="document.getElementById('hmodal-canale').style.display='none'">Annulla</button>
-            <button class="btn-update" style="padding:7px 18px;margin-left:0" onclick="window._hDoAggiungiCanale&&window._hDoAggiungiCanale()">Aggiungi</button>
+            <button style="background:white;color:#0D5F75;border:1px solid #C1CBE8;border-radius:24px;padding:7px 18px;font-size:13px;font-weight:600;cursor:pointer" onclick="document.getElementById('hmodal-canale').style.display='none'">Annulla</button>
+            <button style="background:#C1CBE8;color:#fff;border:none;border-radius:24px;padding:7px 18px;font-size:13px;font-weight:600;cursor:pointer" onclick="window._hDoAggiungiCanale&&window._hDoAggiungiCanale()">Aggiungi</button>
         </div>
     </div>`;
     mCanale.addEventListener('click', e => { if (e.target === mCanale) mCanale.style.display = 'none'; });
@@ -4382,11 +4395,11 @@ init();
     const mDelCanale = document.createElement('div');
     mDelCanale.id = 'hmodal-del-canale';
     mDelCanale.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(23,27,51,.45);z-index:9999;align-items:center;justify-content:center';
-    mDelCanale.innerHTML = `<div style="background:white;border-radius:10px;padding:28px 24px 20px;max-width:380px;width:90%;box-shadow:0 8px 32px rgba(23,27,51,.18);font-family:'Source Code Pro',monospace">
-        <div id="hmodal-del-canale-msg" style="font-size:15px;color:#0D5F75;margin-bottom:20px;font-weight:400;line-height:1.5">Rimuovere il canale?</div>
+    mDelCanale.innerHTML = `<div style="background:white;border-radius:16px;padding:28px 24px 20px;max-width:380px;width:90%;box-shadow:0 8px 32px rgba(23,27,51,.18)">
+        <div id="hmodal-del-canale-msg" style="font-size:18px;color:#0D5F75;margin-bottom:20px;font-weight:500;line-height:1.5;font-family:Commissioner,sans-serif">Rimuovere il canale?</div>
         <div style="display:flex;gap:8px;justify-content:flex-end">
-            <button class="btn-ping" style="padding:7px 18px" onclick="document.getElementById('hmodal-del-canale').style.display='none'">Annulla</button>
-            <button id="hbtn-ok-del-canale" class="btn-update" style="padding:7px 18px;margin-left:0;background:#d82d6b;border-color:#d82d6b">Rimuovi</button>
+            <button style="background:white;color:#0D5F75;border:1px solid #C1CBE8;border-radius:24px;padding:7px 18px;font-size:13px;font-weight:600;cursor:pointer" onclick="document.getElementById('hmodal-del-canale').style.display='none'">Annulla</button>
+            <button id="hbtn-ok-del-canale" style="background:#d82d6b;color:#fff;border:none;border-radius:24px;padding:7px 18px;font-size:13px;font-weight:600;cursor:pointer">Rimuovi</button>
         </div>
     </div>`;
     mDelCanale.addEventListener('click', e => { if (e.target === mDelCanale) mDelCanale.style.display = 'none'; });
