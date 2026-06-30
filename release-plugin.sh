@@ -37,18 +37,25 @@ const { createClient } = require('@supabase/supabase-js');
 const sb = createClient('${SUPABASE_URL}','${SERVICE_KEY}',{auth:{persistSession:false}});
 (async()=>{
   // 1. Azzera tutte le versioni
-  const r1 = await sb.from('isi_plugin_versions').update({is_current:false}).gte('version','0');
-  if(r1.error){console.error('ERRORE step1:',r1.error.message);process.exit(1);}
+  await sb.from('isi_plugin_versions').update({is_current:false}).gte('version','0');
   // 2. Inserisci con is_current:false (evita trigger)
   const r2 = await sb.from('isi_plugin_versions').upsert({version:'${VERSION}',changelog:'${CHANGELOG}',download_url:'https://isi.in3pida.it/in3pida-faq-${VERSION}.zip',is_current:false,released_at:new Date().toISOString()},{onConflict:'version'});
-  if(r2.error){console.error('ERRORE step2:',r2.error.message);process.exit(1);}
-  // 3. Leggi l id della riga appena inserita/aggiornata
-  const { data: row, error: re } = await sb.from('isi_plugin_versions').select('id').eq('version','${VERSION}').single();
-  if(re||!row){console.error('ERRORE step3: versione non trovata');process.exit(1);}
-  // 4. Imposta is_current:true con UPDATE separato (bypassa trigger INSERT)
-  const r4 = await sb.from('isi_plugin_versions').update({is_current:true}).eq('id',row.id);
-  if(r4.error){console.error('ERRORE step4:',r4.error.message);process.exit(1);}
-  console.log('Supabase OK');
+  if(r2.error){console.error('ERRORE upsert:',r2.error.message);process.exit(1);}
+  // 3. Leggi id
+  const { data: row } = await sb.from('isi_plugin_versions').select('id').eq('version','${VERSION}').single();
+  if(!row){console.error('ERRORE: versione non trovata');process.exit(1);}
+  // 4. Prima passata: set true
+  await sb.from('isi_plugin_versions').update({is_current:true}).eq('id',row.id);
+  // 5. Verifica — se il trigger ha resettato, riprova una volta
+  const { data: c1 } = await sb.from('isi_plugin_versions').select('is_current').eq('id',row.id).single();
+  if(!c1?.is_current){
+    await sb.from('isi_plugin_versions').update({is_current:false}).gte('version','0');
+    await sb.from('isi_plugin_versions').update({is_current:true}).eq('id',row.id);
+  }
+  // 6. Verifica finale
+  const { data: check } = await sb.from('isi_plugin_versions').select('version,is_current').eq('is_current',true).single();
+  if(!check){console.error('ERRORE: is_current non impostato');process.exit(1);}
+  console.log('Supabase OK — corrente:', check.version);
 })();
 "
 
