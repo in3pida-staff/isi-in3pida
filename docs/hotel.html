@@ -1519,7 +1519,10 @@ async function _scriptSaveFaq(action, faq) {
         const idx = items.findIndex(x => x.id == faq.id);
         if (idx !== -1) items[idx] = { ...items[idx], question: faq.question, answer: faq.answer, solo_ai: faq.solo_ai||false };
     }
-    const newFaqData = { ...(_site?.faq_data || {}), items, total: items.length, _synced_at: new Date().toISOString(), _source: 'isi' };
+    // Usa fresh faq_data come base per non sovrascrivere score_history aggiornata dal plugin
+    const { data: _freshFaq } = await _SBq.from('isi_sites').select('faq_data').eq('site_id', _site.site_id).single();
+    const _baseFaq = _freshFaq?.faq_data || _site?.faq_data || {};
+    const newFaqData = { ..._baseFaq, items, total: items.length, _synced_at: new Date().toISOString(), _source: 'isi' };
     const { error } = await _SBq.from('isi_sites').update({ faq_data: newFaqData }).eq('site_id', _site.site_id);
     if (error) throw new Error(error.message);
     _site.faq_data = newFaqData;
