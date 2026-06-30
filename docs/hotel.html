@@ -317,6 +317,34 @@ let _galleryTmp = [], _serviziCustomTmp = [], _targetCustomTmp = [], _knowsabout
 let _schemaProfile = {}, _currentHotelProfile = {};
 const _camServPreset = ['Bagno privato','Aria condizionata','Wi-Fi','TV','Minibar','Balcone','Cucina','Frigorifero','Accessibile'];
 
+async function _publishFaqPage(btn) {
+    if (_isScriptSite()) {
+        window.open('https://isi.in3pida.it/faq.html?id=' + encodeURIComponent(_site?.site_id || ''), '_blank');
+        return;
+    }
+    btn.disabled = true; btn.textContent = '⏳ Pubblicazione...';
+    try {
+        const r = await fetch(_pluginBase + '/wp-json/in3pida/v1/create-faq-page', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ secret: _pluginSecret }),
+            signal: AbortSignal.timeout(15000)
+        });
+        const d = await r.json();
+        if (r.ok && d.ok && d.url) {
+            btn.textContent = '✓ Pubblicata';
+            window.open(d.url, '_blank');
+            setTimeout(() => { btn.disabled = false; btn.textContent = '↗ Pubblica pagina FAQ'; }, 3000);
+        } else {
+            btn.textContent = '✗ Errore';
+            setTimeout(() => { btn.disabled = false; btn.textContent = '↗ Pubblica pagina FAQ'; }, 2000);
+        }
+    } catch(_) {
+        btn.textContent = '✗ Errore';
+        setTimeout(() => { btn.disabled = false; btn.textContent = '↗ Pubblica pagina FAQ'; }, 2000);
+    }
+}
+
 // ─── INIT ──────────────────────────────────────────────────────────────────────
 async function init() {
     const { data:{ session } } = await _SB.auth.getSession();
@@ -963,7 +991,7 @@ function renderContent(site, pseData, now) {
                                     <code style="background:white;border:1px solid #e4e4ec;border-radius:24px;padding:3px 12px;font-size:13px;color:#0D5F75;font-weight:600;font-family:'Source Code Pro',monospace">[site_faq]</code>
                                 </div>
                             </div>
-                            <button id="btn-publish-faq-page" style="background:#EFF020;color:#0D5F75;border:none;border-radius:24px;padding:6px 16px;font-family:'Source Code Pro',monospace;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0">↗ Pubblica pagina FAQ</button>
+                            <button id="btn-publish-faq-page" onclick="_publishFaqPage(this)" style="background:#EFF020;color:#0D5F75;border:none;border-radius:24px;padding:6px 16px;font-family:'Source Code Pro',monospace;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0">↗ Pubblica pagina FAQ</button>
                         </div>
                     </div>
                 </div>
@@ -3281,36 +3309,7 @@ async function initHotelConfig(site) {
         this.textContent = '✓ Copiato'; setTimeout(() => { this.textContent = 'Copia'; }, 2000);
     });
 
-    document.getElementById('btn-publish-faq-page')?.addEventListener('click', async function() {
-        const btn = this;
-        if (isScriptMode) {
-            // Script JS: apre la pagina ospitata su ISI
-            window.open('https://isi.in3pida.it/faq.html?id=' + encodeURIComponent(site.site_id), '_blank');
-            return;
-        }
-        // WordPress: crea la pagina via endpoint plugin
-        btn.disabled = true; btn.textContent = '⏳ Pubblicazione...';
-        try {
-            const r = await fetch(_pluginBase + '/wp-json/in3pida/v1/create-faq-page', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ secret: _pluginSecret }),
-                signal: AbortSignal.timeout(15000)
-            });
-            const d = await r.json();
-            if (r.ok && d.ok && d.url) {
-                btn.textContent = '✓ Pubblicata';
-                window.open(d.url, '_blank');
-                setTimeout(() => { btn.disabled = false; btn.textContent = '↗ Pubblica pagina FAQ'; }, 3000);
-            } else {
-                btn.textContent = '✗ Errore';
-                setTimeout(() => { btn.disabled = false; btn.textContent = '↗ Pubblica pagina FAQ'; }, 2000);
-            }
-        } catch(_) {
-            btn.textContent = '✗ Errore';
-            setTimeout(() => { btn.disabled = false; btn.textContent = '↗ Pubblica pagina FAQ'; }, 2000);
-        }
-    });
+    // listener btn-publish-faq-page ora è su window._publishFaqPage (onclick global)
 
     document.getElementById('hcfg-btn-update-plugin')?.addEventListener('click', async function() {
         const btn = this;
