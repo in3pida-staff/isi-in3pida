@@ -162,7 +162,13 @@
     const title = settings.page_title || 'Domande frequenti';
     const openFirst = settings.open_first !== false;
 
-    const container = document.getElementById('eletta-faq');
+    let container = document.getElementById('eletta-faq');
+    // Auto-render su pagine /faq anche senza div esplicito
+    if (!container && /\/faq\/?(\?|#|$)/.test(window.location.pathname)) {
+      container = document.createElement('div');
+      container.id = 'eletta-faq';
+      document.body.appendChild(container);
+    }
     if (!container) return;
 
     const faqSchema = {
