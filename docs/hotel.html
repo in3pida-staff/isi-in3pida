@@ -3239,6 +3239,9 @@ async function initHotelConfig(site) {
             '<button id="hcfg-copy-script" class="btn-update" style="flex-shrink:0;font-size:12px;padding:6px 14px;margin-left:0;white-space:nowrap">Copia</button>' +
             '</div></div>'
         ) : '') +
+        '<div style="padding:10px 20px 16px;border-top:1px solid #f4f4f8">' +
+        '<a href="' + esc((site.site_url||'').replace(/\/$/,'')) + '/faq" target="_blank" style="color:#0D5F75;font-weight:700;font-size:13px;text-decoration:none;font-family:\'Source Code Pro\',monospace">Pagina FAQ pubblica →</a>' +
+        '</div>' +
         '</div>';
 
     const gscSection = (() => {
