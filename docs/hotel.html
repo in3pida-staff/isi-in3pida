@@ -325,8 +325,7 @@ function _getFaqFullUrl() {
 }
 
 function _openFaqUrl() {
-    // Apre sempre la pagina ISI (legge da Supabase, funziona sempre)
-    const url = 'https://isi.in3pida.it/faq.html?id=' + encodeURIComponent(_site?.site_id||'');
+    const url = _getFaqFullUrl();
     if (url) window.open(url, '_blank');
 }
 
