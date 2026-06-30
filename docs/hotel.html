@@ -318,8 +318,10 @@ let _schemaProfile = {}, _currentHotelProfile = {};
 const _camServPreset = ['Bagno privato','Aria condizionata','Wi-Fi','TV','Minibar','Balcone','Cucina','Frigorifero','Accessibile'];
 
 function _getFaqFullUrl() {
-    // Usa sempre faq.html ISI: funziona per tutti i siti, non dipende dal plugin WP
-    return 'https://isi.in3pida.it/faq.html?id=' + encodeURIComponent(_site?.site_id||'');
+    const isScript = _isScriptSite() || (_site?.plugin_version||'').startsWith('js-') || !_pluginBase;
+    if (isScript) return 'https://isi.in3pida.it/faq.html?id=' + encodeURIComponent(_site?.site_id||'');
+    const slug = (document.getElementById('faq-setting-page-url')?.value?.trim() || 'faq').replace(/^\//,'');
+    return (_pluginBase || '').replace(/\/$/, '') + '/' + slug;
 }
 
 function _openFaqUrl() {
@@ -342,12 +344,28 @@ function _initFaqPageUrl() {
     const prefix = document.getElementById('faq-url-prefix');
     if (!input) return;
     const isScript = _isScriptSite() || (_site?.plugin_version||'').startsWith('js-') || !_pluginBase;
-    // Prefisso fisso ISI per tutti
-    if (prefix) prefix.textContent = 'isi.in3pida.it';
-    // Slug fisso: faq.html?id=...
-    input.value = 'faq.html?id=' + encodeURIComponent(_site?.site_id||'');
-    input.readOnly = true;
-    input.style.color = 'rgba(13,95,117,0.4)';
+    if (isScript) {
+        if (prefix) prefix.textContent = 'isi.in3pida.it';
+        input.value = 'faq.html?id=' + encodeURIComponent(_site?.site_id||'');
+        input.readOnly = true;
+        input.style.color = 'rgba(13,95,117,0.4)';
+    } else {
+        if (prefix) prefix.textContent = _pluginBase.replace(/^https?:\/\//,'');
+        const saved = _site?.hotel_profile?.faq_settings?.faq_page_url;
+        if (!input.value) {
+            if (saved) {
+                try { input.value = new URL(saved).pathname.replace(/^\//,''); } catch(_) { input.value = 'faq'; }
+            } else {
+                input.value = 'faq';
+            }
+        }
+        input.readOnly = false;
+        input.style.color = '#0D5F75';
+        if (!input._blurBound) {
+            input._blurBound = true;
+            input.addEventListener('blur', () => { if (input.value.trim()) _saveFaqPageUrl(_getFaqFullUrl()); });
+        }
+    }
     // Bottone "Crea pagina" visibile solo per WP
     const btnCreate = document.getElementById('btn-publish-faq-page');
     if (btnCreate) {
