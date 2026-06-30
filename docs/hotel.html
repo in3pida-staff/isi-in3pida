@@ -318,7 +318,8 @@ let _schemaProfile = {}, _currentHotelProfile = {};
 const _camServPreset = ['Bagno privato','Aria condizionata','Wi-Fi','TV','Minibar','Balcone','Cucina','Frigorifero','Accessibile'];
 
 async function _publishFaqPage(btn) {
-    if (_isScriptSite()) {
+    const _isScript = _isScriptSite() || (_site?.plugin_version||'').startsWith('js-') || !_pluginBase;
+    if (_isScript) {
         window.open('https://isi.in3pida.it/faq.html?id=' + encodeURIComponent(_site?.site_id || ''), '_blank');
         return;
     }
