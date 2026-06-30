@@ -317,13 +317,48 @@ let _galleryTmp = [], _serviziCustomTmp = [], _targetCustomTmp = [], _knowsabout
 let _schemaProfile = {}, _currentHotelProfile = {};
 const _camServPreset = ['Bagno privato','Aria condizionata','Wi-Fi','TV','Minibar','Balcone','Cucina','Frigorifero','Accessibile'];
 
+function _openFaqUrl() {
+    const url = document.getElementById('faq-setting-page-url')?.value?.trim();
+    if (url) window.open(url, '_blank');
+}
+
+async function _saveFaqPageUrl(url) {
+    if (!_site?.site_id) return;
+    const hp = _site.hotel_profile || {};
+    const fs = { ...(hp.faq_settings || {}), faq_page_url: url };
+    await _SBq.from('isi_sites').update({ hotel_profile: { ...hp, faq_settings: fs } }).eq('site_id', _site.site_id);
+    if (!_site.hotel_profile) _site.hotel_profile = {};
+    if (!_site.hotel_profile.faq_settings) _site.hotel_profile.faq_settings = {};
+    _site.hotel_profile.faq_settings.faq_page_url = url;
+}
+
+function _initFaqPageUrl() {
+    const input = document.getElementById('faq-setting-page-url');
+    if (!input) return;
+    const saved = _site?.hotel_profile?.faq_settings?.faq_page_url;
+    const isScript = _isScriptSite() || (_site?.plugin_version||'').startsWith('js-') || !_pluginBase;
+    const auto = isScript ? ('https://isi.in3pida.it/faq.html?id=' + encodeURIComponent(_site?.site_id||'')) : '';
+    if (!input.value) input.value = saved || auto;
+    // Bottone "Crea pagina" visibile solo per WP
+    const btnCreate = document.getElementById('btn-publish-faq-page');
+    if (btnCreate) btnCreate.style.display = isScript ? 'none' : '';
+    // Salva on-blur se l'utente modifica manualmente
+    if (!input._blurBound) {
+        input._blurBound = true;
+        input.addEventListener('blur', () => { if (input.value.trim()) _saveFaqPageUrl(input.value.trim()); });
+    }
+}
+
 async function _publishFaqPage(btn) {
     const _isScript = _isScriptSite() || (_site?.plugin_version||'').startsWith('js-') || !_pluginBase;
     if (_isScript) {
-        window.open('https://isi.in3pida.it/faq.html?id=' + encodeURIComponent(_site?.site_id || ''), '_blank');
+        const url = 'https://isi.in3pida.it/faq.html?id=' + encodeURIComponent(_site?.site_id || '');
+        document.getElementById('faq-setting-page-url').value = url;
+        await _saveFaqPageUrl(url);
+        window.open(url, '_blank');
         return;
     }
-    btn.disabled = true; btn.textContent = '⏳ Pubblicazione...';
+    btn.disabled = true; btn.textContent = '⏳ Creazione...';
     try {
         const r = await fetch(_pluginBase + '/wp-json/in3pida/v1/create-faq-page', {
             method: 'POST',
@@ -333,16 +368,17 @@ async function _publishFaqPage(btn) {
         });
         const d = await r.json();
         if (r.ok && d.ok && d.url) {
-            btn.textContent = '✓ Pubblicata';
+            document.getElementById('faq-setting-page-url').value = d.url;
+            await _saveFaqPageUrl(d.url);
+            btn.disabled = false; btn.textContent = 'Crea pagina automaticamente';
             window.open(d.url, '_blank');
-            setTimeout(() => { btn.disabled = false; btn.textContent = '↗ Pubblica pagina FAQ'; }, 3000);
         } else {
             btn.textContent = '✗ Errore';
-            setTimeout(() => { btn.disabled = false; btn.textContent = '↗ Pubblica pagina FAQ'; }, 2000);
+            setTimeout(() => { btn.disabled = false; btn.textContent = 'Crea pagina automaticamente'; }, 2000);
         }
     } catch(_) {
         btn.textContent = '✗ Errore';
-        setTimeout(() => { btn.disabled = false; btn.textContent = '↗ Pubblica pagina FAQ'; }, 2000);
+        setTimeout(() => { btn.disabled = false; btn.textContent = 'Crea pagina automaticamente'; }, 2000);
     }
 }
 
@@ -983,16 +1019,14 @@ function renderContent(site, pseData, now) {
                             <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input id="faq-setting-schema-seo" type="checkbox" checked style="margin:0;width:14px;height:14px;accent-color:#0D5F75;flex-shrink:0"><span style="font-size:13px;font-family:'Source Code Pro',monospace;color:rgba(13,95,117,0.6)">Dati strutturati FAQPage per SEO</span></label>
                         </div>
                         <div style="grid-column:1/-1;height:1px;background:#e4e4ec"></div>
-                        <div style="grid-column:1/-1;padding:12px 0 14px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
-                            <div>
-                                <div style="font-size:12px;color:rgba(13,95,117,0.4);font-family:'Source Code Pro',monospace;margin-bottom:8px">Shortcode da incollare nella pagina WordPress dove vuoi pubblicare le FAQ</div>
-                                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-                                    <code style="background:white;border:1px solid #e4e4ec;border-radius:24px;padding:3px 12px;font-size:13px;color:#0D5F75;font-weight:600;font-family:'Source Code Pro',monospace">[in3pida_faq]</code>
-                                    <span style="font-size:12px;color:rgba(13,95,117,0.4);font-family:'Source Code Pro',monospace">oppure</span>
-                                    <code style="background:white;border:1px solid #e4e4ec;border-radius:24px;padding:3px 12px;font-size:13px;color:#0D5F75;font-weight:600;font-family:'Source Code Pro',monospace">[site_faq]</code>
-                                </div>
+                        <div style="grid-column:1/-1;padding:12px 0 14px">
+                            <div style="font-size:12px;color:rgba(13,95,117,0.4);font-family:'Source Code Pro',monospace;margin-bottom:8px">URL pagina FAQ pubblica</div>
+                            <div style="display:flex;align-items:center;gap:8px">
+                                <input id="faq-setting-page-url" type="url" placeholder="https://tuosito.it/faq" style="flex:1;min-width:0;border:1px solid #e4e4ec;border-radius:24px;padding:6px 14px;font-family:'Source Code Pro',monospace;font-size:12px;color:#0D5F75;outline:none;background:white">
+                                <button id="btn-open-faq-url" onclick="_openFaqUrl()" style="background:#C1CBE8;color:#fff;border:none;border-radius:24px;padding:6px 16px;font-family:'Source Code Pro',monospace;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0">↗ Apri</button>
+                                <button id="btn-publish-faq-page" onclick="_publishFaqPage(this)" style="background:#EFF020;color:#0D5F75;border:none;border-radius:24px;padding:6px 16px;font-family:'Source Code Pro',monospace;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0">Crea pagina automaticamente</button>
                             </div>
-                            <button id="btn-publish-faq-page" onclick="_publishFaqPage(this)" style="background:#EFF020;color:#0D5F75;border:none;border-radius:24px;padding:6px 16px;font-family:'Source Code Pro',monospace;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0">↗ Pubblica pagina FAQ</button>
+                            <div id="faq-setting-page-url-hint" style="font-size:11px;color:rgba(13,95,117,0.4);font-family:'Source Code Pro',monospace;margin-top:6px"></div>
                         </div>
                     </div>
                 </div>
@@ -1431,6 +1465,7 @@ function renderContent(site, pseData, now) {
     document.getElementById('btn-faq-settings-toggle')?.addEventListener('click', () => {
         const open = faqSettingsCard?.style.display !== 'none' && faqSettingsCard?.style.display !== '';
         if (faqSettingsCard) faqSettingsCard.style.display = open ? 'none' : 'flex';
+        if (!open) _initFaqPageUrl();
     });
     document.getElementById('btn-close-faq-settings')?.addEventListener('click', () => {
         if (faqSettingsCard) faqSettingsCard.style.display = 'none';
@@ -1555,8 +1590,9 @@ async function _scriptSaveFaq(action, faq) {
     const { data: _freshFaq } = await _SBq.from('isi_sites').select('faq_data').eq('site_id', _site.site_id).single();
     const _baseFaq = _freshFaq?.faq_data || _site?.faq_data || {};
     const newFaqData = { ..._baseFaq, items, total: items.length, _synced_at: new Date().toISOString(), _source: 'isi' };
-    const { error } = await _SBq.from('isi_sites').update({ faq_data: newFaqData }).eq('site_id', _site.site_id);
+    const { data: _saved, error } = await _SBq.from('isi_sites').update({ faq_data: newFaqData }).eq('site_id', _site.site_id).select('site_id');
     if (error) throw new Error(error.message);
+    if (!_saved?.length) throw new Error('Salvataggio non riuscito — controlla i permessi Supabase');
     _site.faq_data = newFaqData;
     _faqItems = items;
 }
