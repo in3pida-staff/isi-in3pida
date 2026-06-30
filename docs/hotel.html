@@ -151,7 +151,7 @@
             <div id="fhm-msg" style="font-size:13px;margin-top:10px;display:none;padding:8px 12px;border-radius:8px"></div>
             <div class="profile-actions" style="margin-top:16px;display:flex;justify-content:flex-end;gap:8px;align-items:center">
                 <button id="fhm-cancel" style="background:white;color:#0D5F75;border:1px solid #e4e4ec;border-radius:24px;padding:6px 16px;font-family:'Source Code Pro',monospace;font-size:12px;font-weight:600;cursor:pointer">Annulla</button>
-                <button id="fhm-save" style="background:#C1CBE8;color:#fff;border:none;border-radius:24px;padding:6px 16px;font-family:'Source Code Pro',monospace;font-size:12px;font-weight:600;cursor:pointer">Salva FAQ</button>
+                <button id="fhm-save" style="background:#C1CBE8;color:#fff;border:none;border-radius:24px;padding:6px 16px;font-family:'Source Code Pro',monospace;font-size:12px;font-weight:600;cursor:pointer">Aggiungi</button>
             </div>
         </div>
     </div>
@@ -1491,7 +1491,7 @@ window.elettaClick = function(type) {
 };
 
 // ─── FAQ ──────────────────────────────────────────────────────────────────────
-const _isScriptSite = () => (_site?.hotel_profile?.site_mode === 'script');
+const _isScriptSite = () => (_site?.hotel_profile?.site_mode === 'script') || (_site?.plugin_version||'').startsWith('js-');
 
 async function initHotelFaq() {
     const listEl = document.getElementById('faq-hotel-list');
@@ -1620,7 +1620,7 @@ document.getElementById('fhm-save').addEventListener('click', async () => {
             else throw new Error(d.message||'Errore '+r.status);
         }
     } catch(e){ msg.style.display='block'; msg.style.background='rgba(13,95,117,0.08)'; msg.style.color='#FF8500'; msg.textContent='Errore: '+e.message; }
-    finally { btn.disabled=false; btn.textContent='Salva FAQ'; }
+    finally { btn.disabled=false; btn.textContent='Aggiungi'; }
 });
 
 window.deleteHotelFaq = async function(id) {
