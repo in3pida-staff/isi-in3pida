@@ -30,34 +30,42 @@ jobs:
 
           for ZIP_PATH in $NEW_ZIPS; do
             FILENAME=$(basename "$ZIP_PATH")
-            # Estrai versione da in3pida-faq-X.Y.Z.zip
             VERSION=$(echo "$FILENAME" | sed 's/in3pida-faq-//;s/\.zip//')
             DOWNLOAD_URL="https://isi.in3pida.it/${FILENAME}"
 
             echo "Pubblico versione $VERSION → $DOWNLOAD_URL"
 
-            # Segna tutte le versioni precedenti come non correnti
+            # 1. Azzera tutte le versioni
             curl -s -X PATCH \
-              "${SUPABASE_URL}/rest/v1/isi_plugin_versions?is_current=eq.true" \
+              "${SUPABASE_URL}/rest/v1/isi_plugin_versions?version=gte.0" \
               -H "apikey: ${SUPABASE_SERVICE_ROLE_KEY}" \
               -H "Authorization: Bearer ${SUPABASE_SERVICE_ROLE_KEY}" \
               -H "Content-Type: application/json" \
               -H "Prefer: return=minimal" \
               -d '{"is_current": false}'
 
-            # Inserisce la nuova versione come corrente (upsert)
+            # 2. Inserisce con is_current:false (evita trigger su INSERT)
             RESULT=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
               "${SUPABASE_URL}/rest/v1/isi_plugin_versions" \
               -H "apikey: ${SUPABASE_SERVICE_ROLE_KEY}" \
               -H "Authorization: Bearer ${SUPABASE_SERVICE_ROLE_KEY}" \
               -H "Content-Type: application/json" \
               -H "Prefer: resolution=merge-duplicates,return=minimal" \
-              -d "{\"version\": \"${VERSION}\", \"download_url\": \"${DOWNLOAD_URL}\", \"is_current\": true, \"released_at\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}")
+              -d "{\"version\": \"${VERSION}\", \"download_url\": \"${DOWNLOAD_URL}\", \"is_current\": false, \"released_at\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}")
 
-            if [ "$RESULT" = "200" ] || [ "$RESULT" = "201" ] || [ "$RESULT" = "204" ]; then
-              echo "✓ Versione $VERSION pubblicata su Supabase (HTTP $RESULT)"
-            else
-              echo "✗ Errore pubblicazione (HTTP $RESULT)"
+            if [ "$RESULT" != "200" ] && [ "$RESULT" != "201" ] && [ "$RESULT" != "204" ]; then
+              echo "✗ Errore inserimento (HTTP $RESULT)"
               exit 1
             fi
+
+            # 3. PATCH separato per impostare is_current:true (bypassa trigger INSERT)
+            curl -s -X PATCH \
+              "${SUPABASE_URL}/rest/v1/isi_plugin_versions?version=eq.${VERSION}" \
+              -H "apikey: ${SUPABASE_SERVICE_ROLE_KEY}" \
+              -H "Authorization: Bearer ${SUPABASE_SERVICE_ROLE_KEY}" \
+              -H "Content-Type: application/json" \
+              -H "Prefer: return=minimal" \
+              -d '{"is_current": true}'
+
+            echo "✓ Versione $VERSION pubblicata su Supabase"
           done
