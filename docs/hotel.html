@@ -1410,19 +1410,10 @@ function renderContent(site, pseData, now) {
         const headerBtn = document.getElementById('btn-sync-header');
         if (headerBtn) { headerBtn.textContent = 'Sincronizzazione...'; headerBtn.disabled = true; }
         try {
-            const savedHistory = _site?.faq_data?.score_history;
-            const savedSiteId  = _site?.site_id;
             const r = await fetch(_pluginBase + '/wp-json/in3pida/v1/force-heartbeat', { method:'POST', headers:{'Content-Type':'application/json'}, signal:AbortSignal.timeout(20000) });
             if (r.ok) {
                 if(headerBtn) headerBtn.textContent='✓ Sincronizzato';
-                // Dopo il sync il plugin sovrascrive faq_data — ri-salva la score_history prima del reload
-                if (savedHistory && savedHistory.length && savedSiteId) {
-                    try {
-                        const { data: fresh } = await _SBq.from('isi_sites').select('faq_data').eq('site_id', savedSiteId).single();
-                        const merged = { ...(fresh?.faq_data || {}), score_history: savedHistory };
-                        await _SBq.from('isi_sites').update({ faq_data: merged }).eq('site_id', savedSiteId);
-                    } catch(_) {}
-                }
+                // Il plugin 2.5.6+ salva score_history autonomamente — nessun re-save necessario
                 setTimeout(() => { window.location.reload(); }, 1500);
             }
             else { if(headerBtn){headerBtn.textContent='✗ Errore '+r.status;setTimeout(()=>{headerBtn.textContent='Sincronizza';headerBtn.disabled=false;},3000);} }
@@ -3643,30 +3634,25 @@ async function initScoreHistoryChart(site, geoAvg, cs, covPct) {
     const todayStr = new Date().toISOString().slice(0, 10);
     const geoSub = site.geo_scores || faqData.geo || {};
 
+    let freshFaqData = faqData;
     let history = Array.isArray(faqData.score_history) ? [...faqData.score_history] : [];
     try {
         const { data: fresh } = await _SBq.from('isi_sites').select('faq_data').eq('site_id', site.site_id).single();
-        const dbHistory = Array.isArray(fresh?.faq_data?.score_history) ? fresh.faq_data.score_history : [];
-        if (dbHistory.length > history.length) history = [...dbHistory];
+        if (fresh?.faq_data) {
+            freshFaqData = fresh.faq_data;
+            const dbHistory = Array.isArray(fresh.faq_data.score_history) ? fresh.faq_data.score_history : [];
+            if (dbHistory.length >= history.length) history = [...dbHistory];
+        }
     } catch(_) {}
 
+    // Il plugin 2.5.6+ salva score_history ad ogni heartbeat — il frontend aggiorna solo se manca la voce di oggi
     const todayEntry = history.find(h => h.date === todayStr);
-    if (todayEntry) {
-        todayEntry.geo = geoAvg;
-        todayEntry.completeness = cs;
-        todayEntry.coverage = covPct;
-        if (todayEntry.ai_readiness == null) {
-            todayEntry.ai_readiness = geoSub.ai_readiness ?? null;
-            todayEntry.answer_extraction = geoSub.answer_extraction ?? null;
-            todayEntry.quality_safety = geoSub.quality_safety ?? null;
-            todayEntry.ai_visibility = geoSub.ai_visibility ?? null;
-        }
-        _SBq.from('isi_sites').update({ faq_data: { ...faqData, score_history: history } }).eq('site_id', site.site_id).then(() => {});
-    } else if (geoAvg !== null || cs !== null || covPct !== null) {
+    if (!todayEntry && (geoAvg !== null || cs !== null || covPct !== null)) {
         history.push({ date: todayStr, geo: geoAvg, completeness: cs, coverage: covPct,
             ai_readiness: geoSub.ai_readiness ?? null, answer_extraction: geoSub.answer_extraction ?? null,
             quality_safety: geoSub.quality_safety ?? null, ai_visibility: geoSub.ai_visibility ?? null });
-        _SBq.from('isi_sites').update({ faq_data: { ...faqData, score_history: history } }).eq('site_id', site.site_id).then(() => {});
+        // Usa freshFaqData come base per non sovrascrivere dati aggiornati dal plugin
+        _SBq.from('isi_sites').update({ faq_data: { ...freshFaqData, score_history: history } }).eq('site_id', site.site_id).then(() => {});
     }
 
     history.sort((a, b) => a.date.localeCompare(b.date));
