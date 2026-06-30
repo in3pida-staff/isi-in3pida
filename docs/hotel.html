@@ -1722,22 +1722,24 @@ document.getElementById('fhm-save').addEventListener('click', async () => {
             await _scriptSaveFaq(action, faq);
             document.getElementById('faq-hotel-modal').style.display='none';
             renderHotelFaqList(document.getElementById('faq-hotel-list'));
+            _aggiornaRigaQueryMap(q);
         } else {
             const ctrl=new AbortController(); setTimeout(()=>ctrl.abort(),12000);
             const r=await fetch(_pluginBase+'/wp-json/in3pida/v1/faq',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({secret:_pluginSecret,action,faq}),signal:ctrl.signal});
             const d=await r.json().catch(()=>({}));
             if(r.ok&&d.ok){
                 document.getElementById('faq-hotel-modal').style.display='none';
-                // Aggiorna lista localmente
                 if(action==='add'){
-                    _faqItems.push({id:d.id||Date.now(),question:q,answer:a,solo_ai:sa,status:'publish',order:_faqItems.length});
+                    _faqItems.push({id:d.id||Date.now(),question:q,answer:a,solo_ai:sa,status: sa ? 'solo_ai' : 'publish',order:_faqItems.length});
                 } else if(action==='update'){
                     const idx=_faqItems.findIndex(x=>x.id==faq.id);
-                    if(idx!==-1) _faqItems[idx]={..._faqItems[idx],question:q,answer:a,solo_ai:sa};
+                    if(idx!==-1) _faqItems[idx]={..._faqItems[idx],question:q,answer:a,solo_ai:sa,status: sa ? 'solo_ai' : 'publish'};
                 }
+                const badge=document.getElementById('faq-hotel-count');
+                if(badge) badge.textContent='('+_faqItems.length+')';
                 renderHotelFaqList(document.getElementById('faq-hotel-list'));
-                // Sincronizza anche su Supabase (così faq.html funziona sempre)
                 _syncFaqToSupabase().catch(()=>{});
+                _aggiornaRigaQueryMap(q);
             } else throw new Error(d.message||'Errore '+r.status);
         }
     } catch(e){ msg.style.display='block'; msg.style.background='rgba(13,95,117,0.08)'; msg.style.color='#FF8500'; msg.textContent='Errore: '+e.message; }
@@ -2946,10 +2948,11 @@ window.generaRispostaQuery = async function(btn, cat, query, siteId) {
         });
         const json = await r.json();
         if (!json.answer) throw new Error(json.error || 'Nessuna risposta generata');
-        // Apri modal per permettere all'utente di rivedere il testo e scegliere la visibilità
+        window._qmPending = { btn, cat, query, siteId };
         apriModaleFaqHotel(query, json.answer);
     } catch(e) {
         showToast('⚠ ' + e.message);
+        window._qmPending = null;
         apriModaleFaqHotel(query);
     }
     btn.disabled = false; btn.textContent = origText;
@@ -2998,6 +3001,34 @@ window.apriModaleFaqHotel = function(query, prefillAnswer, errorMsg) {
     if (errorMsg) { msgEl.textContent = errorMsg; msgEl.style.background='rgba(13,95,117,0.08)'; msgEl.style.color='#FF8500'; msgEl.style.display='block'; }
     else { msgEl.style.display='none'; }
     document.getElementById('faq-hotel-modal').style.display = 'flex';
+};
+
+window._aggiornaRigaQueryMap = function(savedQuestion) {
+    const p = window._qmPending;
+    if (!p) return;
+    window._qmPending = null;
+    const q = savedQuestion || p.query;
+    const wrapper = p.btn ? p.btn.closest('div[style*="gap:6px"]') : null;
+    if (wrapper) {
+        const cE = esc(p.cat), qE = esc(q).replace(/'/g,"\\'"), sE = esc(p.siteId);
+        wrapper.innerHTML = `<span style="font-size:11px;color:#0D5F75;font-weight:700">Coperta ✓</span><button style="padding:4px 10px;font-size:11px;font-weight:700;background:#C1CBE8;color:#fff;border:none;border-radius:24px;cursor:pointer;font-family:'Source Code Pro',monospace" onclick="generaRispostaQuery(this,'${cE}','${qE}','${sE}')">Genera</button>`;
+    }
+    // Aggiorna covered_queries su Supabase in background
+    if (p.siteId) {
+        (async () => {
+            try {
+                const { data: row } = await _SBq.from('isi_sites').select('faq_data').eq('site_id', p.siteId).single();
+                const fd = row?.faq_data || {};
+                const qm = fd.query_map || {};
+                const catEntry = qm[p.cat] || {};
+                const covQ = Array.isArray(catEntry.covered_queries) ? [...catEntry.covered_queries] : [];
+                if (!covQ.includes(p.query)) covQ.push(p.query);
+                qm[p.cat] = { ...catEntry, covered_queries: covQ };
+                await _SBq.from('isi_sites').update({ faq_data: { ...fd, query_map: qm } }).eq('site_id', p.siteId);
+                if (_site) _site.faq_data = { ...(_site.faq_data||{}), query_map: qm };
+            } catch(_) {}
+        })();
+    }
 };
 
 // ─── COERENZA ─────────────────────────────────────────────────────────────────
