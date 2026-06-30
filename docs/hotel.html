@@ -362,7 +362,19 @@ function _initFaqPageUrl() {
     input.style.color = isScript ? 'rgba(13,95,117,0.4)' : '#0D5F75';
     // Bottone "Crea pagina" visibile solo per WP
     const btnCreate = document.getElementById('btn-publish-faq-page');
-    if (btnCreate) btnCreate.style.display = isScript ? 'none' : '';
+    if (btnCreate) {
+        btnCreate.style.display = isScript ? 'none' : '';
+        const alreadyPublished = !isScript && !!(_site?.hotel_profile?.faq_settings?.faq_page_url);
+        if (alreadyPublished) {
+            _markFaqPageCreated(btnCreate, null);
+        } else {
+            btnCreate.onclick = function() { _publishFaqPage(this); };
+            btnCreate.style.background = '';
+            btnCreate.style.color = '';
+            btnCreate.style.cursor = '';
+            btnCreate.textContent = 'Crea pagina automaticamente';
+        }
+    }
     // Shortcode visibile solo per WP
     const shortcodeRow = document.getElementById('faq-shortcode-row');
     if (shortcodeRow) shortcodeRow.style.display = isScript ? 'none' : '';
@@ -395,8 +407,8 @@ async function _publishFaqPage(btn) {
             const input = document.getElementById('faq-setting-page-url');
             if (input) { try { input.value = new URL(d.url).pathname.replace(/^\//,''); } catch(_) { input.value = d.url; } }
             await _saveFaqPageUrl(d.url);
-            btn.disabled = false; btn.textContent = 'Crea pagina automaticamente';
             window.open(d.url, '_blank');
+            _markFaqPageCreated(btn, d.url);
         } else {
             btn.textContent = '✗ Errore';
             setTimeout(() => { btn.disabled = false; btn.textContent = 'Crea pagina automaticamente'; }, 2000);
@@ -405,6 +417,16 @@ async function _publishFaqPage(btn) {
         btn.textContent = '✗ Errore';
         setTimeout(() => { btn.disabled = false; btn.textContent = 'Crea pagina automaticamente'; }, 2000);
     }
+}
+
+function _markFaqPageCreated(btn, url) {
+    if (!btn) return;
+    btn.disabled = false;
+    btn.textContent = 'Pagina pubblicata';
+    btn.style.background = 'rgba(13,95,117,0.12)';
+    btn.style.color = '#0D5F75';
+    btn.style.cursor = 'default';
+    btn.onclick = null;
 }
 
 // ─── INIT ──────────────────────────────────────────────────────────────────────
@@ -2481,16 +2503,35 @@ async function saveFaqPluginSettings() {
         schema_seo:  document.getElementById('faq-setting-schema-seo')?.checked||false,
     };
     try {
-        const ctrl = new AbortController(); setTimeout(() => ctrl.abort(), 8000);
-        const r = await fetch(_pluginBase + '/wp-json/in3pida/v1/faq-settings', {
-            method: 'POST', signal: ctrl.signal,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
-        if (!r.ok) throw new Error('HTTP ' + r.status);
+        // Salva sempre su Supabase (funziona per Script JS e faq.html)
+        const hp = _site?.hotel_profile || {};
+        const sbSettings = {
+            ...(hp.faq_settings || {}),
+            page_title:    payload.page_title,
+            page_subtitle: payload.page_subtitle,
+            color_primary: payload.color_primary,
+            color_accent:  payload.color_accent,
+            color_text:    payload.color_text,
+            color_bg:      payload.color_bg,
+            open_first:    payload.open_first,
+            schema_seo:    payload.schema_seo,
+        };
+        await _SBq.from('isi_sites').update({ hotel_profile: { ...hp, faq_settings: sbSettings } }).eq('site_id', _site.site_id);
+        if (!_site.hotel_profile) _site.hotel_profile = {};
+        _site.hotel_profile.faq_settings = sbSettings;
+        // Per WP: salva anche sul plugin
+        if (_pluginBase && !_isScriptSite()) {
+            const ctrl = new AbortController(); setTimeout(() => ctrl.abort(), 8000);
+            const r = await fetch(_pluginBase + '/wp-json/in3pida/v1/faq-settings', {
+                method: 'POST', signal: ctrl.signal,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+        }
         if (msg) { msg.style.display='block'; msg.style.background='#f4fff8'; msg.style.color='#166534'; msg.textContent='Impostazioni salvate!'; }
     } catch (e) {
-        if (msg) { msg.style.display='block'; msg.style.background='#e8ecf7'; msg.style.color='#FF8500'; msg.textContent='Errore: '+e.message+' — aggiorna il plugin per abilitare questa funzione.'; }
+        if (msg) { msg.style.display='block'; msg.style.background='#e8ecf7'; msg.style.color='#FF8500'; msg.textContent='Errore: '+e.message; }
     }
     setTimeout(()=>{ if(msg)msg.style.display='none'; }, 5000);
     btn.disabled = false; btn.textContent = 'Salva impostazioni';
