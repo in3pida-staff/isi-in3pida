@@ -1078,6 +1078,10 @@ function renderContent(site, pseData, now) {
                             <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input id="faq-setting-schema-seo" type="checkbox" checked style="margin:0;width:14px;height:14px;accent-color:#0D5F75;flex-shrink:0"><span style="font-size:13px;font-family:'Source Code Pro',monospace;color:rgba(13,95,117,0.6)">Dati strutturati FAQPage per SEO</span></label>
                         </div>
                         <div style="grid-column:1/-1;height:1px;background:#e4e4ec"></div>
+                        <div style="grid-column:1/-1;padding:12px 0 10px">
+                            <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input id="faq-setting-show-solo-ai" type="checkbox" style="margin:0;width:14px;height:14px;accent-color:#0D5F75;flex-shrink:0"><span style="font-size:13px;font-family:'Source Code Pro',monospace;color:rgba(13,95,117,0.6)">Mostra FAQ Solo AI sulla pagina pubblica</span></label>
+                        </div>
+                        <div style="grid-column:1/-1;height:1px;background:#e4e4ec"></div>
                         <div style="grid-column:1/-1;padding:12px 0 14px">
                             <div style="font-size:12px;color:rgba(13,95,117,0.4);font-family:'Source Code Pro',monospace;margin-bottom:8px">Pagina FAQ pubblica</div>
                             <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
@@ -2492,6 +2496,7 @@ async function loadFaqPluginSettings() {
         }
         if (s.open_first !== undefined && document.getElementById('faq-setting-open-first')) document.getElementById('faq-setting-open-first').checked = !!s.open_first;
         if (s.schema_seo !== undefined && document.getElementById('faq-setting-schema-seo')) document.getElementById('faq-setting-schema-seo').checked = !!s.schema_seo;
+        if (s.show_solo_ai !== undefined && document.getElementById('faq-setting-show-solo-ai')) document.getElementById('faq-setting-show-solo-ai').checked = !!s.show_solo_ai;
     } catch (_) {}
 }
 
@@ -2519,8 +2524,9 @@ async function saveFaqPluginSettings() {
         width_type:            document.getElementById('faq-setting-width-type')?.value||'custom',
         width:                 parseInt(document.getElementById('faq-setting-width')?.value||'920',10),
         order_by:    document.getElementById('faq-order-asc')?.checked ? 'asc' : 'manual',
-        open_first:  document.getElementById('faq-setting-open-first')?.checked||false,
-        schema_seo:  document.getElementById('faq-setting-schema-seo')?.checked||false,
+        open_first:    document.getElementById('faq-setting-open-first')?.checked||false,
+        schema_seo:    document.getElementById('faq-setting-schema-seo')?.checked||false,
+        show_solo_ai:  document.getElementById('faq-setting-show-solo-ai')?.checked||false,
     };
     try {
         // Salva sempre su Supabase (funziona per Script JS e faq.html)
@@ -2940,39 +2946,8 @@ window.generaRispostaQuery = async function(btn, cat, query, siteId) {
         });
         const json = await r.json();
         if (!json.answer) throw new Error(json.error || 'Nessuna risposta generata');
-        const aiAnswer = json.answer;
-        // Save to Supabase faq_data
-        const { data: siteRow } = await _SBq.from('isi_sites').select('faq_data').eq('site_id', siteId).single();
-        const fd = siteRow?.faq_data || {};
-        const items = Array.isArray(fd.items) ? [...fd.items] : [];
-        const existingIdx = items.findIndex(f => (f.question||'').trim().toLowerCase() === query.trim().toLowerCase());
-        if (existingIdx >= 0) {
-            items[existingIdx] = { ...items[existingIdx], answer: aiAnswer, solo_ai: true, status: 'publish', updated_at: new Date().toISOString() };
-        } else {
-            items.push({ id: Date.now(), question: query, answer: aiAnswer, solo_ai: true, status: 'publish', menu_order: 0, created_at: new Date().toISOString() });
-        }
-        const qmSave = fd.query_map || {};
-        const catEntry = qmSave[cat] || {};
-        const covQ2 = Array.isArray(catEntry.covered_queries) ? catEntry.covered_queries : [];
-        if (!covQ2.includes(query)) covQ2.push(query);
-        qmSave[cat] = { ...catEntry, covered_queries: covQ2 };
-        await _SBq.from('isi_sites').update({ faq_data: { ...fd, items, query_map: qmSave } }).eq('site_id', siteId);
-        if (_site) { _site.faq_data = { ...fd, items, query_map: qmSave }; _faqItems = []; }
-        // Per siti plugin: salva anche su WP così la FAQ appare nella tab FAQ
-        if (_pluginBase && !_isScriptSite()) {
-            const existingWp = _faqItems.find(f => (f.question||'').trim().toLowerCase() === query.trim().toLowerCase());
-            const wpAction = existingWp ? 'update' : 'add';
-            const wpFaq = existingWp
-                ? { id: existingWp.id, question: query, answer: aiAnswer, solo_ai: true, order: existingWp.menu_order ?? 0 }
-                : { question: query, answer: aiAnswer, solo_ai: true, order: 0 };
-            fetch(_pluginBase + '/wp-json/in3pida/v1/faq', {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ secret: _pluginSecret, action: wpAction, faq: wpFaq })
-            }).catch(() => {});
-        }
-        const wrapper = btn.closest('div[style*="gap:6px"]');
-        if (wrapper) wrapper.innerHTML = `<span style="font-size:11px;color:#0D5F75;font-weight:700">Coperta ✓</span><button style="padding:4px 10px;font-size:11px;font-weight:700;background:#C1CBE8;color:#fff;border:none;border-radius:24px;cursor:pointer;font-family:'Source Code Pro',monospace" onclick="generaRispostaQuery(this,'${esc(cat)}','${esc(query).replace(/'/g,"\\'")}','${esc(siteId)}')">Genera</button>`;
-        showToast('✓ FAQ generata e salvata');
+        // Apri modal per permettere all'utente di rivedere il testo e scegliere la visibilità
+        apriModaleFaqHotel(query, json.answer);
     } catch(e) {
         showToast('⚠ ' + e.message);
         apriModaleFaqHotel(query);
@@ -3018,7 +2993,7 @@ window.apriModaleFaqHotel = function(query, prefillAnswer, errorMsg) {
     document.getElementById('fhm-id').value   = '';
     document.getElementById('fhm-q').value    = query;
     document.getElementById('fhm-a').value    = prefillAnswer || '';
-    document.getElementById('fhm-solo-ai').checked = true;
+    document.getElementById('fhm-solo-ai').checked = false;
     const msgEl = document.getElementById('fhm-msg');
     if (errorMsg) { msgEl.textContent = errorMsg; msgEl.style.background='rgba(13,95,117,0.08)'; msgEl.style.color='#FF8500'; msgEl.style.display='block'; }
     else { msgEl.style.display='none'; }
