@@ -36,16 +36,23 @@ node -e "
 const { createClient } = require('@supabase/supabase-js');
 const sb = createClient('${SUPABASE_URL}','${SERVICE_KEY}',{auth:{persistSession:false}});
 (async()=>{
-  // Upsert versione — la versione corrente è quella con released_at più recente (no trigger)
+  // Azzera is_current su tutto, poi upsert nuova versione con is_current:true
+  await sb.from('isi_plugin_versions').update({is_current:false}).gte('version','0');
   const r = await sb.from('isi_plugin_versions').upsert({
     version:'${VERSION}',
     changelog:'${CHANGELOG}',
     download_url:'https://isi.in3pida.it/in3pida-faq-${VERSION}.zip',
-    is_current:false,
+    is_current:true,
     released_at:new Date().toISOString()
   },{onConflict:'version'});
   if(r.error){console.error('ERRORE upsert:',r.error.message);process.exit(1);}
-  console.log('Supabase OK — versione ${VERSION} registrata');
+  // Verifica che is_current sia rimasto true (il trigger DB potrebbe resettarlo)
+  const {data:chk}=await sb.from('isi_plugin_versions').select('version,is_current').eq('version','${VERSION}').single();
+  if(!chk?.is_current){
+    // Trigger ha resettato — forza con PATCH separato
+    await sb.from('isi_plugin_versions').update({is_current:true}).eq('version','${VERSION}');
+  }
+  console.log('Supabase OK — versione ${VERSION} corrente');
 })();
 "
 
