@@ -318,11 +318,8 @@ let _schemaProfile = {}, _currentHotelProfile = {};
 const _camServPreset = ['Bagno privato','Aria condizionata','Wi-Fi','TV','Minibar','Balcone','Cucina','Frigorifero','Accessibile'];
 
 function _getFaqFullUrl() {
-    const prefix = document.getElementById('faq-url-prefix')?.textContent?.trim() || '';
-    const slug = (document.getElementById('faq-setting-page-url')?.value?.trim() || '').replace(/^\//,'');
-    const isScript = _isScriptSite() || (_site?.plugin_version||'').startsWith('js-') || !_pluginBase;
-    if (isScript) return 'https://isi.in3pida.it/faq.html?id=' + encodeURIComponent(_site?.site_id||'');
-    return prefix + '/' + slug;
+    // Usa sempre faq.html ISI: funziona per tutti i siti, non dipende dal plugin WP
+    return 'https://isi.in3pida.it/faq.html?id=' + encodeURIComponent(_site?.site_id||'');
 }
 
 function _openFaqUrl() {
@@ -344,45 +341,33 @@ function _initFaqPageUrl() {
     const input = document.getElementById('faq-setting-page-url');
     const prefix = document.getElementById('faq-url-prefix');
     if (!input) return;
-    const saved = _site?.hotel_profile?.faq_settings?.faq_page_url;
     const isScript = _isScriptSite() || (_site?.plugin_version||'').startsWith('js-') || !_pluginBase;
-    // Imposta prefisso (dominio sito)
-    if (prefix) prefix.textContent = isScript ? 'isi.in3pida.it' : (_pluginBase || '');
-    // Imposta slug nell'input
-    if (!input.value) {
-        if (saved) {
-            // Estrai solo lo slug dall'URL salvato
-            try { input.value = new URL(saved).pathname.replace(/^\//,''); } catch(_) { input.value = saved; }
-        } else {
-            input.value = isScript ? 'faq.html?id='+encodeURIComponent(_site?.site_id||'') : 'faq';
-        }
-    }
-    // Per Script JS: input readonly
-    input.readOnly = isScript;
-    input.style.color = isScript ? 'rgba(13,95,117,0.4)' : '#0D5F75';
+    // Prefisso fisso ISI per tutti
+    if (prefix) prefix.textContent = 'isi.in3pida.it';
+    // Slug fisso: faq.html?id=...
+    input.value = 'faq.html?id=' + encodeURIComponent(_site?.site_id||'');
+    input.readOnly = true;
+    input.style.color = 'rgba(13,95,117,0.4)';
     // Bottone "Crea pagina" visibile solo per WP
     const btnCreate = document.getElementById('btn-publish-faq-page');
     if (btnCreate) {
         btnCreate.style.display = isScript ? 'none' : '';
-        const alreadyPublished = !isScript && !!(_site?.hotel_profile?.faq_settings?.faq_page_url);
-        if (alreadyPublished) {
-            _markFaqPageCreated(btnCreate, null);
-        } else {
-            btnCreate.onclick = function() { _publishFaqPage(this); };
-            btnCreate.style.background = '';
-            btnCreate.style.color = '';
-            btnCreate.style.cursor = '';
-            btnCreate.textContent = 'Crea pagina automaticamente';
+        if (!isScript) {
+            const alreadyPublished = !!(_site?.hotel_profile?.faq_settings?.faq_page_url);
+            if (alreadyPublished) {
+                _markFaqPageCreated(btnCreate, null);
+            } else {
+                btnCreate.onclick = function() { _publishFaqPage(this); };
+                btnCreate.style.background = '';
+                btnCreate.style.color = '';
+                btnCreate.style.cursor = '';
+                btnCreate.textContent = 'Crea pagina automaticamente';
+            }
         }
     }
     // Shortcode visibile solo per WP
     const shortcodeRow = document.getElementById('faq-shortcode-row');
     if (shortcodeRow) shortcodeRow.style.display = isScript ? 'none' : '';
-    // Salva on-blur se l'utente modifica manualmente (solo WP)
-    if (!input._blurBound && !isScript) {
-        input._blurBound = true;
-        input.addEventListener('blur', () => { if (input.value.trim()) _saveFaqPageUrl(_getFaqFullUrl()); });
-    }
 }
 
 async function _publishFaqPage(btn) {
@@ -427,6 +412,15 @@ function _markFaqPageCreated(btn, url) {
     btn.style.color = '#0D5F75';
     btn.style.cursor = 'default';
     btn.onclick = null;
+}
+
+// Sincronizza _faqItems su Supabase faq_data (così faq.html funziona sempre)
+async function _syncFaqToSupabase() {
+    if (!_site?.site_id) return;
+    const items = _faqItems.map(f => ({ id: f.id, question: f.question, answer: f.answer, solo_ai: !!f.solo_ai, status: f.status || 'publish', order: f.menu_order ?? f.order ?? 0 }));
+    const newFaqData = { items, total: items.length, _synced_at: new Date().toISOString(), _source: 'isi' };
+    await _SBq.from('isi_sites').update({ faq_data: newFaqData }).eq('site_id', _site.site_id);
+    if (_site) _site.faq_data = newFaqData;
 }
 
 // ─── INIT ──────────────────────────────────────────────────────────────────────
@@ -1710,7 +1704,7 @@ document.getElementById('fhm-save').addEventListener('click', async () => {
             const d=await r.json().catch(()=>({}));
             if(r.ok&&d.ok){
                 document.getElementById('faq-hotel-modal').style.display='none';
-                // Aggiorna lista localmente senza reload dal plugin
+                // Aggiorna lista localmente
                 if(action==='add'){
                     _faqItems.push({id:d.id||Date.now(),question:q,answer:a,solo_ai:sa,status:'publish',order:_faqItems.length});
                 } else if(action==='update'){
@@ -1718,6 +1712,8 @@ document.getElementById('fhm-save').addEventListener('click', async () => {
                     if(idx!==-1) _faqItems[idx]={..._faqItems[idx],question:q,answer:a,solo_ai:sa};
                 }
                 renderHotelFaqList(document.getElementById('faq-hotel-list'));
+                // Sincronizza anche su Supabase (così faq.html funziona sempre)
+                _syncFaqToSupabase().catch(()=>{});
             } else throw new Error(d.message||'Errore '+r.status);
         }
     } catch(e){ msg.style.display='block'; msg.style.background='rgba(13,95,117,0.08)'; msg.style.color='#FF8500'; msg.textContent='Errore: '+e.message; }
@@ -1735,7 +1731,11 @@ window.deleteHotelFaq = async function(id) {
             const ctrl=new AbortController(); setTimeout(()=>ctrl.abort(),10000);
             const r=await fetch(_pluginBase+'/wp-json/in3pida/v1/faq',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({secret:_pluginSecret,action:'delete',faq:{id}}),signal:ctrl.signal});
             const d=await r.json().catch(()=>({}));
-            if(r.ok&&d.ok){ _faqItems=[]; await initHotelFaq(); } else alert('Errore durante eliminazione');
+            if(r.ok&&d.ok){
+                _faqItems=_faqItems.filter(x=>x.id!==id);
+                renderHotelFaqList(document.getElementById('faq-hotel-list'));
+                _syncFaqToSupabase().catch(()=>{});
+            } else alert('Errore durante eliminazione');
         }
     } catch(e){ alert('Errore: '+e.message); }
 };
