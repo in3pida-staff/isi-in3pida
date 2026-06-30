@@ -1613,6 +1613,8 @@ async function initHotelFaq() {
             } else {
                 const data = await r.json();
                 _faqItems = data.items || [];
+                // Sync in background su Supabase (così faq.html è sempre aggiornata)
+                _syncFaqToSupabase().catch(()=>{});
             }
         }
         // Deduplica per domanda: mantieni l'ID più alto, cancella i vecchi in background
