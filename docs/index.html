@@ -613,7 +613,7 @@
         const avatarUrl = user.user_metadata?.avatar_url;
         if (avatarUrl) setAvatar(avatarUrl);
 
-        const { data: vd } = await _SBq.from('isi_plugin_versions').select('version,download_url').eq('is_current',true).limit(1).single();
+        const { data: vd } = await _SBq.from('isi_plugin_versions').select('version,download_url').order('released_at',{ascending:false}).limit(1).single();
         if (vd) latestVersion = vd;
         loadTab('panoramica');
     }
@@ -744,7 +744,7 @@
     async function loadPanoramica() {
         const [sitesRes, latestVerRes, tuttiSiti, costRes, benchRes] = await Promise.all([
             _SBq.from('isi_sites').select('site_id', {count:'exact'}),
-            _SBq.from('isi_plugin_versions').select('version,released_at,download_url').eq('is_current', true).limit(1).single(),
+            _SBq.from('isi_plugin_versions').select('version,released_at,download_url').order('released_at',{ascending:false}).limit(1).single(),
             _SBq.from('isi_sites').select('*').order('last_heartbeat',{ascending:false}),
             _SBq.from('isi_pse_queries').select('cost_usd'),
             _SBq.from('isi_benchmark_runs').select('site_id', {count:'exact'}),
@@ -6328,7 +6328,7 @@ ${rows}
     // ─── AGGIORNA SITO/I ─────────────────────────────────────────────────────────
     async function getLatestVersion() {
         const { data, error } = await _SBq.from('isi_plugin_versions')
-            .select('version,download_url').eq('is_current', true).limit(1).single();
+            .select('version,download_url').order('released_at',{ascending:false}).limit(1).single();
         if (error || !data) throw new Error('Versione corrente non trovata in isi_plugin_versions.');
         return data;
     }

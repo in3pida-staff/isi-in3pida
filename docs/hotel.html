@@ -3201,7 +3201,7 @@ async function initHotelConfig(site) {
     const cont = document.getElementById('hconfig-content'); if (!cont) return;
     const hp = site.hotel_profile || {}, cfg = hp.isi_config || {}, geo = site.geo_scores || {};
 
-    const { data: _latestVer } = await _SBq.from('isi_plugin_versions').select('version,download_url').eq('is_current',true).limit(1).single();
+    const { data: _latestVer } = await _SBq.from('isi_plugin_versions').select('version,download_url').order('released_at',{ascending:false}).limit(1).single();
     const _pluginNeedsUpdate = !((site.plugin_version||'').startsWith('js-') || hp.site_mode==='script') && _latestVer && site.plugin_version && semverGt(_latestVer.version, site.plugin_version);
     const cardH = '<div class="card" style="margin-bottom:20px;border-radius:8px;border:1px solid #e4e4ec;box-shadow:none">';
     const chH = (dot,title) => '<div class="card-header" style="border-bottom:1px solid #ececf2;background:#fafafa"><div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:'+dot+';display:inline-block;flex-shrink:0"></span><div style="font-size:11px;font-weight:500;color:#0D5F75;letter-spacing:.05em;text-transform:uppercase;font-family:Commissioner,sans-serif">'+title+'</div></div></div>';
