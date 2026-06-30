@@ -3710,6 +3710,15 @@ async function initScoreHistoryChart(site, geoAvg, cs, covPct) {
         const raw = filtered(days);
         let data = aggregateWeekly(raw);
         while (data.length > 1 && KEYS.every(k => data[data.length - 1][k] == null)) data = data.slice(0, -1);
+        // Forza l'asse X a coprire sempre il periodo completo selezionato
+        const todayStr = new Date().toISOString().slice(0, 10);
+        const emptyRow = d => ({ date: d, geo: null, completeness: null, coverage: null, ai_readiness: null, answer_extraction: null, quality_safety: null, ai_visibility: null });
+        if (days < 9000) {
+            const cut = new Date(); cut.setDate(cut.getDate() - days);
+            const startStr = cut.toISOString().slice(0, 10);
+            if (!data.length || data[0].date > startStr) data = [emptyRow(startStr), ...data];
+        }
+        if (!data.length || data[data.length - 1].date < todayStr) data = [...data, emptyRow(todayStr)];
         const labels = data.map(h => fmtDate(h.date));
         const datasets = KEYS.map((k, i) => ({
             label: ['AI Readiness', 'Answer Extraction', 'Quality Safety', 'AI Visibility'][i],
@@ -3799,6 +3808,15 @@ function initGeoScoreMiniChart(site) {
         const raw = filteredMini(days).length ? filteredMini(days) : history;
         let data = aggregateMiniWeekly(raw);
         while (data.length > 1 && ['geo','completeness','coverage'].every(k => data[data.length-1][k] == null)) data = data.slice(0,-1);
+        // Forza l'asse X a coprire sempre il periodo completo selezionato
+        const todayStr = new Date().toISOString().slice(0, 10);
+        const emptyMini = d => ({ date: d, geo: null, completeness: null, coverage: null });
+        if (days < 9000) {
+            const cut = new Date(); cut.setDate(cut.getDate() - days);
+            const startStr = cut.toISOString().slice(0, 10);
+            if (!data.length || data[0].date > startStr) data = [emptyMini(startStr), ...data];
+        }
+        if (!data.length || data[data.length - 1].date < todayStr) data = [...data, emptyMini(todayStr)];
         const labels = data.map(h => { const dt = new Date(h.date+'T00:00:00'); return dt.toLocaleDateString('it-IT',{day:'2-digit',month:'short'}); });
         const datasets = [
             { label:'GEO Score', data:data.map(h=>h.geo??null), borderColor:'#0D5F75', backgroundColor:'transparent', fill:false, tension:0.4, pointRadius:3, pointHoverRadius:4.5, pointBackgroundColor:'#0D5F75', pointBorderColor:'#0D5F75', borderWidth:2, spanGaps:true },
