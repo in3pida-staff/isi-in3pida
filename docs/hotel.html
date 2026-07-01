@@ -493,7 +493,7 @@ async function _loadFaqPageStatus() {
 // Sincronizza _faqItems su Supabase faq_data (così faq.html funziona sempre)
 async function _syncFaqToSupabase() {
     if (!_site?.site_id) return;
-    const items = _faqItems.map(f => ({ id: f.id, question: f.question, answer: f.answer, solo_ai: !!f.solo_ai, status: f.status || 'publish', order: f.menu_order ?? f.order ?? 0 }));
+    const items = _faqItems.map(f => ({ id: f.id, question: f.question, answer: f.answer, solo_ai: !!f.solo_ai, status: f.status || 'publish', order: f.menu_order ?? f.order ?? 0, date: f.date || null }));
     const newFaqData = { items, total: items.length, _synced_at: new Date().toISOString(), _source: 'isi' };
     await _SBq.from('isi_sites').update({ faq_data: newFaqData }).eq('site_id', _site.site_id);
     if (_site) _site.faq_data = newFaqData;
@@ -1662,8 +1662,9 @@ const _isScriptSite = () => (_site?.hotel_profile?.site_mode === 'script') || (_
 async function initHotelFaq() {
     const listEl = document.getElementById('faq-hotel-list');
     if (!listEl) return;
-    if (_faqItems.length && _faqItems.some(f => f.date)) { renderHotelFaqList(listEl); return; }
-    listEl.innerHTML = '<div class="loading" style="padding:20px"><div class="spinner"></div></div>';
+    // Mostra dati cached subito se disponibili, poi aggiorna dal plugin
+    if (_faqItems.length) renderHotelFaqList(listEl);
+    else listEl.innerHTML = '<div class="loading" style="padding:20px"><div class="spinner"></div></div>';
     try {
         if (_isScriptSite()) {
             _faqItems = (_site?.faq_data?.items || []);
