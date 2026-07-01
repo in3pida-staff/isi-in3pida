@@ -3,7 +3,7 @@ const cors = {
   'Access-Control-Allow-Headers': 'authorization, content-type',
 }
 
-// Estrae aggregateRating dai JSON-LD nella pagina (prima di strippare)
+// Estrae aggregateRating dai JSON-LD nella pagina
 function extractFromJsonLd(html: string): { rating: string | null; n_recensioni: string | null } {
   const matches = [...html.matchAll(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)]
   for (const m of matches) {
@@ -23,7 +23,7 @@ function extractFromJsonLd(html: string): { rating: string | null; n_recensioni:
   return { rating: null, n_recensioni: null }
 }
 
-function stripHtml(html: string): string {
+function stripSection(html: string): string {
   return html
     .replace(/<script[\s\S]*?<\/script>/gi, '')
     .replace(/<style[\s\S]*?<\/style>/gi, '')
@@ -31,7 +31,10 @@ function stripHtml(html: string): string {
     .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
     .replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&nbsp;/g, ' ')
     .replace(/\s+/g, ' ').trim()
-    .slice(0, 15000)
+}
+
+function stripHtml(html: string): string {
+  return stripSection(html).slice(0, 15000)
 }
 
 function extractFromMeta(html: string): { rating: string | null; n_recensioni: string | null } {
@@ -62,18 +65,6 @@ async function fetchDirect(url: string): Promise<{ html: string; text: string } 
   return null
 }
 
-async function fetchJina(url: string, format: 'text' | 'html'): Promise<string | null> {
-  try {
-    const headers: Record<string, string> = { 'X-Timeout': '30' }
-    if (format === 'text') { headers['Accept'] = 'text/plain'; headers['X-Return-Format'] = 'text' }
-    else { headers['Accept'] = 'text/html'; headers['X-Return-Format'] = 'html' }
-    const res = await fetch(`https://r.jina.ai/${url}`, { headers, signal: AbortSignal.timeout(35000) })
-    if (!res.ok) return null
-    const body = (await res.text()).slice(0, format === 'html' ? 80000 : 20000)
-    return body.length > 300 ? body : null
-  } catch { return null }
-}
-
 function cleanNum(s: string): string {
   if (/^\d{1,3}([.,]\d{3})+$/.test(s)) return s.replace(/[.,]/g, '')
   return s.replace(',', '.')
@@ -84,7 +75,6 @@ function extractFromText(text: string, source: string): { rating: string | null;
   let nRec: string | null = null
 
   if (source === 'tripadvisor') {
-    // Tenta tutti i pattern TripAdvisor
     const patterns = [
       /([1-5](?:[,.]\d)?)\s*di\s*5/i,
       /([1-5](?:[,.]\d)?)\s*su\s*5/i,
@@ -141,11 +131,40 @@ function extractFromText(text: string, source: string): { rating: string | null;
   return { rating, n_recensioni: nRec }
 }
 
+// Cerca il badge/widget del portale nel sito web dell'hotel
+function extractFromHotelSite(html: string, source: string): { rating: string | null; n_recensioni: string | null } {
+  const sourceRe = source === 'tripadvisor'
+    ? /tripadvisor/gi
+    : source === 'booking'
+    ? /booking\.com/gi
+    : /google[^\n]{0,80}(?:review|stelle|star|valutaz|recensi|rating)/gi
+
+  let match
+  while ((match = sourceRe.exec(html)) !== null) {
+    const start = Math.max(0, match.index - 500)
+    const end = Math.min(html.length, match.index + 700)
+    const section = stripSection(html.slice(start, end))
+    const result = extractFromText(section, source)
+    if (result.rating) return result
+  }
+  return { rating: null, n_recensioni: null }
+}
+
+// Valida che il rating JSON-LD sia sulla scala giusta per la source
+function validateJsonLdForSource(ld: { rating: string | null; n_recensioni: string | null }, source: string): boolean {
+  if (!ld.rating) return false
+  const v = parseFloat(ld.rating)
+  if (isNaN(v)) return false
+  if ((source === 'tripadvisor' || source === 'google') && v >= 1 && v <= 5) return true
+  if (source === 'booking' && v >= 5 && v <= 10) return true
+  return false
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
 
   try {
-    const { url: rawUrl, source } = await req.json() as { url: string; source: string }
+    const { url: rawUrl, source, hotel_site_url: hotelSiteUrl } = await req.json() as { url: string; source: string; hotel_site_url?: string }
     if (!rawUrl || !source) {
       return new Response(JSON.stringify({ error: 'missing_params' }), { headers: cors })
     }
@@ -154,19 +173,18 @@ Deno.serve(async (req) => {
     let url = rawUrl
     try {
       const parsed = new URL(rawUrl)
-      // Per booking/tripadvisor rimuove query params che causano blocchi
       if (source === 'booking' || source === 'tripadvisor') {
         url = parsed.origin + parsed.pathname
       }
     } catch { /* usa URL originale */ }
 
-    // Per TripAdvisor prova anche URL mobile che ha meno protezione bot
+    // Per TripAdvisor prova URL mobile che ha meno protezione bot
     let urlToFetch = url
     if (source === 'tripadvisor') {
       urlToFetch = url.replace('www.tripadvisor.', 'm.tripadvisor.')
     }
 
-    // 1. Prova fetch diretto con estrazione JSON-LD (più affidabile)
+    // 1. Prova fetch diretto del portale (JSON-LD prima, poi meta, poi testo)
     const direct = await fetchDirect(urlToFetch) || (source === 'tripadvisor' ? await fetchDirect(url) : null)
     if (direct) {
       const fromLd = extractFromJsonLd(direct.html)
@@ -175,14 +193,12 @@ Deno.serve(async (req) => {
           headers: { ...cors, 'Content-Type': 'application/json' },
         })
       }
-      // Prova meta og:description
       const fromMeta = extractFromMeta(direct.html)
       if (fromMeta.rating) {
         return new Response(JSON.stringify({ ok: true, ...fromMeta, method: 'meta' }), {
           headers: { ...cors, 'Content-Type': 'application/json' },
         })
       }
-      // Prova regex sul testo strippato
       const fromText = extractFromText(direct.text, source)
       if (fromText.rating) {
         return new Response(JSON.stringify({ ok: true, ...fromText, method: 'direct-text' }), {
@@ -191,7 +207,28 @@ Deno.serve(async (req) => {
       }
     }
 
-    // 2. Nessun dato trovato nel fetch diretto
+    // 2. Fallback: legge il sito web dell'hotel e cerca badge/widget del portale
+    if (hotelSiteUrl) {
+      const hotelPage = await fetchDirect(hotelSiteUrl)
+      if (hotelPage) {
+        // Prima prova JSON-LD del sito hotel (molti hotel hanno aggregateRating in schema.org)
+        const fromLd = extractFromJsonLd(hotelPage.html)
+        if (validateJsonLdForSource(fromLd, source)) {
+          return new Response(JSON.stringify({ ok: true, ...fromLd, method: 'hotel-site-ld' }), {
+            headers: { ...cors, 'Content-Type': 'application/json' },
+          })
+        }
+        // Cerca il badge/widget del portale specifico nel sito dell'hotel
+        const fromBadge = extractFromHotelSite(hotelPage.html, source)
+        if (fromBadge.rating) {
+          return new Response(JSON.stringify({ ok: true, ...fromBadge, method: 'hotel-site-badge' }), {
+            headers: { ...cors, 'Content-Type': 'application/json' },
+          })
+        }
+      }
+    }
+
+    // 3. Nessun dato trovato
     if (direct) {
       return new Response(JSON.stringify({ ok: true, rating: null, n_recensioni: null, method: 'direct-nodata' }), {
         headers: { ...cors, 'Content-Type': 'application/json' },

@@ -2443,14 +2443,15 @@ async function _detectRatings(silent = false) {
     const { data: { session } } = await _SB.auth.getSession();
     if (!session) return;
     if (!silent) { btn.disabled = true; btn.textContent = 'Rilevamento...'; }
-    s('Contatto i portali...', '#0D5F75');
+    s('Lettura pagine in corso...', '#0D5F75');
+    const hotelSiteUrl = g('url');
     const call = async (url, source) => {
         if (!url) return null;
         try {
             const r = await fetch(SUPABASE_URL+'/functions/v1/fetch-rating', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
-                body: JSON.stringify({ url, source }),
+                body: JSON.stringify({ url, source, hotel_site_url: hotelSiteUrl }),
             });
             return await r.json();
         } catch { return null; }
