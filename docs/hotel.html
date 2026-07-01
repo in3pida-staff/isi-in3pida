@@ -2083,14 +2083,12 @@ function buildHotelSchemaForm(s) {
         // ── AUDIENCE E POSIZIONAMENTO AI ──────────────────────────────────────
         sec('AUDIENCE E POSIZIONAMENTO AI')+
         '<div style="font-size:12px;color:rgba(13,95,117,0.5);font-family:\'Source Code Pro\',monospace;margin-bottom:12px">Aiuta i motori di ricerca e gli assistenti AI a capire per chi è adatta la struttura e su quali temi è rilevante.</div>'+
-        '<div style="display:grid;grid-template-columns:1fr 1px 1fr">'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr">'+
         _p1(_f('lingue_parlate','Lingue parlate',hp.lingue_parlate,'italiano, inglese'))+
-        _vs+
         _pn(_f('zone_turistiche','Zone turistiche collegate',hp.zone_turistiche,'Riviera Adriatica...'))+
         '</div>'+
-        '<div style="display:grid;grid-template-columns:1fr 1px 1fr">'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr">'+
         _p1(_f('attrazioni_vicine','Attrazioni vicine',hp.attrazioni_vicine,'centro storico, spiaggia, fiera'))+
-        _vs+
         _pn(_f('keywords_semantiche','Keywords semantiche',hp.keywords_semantiche,'hotel per famiglie a Rimini...'))+
         '</div>'+
         '<div style="padding:14px 0">'+
@@ -2113,20 +2111,17 @@ function buildHotelSchemaForm(s) {
         '<input type="text" id="new-knowsabout-input" placeholder="Es: Turismo gastronomico, Wellness..." style="flex:1;border:1px solid #e4e4ec;border-radius:4px;padding:9px 12px;'+_inputStyle+';outline:none;box-sizing:border-box" onkeydown="if(event.key===\'Enter\'){event.preventDefault();addKnowsaboutFromInput()}">'+
         '<button type="button" onclick="addKnowsaboutFromInput()" style="'+_btnFior+'">Aggiungi</button>'+
         '</div></div>'+
-        '<div style="display:grid;grid-template-columns:1fr 1px 1fr">'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr">'+
         _p1(_f('stagionalita','Stagionalità',hp.stagionalita,'Estate, Tutto l\'anno'))+
-        _vs+
         _pn(_f('usp','Proposte uniche (USP)',hp.usp,'Vista mare, posizione centrale...'))+
         '</div>'+
         '<div style="padding:14px 0">'+_fta('descrizione_ai','Frase di posizionamento AI',hp.descrizione_ai,'Come vuoi che l\'AI presenti il tuo hotel...',2)+'</div>'+
 
         // ── CAMERE E APPARTAMENTI ─────────────────────────────────────────────
         sec('CAMERE E APPARTAMENTI')+
-        '<div style="display:grid;grid-template-columns:1fr 1px 1fr 1px 1fr">'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr">'+
         _p1(_f('n_camere','N° camere totali',hp.n_camere,'42'))+
-        _vs+
         _pm(_f('occupazione_min','Ospiti min/camera',hp.occupazione_min,'1'))+
-        _vs+
         _pn(_f('occupazione_max','Ospiti max/camera',hp.occupazione_max,'4'))+
         '</div>'+
         '<div style="padding:12px 0">'+
@@ -2138,11 +2133,9 @@ function buildHotelSchemaForm(s) {
         // ── OFFERTE E PRENOTAZIONI ────────────────────────────────────────────
         sec('OFFERTE E PRENOTAZIONI')+
         '<div style="padding:4px 0 14px">'+_fta('url_prenotazione','URL prenotazione diretta',hp.url_prenotazione,'https://hotel.it/prenota',1)+'</div>'+
-        '<div style="display:grid;grid-template-columns:1fr 1px 1fr 1px 1fr">'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr">'+
         _p1(_f('prezzo_min','Prezzo min/notte (€)',hp.prezzo_min,'80'))+
-        _vs+
         _pm(_f('prezzo_max','Prezzo max/notte (€)',hp.prezzo_max,'350'))+
-        _vs+
         _pn(_f('caparra','Acconto richiesto',hp.caparra,'30%'))+
         '</div>'+
         '<div style="padding:14px 0">'+_fta('politica_cancellazione','Politica di cancellazione',hp.politica_cancellazione,'Cancellazione gratuita fino a 48h prima...')+'</div>'+
@@ -2155,27 +2148,21 @@ function buildHotelSchemaForm(s) {
         // ── RECENSIONI ────────────────────────────────────────────────────────
         sec('RECENSIONI')+
         _subHdr('Google Business')+
-        '<div style="display:grid;grid-template-columns:3fr 1px 1fr 1px 1fr">'+
+        '<div style="display:grid;grid-template-columns:3fr 1fr 1fr">'+
         _p1(_f('google_business_url','URL Google Business',hp.google_business_url,'https://g.page/hotel','url'))+
-        _vs+
         _pm(_f('google_rating','Rating Google',hp.google_rating,'4.5'))+
-        _vs+
         _pn(_f('google_n_recensioni','N° recensioni Google',hp.google_n_recensioni,''))+
         '</div>'+
         '<div style="padding:14px 0 6px">'+_subHdr('TripAdvisor')+'</div>'+
-        '<div style="display:grid;grid-template-columns:3fr 1px 1fr 1px 1fr">'+
+        '<div style="display:grid;grid-template-columns:3fr 1fr 1fr">'+
         _p1(_f('tripadvisor_url','URL TripAdvisor',hp.tripadvisor_url,'https://tripadvisor.com/Hotel_Review-...','url'))+
-        _vs+
         _pm(_f('tripadvisor_rating','Rating TripAdvisor',hp.tripadvisor_rating,''))+
-        _vs+
         _pn(_f('tripadvisor_n_recensioni','N° recensioni TripAdvisor',hp.tripadvisor_n_recensioni,''))+
         '</div>'+
         '<div style="padding:14px 0 6px">'+_subHdr('Booking.com')+'</div>'+
-        '<div style="display:grid;grid-template-columns:3fr 1px 1fr 1px 1fr">'+
+        '<div style="display:grid;grid-template-columns:3fr 1fr 1fr">'+
         _p1(_f('url_recensioni','URL Booking',hp.url_recensioni,'https://www.booking.com/hotel/it/xxx.html','url'))+
-        _vs+
         _pm(_f('booking_rating','Rating Booking',hp.booking_rating,''))+
-        _vs+
         _pn(_f('booking_n_recensioni','N° recensioni Booking',hp.booking_n_recensioni,''))+
         '</div>'+
         '<div style="padding:12px 0;display:flex;align-items:center;gap:12px">'+
