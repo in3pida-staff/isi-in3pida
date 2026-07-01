@@ -208,9 +208,11 @@ Deno.serve(async (req) => {
     }
 
     // 2. Fallback: legge il sito web dell'hotel e cerca badge/widget del portale
+    let hotelSiteOk = false
     if (hotelSiteUrl) {
       const hotelPage = await fetchDirect(hotelSiteUrl)
       if (hotelPage) {
+        hotelSiteOk = true
         // Prima prova JSON-LD del sito hotel (molti hotel hanno aggregateRating in schema.org)
         const fromLd = extractFromJsonLd(hotelPage.html)
         if (validateJsonLdForSource(fromLd, source)) {
@@ -228,14 +230,15 @@ Deno.serve(async (req) => {
       }
     }
 
-    // 3. Nessun dato trovato
-    if (direct) {
-      return new Response(JSON.stringify({ ok: true, rating: null, n_recensioni: null, method: 'direct-nodata' }), {
+    // 3. Pagina raggiunta ma nessun dato trovato (il portale blocca il contenuto o non ha badge)
+    if (direct || hotelSiteOk) {
+      return new Response(JSON.stringify({ ok: true, rating: null, n_recensioni: null, blocked: false, method: 'not-found' }), {
         headers: { ...cors, 'Content-Type': 'application/json' },
       })
     }
 
-    return new Response(JSON.stringify({ error: 'fetch_failed', message: 'Pagina non raggiungibile' }), { headers: cors })
+    // 4. Nessuna pagina raggiungibile
+    return new Response(JSON.stringify({ ok: true, rating: null, n_recensioni: null, blocked: true, method: 'blocked' }), { headers: cors })
 
   } catch (e) {
     return new Response(JSON.stringify({ error: 'exception', message: String(e) }), { status: 500, headers: cors })

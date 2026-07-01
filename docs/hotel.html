@@ -2469,13 +2469,11 @@ async function _detectRatings(silent = false) {
     if (!silent) { btn.disabled = false; btn.textContent = 'Rileva automaticamente'; }
     if (found > 0) s('Aggiornati: ' + portaliAggiornati.join(', ') + ' — salva per confermare', '#0D5F75');
     else {
-        const tried = [taUrl?'TripAdvisor':'', gUrl?'Google':'', bkUrl?'Booking':''].filter(Boolean);
-        const results = [ta,goog,bk].filter(Boolean);
-        const allNull = results.every(r => !r?.rating && !r?.n_recensioni);
-        if (results.length === 0 || (allNull && results.every(r => r?.error === 'fetch_failed')))
-            s('Portali non raggiungibili — riprova tra qualche minuto', '#FF8500');
+        const allBlocked = [ta,goog,bk].filter(Boolean).every(r => r?.blocked === true);
+        if (allBlocked || [ta,goog,bk].every(r => !r))
+            s('Rilevamento non disponibile — inserisci i punteggi manualmente', '#666b84');
         else
-            s('Punteggi già aggiornati su: ' + tried.join(', '), '#666b84');
+            s('Punteggi non trovati nelle pagine — inserisci manualmente', '#666b84');
     }
 }
 
