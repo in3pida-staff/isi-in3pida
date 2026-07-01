@@ -119,16 +119,19 @@ Campi da restituire:
 - "tono": una parola sola tra: formale, professionale, informale, familiare, elegante, vivace
 - "persona": la forma di cortesia usata verso il cliente: "tu", "lei", o "misto". REGOLA CRITICA: usa "tu" solo se l'hotel si rivolge direttamente ai clienti con il tu (es. "sei il benvenuto", "scegli la tua camera"). Usa "lei" se usa il formale singolare (es. "la aspettiamo", "può prenotare"). Frasi standard come "vi aspettiamo", "vi offriamo", "vi invitiamo" sono locuzioni generali italiane che NON indicano la forma "voi" come cortesia — in questi casi usa "lei" o "tu" in base al resto del testo. "voi" come forma di cortesia singolare è arcaico e rarissimo, non usarlo a meno che il testo non usi esplicitamente "voi siete", "quando arrivate voi" riferito a un singolo cliente.
 - "personalita": 2-3 parole che descrivono il carattere del testo (es. "caldo e accogliente", "lussuoso e raffinato", "allegro e dinamico")
-- "esempio": una frase rappresentativa del tono estratta letteralmente dal testo (max 120 caratteri)
+- "esempio": una frase breve (max 100 caratteri) copiata LETTERALMENTE dal testo del sito che rappresenta bene il tono. Se non trovi una frase chiara, lascia il campo vuoto "".
 
-Formato (JSON puro):
+Formato (JSON puro, nessun testo fuori dal JSON):
 {"tono":"...","persona":"...","personalita":"...","esempio":"..."}`,
-        `Testo dal sito:\n${textSource}\n\nRispondi con JSON:`,
+        `Testo dal sito:\n${textSource}`,
         250,
         0.3
       )
       const parsed = parseJson(raw)
       if (!parsed.tono) return new Response(JSON.stringify({ error: 'style_not_detected' }), { status: 500, headers: cors })
+      // Rimuove esempio se contiene artefatti del prompt (es. "Rispondi con JSON")
+      const artifatti = ['json', 'rispondi', 'formato', 'campo', 'esempio:', 'tono:', 'persona:']
+      if (parsed.esempio && artifatti.some(a => parsed.esempio.toLowerCase().includes(a))) parsed.esempio = ''
       return new Response(JSON.stringify({ writing_style: parsed }), { headers: { ...cors, 'Content-Type': 'application/json' } })
     }
 
