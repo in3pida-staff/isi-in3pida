@@ -2013,7 +2013,6 @@ function buildHotelSchemaForm(s) {
             _vs+
             _pn(_f('postal_code','CAP',s.postal_code,'47921'))
         )+
-        _hs+
         _g3(
             _p1(_f('city','Città',s.city,'Rimini'))+
             _vs+
@@ -2021,7 +2020,6 @@ function buildHotelSchemaForm(s) {
             _vs+
             _pn(_f('country','Paese',s.country||'IT','IT'))
         )+
-        _hs+
         _g2(
             _p1(_f('latitude','Latitudine',s.latitude,'44.0600'))+
             _vs+
@@ -2058,7 +2056,6 @@ function buildHotelSchemaForm(s) {
         // ── IMMAGINI ──────────────────────────────────────────────────────────
         sec('IMMAGINI')+
         '<div style="padding:4px 0 14px">'+_fta('foto_principale','URL foto principale',hp.foto_principale||s.image,'https://hotel.it/foto.jpg',1)+'</div>'+
-        _hs+
         '<div style="padding:12px 0">'+
         _lbl('Galleria foto')+
         '<div id="schema-gallery-list"></div>'+
@@ -2208,8 +2205,7 @@ function buildHotelSchemaForm(s) {
             _vs+
             _pn(_f('instagram_url','Instagram',hp.instagram_url,'https://instagram.com/hotel','url'))
         )+
-        _hs+
-        '<div style="padding:12px 0">'+
+        '<div style="padding:12px 16px">'+
         '<div id="schema-social-custom-list"></div>'+
         '<div style="display:flex;gap:8px;margin-top:10px;align-items:center">'+
         '<input type="text" id="new-social-nome" placeholder="Nome (es: YouTube)" style="width:140px;border:1px solid #e4e4ec;border-radius:4px;padding:9px 12px;'+_inputStyle+';outline:none">'+
