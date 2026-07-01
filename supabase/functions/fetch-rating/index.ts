@@ -34,12 +34,20 @@ function stripHtml(html: string): string {
     .slice(0, 15000)
 }
 
+function extractFromMeta(html: string): { rating: string | null; n_recensioni: string | null } {
+  const desc = (html.match(/<meta[^>]+(?:name=["']description["']|property=["']og:description["'])[^>]+content=["']([^"']+)["']/i) || [])[1] || ''
+  const ratingM = desc.match(/([1-5][,.]\d)\s*(?:su|di|\/)\s*5/i) || desc.match(/([4-9][,.]\d|10[,.]\d?)\s*(?:su|di|\/)\s*10/i)
+  const nM = desc.match(/([\d.]+)\s*(?:recensioni|reviews|opinioni)/i)
+  return {
+    rating: ratingM ? cleanNum(ratingM[1]) : null,
+    n_recensioni: nM ? nM[1].replace(/\./g, '') : null,
+  }
+}
+
 async function fetchDirect(url: string): Promise<{ html: string; text: string } | null> {
-  // Prova prima senza header custom (Deno usa il suo UA nativo che non viene bloccato)
-  // poi con header standard come fallback
   const attempts = [
-    {},
-    { headers: { 'Accept': 'text/html,*/*;q=0.8', 'Accept-Language': 'it-IT,it;q=0.9' } },
+    { headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36', 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8', 'Accept-Language': 'it-IT,it;q=0.9,en;q=0.7', 'Accept-Encoding': 'gzip, deflate, br' } },
+    { headers: { 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Safari/605.1.15', 'Accept': 'text/html,*/*;q=0.8', 'Accept-Language': 'it-IT,it;q=0.9' } },
     { headers: { 'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)', 'Accept': 'text/html,*/*;q=0.8' } },
   ]
   for (const opts of attempts) {
@@ -54,30 +62,16 @@ async function fetchDirect(url: string): Promise<{ html: string; text: string } 
   return null
 }
 
-async function fetchJinaText(url: string): Promise<string | null> {
+async function fetchJina(url: string, format: 'text' | 'html'): Promise<string | null> {
   try {
-    const res = await fetch(`https://r.jina.ai/${url}`, {
-      headers: { 'Accept': 'text/plain', 'X-Return-Format': 'text', 'X-Timeout': '25', 'X-No-Cache': 'true' },
-      signal: AbortSignal.timeout(30000),
-    })
+    const headers: Record<string, string> = { 'X-Timeout': '30' }
+    if (format === 'text') { headers['Accept'] = 'text/plain'; headers['X-Return-Format'] = 'text' }
+    else { headers['Accept'] = 'text/html'; headers['X-Return-Format'] = 'html' }
+    const res = await fetch(`https://r.jina.ai/${url}`, { headers, signal: AbortSignal.timeout(35000) })
     if (!res.ok) return null
-    const text = (await res.text()).slice(0, 15000)
-    if (text.length > 300) return text
-  } catch { /* fallback */ }
-  return null
-}
-
-async function fetchJinaHtml(url: string): Promise<string | null> {
-  try {
-    const res = await fetch(`https://r.jina.ai/${url}`, {
-      headers: { 'Accept': 'text/html', 'X-Return-Format': 'html', 'X-Timeout': '25', 'X-No-Cache': 'true' },
-      signal: AbortSignal.timeout(30000),
-    })
-    if (!res.ok) return null
-    const html = (await res.text()).slice(0, 60000)
-    if (html.length > 300) return html
-  } catch { /* fallback */ }
-  return null
+    const body = (await res.text()).slice(0, format === 'html' ? 80000 : 20000)
+    return body.length > 300 ? body : null
+  } catch { return null }
 }
 
 function cleanNum(s: string): string {
@@ -166,12 +160,25 @@ Deno.serve(async (req) => {
       }
     } catch { /* usa URL originale */ }
 
+    // Per TripAdvisor prova anche URL mobile che ha meno protezione bot
+    let urlToFetch = url
+    if (source === 'tripadvisor') {
+      urlToFetch = url.replace('www.tripadvisor.', 'm.tripadvisor.')
+    }
+
     // 1. Prova fetch diretto con estrazione JSON-LD (più affidabile)
-    const direct = await fetchDirect(url)
+    const direct = await fetchDirect(urlToFetch) || (source === 'tripadvisor' ? await fetchDirect(url) : null)
     if (direct) {
       const fromLd = extractFromJsonLd(direct.html)
       if (fromLd.rating) {
         return new Response(JSON.stringify({ ok: true, ...fromLd, method: 'json-ld' }), {
+          headers: { ...cors, 'Content-Type': 'application/json' },
+        })
+      }
+      // Prova meta og:description
+      const fromMeta = extractFromMeta(direct.html)
+      if (fromMeta.rating) {
+        return new Response(JSON.stringify({ ok: true, ...fromMeta, method: 'meta' }), {
           headers: { ...cors, 'Content-Type': 'application/json' },
         })
       }
@@ -184,34 +191,9 @@ Deno.serve(async (req) => {
       }
     }
 
-    // 2. Fallback Jina.ai text (JS-rendered, testo pulito)
-    const jinaText = await fetchJinaText(url)
-    if (jinaText) {
-      const fromJina = extractFromText(jinaText, source)
-      if (fromJina.rating) {
-        return new Response(JSON.stringify({ ok: true, ...fromJina, method: 'jina-text' }), {
-          headers: { ...cors, 'Content-Type': 'application/json' },
-        })
-      }
-    }
-
-    // 3. Fallback Jina.ai HTML renderizzato (include JSON-LD post-JS)
-    const jinaHtml = await fetchJinaHtml(url)
-    if (jinaHtml) {
-      const fromLd = extractFromJsonLd(jinaHtml)
-      if (fromLd.rating) {
-        return new Response(JSON.stringify({ ok: true, ...fromLd, method: 'jina-html-ld' }), {
-          headers: { ...cors, 'Content-Type': 'application/json' },
-        })
-      }
-      const fromText = extractFromText(stripHtml(jinaHtml), source)
-      if (fromText.rating) {
-        return new Response(JSON.stringify({ ok: true, ...fromText, method: 'jina-html-text' }), {
-          headers: { ...cors, 'Content-Type': 'application/json' },
-        })
-      }
-      // Jina ha raggiunto la pagina ma non ha trovato dati
-      return new Response(JSON.stringify({ ok: true, rating: null, n_recensioni: null, method: 'jina-html-nodata' }), {
+    // 2. Nessun dato trovato nel fetch diretto
+    if (direct) {
+      return new Response(JSON.stringify({ ok: true, rating: null, n_recensioni: null, method: 'direct-nodata' }), {
         headers: { ...cors, 'Content-Type': 'application/json' },
       })
     }
