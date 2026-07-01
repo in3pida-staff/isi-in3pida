@@ -430,6 +430,64 @@ function _markFaqPageCreated(btn, url) {
     btn.style.color = '#0D5F75';
     btn.style.cursor = 'default';
     btn.onclick = null;
+    const draftBtn = document.getElementById('btn-faq-page-draft');
+    if (draftBtn) { draftBtn.style.display = ''; draftBtn.textContent = 'Metti in bozze'; draftBtn.dataset.currentStatus = 'publish'; }
+}
+
+async function _toggleFaqPageStatus(btn) {
+    if (!_pluginBase || !_pluginSecret) return;
+    const currentStatus = btn.dataset.currentStatus || 'publish';
+    const newStatus = currentStatus === 'publish' ? 'draft' : 'publish';
+    btn.disabled = true; btn.textContent = '⏳';
+    try {
+        const r = await fetch(_pluginBase + '/wp-json/in3pida/v1/faq-page-status', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ site_id: _pluginSecret, status: newStatus }),
+            signal: AbortSignal.timeout(10000)
+        });
+        const d = await r.json();
+        if (r.ok && d.ok) {
+            const publishBtn = document.getElementById('btn-publish-faq-page');
+            btn.dataset.currentStatus = newStatus;
+            if (newStatus === 'draft') {
+                btn.textContent = 'Rendi pubblica';
+                if (publishBtn) { publishBtn.textContent = 'In bozza'; publishBtn.style.background = '#e4e4ec'; publishBtn.style.color = '#888'; publishBtn.style.cursor = 'default'; publishBtn.onclick = null; }
+            } else {
+                btn.textContent = 'Metti in bozze';
+                if (publishBtn) { publishBtn.textContent = 'Pagina pubblicata'; publishBtn.style.background = 'rgba(13,95,117,0.12)'; publishBtn.style.color = '#0D5F75'; publishBtn.style.cursor = 'default'; publishBtn.onclick = null; }
+            }
+        } else {
+            btn.textContent = '✗ Errore';
+            setTimeout(() => { btn.disabled = false; btn.textContent = currentStatus === 'publish' ? 'Metti in bozze' : 'Rendi pubblica'; }, 2000);
+        }
+    } catch(_) {
+        btn.textContent = '✗ Errore';
+        setTimeout(() => { btn.disabled = false; btn.textContent = currentStatus === 'publish' ? 'Metti in bozze' : 'Rendi pubblica'; }, 2000);
+    }
+    btn.disabled = false;
+}
+
+async function _loadFaqPageStatus() {
+    if (!_pluginBase || !_pluginSecret) return;
+    try {
+        const r = await fetch(_pluginBase + '/wp-json/in3pida/v1/faq-page-status?site_id=' + encodeURIComponent(_pluginSecret), { signal: AbortSignal.timeout(8000) });
+        if (!r.ok) return;
+        const d = await r.json();
+        if (!d.ok) return;
+        const publishBtn = document.getElementById('btn-publish-faq-page');
+        const draftBtn = document.getElementById('btn-faq-page-draft');
+        if (!publishBtn || !draftBtn) return;
+        draftBtn.style.display = '';
+        draftBtn.dataset.currentStatus = d.status;
+        if (d.status === 'draft') {
+            draftBtn.textContent = 'Rendi pubblica';
+            publishBtn.textContent = 'In bozza'; publishBtn.style.background = '#e4e4ec'; publishBtn.style.color = '#888'; publishBtn.style.cursor = 'default'; publishBtn.onclick = null;
+        } else {
+            draftBtn.textContent = 'Metti in bozze';
+            publishBtn.textContent = 'Pagina pubblicata'; publishBtn.style.background = 'rgba(13,95,117,0.12)'; publishBtn.style.color = '#0D5F75'; publishBtn.style.cursor = 'default'; publishBtn.onclick = null;
+        }
+    } catch(_) {}
 }
 
 // Sincronizza _faqItems su Supabase faq_data (così faq.html funziona sempre)
@@ -537,7 +595,7 @@ async function init() {
             document.querySelectorAll('[id^="htab-"]').forEach(p => p.style.display = 'none');
             const pane = document.getElementById('htab-' + tab);
             if (pane) pane.style.display = '';
-            if (tab==='faq')      { initHotelFaq(); if (!_isScriptSite()) loadFaqPluginSettings(); }
+            if (tab==='faq')      { initHotelFaq(); if (!_isScriptSite()) { loadFaqPluginSettings(); _loadFaqPageStatus(); } }
             if (tab==='schema')   initHotelSchema(site);
             if (tab==='mappa')    initHotelMappa(site);
             if (tab==='coerenza') { initHotelCoerenza(site); initAiLayerPanel(site); }
@@ -1092,6 +1150,7 @@ function renderContent(site, pseData, now) {
                                 </div>
                                 <button id="btn-open-faq-url" onclick="_openFaqUrl()" style="background:#C1CBE8;color:#fff;border:none;border-radius:24px;padding:6px 16px;font-family:'Source Code Pro',monospace;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0">↗ Apri</button>
                                 <button id="btn-publish-faq-page" onclick="_publishFaqPage(this)" style="background:#EFF020;color:#0D5F75;border:none;border-radius:24px;padding:6px 16px;font-family:'Source Code Pro',monospace;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0">Crea pagina automaticamente</button>
+                                <button id="btn-faq-page-draft" onclick="_toggleFaqPageStatus(this)" style="display:none;background:white;color:#0D5F75;border:1px solid #e4e4ec;border-radius:24px;padding:6px 16px;font-family:'Source Code Pro',monospace;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0">Metti in bozze</button>
                             </div>
                             <div id="faq-shortcode-row" style="margin-top:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
                                 <span style="font-size:11px;color:rgba(13,95,117,0.4);font-family:'Source Code Pro',monospace">Shortcode WordPress:</span>
