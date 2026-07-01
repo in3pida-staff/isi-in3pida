@@ -2183,8 +2183,8 @@ function buildHotelSchemaForm(s) {
         '</div>'+
         '<div id="schema-social-custom-list"></div>'+
         '<div style="display:grid;grid-template-columns:140px 1fr auto;gap:8px;align-items:center;padding:8px 0;margin-top:4px">'+
-        '<input type="text" id="new-social-nome" placeholder="Nome (es: YouTube)" style="border:1px solid #e4e4ec;border-radius:4px;padding:9px 12px;'+_inputStyle+';outline:none">'+
-        '<input type="url" id="new-social-url" placeholder="https://..." style="border:1px solid #e4e4ec;border-radius:4px;padding:9px 12px;'+_inputStyle+';outline:none">'+
+        '<input type="text" id="new-social-nome" class="profile-input" placeholder="Nome (es: YouTube)" style="'+_inputStyle+'">'+
+        '<input type="url" id="new-social-url" class="profile-input" placeholder="https://..." style="'+_inputStyle+'">'+
         '<button type="button" onclick="confirmSocialCustom()" style="'+_btnFior+'">Aggiungi</button>'+
         '</div>'+
 
@@ -2284,15 +2284,25 @@ function renderSocialCustomRows() {
     const el = document.getElementById('schema-social-custom-list');
     if (!el) return;
     if (!_socialCustomTmp.length) { el.innerHTML = ''; return; }
+    const _scFont = "font-family:'Source Code Pro',monospace;font-size:13px";
     el.innerHTML = _socialCustomTmp.map((s,i)=>
         '<div style="display:grid;grid-template-columns:140px 1fr auto;gap:8px;align-items:center;padding:8px 0">'+
-        '<span style="font-size:13px;color:rgba(13,95,117,0.6);font-family:var(--font);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(s.nome||'—')+'</span>'+
-        '<a href="'+esc(s.url||'#')+'" target="_blank" style="font-size:13px;color:#C1CBE8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--font)">'+esc(s.url||'')+'</a>'+
-        '<button type="button" onclick="removeSocialCustom('+i+')" style="background:none;border:1px solid #C1CBE8;border-radius:6px;padding:5px 9px;cursor:pointer;color:#FF8500;font-size:13px;font-family:var(--font)">✕</button>'+
+        '<span style="'+_scFont+';color:rgba(13,95,117,0.6);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(s.nome||'—')+'</span>'+
+        '<a href="'+esc(s.url||'#')+'" target="_blank" style="'+_scFont+';color:#0D5F75;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(s.url||'')+'</a>'+
+        '<button type="button" onclick="removeSocialCustom('+i+')" style="background:none;border:1px solid #C1CBE8;border-radius:6px;padding:5px 9px;cursor:pointer;color:#FF8500;font-size:13px;font-family:\'Source Code Pro\',monospace">✕</button>'+
         '</div>'
     ).join('');
 }
-function confirmSocialCustom() {
+async function _autoSaveSocialCustom() {
+    if (!_site?.site_id) return;
+    try {
+        const hp = _site.hotel_profile || {};
+        const upd = { ...hp, social_custom: _socialCustomTmp.filter(x=>x.url) };
+        await _SBq.from('isi_sites').update({ hotel_profile: upd }).eq('site_id', _site.site_id);
+        _site.hotel_profile = upd;
+    } catch { /* silent */ }
+}
+async function confirmSocialCustom() {
     const n=(document.getElementById('new-social-nome')?.value||'').trim();
     const u=(document.getElementById('new-social-url')?.value||'').trim();
     if(!n&&!u)return;
@@ -2300,8 +2310,9 @@ function confirmSocialCustom() {
     renderSocialCustomRows();
     const ni=document.getElementById('new-social-nome'); if(ni)ni.value='';
     const ui=document.getElementById('new-social-url'); if(ui)ui.value='';
+    _autoSaveSocialCustom();
 }
-function removeSocialCustom(i) { _socialCustomTmp.splice(i,1); renderSocialCustomRows(); }
+async function removeSocialCustom(i) { _socialCustomTmp.splice(i,1); renderSocialCustomRows(); _autoSaveSocialCustom(); }
 
 function renderGalleryRows() {
     const el = document.getElementById('schema-gallery-list'); if (!el) return;
