@@ -3007,7 +3007,7 @@ async function _initHotelMappaInner(site, cont) {
                 <div id="${dId}" style="display:none">${dismissedArr.map(q=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 20px;border-top:1px solid #f4f4f8"><span style="font-size:12px;color:#9ca3af;text-decoration:line-through">${esc(q)}</span><button style="padding:4px 8px;font-size:11px;background:white;border:1px solid #e4e4ec;border-radius:6px;cursor:pointer;color:#0D5F75;font-family:'Source Code Pro',monospace" onclick="restoreHotelQuery(this,'${esc(cat)}','${esc(q).replace(/'/g,"\\'")}','${esc(site.site_id)}')">↩ Ripristina</button></div>`).join('')}</div>
             </div>`;
         }
-        return `<div class="h-card" style="margin-bottom:12px">
+        return `<div class="h-card" style="margin-bottom:12px${prio==='non_rilevante'?';background:#f7f7fa':''}">
             <div class="h-card-hdr">
                 <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:${dotColor};display:inline-block;flex-shrink:0"></span><span class="h-card-hdr-t" style="font-size:15px;font-weight:600">${esc(label)}</span>${PRIORITY_BADGE[prio]}</div>
                 <span style="background:white;border:1px solid #e4e4ec;border-radius:20px;font-size:10px;font-weight:700;color:rgba(13,95,117,0.5);padding:3px 10px;white-space:nowrap;font-family:'Source Code Pro',monospace">${covQ}/${activeQs.length} COPERTE</span>
