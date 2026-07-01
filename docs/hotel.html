@@ -2467,7 +2467,15 @@ async function _detectRatings(silent = false) {
     if (bk?.rating || bk?.n_recensioni) { if (bk.rating) { fill('booking_rating', bk.rating); found++; } if (bk.n_recensioni) { fill('booking_n_recensioni', bk.n_recensioni); found++; } portaliAggiornati.push('Booking'); }
     if (!silent) { btn.disabled = false; btn.textContent = 'Rileva automaticamente'; }
     if (found > 0) s('Aggiornati: ' + portaliAggiornati.join(', ') + ' — salva per confermare', '#0D5F75');
-    else s('Controllo effettuato — nessun aggiornamento trovato', '#666b84');
+    else {
+        const tried = [taUrl?'TripAdvisor':'', gUrl?'Google':'', bkUrl?'Booking':''].filter(Boolean);
+        const results = [ta,goog,bk].filter(Boolean);
+        const allNull = results.every(r => !r?.rating && !r?.n_recensioni);
+        if (results.length === 0 || (allNull && results.every(r => r?.error === 'fetch_failed')))
+            s('Portali non raggiungibili — riprova tra qualche minuto', '#FF8500');
+        else
+            s('Punteggi già aggiornati su: ' + tried.join(', '), '#666b84');
+    }
 }
 
 async function saveHotelProfile(siteId) {

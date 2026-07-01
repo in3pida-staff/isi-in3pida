@@ -35,18 +35,16 @@ function stripHtml(html: string): string {
 }
 
 async function fetchDirect(url: string): Promise<{ html: string; text: string } | null> {
-  // Deno/1.40.0 bypassa la protezione anti-bot di TripAdvisor e altri portali
-  for (const ua of ['Deno/1.40.0', 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)']) {
+  // Prova prima senza header custom (Deno usa il suo UA nativo che non viene bloccato)
+  // poi con header standard come fallback
+  const attempts = [
+    {},
+    { headers: { 'Accept': 'text/html,*/*;q=0.8', 'Accept-Language': 'it-IT,it;q=0.9' } },
+    { headers: { 'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)', 'Accept': 'text/html,*/*;q=0.8' } },
+  ]
+  for (const opts of attempts) {
     try {
-      const res = await fetch(url, {
-        headers: {
-          'User-Agent': ua,
-          'Accept': 'text/html,application/xhtml+xml,*/*;q=0.8',
-          'Accept-Language': 'it-IT,it;q=0.9,en;q=0.8',
-        },
-        redirect: 'follow',
-        signal: AbortSignal.timeout(12000),
-      })
+      const res = await fetch(url, { ...opts, redirect: 'follow', signal: AbortSignal.timeout(12000) })
       if (!res.ok) continue
       const html = await res.text()
       const text = stripHtml(html)
@@ -153,10 +151,20 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
 
   try {
-    const { url, source } = await req.json() as { url: string; source: string }
-    if (!url || !source) {
+    const { url: rawUrl, source } = await req.json() as { url: string; source: string }
+    if (!rawUrl || !source) {
       return new Response(JSON.stringify({ error: 'missing_params' }), { headers: cors })
     }
+
+    // Pulisce l'URL rimuovendo query params (es. token Cloudflare di Booking ?chal_t=...)
+    let url = rawUrl
+    try {
+      const parsed = new URL(rawUrl)
+      // Per booking/tripadvisor rimuove query params che causano blocchi
+      if (source === 'booking' || source === 'tripadvisor') {
+        url = parsed.origin + parsed.pathname
+      }
+    } catch { /* usa URL originale */ }
 
     // 1. Prova fetch diretto con estrazione JSON-LD (più affidabile)
     const direct = await fetchDirect(url)
