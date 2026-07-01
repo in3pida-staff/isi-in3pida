@@ -1670,11 +1670,25 @@ async function initHotelFaq() {
             _faqItems = (_site?.faq_data?.items || []);
         } else {
             const ctrl = new AbortController(); setTimeout(() => ctrl.abort(), 9000);
-            const r = await fetch(_pluginBase + '/wp-json/in3pida/v1/faq', { signal:ctrl.signal });
+            // POST con action:list bypassa la proxy cache del server (SiteGround/Nginx)
+            const r = await fetch(_pluginBase + '/wp-json/in3pida/v1/faq', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({secret: _pluginSecret, action: 'list'}),
+                signal: ctrl.signal
+            });
             if (!r.ok) {
-                const cached = _site?.faq_data?.items;
-                if (cached && cached.length) { _faqItems = cached; }
-                else throw new Error('HTTP ' + r.status);
+                // fallback a GET (vecchie versioni plugin senza action:list)
+                const r2 = await fetch(_pluginBase + '/wp-json/in3pida/v1/faq', {signal: ctrl.signal}).catch(()=>null);
+                const data2 = r2?.ok ? await r2.json().catch(()=>({})) : null;
+                if (data2?.items?.length) {
+                    _faqItems = data2.items;
+                    _syncFaqToSupabase().catch(()=>{});
+                } else {
+                    const cached = _site?.faq_data?.items;
+                    if (cached && cached.length) { _faqItems = cached; }
+                    else if (!_faqItems.length) throw new Error('HTTP ' + r.status);
+                }
             } else {
                 const data = await r.json();
                 if (data.items?.length) {
