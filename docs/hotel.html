@@ -128,6 +128,15 @@
 <body>
 
 <!-- MODAL FAQ -->
+<div id="isi-confirm-overlay" class="info-overlay" style="display:none" onclick="if(event.target===this&&window._isiConfirmResolve)_isiConfirmResolve(false)">
+    <div style="background:white;border-radius:16px;padding:28px 28px 24px;max-width:360px;width:90%;box-shadow:0 8px 40px rgba(13,95,117,0.15)">
+        <p id="isi-confirm-msg" style="font-family:'Source Code Pro',monospace;font-size:14px;color:rgba(13,95,117,0.8);margin:0 0 24px;line-height:1.6;font-weight:400"></p>
+        <div style="display:flex;justify-content:flex-end;gap:8px">
+            <button onclick="window._isiConfirmResolve&&_isiConfirmResolve(false)" style="background:white;color:#0D5F75;border:1px solid #e4e4ec;border-radius:24px;padding:7px 18px;font-family:'Source Code Pro',monospace;font-size:12px;cursor:pointer">Annulla</button>
+            <button id="isi-confirm-ok" onclick="window._isiConfirmResolve&&_isiConfirmResolve(true)" style="background:#d82d6b;color:white;border:none;border-radius:24px;padding:7px 18px;font-family:'Source Code Pro',monospace;font-size:12px;cursor:pointer">Ok</button>
+        </div>
+    </div>
+</div>
 <div id="faq-hotel-modal" class="info-overlay" style="display:none">
     <div class="info-card" style="max-width:600px">
         <div class="info-card-header">
@@ -1825,9 +1834,22 @@ document.getElementById('fhm-save').addEventListener('click', async () => {
     finally { btn.disabled=false; btn.textContent='Aggiungi'; }
 });
 
+window._isiConfirmResolve = null;
+window.isiConfirm = function(msg, btnLabel) {
+    return new Promise(function(resolve) {
+        document.getElementById('isi-confirm-msg').textContent = msg;
+        document.getElementById('isi-confirm-ok').textContent = btnLabel || 'Ok';
+        document.getElementById('isi-confirm-overlay').style.display = 'flex';
+        window._isiConfirmResolve = function(val) {
+            document.getElementById('isi-confirm-overlay').style.display = 'none';
+            window._isiConfirmResolve = null;
+            resolve(val);
+        };
+    });
+};
 window.deleteHotelFaq = async function(id) {
     const f=_faqItems.find(x=>x.id===id);
-    if(!f||!confirm('Eliminare la FAQ "'+((f.question||'').substring(0,60))+'"?')) return;
+    if(!f||!await isiConfirm('Eliminare la FAQ "'+((f.question||'').substring(0,60))+'"?','Elimina')) return;
     try {
         if (_isScriptSite()) {
             await _scriptSaveFaq('delete', {id});
