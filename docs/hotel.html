@@ -1999,9 +1999,7 @@ function buildHotelSchemaForm(s) {
             _vs+
             _pn(_lbl('Stelle')+'<select id="hsf-official_rating" class="profile-input" style="'+_inputStyle+'"><option value="">—</option>'+['1','2','3','4','5'].map(n=>'<option value="'+n+'"'+((s.official_rating||'')==n?' selected':'')+'>'+n+' ★</option>').join('')+'</select>')
         )+
-        _hs+
         '<div style="padding:14px 16px">'+_fta('description','Descrizione',s.description,'Descrizione per i motori AI...',4)+'</div>'+
-        _hs+
         _g2(
             _p1(_f('price_range','Fascia di prezzo',s.price_range,'€/€€/€€€'))+
             _vs+
