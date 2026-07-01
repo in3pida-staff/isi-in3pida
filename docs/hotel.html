@@ -3025,7 +3025,7 @@ async function _initHotelMappaInner(site, cont) {
     const _bD=new Date(updateInfo.ts);
     const _bDateStr=`${_bDays[_bD.getDay()]} ${_bD.getDate()} ${_bMonths[_bD.getMonth()]} ${_bD.getFullYear()} ore ${String(_bD.getHours()).padStart(2,'0')}:${String(_bD.getMinutes()).padStart(2,'0')}`;
     const _bNq=updateInfo.new_queries.length;
-    const _bannerHtml=`<div style="border-bottom:1px solid #e4e4ec;padding:14px 20px;display:flex;align-items:flex-start;gap:12px">
+    const _bannerHtml=`<div style="padding:14px 20px;display:flex;align-items:flex-start;gap:12px">
         <div style="width:32px;height:32px;border-radius:50%;background:white;border:1.5px solid #0D5F75;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
         <div style="flex:1;min-width:0">
             <div style="font-size:10px;font-weight:600;color:rgba(13,95,117,0.5);font-family:'Source Code Pro',monospace;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px">Aggiornamento automatico</div>
@@ -3036,7 +3036,7 @@ async function _initHotelMappaInner(site, cont) {
     </div>`;
 
     // Summary bar
-    cont.innerHTML = _bannerHtml+`<div style="background:#fafafa;border-bottom:1px solid #e4e4ec;padding:12px 20px;display:flex;gap:20px;flex-wrap:wrap;align-items:center;margin-bottom:16px">
+    cont.innerHTML = _bannerHtml+`<div style="padding:12px 20px;display:flex;gap:20px;flex-wrap:wrap;align-items:center;margin-bottom:16px">
         <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:200px">
             <div style="flex:1;background:#e4e4ec;border-radius:4px;height:6px;overflow:hidden"><div style="height:100%;background:#0D5F75;border-radius:4px;width:${pct}%"></div></div>
             <span style="font-size:12px;font-weight:700;color:#0D5F75;white-space:nowrap">${pct}% coperta</span>
@@ -3044,9 +3044,9 @@ async function _initHotelMappaInner(site, cont) {
         <span style="font-size:11px;color:rgba(13,95,117,0.5)">${coveredQ}/${totalQ} query coperte</span>
         ${dismissedQ ? `<span style="font-size:11px;color:#9ca3af">${dismissedQ} ignorate</span>` : ''}
     </div>` +
-    `<div style="display:flex;border-bottom:2px solid #e4e4ec;margin:0 0 16px">
-        <button id="mappa-tab-rel" onclick="document.getElementById('mappa-panel-rel').style.display='block';document.getElementById('mappa-panel-irrel').style.display='none';document.getElementById('mappa-tab-rel').style.color='#0D5F75';document.getElementById('mappa-tab-rel').style.borderBottomColor='#0D5F75';document.getElementById('mappa-tab-irrel').style.color='rgba(13,95,117,0.4)';document.getElementById('mappa-tab-irrel').style.borderBottomColor='transparent'" style="background:none;border:none;border-bottom:2px solid #0D5F75;margin-bottom:-2px;color:#0D5F75;font-family:'Source Code Pro',monospace;font-size:12px;font-weight:700;padding:10px 18px;cursor:pointer">Rilevanti (${relevantCats.length})</button>
-        <button id="mappa-tab-irrel" onclick="document.getElementById('mappa-panel-irrel').style.display='block';document.getElementById('mappa-panel-rel').style.display='none';document.getElementById('mappa-tab-irrel').style.color='#0D5F75';document.getElementById('mappa-tab-irrel').style.borderBottomColor='#0D5F75';document.getElementById('mappa-tab-rel').style.color='rgba(13,95,117,0.4)';document.getElementById('mappa-tab-rel').style.borderBottomColor='transparent'" style="background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-2px;color:rgba(13,95,117,0.4);font-family:'Source Code Pro',monospace;font-size:12px;font-weight:700;padding:10px 18px;cursor:pointer">Non rilevanti (${irrelevantCats.length})</button>
+    `<div style="display:flex;margin:0 0 16px">
+        <button id="mappa-tab-rel" onclick="document.getElementById('mappa-panel-rel').style.display='block';document.getElementById('mappa-panel-irrel').style.display='none';document.getElementById('mappa-tab-rel').style.color='#0D5F75';document.getElementById('mappa-tab-rel').style.borderBottomColor='#0D5F75';document.getElementById('mappa-tab-irrel').style.color='rgba(13,95,117,0.4)';document.getElementById('mappa-tab-irrel').style.borderBottomColor='transparent'" style="background:none;border:none;border-bottom:2px solid #0D5F75;color:#0D5F75;font-family:'Source Code Pro',monospace;font-size:12px;font-weight:700;padding:10px 18px;cursor:pointer">Rilevanti (${relevantCats.length})</button>
+        <button id="mappa-tab-irrel" onclick="document.getElementById('mappa-panel-irrel').style.display='block';document.getElementById('mappa-panel-rel').style.display='none';document.getElementById('mappa-tab-irrel').style.color='#0D5F75';document.getElementById('mappa-tab-irrel').style.borderBottomColor='#0D5F75';document.getElementById('mappa-tab-rel').style.color='rgba(13,95,117,0.4)';document.getElementById('mappa-tab-rel').style.borderBottomColor='transparent'" style="background:none;border:none;border-bottom:2px solid transparent;color:rgba(13,95,117,0.4);font-family:'Source Code Pro',monospace;font-size:12px;font-weight:700;padding:10px 18px;cursor:pointer">Non rilevanti (${irrelevantCats.length})</button>
     </div>` +
     `<div id="mappa-panel-rel">${relevantCats.map(renderCat).join('')}</div>` +
     `<div id="mappa-panel-irrel" style="display:none">${irrelevantCats.map(renderCat).join('')}</div>`;
