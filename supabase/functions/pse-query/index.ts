@@ -28,7 +28,7 @@ async function groq(systemPrompt: string, userPrompt: string, maxTokens = 400, t
 async function gemini(systemPrompt: string, userPrompt: string, maxTokens = 800): Promise<string> {
   if (!GEMINI_API_KEY) return ''
   const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${GEMINI_API_KEY}`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -40,6 +40,11 @@ async function gemini(systemPrompt: string, userPrompt: string, maxTokens = 800)
     }
   )
   const d = await res.json()
+  if (d.error) {
+    const code = d.error.code ?? 0
+    if (code === 429) return '__quota_exceeded__'
+    return ''
+  }
   return d.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ?? ''
 }
 
@@ -60,7 +65,7 @@ Deno.serve(async (req) => {
       const key = GEMINI_API_KEY
       let geminiDebug: any = {}
       try {
-        const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`, {
+        const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${key}`, {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ contents: [{ role:'user', parts:[{ text:'Say hello' }] }], generationConfig:{ maxOutputTokens:20 } })
         })
@@ -112,7 +117,7 @@ Deno.serve(async (req) => {
 
 Campi da restituire:
 - "tono": una parola sola tra: formale, professionale, informale, familiare, elegante, vivace
-- "persona": la forma di cortesia usata verso il cliente: "tu", "voi", "lei", o "misto"
+- "persona": la forma di cortesia usata verso il cliente: "tu", "lei", o "misto". REGOLA CRITICA: usa "tu" solo se l'hotel si rivolge direttamente ai clienti con il tu (es. "sei il benvenuto", "scegli la tua camera"). Usa "lei" se usa il formale singolare (es. "la aspettiamo", "può prenotare"). Frasi standard come "vi aspettiamo", "vi offriamo", "vi invitiamo" sono locuzioni generali italiane che NON indicano la forma "voi" come cortesia — in questi casi usa "lei" o "tu" in base al resto del testo. "voi" come forma di cortesia singolare è arcaico e rarissimo, non usarlo a meno che il testo non usi esplicitamente "voi siete", "quando arrivate voi" riferito a un singolo cliente.
 - "personalita": 2-3 parole che descrivono il carattere del testo (es. "caldo e accogliente", "lussuoso e raffinato", "allegro e dinamico")
 - "esempio": una frase rappresentativa del tono estratta letteralmente dal testo (max 120 caratteri)
 
@@ -231,11 +236,12 @@ Rispondi SOLO con JSON valido, nessun testo fuori:
       gemini(systemPrompt, userPrompt, 800).catch(() => '')
     ])
 
+    const geminiQuotaExceeded = rawGemini === '__quota_exceeded__'
     const groqResult = parseJson(rawGroq)
-    const geminiResult = parseJson(rawGemini)
+    const geminiResult = geminiQuotaExceeded ? {} : parseJson(rawGemini)
 
     const groqCited = (groqResult.probability ?? 0) >= 50
-    const geminiCited = GEMINI_API_KEY ? (geminiResult.probability ?? 0) >= 50 : null
+    const geminiCited = GEMINI_API_KEY && !geminiQuotaExceeded ? (geminiResult.probability ?? 0) >= 50 : null
 
     const result = {
       ...groqResult,
@@ -251,9 +257,10 @@ Rispondi SOLO con JSON valido, nessun testo fuori:
             probability: geminiResult.probability ?? null,
             verdict: geminiResult.verdict ?? null,
             cited: geminiCited,
-            model: 'gemini-1.5-flash'
+            model: 'gemini-2.0-flash-lite'
           }
-        } : {})
+        } : {}),
+        ...(geminiQuotaExceeded ? { gemini_error: 'quota_exceeded' } : {})
       }
     }
 
