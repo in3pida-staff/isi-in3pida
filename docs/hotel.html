@@ -2974,7 +2974,7 @@ async function _initHotelMappaInner(site, cont) {
     const renderCat = cat => {
         const label = cat.replace(/_/g,' ').replace(/\b\w/g, c => c.toUpperCase());
         const prio  = getPriorityForCategory(cat, hotelFeatures, hotelQueries);
-        const qs    = hotelQueries[cat] || [];
+        const qs    = hotelQueries[cat] || INTENT_LIBRARY.filter(i => i.category === cat).flatMap(i => i.templates(hotelFeatures.city || 'Italia'));
         const entry = qmap[cat] || {};
         const dismissedArr = Array.isArray(entry.dismissed_queries) ? entry.dismissed_queries : [];
         const dismissedSet = new Set(dismissedArr);
