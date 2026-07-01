@@ -2288,7 +2288,7 @@ function renderSocialCustomRows() {
     el.innerHTML = _socialCustomTmp.map((s,i)=>
         '<div style="display:grid;grid-template-columns:140px 1fr auto;gap:8px;align-items:center;padding:8px 0">'+
         '<span style="'+_scFont+';color:rgba(13,95,117,0.6);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(s.nome||'—')+'</span>'+
-        '<a href="'+esc(s.url||'#')+'" target="_blank" style="'+_scFont+';color:#0D5F75;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(s.url||'')+'</a>'+
+        '<input type="url" class="profile-input" value="'+esc(s.url||'')+'" oninput="_socialCustomTmp['+i+'].url=this.value" onblur="_autoSaveSocialCustom()" style="color:#0D5F75;'+_scFont+'">'+
         '<button type="button" onclick="removeSocialCustom('+i+')" style="background:none;border:1px solid #C1CBE8;border-radius:6px;padding:5px 9px;cursor:pointer;color:#FF8500;font-size:13px;font-family:\'Source Code Pro\',monospace">✕</button>'+
         '</div>'
     ).join('');
@@ -2458,13 +2458,15 @@ async function _detectRatings(silent = false) {
     if (!silent) { btn.disabled = true; btn.textContent = 'Rilevamento...'; }
     s('Lettura pagine in corso...', '#0D5F75');
     const hotelSiteUrl = g('url');
+    const hotelName = g('name');
+    const hotelCity = g('city');
     const call = async (url, source) => {
         if (!url) return null;
         try {
             const r = await fetch(SUPABASE_URL+'/functions/v1/fetch-rating', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
-                body: JSON.stringify({ url, source, hotel_site_url: hotelSiteUrl }),
+                body: JSON.stringify({ url, source, hotel_site_url: hotelSiteUrl, hotel_name: hotelName, hotel_city: hotelCity }),
             });
             return await r.json();
         } catch { return null; }
