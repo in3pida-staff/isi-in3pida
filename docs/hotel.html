@@ -2173,18 +2173,20 @@ function buildHotelSchemaForm(s) {
 
         // ── SOCIAL E PROFILI ESTERNI ──────────────────────────────────────────
         sec('SOCIAL E PROFILI ESTERNI')+
-        _g2(
-            _p1(_f('facebook_url','Facebook',hp.facebook_url,'https://facebook.com/hotel','url'))+
-            _vs+
-            _pn(_f('instagram_url','Instagram',hp.instagram_url,'https://instagram.com/hotel','url'))
-        )+
-        '<div style="padding:12px 16px">'+
+        '<div style="display:grid;grid-template-columns:140px 1fr;gap:8px;align-items:center;padding:8px 0">'+
+        '<span style="font-size:13px;color:rgba(13,95,117,0.6);font-family:\'Source Code Pro\',monospace">Facebook</span>'+
+        '<input type="url" id="hsf-facebook_url" class="profile-input" value="'+esc(hp.facebook_url||'')+'" placeholder="https://facebook.com/hotel" style="'+_inputStyle+'">'+
+        '</div>'+
+        '<div style="display:grid;grid-template-columns:140px 1fr;gap:8px;align-items:center;padding:8px 0">'+
+        '<span style="font-size:13px;color:rgba(13,95,117,0.6);font-family:\'Source Code Pro\',monospace">Instagram</span>'+
+        '<input type="url" id="hsf-instagram_url" class="profile-input" value="'+esc(hp.instagram_url||'')+'" placeholder="https://instagram.com/hotel" style="'+_inputStyle+'">'+
+        '</div>'+
         '<div id="schema-social-custom-list"></div>'+
-        '<div style="display:flex;gap:8px;margin-top:10px;align-items:center">'+
-        '<input type="text" id="new-social-nome" placeholder="Nome (es: YouTube)" style="width:140px;border:1px solid #e4e4ec;border-radius:4px;padding:9px 12px;'+_inputStyle+';outline:none">'+
-        '<input type="url" id="new-social-url" placeholder="https://..." style="flex:1;border:1px solid #e4e4ec;border-radius:4px;padding:9px 12px;'+_inputStyle+';outline:none">'+
+        '<div style="display:grid;grid-template-columns:140px 1fr auto;gap:8px;align-items:center;padding:8px 0;margin-top:4px">'+
+        '<input type="text" id="new-social-nome" placeholder="Nome (es: YouTube)" style="border:1px solid #e4e4ec;border-radius:4px;padding:9px 12px;'+_inputStyle+';outline:none">'+
+        '<input type="url" id="new-social-url" placeholder="https://..." style="border:1px solid #e4e4ec;border-radius:4px;padding:9px 12px;'+_inputStyle+';outline:none">'+
         '<button type="button" onclick="confirmSocialCustom()" style="'+_btnFior+'">Aggiungi</button>'+
-        '</div></div>'+
+        '</div>'+
 
         '</div></div>';
 
@@ -2283,8 +2285,8 @@ function renderSocialCustomRows() {
     if (!el) return;
     if (!_socialCustomTmp.length) { el.innerHTML = ''; return; }
     el.innerHTML = _socialCustomTmp.map((s,i)=>
-        '<div style="display:grid;grid-template-columns:140px 1fr auto;gap:8px;align-items:center;margin-bottom:6px;padding:6px 0;border-bottom:1px solid #f4f4f8">'+
-        '<span style="font-size:13px;font-weight:600;color:rgba(13,95,117,0.6);font-family:var(--font);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(s.nome||'—')+'</span>'+
+        '<div style="display:grid;grid-template-columns:140px 1fr auto;gap:8px;align-items:center;padding:8px 0">'+
+        '<span style="font-size:13px;color:rgba(13,95,117,0.6);font-family:var(--font);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(s.nome||'—')+'</span>'+
         '<a href="'+esc(s.url||'#')+'" target="_blank" style="font-size:13px;color:#C1CBE8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--font)">'+esc(s.url||'')+'</a>'+
         '<button type="button" onclick="removeSocialCustom('+i+')" style="background:none;border:1px solid #C1CBE8;border-radius:6px;padding:5px 9px;cursor:pointer;color:#FF8500;font-size:13px;font-family:var(--font)">✕</button>'+
         '</div>'

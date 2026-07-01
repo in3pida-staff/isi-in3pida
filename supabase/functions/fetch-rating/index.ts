@@ -65,6 +65,20 @@ async function fetchDirect(url: string): Promise<{ html: string; text: string } 
   return null
 }
 
+// Stesso approccio di channel-scan (coerenza contenuti): usa Jina.ai per leggere pagine protette
+async function fetchJina(url: string): Promise<{ html: string; text: string } | null> {
+  try {
+    const res = await fetch(`https://r.jina.ai/${url}`, {
+      headers: { 'Accept': 'text/plain', 'X-Return-Format': 'text', 'X-Timeout': '15' },
+      signal: AbortSignal.timeout(20000),
+    })
+    if (!res.ok) return null
+    const text = (await res.text()).slice(0, 12000)
+    if (text.length < 200) return null
+    return { html: text, text }
+  } catch { return null }
+}
+
 function cleanNum(s: string): string {
   if (/^\d{1,3}([.,]\d{3})+$/.test(s)) return s.replace(/[.,]/g, '')
   return s.replace(',', '.')
@@ -202,6 +216,18 @@ Deno.serve(async (req) => {
       const fromText = extractFromText(direct.text, source)
       if (fromText.rating) {
         return new Response(JSON.stringify({ ok: true, ...fromText, method: 'direct-text' }), {
+          headers: { ...cors, 'Content-Type': 'application/json' },
+        })
+      }
+    }
+
+    // 1b. Fallback Jina.ai — stesso approccio di channel-scan (coerenza contenuti)
+    //     Jina renderizza la pagina con un browser reale, bypassa Cloudflare e AWS WAF
+    const jina = await fetchJina(url)
+    if (jina) {
+      const fromText = extractFromText(jina.text, source)
+      if (fromText.rating) {
+        return new Response(JSON.stringify({ ok: true, ...fromText, method: 'jina' }), {
           headers: { ...cors, 'Content-Type': 'application/json' },
         })
       }
