@@ -2764,6 +2764,7 @@ function buildHotelFeatures(site) {
     const hpKnw = Array.isArray(hp.knowsabout) ? hp.knowsabout.join(' ').toLowerCase() : (hp.knowsabout || '').toLowerCase();
     const txt = am + ' ' + kw + ' ' + des + ' ' + hpSrv + ' ' + hpKnw;
     const hpTgt = (hp.target_clientela || '').toLowerCase();
+    const scTgt = Array.isArray(sc.targets) ? sc.targets.join(' ').toLowerCase() : '';
     const city = (sc.city || sc.address?.addressLocality || hp.citta || hp.comune || '').toLowerCase();
     const beachCity = /cattolica|rimini|riccione|cesenatico|bellaria|igea|misano|cervia|milano marittima|pescara|jesolo|bibione|lignano|viareggio|forte dei marmi|marina di|lido di/i;
     return {
@@ -2771,8 +2772,8 @@ function buildHotelFeatures(site) {
         hasMare:           beachCity.test(city) || /spiaggia|mare|beach|lungomare|riviera/.test(txt),
         hasMontagna:       /montagna|alpi|dolomiti|\bsci\b|trekking/.test(txt),
         hasSpiaggiaPropria:/spiaggia privata|spiaggia convenzionata|spiaggia riservata|ombrellone incluso|lettino incluso|accesso diretto.{0,12}mare|primo fila/.test(txt),
-        hasFamily:         /famil|bambini/.test(txt),
-        hasRomantic:       /romantic|luna di miele|honeymoon|suite nuziale|pacchett.{0,8}coppia|camera romantica/.test(txt),
+        hasFamily:         /famil|bambini/.test(txt) || /famil|bambin/.test(scTgt),
+        hasRomantic:       /romantic|luna di miele|honeymoon|suite nuziale|pacchett.{0,8}coppia|camera romantica/.test(txt) || /coppi/i.test(scTgt),
         hasElderly:        /over.?65|terza.?et|anziani|senior|men[uù] dietetico|antiscivolo|servizio medico/.test(txt) || /anziani|over.?65|terza.?et/i.test(hpTgt),
         hasAccessibility:  /accessib|disabil|barriere architetton/.test(txt) || String(hp.servizi_accessibilita||'').trim().length > 5,
         hasPiscina:        /piscin/.test(txt),
