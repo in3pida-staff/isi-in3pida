@@ -54,11 +54,21 @@ Deno.serve(async (req) => {
       'Sito web':       hp.sito_web || sc.url || '',
     }
 
+    // Normalizza URL: rimuovi parametri challenge/tracking per portali OTA noti
+    let fetchUrl = url
+    try {
+      const u = new URL(url)
+      if (/booking\.com|tripadvisor\./i.test(u.hostname)) {
+        u.search = ''
+        fetchUrl = u.toString()
+      }
+    } catch (_) { /* usa url originale */ }
+
     // Fetch della pagina
     let pageText = ''
     let fetchErrMsg = ''
     try {
-      const pageRes = await fetch(url, {
+      const pageRes = await fetch(fetchUrl, {
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
           'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
@@ -75,11 +85,28 @@ Deno.serve(async (req) => {
       fetchErrMsg = (e as Error).message
     }
 
+    // Fallback Jina se fetch diretto fallisce o restituisce poco contenuto
+    let jinaBlocked = false
+    if (fetchErrMsg || pageText.length < 500) {
+      try {
+        const jinaRes = await fetch(`https://r.jina.ai/${fetchUrl}`, {
+          headers: { 'Accept': 'text/plain', 'X-Return-Format': 'text', 'X-Timeout': '15' },
+          signal: AbortSignal.timeout(20000),
+        })
+        if (jinaRes.ok) {
+          const jinaText = (await jinaRes.text()).slice(0, 9000)
+          if (jinaText.length > 500) { pageText = jinaText; fetchErrMsg = '' }
+        } else if (jinaRes.status === 429) {
+          jinaBlocked = true
+        }
+      } catch (_) { /* ignora */ }
+    }
+
     if (fetchErrMsg && (!pageText || pageText.length < 100)) {
-      return new Response(JSON.stringify({
-        error: 'fetch_failed',
-        message: `Impossibile accedere alla pagina: ${fetchErrMsg}. Verifica che il link sia corretto.`,
-      }), { headers: cors })
+      const msg = jinaBlocked
+        ? 'Scansione automatica non disponibile per questo portale (protezione anti-bot). Riprova più tardi.'
+        : `Impossibile accedere alla pagina: ${fetchErrMsg}. Verifica che il link sia corretto.`
+      return new Response(JSON.stringify({ error: 'fetch_failed', message: msg }), { headers: cors })
     }
 
     if (!pageText || pageText.length < 100) {
@@ -188,6 +215,15 @@ Rispondi SOLO con JSON valido (array):
 
     let results: any[] = []
     try { results = JSON.parse(rawText) } catch { results = [] }
+
+    // Se l'AI non ha trovato nessun campo, la pagina era probabilmente una challenge page
+    const foundCount = results.filter((r: any) => r.found_value != null).length
+    if (results.length > 0 && foundCount === 0) {
+      return new Response(JSON.stringify({
+        error: 'blocked',
+        message: 'Scansione automatica non disponibile per questo portale (protezione anti-bot). Riprova più tardi.',
+      }), { headers: cors })
+    }
 
     // Assicura che our_value sia sempre valorizzato
     results = results.map((r: any) => ({
