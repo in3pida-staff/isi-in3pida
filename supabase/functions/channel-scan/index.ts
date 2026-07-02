@@ -56,6 +56,15 @@ Deno.serve(async (req) => {
     let fetchUrl = url.trim()
     if (!/^https?:\/\//i.test(fetchUrl)) fetchUrl = 'https://' + fetchUrl
 
+    // Rimuovi parametri di challenge/tracking da URL OTA noti
+    try {
+      const u = new URL(fetchUrl)
+      if (/booking\.com|tripadvisor\./i.test(u.hostname)) {
+        u.search = ''
+        fetchUrl = u.toString()
+      }
+    } catch (_) { /* usa URL originale */ }
+
     // Fetch della pagina
     let pageText = ''
     let fetchErrMsg = ''
@@ -91,13 +100,24 @@ Deno.serve(async (req) => {
       }), { headers: cors })
     }
 
-    // Rileva captcha
+    // Rileva captcha / pagina di blocco anti-bot
     const lower = pageText.toLowerCase()
-    const isBlocked = (lower.includes('captcha') || lower.includes('verify you are human') || lower.includes('access denied')) && pageText.length < 3000
+    const isBlocked = (
+      lower.includes('captcha') ||
+      lower.includes('verify you are human') ||
+      lower.includes('access denied') ||
+      lower.includes('robot') ||
+      lower.includes('challenge') ||
+      lower.includes('security check') ||
+      lower.includes('just a moment') ||
+      lower.includes('cloudflare') ||
+      lower.includes('403 forbidden') ||
+      (lower.includes('booking.com') && lower.includes('chal_t'))
+    ) && pageText.length < 5000
     if (isBlocked) {
       return new Response(JSON.stringify({
         error: 'blocked',
-        message: 'La pagina ha richiesto una verifica anti-bot. Scansione non disponibile per questo portale.',
+        message: 'Scansione automatica non disponibile per questo portale (protezione anti-bot).',
       }), { headers: cors })
     }
 
@@ -161,6 +181,13 @@ Rispondi SOLO con JSON valido (array):
       found_value: r.found_value ?? null,
       match:       !!r.match,
     }))
+
+    if (!results.length) {
+      return new Response(JSON.stringify({
+        error: 'blocked',
+        message: 'Scansione automatica non disponibile per questo portale (protezione anti-bot).',
+      }), { headers: cors })
+    }
 
     return new Response(JSON.stringify({ ok: true, results }), {
       headers: { ...cors, 'Content-Type': 'application/json' },
