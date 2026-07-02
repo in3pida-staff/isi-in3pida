@@ -4397,7 +4397,7 @@ function initGscPanel(site) {
         const rangeLabel = _gscActiveDays===28?'ultimi 28 gg':_gscActiveDays===180?'ultimi 6 mesi':'tutti i dati';
         datiGscCont.innerHTML =
             `<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px 8px;border-bottom:1px solid #f4f4f8">` +
-            `<div style="font-size:11px;color:rgba(13,95,117,0.5)">Dati GSC — ${rangeLabel}</div>` +
+            `` +
             `<div style="display:flex;gap:8px">${[{d:28,l:'1 mese'},{d:180,l:'6 mesi'},{d:9999,l:'Sempre'}].map(r=>`<span class="hgsc-range-btn h-range-btn${_gscActiveDays===r.d?' active-range':''}" data-days="${r.d}" style="cursor:pointer">${r.l}</span>`).join('')}</div>` +
             `</div>` +
             `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:14px 20px">${bx('CLICK TOTALI',fmt(totals.clicks||0),'clic organici')}${bx('IMPRESSION TOTALI',fmt(totals.impressions||0),'visualizzazioni')}${bx('CTR MEDIO',totals.impressions?((totals.ctr||0)*100).toFixed(1)+'%':'—','click-through rate')}${bx('POSIZIONE MEDIA',totals.impressions?(totals.position||0).toFixed(1):'—','posizione media SERP')}</div>` +
