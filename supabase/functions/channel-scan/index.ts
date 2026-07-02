@@ -52,11 +52,15 @@ Deno.serve(async (req) => {
       'Sito web':       hp.sito_web || sc.url || '',
     }
 
+    // Normalizza URL
+    let fetchUrl = url.trim()
+    if (!/^https?:\/\//i.test(fetchUrl)) fetchUrl = 'https://' + fetchUrl
+
     // Fetch della pagina
     let pageText = ''
     let fetchErrMsg = ''
     try {
-      const pageRes = await fetch(url, {
+      const pageRes = await fetch(fetchUrl, {
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
           'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
