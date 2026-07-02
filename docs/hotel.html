@@ -3786,20 +3786,39 @@ function _buildPseWeeklyChart(canvasId, items, rangeDays, chartKey) {
     if (!keys.length) { canvas.style.display = 'none'; return; }
     const mo = ['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];
     const labels = keys.map(w => { const d = new Date(w+'T12:00:00'); return d.getDate()+' '+mo[d.getMonth()]; });
+    const maxVal = Math.max(...keys.map(k=>weeks[k].total), 1);
+    const dashedGrid = {
+        id:'dashedGridPse',
+        beforeDraw(chart){
+            const {ctx:c,scales:{y},chartArea:ca}=chart;
+            if(!y||!ca)return;
+            c.save();
+            y.ticks.forEach((_,i)=>{
+                const yp=y.getPixelForTick(i);
+                const isBaseline=Math.abs(yp-ca.bottom)<2;
+                c.setLineDash(isBaseline?[]:[8,6]);
+                c.strokeStyle=isBaseline?'rgba(13,95,117,0.3)':'rgba(13,95,117,0.25)';
+                c.lineWidth=isBaseline?1:1.5;
+                c.beginPath();c.moveTo(ca.left,yp);c.lineTo(ca.right,yp);c.stroke();
+            });
+            c.restore();
+        }
+    };
     window[chartKey] = new Chart(canvas, {
         type: 'bar',
         data: {
             labels,
             datasets: [
-                { label:'Query', data:keys.map(k=>weeks[k].total), backgroundColor:'#C1CBE8', borderRadius:6, borderSkipped:'start', barPercentage:0.5, categoryPercentage:0.6 }
+                { label:'Query', data:keys.map(k=>weeks[k].total), backgroundColor:'#C1CBE8', borderRadius:8, borderSkipped:'start', barPercentage:0.9, categoryPercentage:0.55 }
             ]
         },
+        plugins:[dashedGrid],
         options: {
             responsive:true, maintainAspectRatio:true,
-            plugins:{ legend:{ display:false } },
+            plugins:{ legend:{ display:false }, tooltip:{ backgroundColor:'#0D5F75', titleColor:'#fff', bodyColor:'rgba(255,255,255,0.85)' } },
             scales:{
-                x:{ ticks:{ font:{family:"'Source Code Pro',monospace",size:11}, color:'#0D5F75', maxTicksLimit:10 }, grid:{ display:false } },
-                y:{ ticks:{ font:{family:"'Source Code Pro',monospace",size:11}, color:'#0D5F75', precision:0, stepSize:1 }, grid:{ color:'rgba(13,95,117,0.08)', drawBorder:false }, beginAtZero:true }
+                x:{ grid:{ display:false }, ticks:{ font:{family:"'Source Code Pro',monospace",size:13}, color:'#0D5F75' } },
+                y:{ min:0, max:maxVal, grid:{ display:false }, ticks:{ font:{family:"'Source Code Pro',monospace",size:13}, color:'#0D5F75', precision:0, stepSize:Math.max(1,Math.ceil(maxVal/4)) }, beginAtZero:true }
             }
         }
     });
