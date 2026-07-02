@@ -4787,8 +4787,8 @@ init();
         <div style="font-size:12px;color:#9ca3af;margin-bottom:20px" id="hmodal-report-sub"></div>
         <div id="hmodal-report-body"></div>
         <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap">
-            <button class="btn-update" style="margin-left:0" onclick="window._printHCoerenzaReport&&window._printHCoerenzaReport()">Stampa / PDF</button>
-            <button class="btn-ping" onclick="document.getElementById('hmodal-report-coerenza').style.display='none'">Chiudi</button>
+            <button onclick="window._printHCoerenzaReport&&window._printHCoerenzaReport()" style="background:#0D5F75;color:#fff;border:none;border-radius:24px;padding:8px 20px;font-family:'Source Code Pro',monospace;font-size:13px;font-weight:600;cursor:pointer">Stampa / PDF</button>
+            <button onclick="document.getElementById('hmodal-report-coerenza').style.display='none'" style="background:white;color:#0D5F75;border:1.5px solid #0D5F75;border-radius:24px;padding:8px 20px;font-family:'Source Code Pro',monospace;font-size:13px;font-weight:600;cursor:pointer">Chiudi</button>
         </div>
     </div>`;
     mReport.addEventListener('click', e => { if (e.target === mReport) mReport.style.display = 'none'; });
