@@ -1445,7 +1445,8 @@ function renderContent(site, pseData, now) {
                 <div id="hpse-run-result" style="margin-top:14px;display:none"></div>
             </div>
         </div>
-        <div class="h-card" style="margin-bottom:20px">
+        <div style="display:flex;flex-wrap:nowrap;gap:20px;margin-bottom:20px;align-items:stretch">
+        <div class="h-card" style="flex:0 0 calc(35% - 10px);min-width:0;margin-bottom:0">
                 <div class="h-card-hdr" style="justify-content:flex-start;gap:12px"><div style="width:34px;height:34px;border-radius:50%;background:white;border:1.5px solid #0D5F75;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 118 2.83"/><path d="M22 12A10 10 0 0012 2v10z"/></svg></div><span class="h-card-hdr-t" style="font-size:18px;font-weight:500">Presenza nei risultati AI</span></div>
                 <div class="h-card-body" style="padding:16px 20px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:240px">
                     <div style="background:white;border:1px solid #e4e4ec;border-radius:12px;padding:16px;min-width:180px;text-align:center;flex-shrink:0;overflow:hidden">
@@ -1461,10 +1462,11 @@ function renderContent(site, pseData, now) {
                     </div>
                 </div>
             </div>
-        <div class="h-card" style="margin-bottom:20px">
+        <div class="h-card" style="flex:0 0 calc(65% - 10px);min-width:0;margin-bottom:0">
                 <div class="h-card-hdr" style="justify-content:flex-start;gap:12px"><div style="width:34px;height:34px;border-radius:50%;background:white;border:1.5px solid #0D5F75;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><span class="h-card-hdr-t" style="font-size:18px;font-weight:500">Query nel tempo</span><div style="display:flex;gap:8px;margin-left:auto"><span class="hpse-bar-range h-range-btn active-range" data-days="30">1 mese</span><span class="hpse-bar-range h-range-btn" data-days="90">3 mesi</span><span class="hpse-bar-range h-range-btn" data-days="9999">Sempre</span></div></div>
                 <div class="h-card-body" style="padding:16px 20px"><canvas id="hchart-pse-bar" style="max-height:260px"></canvas></div>
             </div>
+        </div>
         <div class="h-card" style="margin-bottom:20px">
             <div class="h-card-hdr" style="justify-content:flex-start;gap:12px"><div style="width:34px;height:34px;border-radius:50%;background:white;border:1.5px solid #0D5F75;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="4" height="18" rx="1"/><rect x="10" y="8" width="4" height="13" rx="1"/><rect x="17" y="13" width="4" height="8" rx="1"/></svg></div><span class="h-card-hdr-t" style="font-size:18px;font-weight:500">Riepilogo PSE</span></div>
             <div style="padding:16px 20px;display:grid;grid-template-columns:repeat(${_isAdmin?4:3},1fr);gap:12px">
