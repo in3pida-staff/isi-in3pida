@@ -1,6 +1,8 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const GEMINI_API_KEY      = Deno.env.get('GEMINI_API_KEY') ?? ''
+const GEMINI_KEY_BACKUP   = Deno.env.get('GEMINI_KEY') ?? ''
+const GROQ_API_KEY        = Deno.env.get('GROQ_API_KEY') ?? ''
 const SUPABASE_URL        = Deno.env.get('SUPABASE_URL') ?? ''
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 
@@ -132,20 +134,57 @@ Rispondi SOLO con JSON valido (array):
   {"field":"Sito web","our_value":"...","found_value":"...","match":true}
 ]`
 
-    const geminiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { responseMimeType: 'application/json', maxOutputTokens: 1200 },
-        }),
-      }
-    )
+    async function callGemini(apiKey: string): Promise<string | null> {
+      try {
+        const res = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: prompt }] }],
+              generationConfig: { responseMimeType: 'application/json', maxOutputTokens: 1200 },
+            }),
+            signal: AbortSignal.timeout(20000),
+          }
+        )
+        const d = await res.json()
+        if (d.error) return null
+        return d.candidates?.[0]?.content?.parts?.[0]?.text ?? null
+      } catch { return null }
+    }
 
-    const geminiData = await geminiRes.json()
-    const rawText = geminiData.candidates?.[0]?.content?.parts?.[0]?.text ?? '[]'
+    async function callGroq(): Promise<string | null> {
+      if (!GROQ_API_KEY) return null
+      try {
+        const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${GROQ_API_KEY}` },
+          body: JSON.stringify({
+            model: 'llama-3.3-70b-versatile',
+            messages: [{ role: 'user', content: prompt + '\n\nIMPORTANTE: Rispondi SOLO con JSON valido, nessun testo aggiuntivo.' }],
+            max_tokens: 1200,
+            temperature: 0.1,
+          }),
+          signal: AbortSignal.timeout(20000),
+        })
+        const d = await res.json()
+        if (d.error) return null
+        const text = d.choices?.[0]?.message?.content ?? ''
+        const m = text.match(/\[[\s\S]*\]/)
+        return m ? m[0] : null
+      } catch { return null }
+    }
+
+    let rawText = await callGemini(GEMINI_API_KEY)
+    if (!rawText && GEMINI_KEY_BACKUP) rawText = await callGemini(GEMINI_KEY_BACKUP)
+    if (!rawText) rawText = await callGroq()
+    if (!rawText) {
+      return new Response(JSON.stringify({
+        error: 'ai_unavailable',
+        message: 'Analisi AI temporaneamente non disponibile. Riprova tra qualche minuto.',
+      }), { headers: cors })
+    }
 
     let results: any[] = []
     try { results = JSON.parse(rawText) } catch { results = [] }
