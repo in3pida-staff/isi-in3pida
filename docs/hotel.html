@@ -1486,7 +1486,7 @@ function renderContent(site, pseData, now) {
             </div>
         </div>
         <div class="h-card" style="margin-bottom:20px">
-            <div class="h-card-hdr" style="justify-content:flex-start;gap:12px"><div style="width:34px;height:34px;border-radius:50%;background:white;border:1.5px solid #0D5F75;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg></div><span class="h-card-hdr-t" style="font-size:18px;font-weight:500">Distribuzione per LLM</span></div>
+            <div class="h-card-hdr" style="justify-content:flex-start;gap:12px"><div style="width:34px;height:34px;border-radius:50%;background:white;border:1.5px solid #0D5F75;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg></div><span class="h-card-hdr-t" style="font-size:18px;font-weight:500">Distribuzione per LLM</span><span class='tip-q' data-tip='Mostra come le tre principali intelligenze artificiali valutano la visibilità del tuo hotel.&#10;&#10;ChatGPT — risposta veloce, stile conversazionale&#10;Gemini — analisi approfondita, modello avanzato&#10;Perplexity — orientato alla ricerca web&#10;&#10;Ogni AI assegna una probabilità di citarti e un giudizio. Il tasso di citazione indica quante volte su 100 query ti avrebbe nominato.'>?</span></div>
             <div id="hpse-llm-bars" style="padding:16px 20px;display:none"></div>
         </div>
         <div class="h-card" id="hdati-gsc-card" style="margin-top:20px;display:none">
@@ -3809,29 +3809,68 @@ function _renderLlmBars(items, elId) {
     const el = document.getElementById(elId);
     if (!el) return;
     if (!items.length) { el.style.display = 'none'; return; }
-    const groqTotal = items.length;
-    const groqCited = items.filter(r => r.result?.llm_results?.groq?.cited !== undefined ? r.result.llm_results.groq.cited : !!(r.result?.cited||r.result?.found||r.result?.match_found)).length;
-    const groqProbs = items.map(r => r.result?.llm_results?.groq?.probability ?? r.result?.probability).filter(p => p != null);
-    const groqAvgProb = groqProbs.length ? Math.round(groqProbs.reduce((a,b)=>a+b,0)/groqProbs.length) : null;
-    const gemItems = items.filter(r => r.result?.llm_results?.gemini);
-    const gemTotal = gemItems.length;
-    const gemCited = gemItems.filter(r => r.result.llm_results.gemini.cited).length;
-    const gemProbs = gemItems.map(r => r.result.llm_results.gemini.probability).filter(p => p != null);
-    const gemAvgProb = gemProbs.length ? Math.round(gemProbs.reduce((a,b)=>a+b,0)/gemProbs.length) : null;
-    const groqCitedPct = groqTotal > 0 ? Math.round(groqCited/groqTotal*100) : 0;
-    const gemCitedPct  = gemTotal  > 0 ? Math.round(gemCited/gemTotal*100)  : 0;
-    const mkRow = (name, barPct, pctLabel, count) => `<div style="display:flex;align-items:center;gap:12px;margin-bottom:14px"><div style="width:120px;font-size:13px;color:#0D5F75;font-weight:500;flex-shrink:0">${name}</div><div style="flex:1;background:#f0f0f4;border-radius:3px;height:8px;overflow:hidden"><div style="height:100%;width:${Math.max(0,Math.min(100,barPct))}%;background:#0D5F75;border-radius:3px"></div></div><div style="width:44px;text-align:right;font-size:13px;color:#0D5F75;font-weight:500">${pctLabel}</div><div style="width:36px;text-align:right;font-size:13px;font-weight:700;color:#0D5F75">${count}</div></div>`;
-    const noGem = '<div style="font-size:12px;color:#C1CBE8;padding:4px 0 2px">Gemini Flash — dati disponibili dopo le prossime query</div>';
-    const citedRows = mkRow('Groq Llama 3.1', groqCitedPct, groqCitedPct+'%', groqCited) + (gemTotal>0 ? mkRow('Gemini Flash', gemCitedPct, gemCitedPct+'%', gemCited) : noGem);
-    const probRows  = mkRow('Groq Llama 3.1', groqAvgProb??0, groqAvgProb!=null?groqAvgProb+'%':'—', groqAvgProb!=null?groqAvgProb+'%':'—') + (gemAvgProb!=null ? mkRow('Gemini Flash', gemAvgProb, gemAvgProb+'%', gemAvgProb+'%') : noGem);
-    el.innerHTML = `<div style="font-size:15px;font-weight:700;color:#0D5F75;margin-bottom:14px">Distribuzione per LLM</div><div style="display:inline-flex;border:1px solid #e4e4ec;border-radius:6px;overflow:hidden;margin-bottom:18px"><button data-llmtab="cited" style="padding:6px 16px;font-size:13px;background:#e8ecf7;border:none;cursor:pointer;color:#0D5F75;font-weight:600">Citazioni</button><button data-llmtab="prob" style="padding:6px 16px;font-size:13px;background:white;border:none;border-left:1px solid #e4e4ec;cursor:pointer;color:rgba(13,95,117,0.5);font-weight:400">Probabilità media</button></div><div class="llm-tab-pane" data-pane="cited">${citedRows}</div><div class="llm-tab-pane" data-pane="prob" style="display:none">${probRows}</div>`;
+
+    // Definizione motori — supporto formato nuovo (chatgpt/gemini/perplexity) e vecchio (groq → Intelligenze Artificiali)
+    const hasNew = items.some(r => r.result?.llm_results?.chatgpt);
+    const ENGINES = hasNew
+        ? [
+            { key: 'chatgpt',    label: 'ChatGPT' },
+            { key: 'gemini',     label: 'Gemini' },
+            { key: 'perplexity', label: 'Perplexity' }
+          ]
+        : [{ key: 'groq', label: 'Intelligenze Artificiali', legacyFallback: true }];
+
+    function engineStats(eng) {
+        const total = items.length;
+        let cited = 0, probSum = 0, probCount = 0;
+        items.forEach(r => {
+            const llm = r.result?.llm_results;
+            const d = llm?.[eng.key];
+            if (d) {
+                if (d.cited) cited++;
+                if (d.probability != null) { probSum += d.probability; probCount++; }
+            } else if (eng.legacyFallback) {
+                if (!!(r.result?.cited||r.result?.found||r.result?.match_found)) cited++;
+                const p = r.result?.probability;
+                if (p != null) { probSum += p; probCount++; }
+            }
+        });
+        return {
+            label: eng.label,
+            citedPct: Math.round(cited / total * 100),
+            cited,
+            avgProb: probCount > 0 ? Math.round(probSum / probCount) : null
+        };
+    }
+
+    const stats = ENGINES.map(engineStats);
+
+    const mkRow = (label, barPct, pctLabel, count) =>
+        `<div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">` +
+        `<div style="width:110px;font-size:13px;color:#0D5F75;font-weight:500;flex-shrink:0;font-family:Commissioner,sans-serif">${label}</div>` +
+        `<div style="flex:1;background:#f0f0f4;border-radius:4px;height:8px;overflow:hidden">` +
+        `<div style="height:100%;width:${Math.max(0,Math.min(100,barPct??0))}%;background:#0D5F75;border-radius:4px"></div></div>` +
+        `<div style="width:38px;text-align:right;font-size:13px;color:#0D5F75;font-weight:500;font-family:'Source Code Pro',monospace">${pctLabel}</div>` +
+        `<div style="width:28px;text-align:right;font-size:13px;font-weight:500;color:#b0b7c2;font-family:'Source Code Pro',monospace">${count}</div>` +
+        `</div>`;
+
+    const citedRows = stats.map(s => mkRow(s.label, s.citedPct, s.citedPct+'%', s.cited)).join('');
+    const probRows  = stats.map(s => mkRow(s.label, s.avgProb??0, s.avgProb!=null?s.avgProb+'%':'—', s.avgProb!=null?s.avgProb+'%':'—')).join('');
+
+    el.innerHTML =
+        `<div style="display:flex;gap:8px;margin-bottom:18px">` +
+        `<span class="hllm-tab h-range-btn active-range" data-pane="cited">Citazioni</span>` +
+        `<span class="hllm-tab h-range-btn" data-pane="prob">Probabilità media</span>` +
+        `</div>` +
+        `<div class="llm-tab-pane" data-pane="cited">${citedRows}</div>` +
+        `<div class="llm-tab-pane" data-pane="prob" style="display:none">${probRows}</div>`;
+
     el.style.display = 'block';
-    el.querySelectorAll('[data-llmtab]').forEach(btn => {
+    el.querySelectorAll('.hllm-tab').forEach(btn => {
         btn.addEventListener('click', () => {
-            const tab = btn.dataset.llmtab;
-            el.querySelectorAll('[data-llmtab]').forEach(b => { b.style.background='white'; b.style.color='#666b84'; b.style.fontWeight='400'; });
-            btn.style.background='#e8ecf7'; btn.style.color='#0D5F75'; btn.style.fontWeight='600';
-            el.querySelectorAll('.llm-tab-pane').forEach(p => { p.style.display = p.dataset.pane===tab?'block':'none'; });
+            el.querySelectorAll('.hllm-tab').forEach(b => b.classList.remove('active-range'));
+            btn.classList.add('active-range');
+            el.querySelectorAll('.llm-tab-pane').forEach(p => { p.style.display = p.dataset.pane===btn.dataset.pane?'block':'none'; });
         });
     });
 }

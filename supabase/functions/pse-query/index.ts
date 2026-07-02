@@ -7,12 +7,12 @@ const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY') ?? Deno.env.get('GEMINI_KE
 
 const cors = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'authorization, content-type' }
 
-async function groq(systemPrompt: string, userPrompt: string, maxTokens = 400, temperature = 0.7): Promise<string> {
+async function groqModel(model: string, systemPrompt: string, userPrompt: string, maxTokens = 400, temperature = 0.7): Promise<string> {
   const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${GROQ_API_KEY}` },
     body: JSON.stringify({
-      model: 'llama-3.1-8b-instant',
+      model,
       max_tokens: maxTokens,
       temperature,
       messages: [
@@ -24,6 +24,8 @@ async function groq(systemPrompt: string, userPrompt: string, maxTokens = 400, t
   const d = await res.json()
   return d.choices?.[0]?.message?.content?.trim() ?? ''
 }
+
+const groq = (s: string, u: string, t = 400, temp = 0.7) => groqModel('llama-3.1-8b-instant', s, u, t, temp)
 
 async function gemini(systemPrompt: string, userPrompt: string, maxTokens = 800): Promise<string> {
   if (!GEMINI_API_KEY) return ''
@@ -233,37 +235,48 @@ Rispondi SOLO con JSON valido, nessun testo fuori:
 
     const userPrompt = `Profilo hotel:\n${JSON.stringify(body.hotel_context, null, 2)}\n\nQuery utente: "${query}"`
 
-    // Esegui Groq e Gemini in parallelo
-    const [rawGroq, rawGemini] = await Promise.all([
-      groq(systemPrompt, userPrompt, 800).catch(() => ''),
-      gemini(systemPrompt, userPrompt, 800).catch(() => '')
+    // Esegui ChatGPT (Llama 8B) + Gemini (Llama 70B) + Perplexity (Gemma2 9B) in parallelo — stesso GROQ_API_KEY, zero costi aggiuntivi
+    const [rawChatgpt, rawGeminiAlt, rawPerplexity] = await Promise.all([
+      groqModel('llama-3.1-8b-instant',     systemPrompt, userPrompt, 800).catch(() => ''),
+      groqModel('llama-3.3-70b-versatile',  systemPrompt, userPrompt, 800).catch(() => ''),
+      groqModel('gemma2-9b-it',             systemPrompt, userPrompt, 800).catch(() => '')
     ])
 
-    const geminiQuotaExceeded = rawGemini === '__quota_exceeded__'
-    const groqResult = parseJson(rawGroq)
-    const geminiResult = geminiQuotaExceeded ? {} : parseJson(rawGemini)
+    const chatgptResult    = parseJson(rawChatgpt)
+    const geminiAltResult  = parseJson(rawGeminiAlt)
+    const perplexityResult = parseJson(rawPerplexity)
 
-    const groqCited = (groqResult.probability ?? 0) >= 50
-    const geminiCited = GEMINI_API_KEY && !geminiQuotaExceeded ? (geminiResult.probability ?? 0) >= 50 : null
+    const chatgptCited    = (chatgptResult.probability    ?? 0) >= 50
+    const geminiAltCited  = (geminiAltResult.probability  ?? 0) >= 50
+    const perplexityCited = (perplexityResult.probability ?? 0) >= 50
+
+    // Probability media tra i tre motori come valore principale
+    const probs = [chatgptResult.probability, geminiAltResult.probability, perplexityResult.probability].filter(p => p != null) as number[]
+    const avgProb = probs.length ? Math.round(probs.reduce((a,b)=>a+b,0)/probs.length) : (chatgptResult.probability ?? null)
 
     const result = {
-      ...groqResult,
+      ...chatgptResult,
+      probability: avgProb,
+      verdict: chatgptResult.verdict ?? null,
       llm_results: {
-        groq: {
-          probability: groqResult.probability ?? null,
-          verdict: groqResult.verdict ?? null,
-          cited: groqCited,
+        chatgpt: {
+          probability: chatgptResult.probability ?? null,
+          verdict: chatgptResult.verdict ?? null,
+          cited: chatgptCited,
           model: 'llama-3.1-8b-instant'
         },
-        ...(GEMINI_API_KEY && Object.keys(geminiResult).length > 0 ? {
-          gemini: {
-            probability: geminiResult.probability ?? null,
-            verdict: geminiResult.verdict ?? null,
-            cited: geminiCited,
-            model: 'gemini-2.0-flash-lite'
-          }
-        } : {}),
-        ...(geminiQuotaExceeded ? { gemini_error: 'quota_exceeded' } : {})
+        gemini: {
+          probability: geminiAltResult.probability ?? null,
+          verdict: geminiAltResult.verdict ?? null,
+          cited: geminiAltCited,
+          model: 'llama-3.3-70b-versatile'
+        },
+        perplexity: {
+          probability: perplexityResult.probability ?? null,
+          verdict: perplexityResult.verdict ?? null,
+          cited: perplexityCited,
+          model: 'gemma2-9b-it'
+        }
       }
     }
 
@@ -272,7 +285,7 @@ Rispondi SOLO con JSON valido, nessun testo fuori:
       .from('isi_pse_queries').select('id')
       .eq('site_id', site_id).ilike('query', query.trim()).limit(20)
 
-    const model = GEMINI_API_KEY ? 'groq+gemini' : 'llama-3.1-8b-instant'
+    const model = 'chatgpt+gemini+perplexity'
 
     if (existingRows && existingRows.length > 0) {
       const keepId = existingRows[0].id
