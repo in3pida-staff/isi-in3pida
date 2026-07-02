@@ -3825,8 +3825,8 @@ function _buildPseWeeklyChart(canvasId, items, rangeDays, chartKey) {
         data: {
             labels,
             datasets: [
-                { label:'QUERY',  data:keys.map(k=>weeks[k].total),  backgroundColor:'#C1CBE8', borderRadius:8, borderSkipped:'start', barPercentage:0.9, categoryPercentage:0.55 },
-                { label:'CITATE', data:keys.map(k=>weeks[k].cited),  backgroundColor:'#0D5F75', borderRadius:8, borderSkipped:'start', barPercentage:0.9, categoryPercentage:0.55 }
+                { label:'QUERY',  data:keys.map(k=>weeks[k].total),  backgroundColor:'#C1CBE8', borderRadius:8, borderSkipped:'start', barPercentage:0.9, categoryPercentage:0.36 },
+                { label:'CITATE', data:keys.map(k=>weeks[k].cited),  backgroundColor:'#0D5F75', borderRadius:8, borderSkipped:'start', barPercentage:0.9, categoryPercentage:0.36 }
             ]
         },
         plugins:[dashedGridPse],
