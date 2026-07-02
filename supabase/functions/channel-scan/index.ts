@@ -52,24 +52,11 @@ Deno.serve(async (req) => {
       'Sito web':       hp.sito_web || sc.url || '',
     }
 
-    // Normalizza URL
-    let fetchUrl = url.trim()
-    if (!/^https?:\/\//i.test(fetchUrl)) fetchUrl = 'https://' + fetchUrl
-
-    // Rimuovi parametri di challenge/tracking da URL OTA noti
-    try {
-      const u = new URL(fetchUrl)
-      if (/booking\.com|tripadvisor\./i.test(u.hostname)) {
-        u.search = ''
-        fetchUrl = u.toString()
-      }
-    } catch (_) { /* usa URL originale */ }
-
     // Fetch della pagina
     let pageText = ''
     let fetchErrMsg = ''
     try {
-      const pageRes = await fetch(fetchUrl, {
+      const pageRes = await fetch(url, {
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
           'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
@@ -100,24 +87,13 @@ Deno.serve(async (req) => {
       }), { headers: cors })
     }
 
-    // Rileva captcha / pagina di blocco anti-bot
+    // Rileva captcha
     const lower = pageText.toLowerCase()
-    const isBlocked = (
-      lower.includes('captcha') ||
-      lower.includes('verify you are human') ||
-      lower.includes('access denied') ||
-      lower.includes('robot') ||
-      lower.includes('challenge') ||
-      lower.includes('security check') ||
-      lower.includes('just a moment') ||
-      lower.includes('cloudflare') ||
-      lower.includes('403 forbidden') ||
-      (lower.includes('booking.com') && lower.includes('chal_t'))
-    ) && pageText.length < 5000
+    const isBlocked = (lower.includes('captcha') || lower.includes('verify you are human') || lower.includes('access denied')) && pageText.length < 3000
     if (isBlocked) {
       return new Response(JSON.stringify({
         error: 'blocked',
-        message: 'Scansione automatica non disponibile per questo portale (protezione anti-bot).',
+        message: 'La pagina ha richiesto una verifica anti-bot. Scansione non disponibile per questo portale.',
       }), { headers: cors })
     }
 
@@ -181,13 +157,6 @@ Rispondi SOLO con JSON valido (array):
       found_value: r.found_value ?? null,
       match:       !!r.match,
     }))
-
-    if (!results.length) {
-      return new Response(JSON.stringify({
-        error: 'blocked',
-        message: 'Scansione automatica non disponibile per questo portale (protezione anti-bot).',
-      }), { headers: cors })
-    }
 
     return new Response(JSON.stringify({ ok: true, results }), {
       headers: { ...cors, 'Content-Type': 'application/json' },
