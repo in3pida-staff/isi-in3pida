@@ -4603,9 +4603,11 @@ function initAiLayerPanel(site) {
         </div>
         <div style="padding:0 16px">
             <div style="display:grid;grid-template-columns:auto 1px 1fr 1px 1fr 1px 1fr">
-                <div style="padding:16px 10px 16px 0;display:flex;align-items:center;gap:8px">
-                    <span style="width:10px;height:10px;border-radius:50%;background:${statusColor};display:inline-block;flex-shrink:0"></span>
-                    <span style="font-size:15px;font-weight:600;color:${statusColor};font-family:'Source Code Pro',monospace">${statusLabel}</span>
+                <div style="padding:16px 24px 16px 0;display:flex;align-items:center">
+                    <span style="display:inline-flex;align-items:center;gap:7px;border:1.5px solid #0D5F75;border-radius:20px;padding:5px 14px;white-space:nowrap">
+                        <span style="width:8px;height:8px;border-radius:50%;background:${statusColor};display:inline-block;flex-shrink:0"></span>
+                        <span style="font-size:13px;font-weight:600;color:${statusColor};font-family:'Source Code Pro',monospace">${statusLabel}</span>
+                    </span>
                 </div>
                 ${_vs3}
                 ${_infoCell('Endpoint', '/ai-profile', isScriptJs?(aiLayerDisabled?'Disattivato':'Supabase attivo'):isActive?'Leggibile dai crawler AI':'Non ancora attivo', false, false)}
