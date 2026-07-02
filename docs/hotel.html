@@ -3780,15 +3780,16 @@ function _buildPseWeeklyChart(canvasId, items, rangeDays, chartKey) {
     const weeks = {};
     filtered.forEach(r => {
         const wk = wkOf(r.created_at);
-        if (!weeks[wk]) weeks[wk] = { total:0 };
+        if (!weeks[wk]) weeks[wk] = { total:0, cited:0 };
         weeks[wk].total++;
+        if (!!(r.result?.cited||r.result?.found||r.result?.match_found||r.result?.llm_results?.chatgpt?.cited||r.result?.llm_results?.groq?.cited)) weeks[wk].cited++;
     });
     const keys = Object.keys(weeks).sort();
     if (!keys.length) { canvas.style.display = 'none'; return; }
     const mo = ['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];
     const labels = keys.map(w => { const d = new Date(w+'T12:00:00'); return d.getDate()+' '+mo[d.getMonth()]; });
     const maxVal = Math.max(...keys.map(k=>weeks[k].total), 1);
-    const dashedGrid = {
+    const dashedGridPse = {
         id:'dashedGridPse',
         beforeDraw(chart){
             const {ctx:c,scales:{y},chartArea:ca}=chart;
@@ -3810,13 +3811,17 @@ function _buildPseWeeklyChart(canvasId, items, rangeDays, chartKey) {
         data: {
             labels,
             datasets: [
-                { label:'Query', data:keys.map(k=>weeks[k].total), backgroundColor:'#C1CBE8', borderRadius:8, borderSkipped:'start', barPercentage:0.9, categoryPercentage:0.55 }
+                { label:'QUERY',  data:keys.map(k=>weeks[k].total),  backgroundColor:'#C1CBE8', borderRadius:8, borderSkipped:'start', barPercentage:0.9, categoryPercentage:0.55 },
+                { label:'CITATE', data:keys.map(k=>weeks[k].cited),  backgroundColor:'#0D5F75', borderRadius:8, borderSkipped:'start', barPercentage:0.9, categoryPercentage:0.55 }
             ]
         },
-        plugins:[dashedGrid],
+        plugins:[dashedGridPse],
         options: {
             responsive:true, maintainAspectRatio:true,
-            plugins:{ legend:{ display:false }, tooltip:{ backgroundColor:'#0D5F75', titleColor:'#fff', bodyColor:'rgba(255,255,255,0.85)' } },
+            plugins:{
+                legend:{ display:true, position:'bottom', labels:{ usePointStyle:true, pointStyle:'circle', pointStyleWidth:16, font:{family:"'Source Code Pro',monospace",size:12,weight:'400'}, color:'#0D5F75', padding:28, boxWidth:14, boxHeight:14 } },
+                tooltip:{ mode:'index', intersect:false, backgroundColor:'#0D5F75', titleColor:'#fff', bodyColor:'rgba(255,255,255,0.85)', usePointStyle:true }
+            },
             scales:{
                 x:{ grid:{ display:false }, ticks:{ font:{family:"'Source Code Pro',monospace",size:13}, color:'#0D5F75' } },
                 y:{ min:0, max:maxVal, grid:{ display:false }, ticks:{ font:{family:"'Source Code Pro',monospace",size:13}, color:'#0D5F75', precision:0, stepSize:Math.max(1,Math.ceil(maxVal/4)) }, beginAtZero:true }
