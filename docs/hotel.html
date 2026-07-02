@@ -3942,7 +3942,7 @@ async function initScoreHistoryChart(site, geoAvg, cs, covPct) {
     if (!canvas) return;
 
     const faqData = site.faq_data || {};
-    const todayStr = new Date().toISOString().slice(0, 10);
+    const _td = new Date(); const todayStr = _td.getFullYear()+'-'+String(_td.getMonth()+1).padStart(2,'0')+'-'+String(_td.getDate()).padStart(2,'0');
     const geoSub = site.geo_scores || faqData.geo || {};
 
     let freshFaqData = faqData;
@@ -4042,15 +4042,29 @@ async function initScoreHistoryChart(site, geoAvg, cs, covPct) {
     }
 
     function render(days) {
-        const raw = filtered(days);
-        const todayStr = new Date().toISOString().slice(0, 10);
-        const cutDate = new Date(); cutDate.setDate(cutDate.getDate() - (days < 9000 ? days : 365*3));
-        const startStr = days < 9000 ? cutDate.toISOString().slice(0, 10) : (history.length ? history[0].date : todayStr);
-        let data = aggregateWeekly(raw, startStr, todayStr);
-        const labels = data.map(h => fmtDate(h.date));
+        const now = new Date();
+        const mo = ['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];
+        const n = days >= 9000 ? Math.max(6, Math.ceil(history.length / 7) + 1) : (days >= 180 ? 26 : 5);
+        const cutStr = days >= 9000 ? '0000-00-00' : (() => { const c = new Date(now); c.setDate(c.getDate() - days); return c.getFullYear()+'-'+String(c.getMonth()+1).padStart(2,'0')+'-'+String(c.getDate()).padStart(2,'0'); })();
+        // Genera n punti settimanali all'indietro da oggi (come Andamento nel tempo)
+        const points = [];
+        for (let i = 0; i < n; i++) {
+            const d = new Date(now); d.setDate(now.getDate() - (n - 1 - i) * 7);
+            const dStr = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+            const pd = new Date(d); pd.setDate(d.getDate() - 7);
+            const pdStr = pd.getFullYear()+'-'+String(pd.getMonth()+1).padStart(2,'0')+'-'+String(pd.getDate()).padStart(2,'0');
+            const inWin = history.filter(h => h.date > pdStr && h.date <= dStr && h.date >= cutStr);
+            const avg = k => { const vs = inWin.map(h => h[k]).filter(v => v != null); return vs.length ? Math.round(vs.reduce((a,b)=>a+b,0)/vs.length) : null; };
+            points.push({ label: d.getDate()+' '+mo[d.getMonth()], geo: avg('geo'), ai_readiness: avg('ai_readiness'), answer_extraction: avg('answer_extraction'), quality_safety: avg('quality_safety'), ai_visibility: avg('ai_visibility') });
+        }
+        // Carry forward: porta avanti l'ultimo valore noto nelle settimane senza dati
+        let last = null;
+        points.forEach(p => { if (p.ai_readiness != null) last = p; else if (last) KEYS.forEach(k => { p[k] = last[k]; }); });
+        const labels = points.map(p => p.label);
+        updateSummary(points);
         const datasets = KEYS.map((k, i) => ({
             label: ['AI Readiness', 'Answer Extraction', 'Quality Safety', 'AI Visibility'][i],
-            data: data.map(h => h[k] ?? null),
+            data: points.map(p => p[k] ?? null),
             borderColor: COLORS[i],
             backgroundColor: 'transparent',
             fill: false,
@@ -4140,14 +4154,27 @@ function initGeoScoreMiniChart(site) {
     }
 
     function renderMini(days) {
-        const raw = filteredMini(days).length ? filteredMini(days) : history;
-        const todayStr = new Date().toISOString().slice(0, 10);
-        const cutDate = new Date(); cutDate.setDate(cutDate.getDate() - (days < 9000 ? days : 365*3));
-        const startStr = days < 9000 ? cutDate.toISOString().slice(0, 10) : (history.length ? history[0].date : todayStr);
-        let data = aggregateMiniWeekly(raw, startStr, todayStr);
-        const labels = data.map(h => { const dt = new Date(h.date+'T00:00:00'); return dt.toLocaleDateString('it-IT',{day:'2-digit',month:'short'}); });
+        const now = new Date();
+        const mo = ['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];
+        const n = 5;
+        const cutStr = days >= 9000 ? '0000-00-00' : (() => { const c = new Date(now); c.setDate(c.getDate() - days); return c.getFullYear()+'-'+String(c.getMonth()+1).padStart(2,'0')+'-'+String(c.getDate()).padStart(2,'0'); })();
+        // Genera n punti settimanali all'indietro da oggi (come Andamento nel tempo)
+        const points = [];
+        for (let i = 0; i < n; i++) {
+            const d = new Date(now); d.setDate(now.getDate() - (n - 1 - i) * 7);
+            const dStr = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+            const pd = new Date(d); pd.setDate(d.getDate() - 7);
+            const pdStr = pd.getFullYear()+'-'+String(pd.getMonth()+1).padStart(2,'0')+'-'+String(pd.getDate()).padStart(2,'0');
+            const inWin = history.filter(h => h.date > pdStr && h.date <= dStr && h.date >= cutStr);
+            const avg = k => { const vs = inWin.map(h => h[k]).filter(v => v != null); return vs.length ? Math.round(vs.reduce((a,b)=>a+b,0)/vs.length) : null; };
+            points.push({ label: d.getDate()+' '+mo[d.getMonth()], geo: avg('geo') });
+        }
+        // Carry forward
+        let lastGeo = null;
+        points.forEach(p => { if (p.geo != null) lastGeo = p.geo; else if (lastGeo != null) p.geo = lastGeo; });
+        const labels = points.map(p => p.label);
         const datasets = [
-            { label:'GEO Score', data:data.map(h=>h.geo??null), borderColor:'#0D5F75', backgroundColor:'transparent', fill:false, tension:0.4, pointRadius:3, pointHoverRadius:4.5, pointBackgroundColor:'#0D5F75', pointBorderColor:'#0D5F75', borderWidth:2, spanGaps:true },
+            { label:'GEO Score', data:points.map(p=>p.geo??null), borderColor:'#0D5F75', backgroundColor:'transparent', fill:false, tension:0.4, pointRadius:3, pointHoverRadius:4.5, pointBackgroundColor:'#0D5F75', pointBorderColor:'#0D5F75', borderWidth:2, spanGaps:true },
         ];
         var dashedMini={id:'dashedMini',beforeDraw:function(chart){var c=chart.ctx,y=chart.scales.y,ca=chart.chartArea;if(!y||!ca)return;c.save();y.ticks.forEach(function(_,i){var yp=y.getPixelForTick(i);var isBase=Math.abs(yp-ca.bottom)<2;c.setLineDash(isBase?[]:[10,5]);c.strokeStyle='#0D5F75';c.lineWidth=0.5;c.beginPath();c.moveTo(ca.left,yp);c.lineTo(ca.right,yp);c.stroke();});c.restore();}};
         if (_geoMiniChartInst) _geoMiniChartInst.destroy();
