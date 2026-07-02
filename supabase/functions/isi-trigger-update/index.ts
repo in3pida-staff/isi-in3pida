@@ -61,11 +61,11 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({ ok: true, current: check }), { headers: { ...cors, 'Content-Type': 'application/json' } });
   }
 
-  // Fetch current plugin version + download URL
+  // Fetch current plugin version + download URL (versione più recente per released_at)
   const { data: verData, error: verErr } = await admin
     .from('isi_plugin_versions')
     .select('version, download_url')
-    .eq('is_current', true)
+    .order('released_at', { ascending: false })
     .limit(1)
     .single();
 
