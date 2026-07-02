@@ -1449,15 +1449,15 @@ function renderContent(site, pseData, now) {
         <div class="h-card" style="flex:0 0 calc(35% - 10px);min-width:0;margin-bottom:0">
                 <div class="h-card-hdr" style="justify-content:flex-start;gap:12px"><div style="width:34px;height:34px;border-radius:50%;background:white;border:1.5px solid #0D5F75;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 118 2.83"/><path d="M22 12A10 10 0 0012 2v10z"/></svg></div><span class="h-card-hdr-t" style="font-size:18px;font-weight:500">Presenza nei risultati AI</span></div>
                 <div class="h-card-body" style="padding:16px 20px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:240px">
-                    <div style="background:white;border:1px solid #e4e4ec;border-radius:12px;padding:16px;min-width:180px;text-align:center;flex-shrink:0;overflow:hidden">
+                    <div style="background:white;border:1px solid #e4e4ec;border-radius:12px;padding:16px;min-width:252px;text-align:center;flex-shrink:0;overflow:hidden">
                         <div style="font-size:11px;color:#0D5F75;font-weight:400;margin-bottom:10px;letter-spacing:.06em;font-family:'Source Code Pro',monospace">Citazioni AI</div>
-                        <div style="position:relative;width:165px;height:93px;margin:0 auto">
-                            <canvas id="hchart-pse-gauge-bg" width="165" height="93" style="position:absolute;top:0;left:0"></canvas>
-                            <canvas id="hchart-pse-gauge" width="165" height="93" style="position:absolute;top:0;left:0"></canvas>
+                        <div style="position:relative;width:231px;height:130px;margin:0 auto">
+                            <canvas id="hchart-pse-gauge-bg" width="231" height="130" style="position:absolute;top:0;left:0"></canvas>
+                            <canvas id="hchart-pse-gauge" width="231" height="130" style="position:absolute;top:0;left:0"></canvas>
                             <span style="position:absolute;bottom:-8px;left:3px;font-size:9px;color:#aaa;line-height:1">0</span>
                             <span style="position:absolute;bottom:-8px;right:3px;font-size:9px;color:#aaa;line-height:1">100</span>
                         </div>
-                        <div id="hpse-gauge-pct" style="font-size:26px;font-weight:500;color:#0D5F75;margin-top:-18px;font-family:Commissioner,sans-serif">—%</div>
+                        <div id="hpse-gauge-pct" style="font-size:26px;font-weight:500;color:#0D5F75;margin-top:-26px;font-family:Commissioner,sans-serif">—%</div>
                         <div id="hpse-gauge-label" style="font-size:12px;font-weight:400;color:#C1CBE8;margin-top:4px;font-family:'Source Code Pro',monospace">nessun dato</div>
                     </div>
                 </div>
@@ -3790,16 +3790,16 @@ function _buildPseWeeklyChart(canvasId, items, rangeDays, chartKey) {
         data: {
             labels,
             datasets: [
-                { label:'Query', data:keys.map(k=>weeks[k].total), backgroundColor:'#C1CBE8', borderRadius:3 },
-                { label:'Citate', data:keys.map(k=>weeks[k].cited), backgroundColor:'#0D5F75', borderRadius:3 }
+                { label:'Citate', data:keys.map(k=>weeks[k].cited), backgroundColor:'#0D5F75', borderRadius:0, stack:'s' },
+                { label:'Query', data:keys.map(k=>weeks[k].total - weeks[k].cited), backgroundColor:'#C1CBE8', borderRadius:3, stack:'s' }
             ]
         },
         options: {
             responsive:true, maintainAspectRatio:true,
             plugins:{ legend:{ position:'top', labels:{ font:{size:11}, color:'#666b84', boxWidth:10 } } },
             scales:{
-                x:{ ticks:{ font:{size:10}, color:'#aaa', maxTicksLimit:10 }, grid:{ display:false } },
-                y:{ ticks:{ font:{size:11}, color:'#aaa', precision:0 }, grid:{ color:'#f4f4f8' }, beginAtZero:true }
+                x:{ ticks:{ font:{size:10}, color:'#aaa', maxTicksLimit:10 }, grid:{ display:false }, stacked:true },
+                y:{ ticks:{ font:{size:11}, color:'#aaa', precision:0 }, grid:{ color:'#f4f4f8' }, beginAtZero:true, stacked:true }
             }
         }
     });
