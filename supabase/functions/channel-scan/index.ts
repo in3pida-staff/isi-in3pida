@@ -34,18 +34,14 @@ async function fetchPage(url: string): Promise<{ text: string; method: string }>
   } catch (_) { /* fallback */ }
 
   // Fallback Jina.ai
-  try {
-    const jinaRes = await fetch(`https://r.jina.ai/${url}`, {
-      headers: { 'Accept': 'text/plain', 'X-Return-Format': 'text', 'X-Timeout': '15' },
-      signal: AbortSignal.timeout(20000),
-    })
-    if (jinaRes.ok) {
-      const text = (await jinaRes.text()).slice(0, 12000)
-      if (text.length >= 200) return { text, method: 'jina' }
-    }
-  } catch (_) { /* fallback */ }
-
-  throw new Error('Scansione automatica non disponibile per questo portale')
+  const jinaRes = await fetch(`https://r.jina.ai/${url}`, {
+    headers: { 'Accept': 'text/plain', 'X-Return-Format': 'text', 'X-Timeout': '15' },
+    signal: AbortSignal.timeout(20000),
+  })
+  if (!jinaRes.ok) throw new Error(`Jina HTTP ${jinaRes.status}`)
+  const text = (await jinaRes.text()).slice(0, 12000)
+  if (text.length < 200) throw new Error(`Contenuto troppo breve (${text.length} chars)`)
+  return { text, method: 'jina' }
 }
 
 function norm(s: string): string {
