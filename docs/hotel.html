@@ -3777,17 +3777,31 @@ function _buildPseWeeklyChart(canvasId, items, rangeDays, chartKey) {
     const cutoff = rangeDays >= 9999 ? new Date(0) : new Date(now.getTime() - rangeDays * 86400000);
     const filtered = items.filter(r => r.created_at && new Date(r.created_at) >= cutoff);
     const wkOf = dt => { const d = new Date(dt); d.setHours(0,0,0,0); const day = d.getDay(); d.setDate(d.getDate() - (day===0?6:day-1)); return d.toISOString().slice(0,10); };
-    const weeks = {};
+    const dataMap = {};
     filtered.forEach(r => {
         const wk = wkOf(r.created_at);
-        if (!weeks[wk]) weeks[wk] = { total:0, cited:0 };
-        weeks[wk].total++;
-        if (!!(r.result?.cited||r.result?.found||r.result?.match_found||r.result?.llm_results?.chatgpt?.cited||r.result?.llm_results?.groq?.cited)) weeks[wk].cited++;
+        if (!dataMap[wk]) dataMap[wk] = { total:0, cited:0 };
+        dataMap[wk].total++;
+        if (!!(r.result?.cited||r.result?.found||r.result?.match_found||r.result?.llm_results?.chatgpt?.cited||r.result?.llm_results?.groq?.cited)) dataMap[wk].cited++;
     });
-    const keys = Object.keys(weeks).sort();
-    if (!keys.length) { canvas.style.display = 'none'; return; }
+    // Genera bucket a ritroso da oggi (come Storico punteggi AI) — sempre mostra la settimana corrente
     const mo = ['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];
-    const labels = keys.map(w => { const d = new Date(w+'T12:00:00'); return d.getDate()+' '+mo[d.getMonth()]; });
+    const nWeeks = rangeDays >= 9999 ? Math.max(6, Object.keys(dataMap).length + 1) : (rangeDays >= 90 ? 13 : 5);
+    const buckets = [];
+    for (let i = 0; i < nWeeks; i++) {
+        const d = new Date(now); d.setDate(now.getDate() - (nWeeks - 1 - i) * 7);
+        const wk = wkOf(d.toISOString());
+        buckets.push({ label: d.getDate()+' '+mo[d.getMonth()], wk });
+    }
+    // Rimuovi bucket iniziali vuoti
+    let start = 0;
+    while (start < buckets.length - 1 && !dataMap[buckets[start].wk]) start++;
+    const activeBuckets = buckets.slice(start);
+    const keys = activeBuckets.map(b => b.wk);
+    const labels = activeBuckets.map(b => b.label);
+    const weeks = {};
+    keys.forEach(k => { weeks[k] = dataMap[k] || { total:0, cited:0 }; });
+    if (!filtered.length) { canvas.style.display = 'none'; return; }
     const maxVal = Math.max(...keys.map(k=>weeks[k].total), 1);
     const dashedGridPse = {
         id:'dashedGridPse',
