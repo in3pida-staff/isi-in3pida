@@ -905,8 +905,8 @@ function renderContent(site, pseData, now) {
             </div>
 
             <!-- Storico punteggi AI + GEO Score nel tempo affiancati -->
-            <div style="display:flex;gap:24px;margin-top:28px;align-items:stretch">
-            <div class="h-card" style="flex:65;min-width:0;margin-top:0">
+            <div style="display:flex;flex-wrap:nowrap;gap:24px;margin-top:28px;align-items:stretch">
+            <div class="h-card" style="flex:0 0 calc(65% - 12px);min-width:0;margin-top:0">
                 <div class="h-card-hdr">
                     <div style="display:flex;align-items:center;gap:12px"><div style="width:34px;height:34px;border-radius:50%;background:white;border:1.5px solid #0D5F75;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg viewBox="18 23 40 28" width="16" height="16"><path fill="#0D5F75" d="M54.92,37.06c-1,0-1.81.79-1.85,1.78h-6.93c-.04-.99-.85-1.78-1.85-1.78s-1.85.83-1.85,1.85c0,.41.14.79.36,1.09l-7.75,6.83c-.28-.16-.59-.26-.93-.26-.06,0-.12.01-.17.02l-4.39-19.25c.61-.3,1.02-.93,1.02-1.65,0-1.02-.83-1.85-1.85-1.85s-1.85.83-1.85,1.85c0,.64.32,1.2.81,1.53l-5.49,14.77c-.09-.01-.18-.03-.27-.03-1.02,0-1.85.83-1.85,1.85s.83,1.85,1.85,1.85,1.85-.83,1.85-1.85c0-.62-.3-1.16-.77-1.5l5.5-14.8c.06,0,.12.02.18.02l4.41,19.34c-.51.33-.84.9-.84,1.55,0,1.02.83,1.85,1.85,1.85s1.85-.83,1.85-1.85c0-.36-.11-.69-.28-.98l7.8-6.87c.24.12.51.19.8.19.73,0,1.36-.43,1.66-1.04h7.31c.3.61.93,1.04,1.66,1.04,1.02,0,1.85-.83,1.85-1.85s-.83-1.85-1.85-1.85Z"/></svg></div><span class="h-card-hdr-t" style="font-size:18px;font-weight:500">Storico punteggi AI</span></div>
                     <div style="display:flex;gap:6px">
@@ -921,7 +921,7 @@ function renderContent(site, pseData, now) {
             </div>
 
             <!-- GEO Score Mini Chart -->
-            <div class="h-card" style="flex:35;min-width:0;margin-top:0;display:flex;flex-direction:column">
+            <div class="h-card" style="flex:0 0 calc(35% - 12px);min-width:0;margin-top:0;display:flex;flex-direction:column">
                 <div class="h-card-hdr">
                     <div style="display:flex;align-items:center;gap:12px"><div style="width:34px;height:34px;border-radius:50%;background:white;border:1.5px solid #0D5F75;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round"><line x1="12" y1="3" x2="12" y2="21"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="5.6" y1="5.6" x2="18.4" y2="18.4"/><line x1="18.4" y1="5.6" x2="5.6" y2="18.4"/></svg></div><span class="h-card-hdr-t" style="font-size:18px;font-weight:500;white-space:nowrap">GEO Score</span></div>
                     <div style="display:flex;gap:4px;flex-wrap:nowrap">
