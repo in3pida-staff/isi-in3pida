@@ -1518,9 +1518,9 @@ function renderContent(site, pseData, now) {
             return Array.from({length:n}, (_,i) => Math.min(100, Math.max(0, Math.round(val - (n-1-i)*2.5 + (Math.random()-0.5)*8))));
         };
         const buildDatasets = (n) => [
-            { label:'GEO SCORE',          data:trnd(geoAvg, n), backgroundColor:'#0D5F75', borderRadius:8, borderSkipped:'start', barPercentage:0.9, categoryPercentage:0.55 },
-            { label:'FAQ',                data:trnd(covPct, n), backgroundColor:'#9aadd4', borderRadius:8, borderSkipped:'start', barPercentage:0.9, categoryPercentage:0.55 },
-            { label:'COMPLETEZZA PROFILO', data:trnd(cs, n),    backgroundColor:'#c5cdd4', borderRadius:8, borderSkipped:'start', barPercentage:0.9, categoryPercentage:0.55 },
+            { label:'GEO SCORE',          data:trnd(geoAvg, n), backgroundColor:'#0D5F75', borderRadius:8, borderSkipped:'start', barThickness:26 },
+            { label:'FAQ',                data:trnd(covPct, n), backgroundColor:'#9aadd4', borderRadius:8, borderSkipped:'start', barThickness:26 },
+            { label:'COMPLETEZZA PROFILO', data:trnd(cs, n),    backgroundColor:'#c5cdd4', borderRadius:8, borderSkipped:'start', barThickness:26 },
         ];
         const mkLabels = (n, gran) => {
             const mo=['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];
@@ -3825,8 +3825,8 @@ function _buildPseWeeklyChart(canvasId, items, rangeDays, chartKey) {
         data: {
             labels,
             datasets: [
-                { label:'QUERY',  data:keys.map(k=>weeks[k].total),  backgroundColor:'#C1CBE8', borderRadius:8, borderSkipped:'start', barPercentage:0.9, categoryPercentage:0.36 },
-                { label:'CITATE', data:keys.map(k=>weeks[k].cited),  backgroundColor:'#0D5F75', borderRadius:8, borderSkipped:'start', barPercentage:0.9, categoryPercentage:0.36 }
+                { label:'QUERY',  data:keys.map(k=>weeks[k].total),  backgroundColor:'#C1CBE8', borderRadius:8, borderSkipped:'start', barThickness:26 },
+                { label:'CITATE', data:keys.map(k=>weeks[k].cited),  backgroundColor:'#0D5F75', borderRadius:8, borderSkipped:'start', barThickness:26 }
             ]
         },
         plugins:[dashedGridPse],
