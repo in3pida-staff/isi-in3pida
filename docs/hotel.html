@@ -1608,11 +1608,16 @@ function renderContent(site, pseData, now) {
             canvas.getContext('2d').scale(pr, pr);
         }
         resize();
-        // Valore reale all'istante t: oscillazione guidata da Date.now() + decadimento eventi reali
+        // Valore reale all'istante t: onde lente (minuti/ore) — non si ripetono nel buffer da 100s
         function val(t) {
-            if (!hbAlive) return BASE * 0.04 * (1 + 0.3 * Math.sin(t / 3000)); // segnale piatto se offline
-            const DECAY = Math.log(2) / 240000; // half-life 4 minuti
-            let v = BASE * (0.5 + 0.3 * Math.sin(t / 9000) + 0.18 * Math.sin(t / 4100 + 1.1) + 0.08 * Math.sin(t / 1700 + 2.4));
+            if (!hbAlive) return BASE * 0.04 * (1 + 0.3 * Math.sin(t / 120000));
+            const DECAY = Math.log(2) / 240000;
+            let v = BASE * (0.5
+                + 0.35 * Math.sin(t / 900000)          // onda da 15 minuti
+                + 0.22 * Math.sin(t / 300000 + 1.1)    // onda da 5 minuti
+                + 0.13 * Math.sin(t / 60000  + 2.4)    // onda da 1 minuto
+                + 0.07 * Math.sin(t / 18000  + 0.7)    // onda da 18 secondi
+            );
             for (const ev of events) {
                 const age = t - ev;
                 if (age >= 0 && age < 1800000) v += BASE * 1.5 * Math.exp(-DECAY * age);
@@ -1639,7 +1644,7 @@ function renderContent(site, pseData, now) {
         let hist, lastAdded;
         try {
             const saved = JSON.parse(localStorage.getItem(LS_KEY) || 'null');
-            if (saved && saved.ts && Date.now() - saved.ts < 3000 && Array.isArray(saved.h) && saved.h.length === BUF) {
+            if (saved && saved.ts && Date.now() - saved.ts < 15000 && Array.isArray(saved.h) && saved.h.length === BUF) {
                 hist = saved.h; lastAdded = saved.ts;
                 // Colma il gap dal salvataggio ad ora
                 while (Date.now() - lastAdded >= STEP) { lastAdded += STEP; hist.shift(); hist.push(val(lastAdded)); }
