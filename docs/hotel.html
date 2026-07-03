@@ -1604,6 +1604,8 @@ function renderContent(site, pseData, now) {
         const canvas = document.getElementById('hchart-heartbeat');
         if (!canvas) return;
         const BASE = Math.max(20, geoAvg || 40);
+        const hbAge = site.last_heartbeat ? (Date.now() - new Date(site.last_heartbeat).getTime()) : Infinity;
+        const hbAlive = hbAge < 7200000; // vivo se heartbeat < 2 ore fa
         let events = []; // timestamp reali da Supabase
         let rafId = 0, W = 0, H = 0;
         function resize() {
@@ -1615,6 +1617,7 @@ function renderContent(site, pseData, now) {
         resize();
         // Valore reale all'istante t: oscillazione guidata da Date.now() + decadimento eventi reali
         function val(t) {
+            if (!hbAlive) return BASE * 0.04 * (1 + 0.3 * Math.sin(t / 3000)); // segnale piatto se offline
             const DECAY = Math.log(2) / 240000; // half-life 4 minuti
             let v = BASE * (0.5 + 0.3 * Math.sin(t / 9000) + 0.18 * Math.sin(t / 4100 + 1.1) + 0.08 * Math.sin(t / 1700 + 2.4));
             for (const ev of events) {
@@ -1671,6 +1674,17 @@ function renderContent(site, pseData, now) {
             ctx.save(); ctx.shadowColor = '#0D5F75'; ctx.shadowBlur = 8;
             ctx.beginPath(); ctx.arc(W-3, dotY, 3.5, 0, Math.PI*2);
             ctx.fillStyle = '#0D5F75'; ctx.fill(); ctx.restore();
+            // Overlay "Segnale assente" se plugin offline
+            if (!hbAlive) {
+                ctx.save();
+                ctx.fillStyle = 'rgba(255,255,255,0.75)';
+                ctx.fillRect(W/2 - 120, H/2 - 16, 240, 32);
+                ctx.font = '12px "Source Code Pro", monospace';
+                ctx.fillStyle = 'rgba(13,95,117,0.5)';
+                ctx.textAlign = 'center';
+                ctx.fillText('Segnale assente — plugin non attivo', W/2, H/2 + 4);
+                ctx.restore();
+            }
             rafId = requestAnimationFrame(draw);
         }
         draw();
