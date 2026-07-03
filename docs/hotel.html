@@ -1610,12 +1610,13 @@ function renderContent(site, pseData, now) {
         // val(t) = SOLO onde deterministiche, ZERO eventi — identico al reload
         function val(t) {
             if (!hbAlive) return BASE * 0.04 * (1 + 0.3 * Math.sin(t / 120000));
-            return Math.max(0, BASE * (0.5
-                + 0.38 * Math.sin(t / 180000)          // 3 minuti — curva principale
-                + 0.25 * Math.sin(t / 420000 + 1.1)    // 7 minuti
-                + 0.15 * Math.sin(t / 900000 + 2.4)    // 15 minuti
-                + 0.06 * Math.sin(t / 40000  + 0.8)    // 40 secondi — micro oscillazioni
-            ));
+            // Ampiezze sommate < 0.5 → valore sempre positivo, mai piatto a zero
+            return BASE * (0.5
+                + 0.18 * Math.sin(t / 180000)          // 3 minuti
+                + 0.12 * Math.sin(t / 420000 + 1.1)    // 7 minuti
+                + 0.08 * Math.sin(t / 900000 + 2.4)    // 15 minuti
+                + 0.04 * Math.sin(t / 40000  + 0.8)    // 40 secondi
+            );
         }
         // Poll Supabase ogni 30s — eventi reali aggiungono spike diretti al buffer
         async function poll() {
@@ -1634,7 +1635,7 @@ function renderContent(site, pseData, now) {
         poll(); setInterval(poll, 30000);
         // Buffer: 2 campioni/sec, 100 secondi di finestra
         const BUF = 200, STEP = 500;
-        const LS_KEY = 'hb2_' + site.site_id;
+        const LS_KEY = 'hb3_' + site.site_id;
         let hist, lastAdded;
         // Carica da localStorage se fresco (< 15s) — buffer già calcolato senza eventi → gap-fill sempre liscio
         try {
