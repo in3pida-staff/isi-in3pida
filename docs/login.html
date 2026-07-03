@@ -442,7 +442,7 @@
         btn.disabled = true;
         clearMsg();
         const { error } = await _SB.auth.resetPasswordForEmail(email, {
-            redirectTo: 'https://isi.in3pida.it/index.html',
+            redirectTo: 'https://app.eletta-ai.it/index.html',
         });
         btn.disabled = false;
         if (error) showMsg('error', error.message);
@@ -455,7 +455,7 @@
         btn.disabled = true;
         await _SB.auth.signInWithOAuth({
             provider: 'google',
-            options: { redirectTo: 'https://isi.in3pida.it/login.html' },
+            options: { redirectTo: 'https://app.eletta-ai.it/login.html' },
         });
     });
 

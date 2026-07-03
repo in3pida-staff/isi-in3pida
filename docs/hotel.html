@@ -328,7 +328,7 @@ const _camServPreset = ['Bagno privato','Aria condizionata','Wi-Fi','TV','Miniba
 
 function _getFaqFullUrl() {
     const isScript = _isScriptSite() || (_site?.plugin_version||'').startsWith('js-') || !_pluginBase;
-    if (isScript) return 'https://isi.in3pida.it/faq.html?id=' + encodeURIComponent(_site?.site_id||'');
+    if (isScript) return 'https://app.eletta-ai.it/faq.html?id=' + encodeURIComponent(_site?.site_id||'');
     const slug = (document.getElementById('faq-setting-page-url')?.value?.trim() || 'faq').replace(/^\//,'');
     return (_pluginBase || '').replace(/\/$/, '') + '/' + slug;
 }
@@ -354,7 +354,7 @@ function _initFaqPageUrl() {
     if (!input) return;
     const isScript = _isScriptSite() || (_site?.plugin_version||'').startsWith('js-') || !_pluginBase;
     if (isScript) {
-        if (prefix) prefix.textContent = 'isi.in3pida.it';
+        if (prefix) prefix.textContent = 'app.eletta-ai.it';
         input.value = 'faq.html?id=' + encodeURIComponent(_site?.site_id||'');
         input.readOnly = true;
         input.style.color = 'rgba(13,95,117,0.4)';
@@ -400,7 +400,7 @@ function _initFaqPageUrl() {
 async function _publishFaqPage(btn) {
     const _isScript = _isScriptSite() || (_site?.plugin_version||'').startsWith('js-') || !_pluginBase;
     if (_isScript) {
-        const url = 'https://isi.in3pida.it/faq.html?id=' + encodeURIComponent(_site?.site_id || '');
+        const url = 'https://app.eletta-ai.it/faq.html?id=' + encodeURIComponent(_site?.site_id || '');
         document.getElementById('faq-setting-page-url').value = url;
         await _saveFaqPageUrl(url);
         window.open(url, '_blank');
@@ -3490,7 +3490,7 @@ async function initHotelCoerenza(site) {
         const rows = buildHReportRows();
         const w = window.open('', '_blank');
         if (!w) { showToast('Consenti i popup per stampare.'); return; }
-        w.document.write(`<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><title>Report Confronto Canali — ${esc(hotelNome)}</title><style>body{font-family:Arial,Helvetica,sans-serif;color:#0D5F75;padding:32px;max-width:900px;margin:0 auto}h2{margin:0 0 4px;font-size:22px;color:#0D5F75}.sub{font-size:14px;color:rgba(13,95,117,0.5);margin:0 0 24px}table{width:100%;border-collapse:collapse;margin-top:0}@media print{button{display:none!important}}.footer{margin-top:24px;font-size:12px;color:#9ca3af;border-top:1px solid #e4e4ec;padding-top:12px}</style></head><body><h2>Report Confronto Canali</h2><p class="sub">${esc(hotelNome)} &nbsp;·&nbsp; ${oggi}</p>${rows}<p class="footer">Generato da Eletta — isi.in3pida.it &nbsp;·&nbsp; ${oggi}</p><br><button onclick="window.print()" style="background:#0D5F75;color:white;border:none;padding:10px 24px;font-size:15px;font-weight:700;border-radius:6px;cursor:pointer">Stampa / Salva PDF</button></body></html>`);
+        w.document.write(`<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><title>Report Confronto Canali — ${esc(hotelNome)}</title><style>body{font-family:Arial,Helvetica,sans-serif;color:#0D5F75;padding:32px;max-width:900px;margin:0 auto}h2{margin:0 0 4px;font-size:22px;color:#0D5F75}.sub{font-size:14px;color:rgba(13,95,117,0.5);margin:0 0 24px}table{width:100%;border-collapse:collapse;margin-top:0}@media print{button{display:none!important}}.footer{margin-top:24px;font-size:12px;color:#9ca3af;border-top:1px solid #e4e4ec;padding-top:12px}</style></head><body><h2>Report Confronto Canali</h2><p class="sub">${esc(hotelNome)} &nbsp;·&nbsp; ${oggi}</p>${rows}<p class="footer">Generato da Eletta — app.eletta-ai.it &nbsp;·&nbsp; ${oggi}</p><br><button onclick="window.print()" style="background:#0D5F75;color:white;border:none;padding:10px 24px;font-size:15px;font-weight:700;border-radius:6px;cursor:pointer">Stampa / Salva PDF</button></body></html>`);
         w.document.close();
     };
 
@@ -3682,7 +3682,7 @@ async function initHotelConfig(site) {
                                 <li>Vai su <a href="https://console.cloud.google.com/apis/credentials" target="_blank" style="color:#0D5F75">console.cloud.google.com/apis/credentials</a></li>
                                 <li>Abilita la <strong>Google Search Console API</strong></li>
                                 <li>Crea credenziali → <strong>ID client OAuth 2.0</strong> → Applicazione web</li>
-                                <li>Aggiungi origine autorizzata: <code style="background:#f4f4f8;padding:1px 6px;border-radius:3px;font-size:12px">https://isi.in3pida.it</code></li>
+                                <li>Aggiungi origine autorizzata: <code style="background:#f4f4f8;padding:1px 6px;border-radius:3px;font-size:12px">https://app.eletta-ai.it</code></li>
                                 <li>Copia il <strong>Client ID</strong> e incollalo qui:</li>
                             </ol>
                             <input id="_hgsc-cid-input" type="text" placeholder="123456789-xxxx.apps.googleusercontent.com" style="width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #e4e4ec;border-radius:4px;font-size:13px;margin-bottom:8px">

@@ -5199,7 +5199,7 @@
 <h2>Report Confronto Canali</h2>
 <p class="sub">${escHtml(hotelNome)} &nbsp;·&nbsp; ${oggi}</p>
 ${rows}
-<p class="footer">Generato da Eletta — isi.in3pida.it &nbsp;·&nbsp; ${oggi}</p>
+<p class="footer">Generato da Eletta — app.eletta-ai.it &nbsp;·&nbsp; ${oggi}</p>
 <br><button onclick="window.print()" style="background:#0D5F75;color:white;border:none;padding:10px 24px;font-size:15px;font-weight:700;border-radius:6px;cursor:pointer">🖨 Stampa / Salva PDF</button>
 </body></html>`;
         }
@@ -5320,7 +5320,7 @@ ${rows}
             for (let i = 1; i <= pageCount; i++) {
                 doc.setPage(i);
                 doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(180,180,180);
-                doc.text('Eletta · isi.in3pida.it · ' + oggi, ml, doc.internal.pageSize.getHeight() - 8);
+                doc.text('Eletta · app.eletta-ai.it · ' + oggi, ml, doc.internal.pageSize.getHeight() - 8);
                 doc.text('Pagina ' + i + ' / ' + pageCount, pageW - mr, doc.internal.pageSize.getHeight() - 8, { align:'right' });
             }
 
@@ -5576,7 +5576,7 @@ ${rows}
                                     <li>Vai su <a href="https://console.cloud.google.com/apis/credentials" target="_blank" style="color:#0D5F75;text-decoration:underline">console.cloud.google.com/apis/credentials</a></li>
                                     <li>Abilita la <strong>Google Search Console API</strong> nel progetto</li>
                                     <li>Crea credenziali → <strong>ID client OAuth 2.0</strong> → tipo <strong>Applicazione web</strong></li>
-                                    <li>Aggiungi origine autorizzata: <code style="background:#f4f4f8;padding:1px 6px;border-radius:3px;font-size:12px">https://isi.in3pida.it</code></li>
+                                    <li>Aggiungi origine autorizzata: <code style="background:#f4f4f8;padding:1px 6px;border-radius:3px;font-size:12px">https://app.eletta-ai.it</code></li>
                                     <li>Copia il <strong>Client ID</strong> e incollalo qui:</li>
                                 </ol>
                                 <input id="_gsc-cid-input" type="text" placeholder="123456789-xxxx.apps.googleusercontent.com" style="width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #e4e4ec;border-radius:4px;font-size:13px;margin-bottom:8px">

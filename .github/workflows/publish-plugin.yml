@@ -30,7 +30,7 @@ jobs:
           for ZIP_PATH in $NEW_ZIPS; do
             FILENAME=$(basename "$ZIP_PATH")
             VERSION=$(echo "$FILENAME" | sed 's/in3pida-faq-//;s/\.zip//')
-            DOWNLOAD_URL="https://isi.in3pida.it/${FILENAME}"
+            DOWNLOAD_URL="https://app.eletta-ai.it/${FILENAME}"
 
             echo "Pubblico versione $VERSION → $DOWNLOAD_URL"
 
