@@ -85,9 +85,10 @@ Deno.serve(async (req) => {
       fetchErrMsg = (e as Error).message
     }
 
-    // Fallback Jina se fetch diretto fallisce o restituisce poco contenuto
-    let jinaBlocked = false
-    if (fetchErrMsg || pageText.length < 500) {
+    const isTripAdvisor = /tripadvisor\./i.test(fetchUrl)
+
+    // Fallback: Jina diretto (non per TripAdvisor, JS-rendered, restituisce sempre vuoto)
+    if (!isTripAdvisor && (fetchErrMsg || pageText.length < 2000)) {
       try {
         const jinaRes = await fetch(`https://r.jina.ai/${fetchUrl}`, {
           headers: { 'Accept': 'text/plain', 'X-Return-Format': 'text', 'X-Timeout': '15' },
@@ -96,17 +97,75 @@ Deno.serve(async (req) => {
         if (jinaRes.ok) {
           const jinaText = (await jinaRes.text()).slice(0, 9000)
           if (jinaText.length > 500) { pageText = jinaText; fetchErrMsg = '' }
-        } else if (jinaRes.status === 429) {
-          jinaBlocked = true
+        }
+      } catch (_) { /* ignora */ }
+    }
+
+    // Fallback via database (IP dedicato, non rate-limited) — solo per non-TripAdvisor
+    if (!isTripAdvisor && (fetchErrMsg || pageText.length < 2000)) {
+      try {
+        const { data: startData } = await supabase.rpc('jina_start', { target_url: fetchUrl })
+        if (startData) {
+          const reqId = startData as number
+          for (let i = 0; i < 9; i++) {
+            await new Promise(r => setTimeout(r, 2000))
+            const { data: resultData } = await supabase.rpc('jina_result', { req_id: reqId })
+            if (resultData && String(resultData).length > 200) {
+              pageText = String(resultData).slice(0, 9000)
+              fetchErrMsg = ''
+              break
+            }
+          }
+        }
+      } catch (_) { /* ignora */ }
+    }
+
+    // Fallback via DuckDuckGo per TripAdvisor (DataDome impedisce accesso diretto)
+    if (isTripAdvisor && (fetchErrMsg || pageText.length < 2000)) {
+      try {
+        const hotelName = refData['Nome struttura'] || site.site_name || ''
+        const ddgQuery = encodeURIComponent(`"${hotelName}" site:tripadvisor.it`)
+        const ddgRes = await fetch(
+          `https://html.duckduckgo.com/html/?q=${ddgQuery}`,
+          {
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+              'Accept-Language': 'it-IT,it;q=0.9,en;q=0.8',
+              'Accept': 'text/html',
+            },
+            signal: AbortSignal.timeout(15000),
+          }
+        )
+        if (ddgRes.ok) {
+          const ddgHtml = await ddgRes.text()
+          // Estrai titoli e snippet dai risultati di ricerca
+          const snippetRe = /class="result__snippet"[^>]*>([\s\S]*?)<\/a>/g
+          const titleRe = /class="result__a"[^>]*>([\s\S]*?)<\/a>/g
+          const snippets: string[] = []
+          const titles: string[] = []
+          let m
+          while ((m = snippetRe.exec(ddgHtml)) !== null) {
+            const t = m[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
+            if (t.length > 20) snippets.push(t)
+          }
+          while ((m = titleRe.exec(ddgHtml)) !== null) {
+            const t = m[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
+            if (t.length > 5) titles.push(t)
+          }
+          const combined = `[Risultati ricerca TripAdvisor - dati indicizzati da motori di ricerca]\nTitoli: ${titles.join(' | ')}\nContenuto: ${snippets.join(' ')}`
+          if (combined.length > 100) { pageText = combined.slice(0, 9000); fetchErrMsg = '' }
         }
       } catch (_) { /* ignora */ }
     }
 
     if (fetchErrMsg && (!pageText || pageText.length < 100)) {
-      const msg = jinaBlocked
-        ? 'Scansione automatica non disponibile per questo portale (protezione anti-bot). Riprova più tardi.'
-        : `Impossibile accedere alla pagina: ${fetchErrMsg}. Verifica che il link sia corretto.`
-      return new Response(JSON.stringify({ error: 'fetch_failed', message: msg }), { headers: cors })
+      const isAntiBot = fetchErrMsg.includes('403') || fetchErrMsg.includes('429')
+      return new Response(JSON.stringify({
+        error: isAntiBot ? 'blocked' : 'fetch_failed',
+        message: isAntiBot
+          ? 'Scansione automatica non disponibile per questo portale (protezione anti-bot). Riprova più tardi.'
+          : `Impossibile accedere alla pagina: ${fetchErrMsg}. Verifica che il link sia corretto.`,
+      }), { headers: cors })
     }
 
     if (!pageText || pageText.length < 100) {
