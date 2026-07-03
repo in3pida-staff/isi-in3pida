@@ -843,7 +843,7 @@ function renderContent(site, pseData, now) {
                           <div style="text-align:right"><div style="font-size:10px;color:#aaa;letter-spacing:.05em;text-transform:uppercase">FAQ</div><div style="font-size:16px;font-weight:700;color:#0D5F75">${covPct !== null ? covPct+'%' : '—'}</div></div>
                       </div>
                   </div>
-                  <div style="height:260px;position:relative;overflow:hidden;border-top:1px solid #f0f0f5">
+                  <div style="height:130px;position:relative;overflow:hidden;border-top:1px solid #f0f0f5">
                       <canvas id="hchart-heartbeat" style="position:absolute;top:0;left:0;width:100%;height:100%"></canvas>
                   </div>
               </div>
@@ -1598,59 +1598,65 @@ function renderContent(site, pseData, now) {
         });
     })();
 
-    // ── Heartbeat (ECG continuo)
+    // ── Attività sistema (dati reali Supabase, aggiornati ogni 30s)
     (function() {
         const canvas = document.getElementById('hchart-heartbeat');
-        if (!canvas) return;
-        const intensity = Math.max(0.25, Math.min(1, (geoAvg !== null ? geoAvg : 40) / 100));
-        let W = 0, H = 0, rafId = 0, offset = 0;
-        function setSize() {
-            const pr = window.devicePixelRatio || 1;
-            W = canvas.offsetWidth; H = canvas.offsetHeight;
-            canvas.width = W * pr; canvas.height = H * pr;
-            canvas.getContext('2d').scale(pr, pr);
+        if (!canvas || !window.Chart) return;
+        const SLOTS = 48, SLOT_MS = 30 * 60 * 1000; // 48 slot da 30min = 24 ore
+        let chartInst = null;
+        function mkSlots(hp, sites) {
+            const now = Date.now();
+            const counts = Array(SLOTS).fill(0);
+            const labels = Array.from({length: SLOTS}, (_, i) => {
+                const ts = now - (SLOTS - 1 - i) * SLOT_MS;
+                const d = new Date(ts);
+                return i % 4 === 0 ? d.getHours().toString().padStart(2,'0') + ':' + (d.getMinutes() < 30 ? '00' : '30') : '';
+            });
+            [...(hp||[]).map(e=>e.updated_at), ...(sites||[]).map(e=>e.last_heartbeat)].filter(Boolean).forEach(ts => {
+                const idx = SLOTS - 1 - Math.floor((now - new Date(ts).getTime()) / SLOT_MS);
+                if (idx >= 0 && idx < SLOTS) counts[idx]++;
+            });
+            return { counts, labels };
         }
-        setSize();
-        function ecg(p) {
-            if (p < 0.08)  return Math.sin(p / 0.08 * Math.PI) * 0.12;
-            if (p < 0.12)  return -Math.sin((p - 0.08) / 0.04 * Math.PI) * 0.08;
-            if (p < 0.17)  return  Math.sin((p - 0.12) / 0.05 * Math.PI);
-            if (p < 0.22)  return -Math.sin((p - 0.17) / 0.05 * Math.PI) * 0.18;
-            if (p < 0.38)  return  Math.sin((p - 0.22) / 0.16 * Math.PI) * 0.20;
-            return 0;
+        async function poll() {
+            const since = new Date(Date.now() - SLOTS * SLOT_MS).toISOString();
+            const [r1, r2] = await Promise.all([
+                _SB.from('hotel_profiles').select('updated_at').gte('updated_at', since),
+                _SB.from('isi_sites').select('last_heartbeat').gte('last_heartbeat', since),
+            ]);
+            return mkSlots(r1.data, r2.data);
         }
-        const PERIOD = 200, SPEED = 1.4;
-        let dotAlpha = 1, dotDir = -1;
-        function frame() {
-            const ctx = canvas.getContext('2d');
-            ctx.clearRect(0, 0, W, H);
-            ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H);
-            ctx.strokeStyle = 'rgba(13,95,117,0.05)'; ctx.lineWidth = 1;
-            for (let i = 1; i < 4; i++) { ctx.beginPath(); ctx.moveTo(0, H*i/4); ctx.lineTo(W, H*i/4); ctx.stroke(); }
-            const xStep = 60;
-            for (let x = W - (offset % xStep); x > 0; x -= xStep) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
-            const mid = H / 2, amp = H * 0.4 * intensity;
-            function drawLine(lw, color, blur) {
-                ctx.save(); if (blur) { ctx.shadowColor = 'rgba(13,95,117,0.4)'; ctx.shadowBlur = blur; }
-                ctx.beginPath(); ctx.strokeStyle = color; ctx.lineWidth = lw;
-                ctx.lineJoin = 'round'; ctx.lineCap = 'round';
-                for (let x = 0; x <= W; x++) { const y = mid - ecg(((x + offset) / PERIOD) % 1) * amp; x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y); }
-                ctx.stroke(); ctx.restore();
-            }
-            drawLine(8, 'rgba(13,95,117,0.12)', 12);
-            drawLine(2, '#0D5F75', 0);
-            dotAlpha += dotDir * 0.03; if (dotAlpha < 0.2) dotDir = 1; if (dotAlpha > 1) dotDir = -1;
-            const dotY = mid - ecg(((W + offset) / PERIOD) % 1) * amp;
-            ctx.save(); ctx.shadowColor = '#0D5F75'; ctx.shadowBlur = 14;
-            ctx.beginPath(); ctx.arc(W - 6, dotY, 4, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(13,95,117,' + dotAlpha + ')'; ctx.fill(); ctx.restore();
-            offset += SPEED;
-            rafId = requestAnimationFrame(frame);
+        async function init() {
+            const { counts, labels } = await poll();
+            chartInst = new window.Chart(canvas.getContext('2d'), {
+                type: 'line',
+                data: { labels, datasets: [{
+                    data: counts, borderColor: '#0D5F75', borderWidth: 2, fill: true,
+                    backgroundColor: (ctx) => {
+                        const g = ctx.chart.ctx.createLinearGradient(0, 0, 0, 130);
+                        g.addColorStop(0, 'rgba(13,95,117,0.14)'); g.addColorStop(1, 'rgba(13,95,117,0)'); return g;
+                    },
+                    tension: 0.45, pointRadius: 0, pointHoverRadius: 3,
+                }]},
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    animation: { duration: 600 },
+                    plugins: { legend: { display: false }, tooltip: { enabled: false } },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { maxTicksLimit: 8, font: { size: 10, family:"'Source Code Pro',monospace" }, color: 'rgba(13,95,117,0.35)' } },
+                        y: { display: false, min: 0 }
+                    }
+                }
+            });
         }
-        frame();
+        async function refresh() {
+            if (!chartInst) return;
+            const { counts, labels } = await poll();
+            chartInst.data.labels = labels; chartInst.data.datasets[0].data = counts; chartInst.update();
+        }
+        init(); setInterval(refresh, 30000);
         const dot = document.getElementById('hb-pulse-dot');
         if (dot) { let a = 1, d = -1; setInterval(() => { a += d*0.04; if(a<0.2)d=1; if(a>1)d=-1; dot.style.opacity = a; }, 30); }
-        document.addEventListener('visibilitychange', () => { if (document.hidden) cancelAnimationFrame(rafId); else frame(); });
     })();
 
     // ── Score History Chart (storico 4 metriche) + GEO Mini (aspetta che la history venga aggiornata)
