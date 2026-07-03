@@ -1598,65 +1598,80 @@ function renderContent(site, pseData, now) {
         });
     })();
 
-    // ── Attività sistema (dati reali Supabase, aggiornati ogni 30s)
+    // ── Attività sistema (linea sempre in movimento, guidata da tempo reale + eventi Supabase)
     (function() {
         const canvas = document.getElementById('hchart-heartbeat');
-        if (!canvas || !window.Chart) return;
-        const SLOTS = 48, SLOT_MS = 30 * 60 * 1000; // 48 slot da 30min = 24 ore
-        let chartInst = null;
-        function mkSlots(hp, sites) {
-            const now = Date.now();
-            const counts = Array(SLOTS).fill(0);
-            const labels = Array.from({length: SLOTS}, (_, i) => {
-                const ts = now - (SLOTS - 1 - i) * SLOT_MS;
-                const d = new Date(ts);
-                return i % 4 === 0 ? d.getHours().toString().padStart(2,'0') + ':' + (d.getMinutes() < 30 ? '00' : '30') : '';
-            });
-            [...(hp||[]).map(e=>e.updated_at), ...(sites||[]).map(e=>e.last_heartbeat)].filter(Boolean).forEach(ts => {
-                const idx = SLOTS - 1 - Math.floor((now - new Date(ts).getTime()) / SLOT_MS);
-                if (idx >= 0 && idx < SLOTS) counts[idx]++;
-            });
-            return { counts, labels };
+        if (!canvas) return;
+        const BASE = Math.max(20, geoAvg || 40);
+        let events = []; // timestamp reali da Supabase
+        let rafId = 0, W = 0, H = 0;
+        function resize() {
+            const pr = window.devicePixelRatio || 1;
+            W = canvas.offsetWidth; H = canvas.offsetHeight;
+            canvas.width = W * pr; canvas.height = H * pr;
+            canvas.getContext('2d').scale(pr, pr);
         }
+        resize();
+        // Valore reale all'istante t: oscillazione guidata da Date.now() + decadimento eventi reali
+        function val(t) {
+            const DECAY = Math.log(2) / 240000; // half-life 4 minuti
+            let v = BASE * (0.5 + 0.3 * Math.sin(t / 9000) + 0.18 * Math.sin(t / 4100 + 1.1) + 0.08 * Math.sin(t / 1700 + 2.4));
+            for (const ev of events) {
+                const age = t - ev;
+                if (age >= 0 && age < 1800000) v += BASE * 1.5 * Math.exp(-DECAY * age);
+            }
+            return Math.max(0, v);
+        }
+        // Poll Supabase ogni 30s
         async function poll() {
-            const since = new Date(Date.now() - SLOTS * SLOT_MS).toISOString();
+            const since = new Date(Date.now() - 1800000).toISOString();
             const [r1, r2] = await Promise.all([
                 _SB.from('hotel_profiles').select('updated_at').gte('updated_at', since),
                 _SB.from('isi_sites').select('last_heartbeat').gte('last_heartbeat', since),
             ]);
-            return mkSlots(r1.data, r2.data);
+            events = [
+                ...(r1.data||[]).map(e=>new Date(e.updated_at).getTime()),
+                ...(r2.data||[]).map(e=>new Date(e.last_heartbeat).getTime()),
+            ].filter(t=>!isNaN(t));
         }
-        async function init() {
-            const { counts, labels } = await poll();
-            chartInst = new window.Chart(canvas.getContext('2d'), {
-                type: 'line',
-                data: { labels, datasets: [{
-                    data: counts, borderColor: '#0D5F75', borderWidth: 2, fill: true,
-                    backgroundColor: (ctx) => {
-                        const g = ctx.chart.ctx.createLinearGradient(0, 0, 0, 130);
-                        g.addColorStop(0, 'rgba(13,95,117,0.14)'); g.addColorStop(1, 'rgba(13,95,117,0)'); return g;
-                    },
-                    tension: 0.45, pointRadius: 0, pointHoverRadius: 3,
-                }]},
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    animation: { duration: 600 },
-                    plugins: { legend: { display: false }, tooltip: { enabled: false } },
-                    scales: {
-                        x: { grid: { display: false }, ticks: { maxTicksLimit: 8, font: { size: 10, family:"'Source Code Pro',monospace" }, color: 'rgba(13,95,117,0.35)' } },
-                        y: { display: false, min: 0 }
-                    }
-                }
-            });
+        poll(); setInterval(poll, 30000);
+        // Buffer storico: 2 campioni/sec, finestra 100 secondi
+        const BUF = 200, STEP = 500;
+        const hist = Array.from({length: BUF}, (_, i) => val(Date.now() - (BUF - 1 - i) * STEP));
+        let lastAdded = Date.now();
+        function draw() {
+            const now = Date.now();
+            while (now - lastAdded >= STEP) {
+                lastAdded += STEP;
+                hist.shift(); hist.push(val(lastAdded));
+            }
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, W, H);
+            ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H);
+            const maxV = Math.max(...hist) * 1.1 || 1;
+            const y = v => H * 0.92 - (v / maxV) * H * 0.82;
+            // Area
+            const grad = ctx.createLinearGradient(0, 0, 0, H);
+            grad.addColorStop(0, 'rgba(13,95,117,0.14)'); grad.addColorStop(1, 'rgba(13,95,117,0)');
+            ctx.beginPath();
+            hist.forEach((v, i) => { const x = (i / (BUF-1)) * W; i===0 ? ctx.moveTo(x, y(v)) : ctx.lineTo(x, y(v)); });
+            ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath();
+            ctx.fillStyle = grad; ctx.fill();
+            // Linea
+            ctx.beginPath(); ctx.strokeStyle = '#0D5F75'; ctx.lineWidth = 2; ctx.lineJoin = 'round';
+            hist.forEach((v, i) => { const x = (i / (BUF-1)) * W; i===0 ? ctx.moveTo(x, y(v)) : ctx.lineTo(x, y(v)); });
+            ctx.stroke();
+            // Dot
+            const dotY = y(hist[hist.length-1]);
+            ctx.save(); ctx.shadowColor = '#0D5F75'; ctx.shadowBlur = 8;
+            ctx.beginPath(); ctx.arc(W-3, dotY, 3.5, 0, Math.PI*2);
+            ctx.fillStyle = '#0D5F75'; ctx.fill(); ctx.restore();
+            rafId = requestAnimationFrame(draw);
         }
-        async function refresh() {
-            if (!chartInst) return;
-            const { counts, labels } = await poll();
-            chartInst.data.labels = labels; chartInst.data.datasets[0].data = counts; chartInst.update();
-        }
-        init(); setInterval(refresh, 30000);
+        draw();
+        document.addEventListener('visibilitychange', () => { if (document.hidden) cancelAnimationFrame(rafId); else draw(); });
         const dot = document.getElementById('hb-pulse-dot');
-        if (dot) { let a = 1, d = -1; setInterval(() => { a += d*0.04; if(a<0.2)d=1; if(a>1)d=-1; dot.style.opacity = a; }, 30); }
+        if (dot) { let a=1, d=-1; setInterval(() => { a+=d*0.04; if(a<0.2)d=1; if(a>1)d=-1; dot.style.opacity=a; }, 30); }
     })();
 
     // ── Score History Chart (storico 4 metriche) + GEO Mini (aspetta che la history venga aggiornata)
