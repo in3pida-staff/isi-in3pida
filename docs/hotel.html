@@ -1634,10 +1634,22 @@ function renderContent(site, pseData, now) {
         poll(); setInterval(poll, 30000);
         // Buffer storico: 2 campioni/sec, finestra 100 secondi
         const BUF = 200, STEP = 500;
-        // Allinea a griglia fissa: identico su qualsiasi tab/dispositivo nello stesso momento
-        const gridNow = Math.floor(Date.now() / STEP) * STEP;
-        const hist = Array.from({length: BUF}, (_, i) => val(gridNow - (BUF - 1 - i) * STEP));
-        let lastAdded = gridNow;
+        const LS_KEY = 'hb_' + site.site_id;
+        // Carica buffer da localStorage se esiste ed è fresco (< 3s)
+        let hist, lastAdded;
+        try {
+            const saved = JSON.parse(localStorage.getItem(LS_KEY) || 'null');
+            if (saved && saved.ts && Date.now() - saved.ts < 3000 && Array.isArray(saved.h) && saved.h.length === BUF) {
+                hist = saved.h; lastAdded = saved.ts;
+                // Colma il gap dal salvataggio ad ora
+                while (Date.now() - lastAdded >= STEP) { lastAdded += STEP; hist.shift(); hist.push(val(lastAdded)); }
+            }
+        } catch(_) {}
+        if (!hist) {
+            const gridNow = Math.floor(Date.now() / STEP) * STEP;
+            hist = Array.from({length: BUF}, (_, i) => val(gridNow - (BUF - 1 - i) * STEP));
+            lastAdded = gridNow;
+        }
         function draw() {
             // Aggiorna dimensioni se canvas non ancora layoutato al primo frame
             if (canvas.offsetWidth !== W || canvas.offsetHeight !== H) resize();
@@ -1646,6 +1658,8 @@ function renderContent(site, pseData, now) {
                 lastAdded += STEP;
                 hist.shift(); hist.push(val(lastAdded));
             }
+            // Salva buffer in localStorage ogni tick
+            try { localStorage.setItem(LS_KEY, JSON.stringify({ ts: lastAdded, h: hist })); } catch(_) {}
             const ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, W, H);
             ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H);
