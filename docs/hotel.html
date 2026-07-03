@@ -2494,9 +2494,10 @@ async function _detectRatings(silent = false) {
     };
     let found = 0;
     const portaliAggiornati = [];
-    if (ta?.rating || ta?.n_recensioni) { if (ta.rating) { fill('tripadvisor_rating', ta.rating); found++; } if (ta.n_recensioni) { fill('tripadvisor_n_recensioni', ta.n_recensioni); found++; } portaliAggiornati.push('TripAdvisor'); }
-    if (goog?.rating || goog?.n_recensioni) { if (goog.rating) { fill('google_rating', goog.rating); found++; } if (goog.n_recensioni) { fill('google_n_recensioni', goog.n_recensioni); found++; } portaliAggiornati.push('Google'); }
-    if (bk?.rating || bk?.n_recensioni) { if (bk.rating) { fill('booking_rating', bk.rating); found++; } if (bk.n_recensioni) { fill('booking_n_recensioni', bk.n_recensioni); found++; } portaliAggiornati.push('Booking'); }
+    const clearNrec = (id) => { const el = document.getElementById('hsf-' + id); if (el) el.value = ''; };
+    if (ta?.rating || ta?.n_recensioni) { if (ta.rating) { fill('tripadvisor_rating', ta.rating); found++; } if (ta.n_recensioni) { fill('tripadvisor_n_recensioni', ta.n_recensioni); found++; } else if (!ta.blocked) clearNrec('tripadvisor_n_recensioni'); portaliAggiornati.push('TripAdvisor'); }
+    if (goog?.rating || goog?.n_recensioni) { if (goog.rating) { fill('google_rating', goog.rating); found++; } if (goog.n_recensioni) { fill('google_n_recensioni', goog.n_recensioni); found++; } else if (!goog.blocked) clearNrec('google_n_recensioni'); portaliAggiornati.push('Google'); }
+    if (bk?.rating || bk?.n_recensioni) { if (bk.rating) { fill('booking_rating', bk.rating); found++; } if (bk.n_recensioni) { fill('booking_n_recensioni', bk.n_recensioni); found++; } else if (!bk.blocked) clearNrec('booking_n_recensioni'); portaliAggiornati.push('Booking'); }
     if (!silent) { btn.disabled = false; btn.textContent = 'Rileva automaticamente'; }
     if (found > 0) s('Aggiornati: ' + portaliAggiornati.join(', ') + ' — salva per confermare', '#0D5F75');
     else {

@@ -153,6 +153,53 @@ async function findRatingFromHotelSite(hotelUrl: string, source: string): Promis
   return null
 }
 
+// Yahoo search via Jina — funziona per TripAdvisor dove DataDome blocca l'accesso diretto
+async function searchYahooForRating(
+  hotelName: string,
+  hotelCity: string,
+  source: 'tripadvisor' | 'google'
+): Promise<{ rating: string | null; n_recensioni: string | null } | null> {
+  try {
+    const q = source === 'tripadvisor'
+      ? `"${hotelName}" ${hotelCity} tripadvisor recensioni`
+      : `"${hotelName}" ${hotelCity} google recensioni stelle`
+    const yahooUrl = `https://it.search.yahoo.com/search?p=${encodeURIComponent(q)}`
+    const text = await fetchJina(yahooUrl)
+    if (!text || text.length < 200) return null
+
+    let rating: string | null = null
+    let nRec: string | null = null
+
+    if (source === 'tripadvisor') {
+      // Rating: "4 di 5" o "4 of 5"
+      const rm = text.match(/\b([1-5](?:[,.]\d)?)\s*(?:di|of)\s*5/)
+      if (rm) rating = rm[1].replace(',', '.')
+
+      // Conteggio: "9 viaggiatori" / "9 traveler reviews" / "9 traveller reviews"
+      const counts: number[] = []
+      const re = /\b(\d+)\s*(?:viaggiatori|travell(?:er|ers)?\s+reviews?|recensioni imparziali)/gi
+      let m
+      while ((m = re.exec(text)) !== null) {
+        const n = parseInt(m[1], 10)
+        if (n > 0 && n < 500000) counts.push(n)
+      }
+      if (counts.length > 0) nRec = String(Math.max(...counts))
+    }
+
+    if (source === 'google') {
+      // Google rating nei risultati Yahoo (es. "4.3 stelle" o "4.3 (N recensioni)")
+      const rm = text.match(/\b([1-5][,.]\d)\s*(?:stelle|stars|★|\()/)
+      if (rm) rating = rm[1].replace(',', '.')
+      // Conteggio Google raramente appare nelle snippet Yahoo, ma proviamo
+      const mn = text.match(/\b(\d+)\s+recensioni\s+(?:google|su google)/i)
+      if (mn) nRec = mn[1]
+    }
+
+    if (rating || nRec) return { rating, n_recensioni: nRec }
+    return null
+  } catch { return null }
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
 
@@ -176,35 +223,56 @@ Deno.serve(async (req) => {
       }
     } catch (_) { /* usa URL originale */ }
 
+    const ok = (data: object) =>
+      new Response(JSON.stringify({ ok: true, ...data }), { headers: { ...cors, 'Content-Type': 'application/json' } })
+
     if (source === 'booking') {
       const r = await findRating(url, 'booking')
-      if (r) return new Response(JSON.stringify({ ok: true, ...r }), { headers: { ...cors, 'Content-Type': 'application/json' } })
+      if (r) return ok(r)
       if (hotelSiteUrl) {
         const rSite = await findRatingFromHotelSite(hotelSiteUrl, 'booking')
-        if (rSite?.rating) return new Response(JSON.stringify({ ok: true, ...rSite }), { headers: { ...cors, 'Content-Type': 'application/json' } })
+        if (rSite?.rating) return ok(rSite)
       }
-      return new Response(JSON.stringify({ ok: true, rating: null, n_recensioni: null, blocked: true }), { headers: { ...cors, 'Content-Type': 'application/json' } })
+      return ok({ rating: null, n_recensioni: null, blocked: true })
     }
 
     if (source === 'google') {
       const r = await findRating(url, 'google')
-      if (r) return new Response(JSON.stringify({ ok: true, ...r }), { headers: { ...cors, 'Content-Type': 'application/json' } })
+      // Se abbiamo rating ma non n_recensioni, prova Yahoo per il conteggio
+      if (r && !r.n_recensioni && hotelName) {
+        const yahoo = await searchYahooForRating(hotelName, hotelCity, 'google')
+        if (yahoo?.n_recensioni) return ok({ rating: r.rating, n_recensioni: yahoo.n_recensioni })
+      }
+      if (r) return ok(r)
+      // Fallback: ricerca Google Maps per nome
       if (hotelName) {
         const query = encodeURIComponent(hotelName + (hotelCity ? ' ' + hotelCity : ''))
         const maps = await findRating('https://www.google.com/maps/search/' + query, 'google')
-        if (maps) return new Response(JSON.stringify({ ok: true, ...maps }), { headers: { ...cors, 'Content-Type': 'application/json' } })
+        if (maps) return ok(maps)
       }
-      return new Response(JSON.stringify({ ok: true, rating: null, n_recensioni: null, blocked: true }), { headers: { ...cors, 'Content-Type': 'application/json' } })
+      return ok({ rating: null, n_recensioni: null, blocked: true })
     }
 
     if (source === 'tripadvisor') {
       const r = await findRating(url, 'tripadvisor')
-      if (r) return new Response(JSON.stringify({ ok: true, ...r }), { headers: { ...cors, 'Content-Type': 'application/json' } })
+      // Se abbiamo tutto, restituiamo subito
+      if (r?.rating && r?.n_recensioni) return ok(r)
+      // Prova Yahoo per ottenere rating e/o n_recensioni mancanti
+      if (hotelName) {
+        const yahoo = await searchYahooForRating(hotelName, hotelCity, 'tripadvisor')
+        if (yahoo) {
+          return ok({
+            rating: r?.rating || yahoo.rating,
+            n_recensioni: r?.n_recensioni || yahoo.n_recensioni,
+          })
+        }
+      }
+      // Fallback sito hotel
       if (hotelSiteUrl) {
         const rSite = await findRatingFromHotelSite(hotelSiteUrl, 'tripadvisor')
-        if (rSite?.rating) return new Response(JSON.stringify({ ok: true, ...rSite }), { headers: { ...cors, 'Content-Type': 'application/json' } })
+        if (rSite?.rating) return ok(rSite)
       }
-      return new Response(JSON.stringify({ ok: true, rating: null, n_recensioni: null, blocked: true }), { headers: { ...cors, 'Content-Type': 'application/json' } })
+      return ok({ rating: r?.rating || null, n_recensioni: null, blocked: true })
     }
 
     return new Response(JSON.stringify({ error: 'unknown_source' }), { headers: cors })
