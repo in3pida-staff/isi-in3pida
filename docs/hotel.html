@@ -3861,23 +3861,34 @@ function _renderLlmBars(items, elId) {
         : [{ key: 'groq', label: 'Intelligenze Artificiali', legacyFallback: true }];
 
     function engineStats(eng) {
-        const total = items.length;
-        let cited = 0, probSum = 0, probCount = 0;
+        let cited = 0, total = 0, probSum = 0, probCount = 0;
         items.forEach(r => {
             const llm = r.result?.llm_results;
             const d = llm?.[eng.key];
             if (d) {
+                // Riga nel formato nuovo, con dato specifico per questo motore
+                total++;
                 if (d.cited) cited++;
                 if (d.probability != null) { probSum += d.probability; probCount++; }
-            } else if (eng.legacyFallback) {
-                if (!!(r.result?.cited||r.result?.found||r.result?.match_found)) cited++;
-                const p = r.result?.probability;
-                if (p != null) { probSum += p; probCount++; }
+            } else {
+                // Riga nel formato vecchio (motore unico "groq" / dato top-level):
+                // vale per tutti i motori, così le citazioni storiche non vengono perse.
+                const legacy = llm?.groq;
+                if (legacy) {
+                    total++;
+                    if (legacy.cited) cited++;
+                    if (legacy.probability != null) { probSum += legacy.probability; probCount++; }
+                } else if (r.result?.cited != null || r.result?.found != null || r.result?.match_found != null || r.result?.probability != null) {
+                    total++;
+                    if (!!(r.result?.cited||r.result?.found||r.result?.match_found)) cited++;
+                    const p = r.result?.probability;
+                    if (p != null) { probSum += p; probCount++; }
+                }
             }
         });
         return {
             label: eng.label,
-            citedPct: Math.round(cited / total * 100),
+            citedPct: total > 0 ? Math.round(cited / total * 100) : 0,
             cited,
             avgProb: probCount > 0 ? Math.round(probSum / probCount) : null
         };
