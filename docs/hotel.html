@@ -1611,9 +1611,10 @@ function renderContent(site, pseData, now) {
         function val(t) {
             if (!hbAlive) return BASE * 0.04 * (1 + 0.3 * Math.sin(t / 120000));
             return Math.max(0, BASE * (0.5
-                + 0.38 * Math.sin(t / 900000)
-                + 0.25 * Math.sin(t / 300000 + 1.1)
-                + 0.15 * Math.sin(t / 90000  + 2.4)
+                + 0.38 * Math.sin(t / 180000)          // 3 minuti — curva principale
+                + 0.25 * Math.sin(t / 420000 + 1.1)    // 7 minuti
+                + 0.15 * Math.sin(t / 900000 + 2.4)    // 15 minuti
+                + 0.06 * Math.sin(t / 40000  + 0.8)    // 40 secondi — micro oscillazioni
             ));
         }
         // Poll Supabase ogni 30s — eventi reali aggiungono spike diretti al buffer
