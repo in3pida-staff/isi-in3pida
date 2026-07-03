@@ -1613,10 +1613,9 @@ function renderContent(site, pseData, now) {
             if (!hbAlive) return BASE * 0.04 * (1 + 0.3 * Math.sin(t / 120000));
             const DECAY = Math.log(2) / 240000;
             let v = BASE * (0.5
-                + 0.35 * Math.sin(t / 900000)          // onda da 15 minuti
-                + 0.22 * Math.sin(t / 300000 + 1.1)    // onda da 5 minuti
-                + 0.13 * Math.sin(t / 60000  + 2.4)    // onda da 1 minuto
-                + 0.07 * Math.sin(t / 18000  + 0.7)    // onda da 18 secondi
+                + 0.38 * Math.sin(t / 900000)          // onda da 15 minuti
+                + 0.25 * Math.sin(t / 300000 + 1.1)    // onda da 5 minuti
+                + 0.15 * Math.sin(t / 90000  + 2.4)    // onda da 90 secondi
             );
             for (const ev of events) {
                 const age = t - ev;
@@ -1645,9 +1644,9 @@ function renderContent(site, pseData, now) {
         try {
             const saved = JSON.parse(localStorage.getItem(LS_KEY) || 'null');
             if (saved && saved.ts && Date.now() - saved.ts < 15000 && Array.isArray(saved.h) && saved.h.length === BUF) {
-                hist = saved.h;
-                // Aggiorna lastAdded senza aggiungere punti — evita il V da gap-fill
-                lastAdded = Math.floor(Date.now() / STEP) * STEP;
+                hist = saved.h; lastAdded = saved.ts;
+                // Colma il gap: con onde lente (90s+) non ci sono salti visibili
+                while (Date.now() - lastAdded >= STEP) { lastAdded += STEP; hist.shift(); hist.push(val(lastAdded)); }
             }
         } catch(_) {}
         if (!hist) {
