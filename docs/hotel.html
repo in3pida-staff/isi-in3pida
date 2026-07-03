@@ -4184,7 +4184,7 @@ async function initScoreHistoryChart(site, geoAvg, cs, covPct) {
             ai_readiness: geoSub.ai_readiness ?? null, answer_extraction: geoSub.answer_extraction ?? null,
             quality_safety: geoSub.quality_safety ?? null, ai_visibility: geoSub.ai_visibility ?? null });
         // Usa freshFaqData come base per non sovrascrivere dati aggiornati dal plugin
-        _SBq.from('isi_sites').update({ faq_data: { ...freshFaqData, score_history: history } }).eq('site_id', site.site_id).then(() => {});
+        _SB.from('isi_sites').update({ faq_data: { ...freshFaqData, score_history: history } }).eq('site_id', site.site_id).then(() => {});
     }
 
     history.sort((a, b) => a.date.localeCompare(b.date));
