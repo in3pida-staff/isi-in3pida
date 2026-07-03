@@ -1645,9 +1645,9 @@ function renderContent(site, pseData, now) {
         try {
             const saved = JSON.parse(localStorage.getItem(LS_KEY) || 'null');
             if (saved && saved.ts && Date.now() - saved.ts < 15000 && Array.isArray(saved.h) && saved.h.length === BUF) {
-                hist = saved.h; lastAdded = saved.ts;
-                // Colma il gap dal salvataggio ad ora
-                while (Date.now() - lastAdded >= STEP) { lastAdded += STEP; hist.shift(); hist.push(val(lastAdded)); }
+                hist = saved.h;
+                // Aggiorna lastAdded senza aggiungere punti — evita il V da gap-fill
+                lastAdded = Math.floor(Date.now() / STEP) * STEP;
             }
         } catch(_) {}
         if (!hist) {
