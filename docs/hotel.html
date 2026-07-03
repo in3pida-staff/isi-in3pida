@@ -1633,7 +1633,7 @@ function renderContent(site, pseData, now) {
         poll(); setInterval(poll, 30000);
         // Buffer: 2 campioni/sec, 100 secondi di finestra
         const BUF = 200, STEP = 500;
-        const LS_KEY = 'hb_' + site.site_id;
+        const LS_KEY = 'hb2_' + site.site_id;
         let hist, lastAdded;
         // Carica da localStorage se fresco (< 15s) — buffer già calcolato senza eventi → gap-fill sempre liscio
         try {
