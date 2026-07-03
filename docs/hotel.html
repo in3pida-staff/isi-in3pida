@@ -1599,7 +1599,6 @@ function renderContent(site, pseData, now) {
         const BASE = Math.max(20, geoAvg || 40);
         const hbAge = site.last_heartbeat ? (Date.now() - new Date(site.last_heartbeat).getTime()) : Infinity;
         const hbAlive = hbAge < 7200000; // vivo se heartbeat < 2 ore fa
-        let events = []; // timestamp reali da Supabase
         let rafId = 0, W = 0, H = 0;
         function resize() {
             const pr = window.devicePixelRatio || 1;
@@ -1608,44 +1607,39 @@ function renderContent(site, pseData, now) {
             canvas.getContext('2d').scale(pr, pr);
         }
         resize();
-        // Valore reale all'istante t: onde lente (minuti/ore) — non si ripetono nel buffer da 100s
+        // val(t) = SOLO onde deterministiche, ZERO eventi — identico al reload
         function val(t) {
             if (!hbAlive) return BASE * 0.04 * (1 + 0.3 * Math.sin(t / 120000));
-            const DECAY = Math.log(2) / 240000;
-            let v = BASE * (0.5
-                + 0.38 * Math.sin(t / 900000)          // onda da 15 minuti
-                + 0.25 * Math.sin(t / 300000 + 1.1)    // onda da 5 minuti
-                + 0.15 * Math.sin(t / 90000  + 2.4)    // onda da 90 secondi
-            );
-            for (const ev of events) {
-                const age = t - ev;
-                if (age >= 0 && age < 1800000) v += BASE * 1.5 * Math.exp(-DECAY * age);
-            }
-            return Math.max(0, v);
+            return Math.max(0, BASE * (0.5
+                + 0.38 * Math.sin(t / 900000)
+                + 0.25 * Math.sin(t / 300000 + 1.1)
+                + 0.15 * Math.sin(t / 90000  + 2.4)
+            ));
         }
-        // Poll Supabase ogni 30s
+        // Poll Supabase ogni 30s — eventi reali aggiungono spike diretti al buffer
         async function poll() {
-            const since = new Date(Date.now() - 1800000).toISOString();
+            const since = new Date(Date.now() - 35000).toISOString();
             const [r1, r2] = await Promise.all([
-                _SB.from('hotel_profiles').select('updated_at').gte('updated_at', since),
-                _SB.from('isi_sites').select('last_heartbeat').gte('last_heartbeat', since),
+                _SB.from('hotel_profiles').select('updated_at', {count:'exact',head:true}).gte('updated_at', since),
+                _SB.from('isi_sites').select('last_heartbeat', {count:'exact',head:true}).gte('last_heartbeat', since),
             ]);
-            events = [
-                ...(r1.data||[]).map(e=>new Date(e.updated_at).getTime()),
-                ...(r2.data||[]).map(e=>new Date(e.last_heartbeat).getTime()),
-            ].filter(t=>!isNaN(t));
+            const n = (r1.count || 0) + (r2.count || 0);
+            if (n > 0 && hist) {
+                const spike = BASE * n * 0.9;
+                for (let i = 0; i < Math.min(8, hist.length); i++)
+                    hist[hist.length - 1 - i] = Math.min(BASE * 3.5, hist[hist.length - 1 - i] + spike * (1 - i / 8));
+            }
         }
         poll(); setInterval(poll, 30000);
-        // Buffer storico: 2 campioni/sec, finestra 100 secondi
+        // Buffer: 2 campioni/sec, 100 secondi di finestra
         const BUF = 200, STEP = 500;
         const LS_KEY = 'hb_' + site.site_id;
-        // Carica buffer da localStorage se esiste ed è fresco (< 3s)
         let hist, lastAdded;
+        // Carica da localStorage se fresco (< 15s) — buffer già calcolato senza eventi → gap-fill sempre liscio
         try {
             const saved = JSON.parse(localStorage.getItem(LS_KEY) || 'null');
             if (saved && saved.ts && Date.now() - saved.ts < 15000 && Array.isArray(saved.h) && saved.h.length === BUF) {
                 hist = saved.h; lastAdded = saved.ts;
-                // Colma il gap: con onde lente (90s+) non ci sono salti visibili
                 while (Date.now() - lastAdded >= STEP) { lastAdded += STEP; hist.shift(); hist.push(val(lastAdded)); }
             }
         } catch(_) {}
