@@ -1637,9 +1637,9 @@ function renderContent(site, pseData, now) {
             try { localStorage.setItem(LS_KEY, JSON.stringify({ ts: lastAdded, h: hist })); } catch(_) {}
             const ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, W, H); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H);
-            // Scala min-max automatica: le onde riempiono sempre tutto il grafico
+            // Scala min-max con padding generoso: le onde occupano ~50% dell'altezza, picchi meno drammatici
             const minV = Math.min(...hist), maxV = Math.max(...hist);
-            const pad = Math.max((maxV - minV) * 0.15, BASE * 0.05);
+            const pad = (maxV - minV) * 0.6;
             const lo = minV - pad, hi = maxV + pad, rng = hi - lo || 1;
             const y = v => H * 0.92 - ((v - lo) / rng) * H * 0.82;
             // Righe tratteggiate
