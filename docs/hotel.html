@@ -829,6 +829,24 @@ function renderContent(site, pseData, now) {
                   </div>
               </div>
 
+              <!-- Heartbeat sistema -->
+              <div class="h-card" style="max-width:92%;margin-bottom:12px">
+                  <div class="h-card-hdr" style="padding:14px 20px">
+                      <div style="display:flex;align-items:center;gap:10px">
+                          <span class="h-card-hdr-t" style="font-size:19px;font-weight:300">Sistema attivo</span>
+                          <span style="display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;color:#0D5F75;letter-spacing:.08em"><span id="hb-pulse-dot" style="width:7px;height:7px;border-radius:50%;background:#0D5F75;display:inline-block"></span>LIVE</span>
+                      </div>
+                      <div style="display:flex;gap:24px">
+                          <div style="text-align:right"><div style="font-size:10px;color:#aaa;letter-spacing:.05em;text-transform:uppercase">GEO SCORE</div><div style="font-size:16px;font-weight:700;color:#0D5F75">${geoAvg !== null ? geoAvg : '—'}</div></div>
+                          <div style="text-align:right"><div style="font-size:10px;color:#aaa;letter-spacing:.05em;text-transform:uppercase">Completezza</div><div style="font-size:16px;font-weight:700;color:#0D5F75">${cs !== null ? cs+'%' : '—'}</div></div>
+                          <div style="text-align:right"><div style="font-size:10px;color:#aaa;letter-spacing:.05em;text-transform:uppercase">FAQ</div><div style="font-size:16px;font-weight:700;color:#0D5F75">${covPct !== null ? covPct+'%' : '—'}</div></div>
+                      </div>
+                  </div>
+                  <div style="height:260px;position:relative;overflow:hidden;border-top:1px solid #f0f0f5">
+                      <canvas id="hchart-heartbeat" style="position:absolute;top:0;left:0;width:100%;height:100%"></canvas>
+                  </div>
+              </div>
+
               <!-- Section heading Panoramica -->
               <div class="h-sec-hdr">
                   <div class="h-sec-icon">
@@ -1577,6 +1595,61 @@ function renderContent(site, pseData, now) {
                 statsChart.update();
             });
         });
+    })();
+
+    // ── Heartbeat (ECG continuo)
+    (function() {
+        const canvas = document.getElementById('hchart-heartbeat');
+        if (!canvas) return;
+        const intensity = Math.max(0.25, Math.min(1, (geoAvg !== null ? geoAvg : 40) / 100));
+        let W = 0, H = 0, rafId = 0, offset = 0;
+        function setSize() {
+            const pr = window.devicePixelRatio || 1;
+            W = canvas.offsetWidth; H = canvas.offsetHeight;
+            canvas.width = W * pr; canvas.height = H * pr;
+            canvas.getContext('2d').scale(pr, pr);
+        }
+        setSize();
+        function ecg(p) {
+            if (p < 0.08)  return Math.sin(p / 0.08 * Math.PI) * 0.12;
+            if (p < 0.12)  return -Math.sin((p - 0.08) / 0.04 * Math.PI) * 0.08;
+            if (p < 0.17)  return  Math.sin((p - 0.12) / 0.05 * Math.PI);
+            if (p < 0.22)  return -Math.sin((p - 0.17) / 0.05 * Math.PI) * 0.18;
+            if (p < 0.38)  return  Math.sin((p - 0.22) / 0.16 * Math.PI) * 0.20;
+            return 0;
+        }
+        const PERIOD = 200, SPEED = 1.4;
+        let dotAlpha = 1, dotDir = -1;
+        function frame() {
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, W, H);
+            ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H);
+            ctx.strokeStyle = 'rgba(13,95,117,0.05)'; ctx.lineWidth = 1;
+            for (let i = 1; i < 4; i++) { ctx.beginPath(); ctx.moveTo(0, H*i/4); ctx.lineTo(W, H*i/4); ctx.stroke(); }
+            const xStep = 60;
+            for (let x = W - (offset % xStep); x > 0; x -= xStep) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
+            const mid = H / 2, amp = H * 0.4 * intensity;
+            function drawLine(lw, color, blur) {
+                ctx.save(); if (blur) { ctx.shadowColor = 'rgba(13,95,117,0.4)'; ctx.shadowBlur = blur; }
+                ctx.beginPath(); ctx.strokeStyle = color; ctx.lineWidth = lw;
+                ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+                for (let x = 0; x <= W; x++) { const y = mid - ecg(((x + offset) / PERIOD) % 1) * amp; x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y); }
+                ctx.stroke(); ctx.restore();
+            }
+            drawLine(8, 'rgba(13,95,117,0.12)', 12);
+            drawLine(2, '#0D5F75', 0);
+            dotAlpha += dotDir * 0.03; if (dotAlpha < 0.2) dotDir = 1; if (dotAlpha > 1) dotDir = -1;
+            const dotY = mid - ecg(((W + offset) / PERIOD) % 1) * amp;
+            ctx.save(); ctx.shadowColor = '#0D5F75'; ctx.shadowBlur = 14;
+            ctx.beginPath(); ctx.arc(W - 6, dotY, 4, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(13,95,117,' + dotAlpha + ')'; ctx.fill(); ctx.restore();
+            offset += SPEED;
+            rafId = requestAnimationFrame(frame);
+        }
+        frame();
+        const dot = document.getElementById('hb-pulse-dot');
+        if (dot) { let a = 1, d = -1; setInterval(() => { a += d*0.04; if(a<0.2)d=1; if(a>1)d=-1; dot.style.opacity = a; }, 30); }
+        document.addEventListener('visibilitychange', () => { if (document.hidden) cancelAnimationFrame(rafId); else frame(); });
     })();
 
     // ── Score History Chart (storico 4 metriche) + GEO Mini (aspetta che la history venga aggiornata)
