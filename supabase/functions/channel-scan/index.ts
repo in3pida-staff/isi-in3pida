@@ -58,6 +58,13 @@ Deno.serve(async (req) => {
     let fetchUrl = url
     try {
       const u = new URL(url)
+      // Blocca URL Google Travel (ricerca generica, non profilo Business)
+      if (u.hostname === 'www.google.com' && u.pathname.startsWith('/travel/')) {
+        return new Response(JSON.stringify({
+          error: 'wrong_url',
+          message: 'Il link Google inserito è una ricerca generica, non il profilo Business dell\'hotel. Cerca l\'hotel su Google Maps e copia il link dalla barra degli indirizzi.',
+        }), { headers: cors })
+      }
       if (/booking\.com|tripadvisor\./i.test(u.hostname)) {
         u.search = ''
         fetchUrl = u.toString()
