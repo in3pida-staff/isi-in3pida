@@ -408,10 +408,11 @@ async function _publishFaqPage(btn) {
     }
     btn.disabled = true; btn.textContent = '⏳ Creazione...';
     try {
+        const faqPath = (document.getElementById('faq-setting-page-url')?.value || '').trim();
         const r = await fetch(_pluginBase + '/wp-json/in3pida/v1/create-faq-page', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ secret: _pluginSecret }),
+            body: JSON.stringify({ secret: _pluginSecret, page_path: faqPath }),
             signal: AbortSignal.timeout(15000)
         });
         const d = await r.json();
