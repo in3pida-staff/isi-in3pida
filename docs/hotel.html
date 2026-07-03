@@ -1639,7 +1639,7 @@ function renderContent(site, pseData, now) {
             ctx.clearRect(0, 0, W, H); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H);
             // L'onda occupa sempre il 30% dell'altezza del grafico — picchi gentili
             const minV = Math.min(...hist), maxV = Math.max(...hist);
-            const mid = (maxV + minV) / 2, halfRange = ((maxV - minV) || 1) / 0.30 / 2;
+            const mid = (maxV + minV) / 2, halfRange = ((maxV - minV) || 1) / 0.18 / 2;
             const lo = mid - halfRange, hi = mid + halfRange, rng = hi - lo;
             const y = v => H * 0.92 - ((v - lo) / rng) * H * 0.82;
             // Righe tratteggiate
