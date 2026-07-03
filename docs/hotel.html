@@ -1592,13 +1592,12 @@ function renderContent(site, pseData, now) {
         });
     })();
 
-    // ── Attività sistema (linea sempre in movimento, guidata da tempo reale + eventi Supabase)
+    // ── Heartbeat live chart
     (function() {
         const canvas = document.getElementById('hchart-heartbeat');
         if (!canvas) return;
         const BASE = Math.max(20, geoAvg || 40);
-        const hbAge = site.last_heartbeat ? (Date.now() - new Date(site.last_heartbeat).getTime()) : Infinity;
-        const hbAlive = hbAge < 7200000; // vivo se heartbeat < 2 ore fa
+        const hbAlive = site.last_heartbeat && (Date.now() - new Date(site.last_heartbeat).getTime()) < 7200000;
         let rafId = 0, W = 0, H = 0;
         function resize() {
             const pr = window.devicePixelRatio || 1;
@@ -1607,41 +1606,22 @@ function renderContent(site, pseData, now) {
             canvas.getContext('2d').scale(pr, pr);
         }
         resize();
-        // val(t) = SOLO onde deterministiche, ZERO eventi — identico al reload
+        // val(t) — periodi corti = movimento chiaramente visibile ogni 500ms
         function val(t) {
-            if (!hbAlive) return BASE * 0.04 * (1 + 0.3 * Math.sin(t / 120000));
-            // Ampiezze sommate < 0.5 → valore sempre positivo, mai piatto a zero
-            return BASE * (0.5
-                + 0.18 * Math.sin(t / 180000)          // 3 minuti
-                + 0.12 * Math.sin(t / 420000 + 1.1)    // 7 minuti
-                + 0.08 * Math.sin(t / 900000 + 2.4)    // 15 minuti
-                + 0.04 * Math.sin(t / 40000  + 0.8)    // 40 secondi
-            );
+            const a = (t % 30000) / 30000 * Math.PI * 2;
+            const b = (t % 11000) / 11000 * Math.PI * 2 + 1.3;
+            const c = (t % 7000)  / 7000  * Math.PI * 2 + 2.7;
+            return BASE * (0.50 + 0.22 * Math.sin(a) + 0.12 * Math.sin(b) + 0.06 * Math.sin(c));
         }
-        // Poll Supabase ogni 30s — eventi reali aggiungono spike diretti al buffer
-        async function poll() {
-            const since = new Date(Date.now() - 35000).toISOString();
-            const [r1, r2] = await Promise.all([
-                _SB.from('hotel_profiles').select('updated_at', {count:'exact',head:true}).gte('updated_at', since),
-                _SB.from('isi_sites').select('last_heartbeat', {count:'exact',head:true}).gte('last_heartbeat', since),
-            ]);
-            const n = (r1.count || 0) + (r2.count || 0);
-            if (n > 0 && hist) {
-                const spike = BASE * n * 0.9;
-                for (let i = 0; i < Math.min(8, hist.length); i++)
-                    hist[hist.length - 1 - i] = Math.min(BASE * 3.5, hist[hist.length - 1 - i] + spike * (1 - i / 8));
-            }
-        }
-        poll(); setInterval(poll, 30000);
-        // Buffer: 2 campioni/sec, 100 secondi di finestra
         const BUF = 200, STEP = 500;
-        const LS_KEY = 'hb3_' + site.site_id;
+        // hb4_ → buffer fresco, nessuna traccia di spike vecchi
+        const LS_KEY = 'hb4_' + site.site_id;
         let hist, lastAdded;
-        // Carica da localStorage se fresco (< 15s) — buffer già calcolato senza eventi → gap-fill sempre liscio
         try {
             const saved = JSON.parse(localStorage.getItem(LS_KEY) || 'null');
-            if (saved && saved.ts && Date.now() - saved.ts < 15000 && Array.isArray(saved.h) && saved.h.length === BUF) {
+            if (saved && saved.ts && Date.now() - saved.ts < 12000 && Array.isArray(saved.h) && saved.h.length === BUF) {
                 hist = saved.h; lastAdded = saved.ts;
+                // Gap fill deterministico — val() dà gli stessi valori di prima → nessuna V
                 while (Date.now() - lastAdded >= STEP) { lastAdded += STEP; hist.shift(); hist.push(val(lastAdded)); }
             }
         } catch(_) {}
@@ -1651,21 +1631,18 @@ function renderContent(site, pseData, now) {
             lastAdded = gridNow;
         }
         function draw() {
-            // Aggiorna dimensioni se canvas non ancora layoutato al primo frame
             if (canvas.offsetWidth !== W || canvas.offsetHeight !== H) resize();
             const now = Date.now();
-            while (now - lastAdded >= STEP) {
-                lastAdded += STEP;
-                hist.shift(); hist.push(val(lastAdded));
-            }
-            // Salva buffer in localStorage ogni tick
+            while (now - lastAdded >= STEP) { lastAdded += STEP; hist.shift(); hist.push(val(lastAdded)); }
             try { localStorage.setItem(LS_KEY, JSON.stringify({ ts: lastAdded, h: hist })); } catch(_) {}
             const ctx = canvas.getContext('2d');
-            ctx.clearRect(0, 0, W, H);
-            ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H);
-            const maxV = Math.max(...hist) * 1.1 || 1;
-            const y = v => H * 0.92 - (v / maxV) * H * 0.82;
-            // Righe tratteggiate orizzontali
+            ctx.clearRect(0, 0, W, H); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H);
+            // Scala min-max automatica: le onde riempiono sempre tutto il grafico
+            const minV = Math.min(...hist), maxV = Math.max(...hist);
+            const pad = Math.max((maxV - minV) * 0.15, BASE * 0.05);
+            const lo = minV - pad, hi = maxV + pad, rng = hi - lo || 1;
+            const y = v => H * 0.92 - ((v - lo) / rng) * H * 0.82;
+            // Righe tratteggiate
             ctx.save(); ctx.setLineDash([4, 4]); ctx.strokeStyle = 'rgba(13,95,117,0.12)'; ctx.lineWidth = 1;
             [0.25, 0.5, 0.75].forEach(f => { const yy = H * 0.92 - f * H * 0.82; ctx.beginPath(); ctx.moveTo(0, yy); ctx.lineTo(W, yy); ctx.stroke(); });
             ctx.restore();
@@ -1674,32 +1651,19 @@ function renderContent(site, pseData, now) {
             grad.addColorStop(0, 'rgba(13,95,117,0.14)'); grad.addColorStop(1, 'rgba(13,95,117,0)');
             ctx.beginPath();
             hist.forEach((v, i) => { const x = (i / (BUF-1)) * W; i===0 ? ctx.moveTo(x, y(v)) : ctx.lineTo(x, y(v)); });
-            ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath();
-            ctx.fillStyle = grad; ctx.fill();
+            ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath(); ctx.fillStyle = grad; ctx.fill();
             // Linea
             ctx.beginPath(); ctx.strokeStyle = '#0D5F75'; ctx.lineWidth = 2; ctx.lineJoin = 'round';
             hist.forEach((v, i) => { const x = (i / (BUF-1)) * W; i===0 ? ctx.moveTo(x, y(v)) : ctx.lineTo(x, y(v)); });
             ctx.stroke();
-            // Dot
+            // Dot live
             const dotY = y(hist[hist.length-1]);
             ctx.save(); ctx.shadowColor = '#0D5F75'; ctx.shadowBlur = 8;
-            ctx.beginPath(); ctx.arc(W-3, dotY, 3.5, 0, Math.PI*2);
-            ctx.fillStyle = '#0D5F75'; ctx.fill(); ctx.restore();
-            // Overlay "Segnale assente" se plugin offline
-            if (!hbAlive) {
-                ctx.save();
-                ctx.fillStyle = 'rgba(255,255,255,0.75)';
-                ctx.fillRect(W/2 - 120, H/2 - 16, 240, 32);
-                ctx.font = '12px "Source Code Pro", monospace';
-                ctx.fillStyle = 'rgba(13,95,117,0.5)';
-                ctx.textAlign = 'center';
-                ctx.fillText('Segnale assente — plugin non attivo', W/2, H/2 + 4);
-                ctx.restore();
-            }
+            ctx.beginPath(); ctx.arc(W-3, dotY, 3.5, 0, Math.PI*2); ctx.fillStyle = '#0D5F75'; ctx.fill(); ctx.restore();
             rafId = requestAnimationFrame(draw);
         }
         draw();
-        document.addEventListener('visibilitychange', () => { if (document.hidden) cancelAnimationFrame(rafId); else draw(); });
+        document.addEventListener('visibilitychange', () => { if (document.hidden) cancelAnimationFrame(rafId); else { resize(); draw(); } });
         const dot = document.getElementById('hb-pulse-dot');
         if (dot) { let a=1, d=-1; setInterval(() => { a+=d*0.04; if(a<0.2)d=1; if(a>1)d=-1; dot.style.opacity=a; }, 30); }
     })();
