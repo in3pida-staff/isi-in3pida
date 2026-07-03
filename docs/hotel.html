@@ -1639,6 +1639,8 @@ function renderContent(site, pseData, now) {
         const hist = Array.from({length: BUF}, (_, i) => val(gridNow - (BUF - 1 - i) * STEP));
         let lastAdded = gridNow;
         function draw() {
+            // Aggiorna dimensioni se canvas non ancora layoutato al primo frame
+            if (canvas.offsetWidth !== W || canvas.offsetHeight !== H) resize();
             const now = Date.now();
             while (now - lastAdded >= STEP) {
                 lastAdded += STEP;
