@@ -426,7 +426,7 @@
                     <div class="sw-stat-text">
                         <div class="sw-stat-num" id="kpi-latest-version" style="font-size:52px">—</div>
                         <div style="font-size:13px;color:var(--grey);font-weight:500;margin-top:4px" id="kpi-latest-date"></div>
-                        <div class="sw-stat-label" style="margin-top:2px">Ultima versione<span id="kpi-latest-download" style="display:none"> · <a id="kpi-latest-download-link" href="#" target="_blank" style="color:var(--magenta);font-weight:600;text-decoration:none">↓ Scarica zip</a></span></div>
+                        <div class="sw-stat-label" style="margin-top:2px">Ultima versione<span id="kpi-latest-download" style="display:none"> · <a id="kpi-latest-download-link" href="#" download style="color:var(--magenta);font-weight:600;text-decoration:none">↓ Scarica zip</a></span></div>
                     </div>
                 </div>
                 <div class="sw-stat-card" style="cursor:pointer" onclick="window.location.href='costs.html'">
@@ -924,7 +924,7 @@
             const aggiornaBtnHtml = isScriptJs
                 ? `<button class="btn-ping" style="font-size:13px;padding:4px 10px;cursor:default;min-width:90px;text-align:center" disabled onclick="event.stopPropagation()">Auto</button>`
                 : neverConnected
-                    ? `<button class="btn-ping" style="font-size:13px;padding:4px 10px;cursor:default;min-width:90px;text-align:center;opacity:.5" disabled onclick="event.stopPropagation()">Inattivo</button>`
+                    ? `<button class="btn-update" style="font-size:13px;padding:4px 10px;min-width:90px;text-align:center" onclick="event.stopPropagation();installaManuale()">Installa</button>`
                     : isOld
                         ? `<button class="btn-update" style="font-size:13px;padding:4px 10px;margin-left:0;border:1.5px solid transparent;min-width:90px;text-align:center" onclick="event.stopPropagation();aggiornaSito('${escHtml(site.site_id)}')">Aggiorna</button>`
                         : `<button class="btn-ping" style="font-size:13px;padding:4px 10px;cursor:default;min-width:90px;text-align:center" disabled onclick="event.stopPropagation()">Aggiornato</button>`;
@@ -6453,6 +6453,28 @@ ${rows}
     function aggiornaSito(siteId) {
         const btn = document.querySelector(`tr[data-site-id="${CSS.escape(siteId)}"] button.btn-update`);
         callTriggerUpdate([siteId], [btn]);
+    }
+
+    async function installaManuale() {
+        const lv = await getLatestVersion().catch(() => ({ version: '?', download_url: '' }));
+        const m = document.createElement('div');
+        m.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:99999;display:flex;align-items:center;justify-content:center';
+        m.innerHTML = `<div style="background:#fff;max-width:480px;width:calc(100% - 32px);border-radius:10px;padding:28px;box-shadow:0 16px 48px rgba(0,0,0,.22);position:relative">
+            <button onclick="this.closest('div').parentElement.remove()" style="position:absolute;right:14px;top:10px;border:0;background:none;font-size:24px;cursor:pointer;color:#999">×</button>
+            <h3 style="margin:0 0 14px;font-size:16px;color:#171b33">Installa plugin su WordPress</h3>
+            <div style="background:#f0f7f8;border-radius:6px;padding:14px 16px;margin-bottom:18px;font-size:14px;color:#35364f;line-height:1.8">
+                1. Scarica il ZIP qui sotto<br>
+                2. Vai su <strong>WordPress Admin → Plugin → Aggiungi nuovo → Carica plugin</strong><br>
+                3. Carica il ZIP → <strong>Installa ora</strong> → <strong>Attiva</strong><br>
+                <span style="color:#0D5F75;font-size:12px">Dopo l'attivazione il segnale arriva entro pochi secondi</span>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+                <a href="${escHtml(lv.download_url)}" download style="background:#0D5F75;color:#fff;text-decoration:none;border-radius:6px;padding:10px 18px;font-weight:800;font-size:14px;display:inline-flex;align-items:center;gap:6px">⬇ Scarica v${escHtml(lv.version)}.zip</a>
+                <button onclick="this.closest('div').parentElement.remove()" style="background:#fff;border:1px solid #C1CBE8;border-radius:6px;padding:10px 18px;font-weight:700;font-size:14px;cursor:pointer;color:#171b33">Chiudi</button>
+            </div>
+        </div>`;
+        document.body.appendChild(m);
+        m.addEventListener('click', e => { if (e.target === m) m.remove(); });
     }
 
     async function resetGeoScores(siteId) {
