@@ -3,7 +3,7 @@ name: Pubblica versione plugin
 on:
   push:
     paths:
-      - 'docs/in3pida-faq-*.zip'
+      - 'docs/eletta-*.zip'
     branches:
       - main
 
@@ -20,7 +20,7 @@ jobs:
           SUPABASE_URL: https://yyauvoqjdzrbmebeafit.supabase.co
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
-          NEW_ZIPS=$(git diff --name-only HEAD~1 HEAD -- 'docs/in3pida-faq-*.zip' | grep -v '^$' || true)
+          NEW_ZIPS=$(git diff --name-only HEAD~1 HEAD -- 'docs/eletta-*.zip' | grep -v '^$' || true)
 
           if [ -z "$NEW_ZIPS" ]; then
             echo "Nessun nuovo ZIP trovato, skip."
@@ -29,8 +29,8 @@ jobs:
 
           for ZIP_PATH in $NEW_ZIPS; do
             FILENAME=$(basename "$ZIP_PATH")
-            VERSION=$(echo "$FILENAME" | sed 's/in3pida-faq-//;s/\.zip//')
-            DOWNLOAD_URL="https://app.eletta-ai.it/${FILENAME}"
+            VERSION=$(echo "$FILENAME" | sed 's/eletta-//;s/\.zip//')
+            DOWNLOAD_URL="https://app.eletta-ai.it/eletta-${VERSION}.zip"
 
             echo "Pubblico versione $VERSION → $DOWNLOAD_URL"
 

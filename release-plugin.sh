@@ -20,8 +20,8 @@ fi
 source "$ENV_FILE"
 
 SERVICE_KEY="${SUPABASE_SERVICE_KEY}"
-SOURCE_ZIP="/Users/mariodamore/Desktop/in3pida sito intelligente/in3pida-faq-${VERSION}.zip"
-DOCS_ZIP="$SCRIPT_DIR/docs/in3pida-faq-${VERSION}.zip"
+SOURCE_ZIP="/Users/mariodamore/Desktop/in3pida sito intelligente/eletta-${VERSION}.zip"
+DOCS_ZIP="$SCRIPT_DIR/docs/eletta-${VERSION}.zip"
 
 if [ ! -f "$SOURCE_ZIP" ]; then
   echo "ERRORE: ZIP non trovato: $SOURCE_ZIP"
@@ -41,7 +41,7 @@ const sb = createClient('${SUPABASE_URL}','${SERVICE_KEY}',{auth:{persistSession
   const r = await sb.from('isi_plugin_versions').upsert({
     version:'${VERSION}',
     changelog:'${CHANGELOG}',
-    download_url:'https://isi.in3pida.it/in3pida-faq-${VERSION}.zip',
+    download_url:'https://app.eletta-ai.it/eletta-${VERSION}.zip',
     is_current:true,
     released_at:new Date().toISOString()
   },{onConflict:'version'});
@@ -58,13 +58,13 @@ const sb = createClient('${SUPABASE_URL}','${SERVICE_KEY}',{auth:{persistSession
 
 echo "→ [3/4] Git add, commit, push"
 cd "$SCRIPT_DIR"
-git add "docs/in3pida-faq-${VERSION}.zip"
+git add "docs/eletta-${VERSION}.zip"
 git commit -m "Plugin v${VERSION}: ${CHANGELOG}"
 git push
 
 echo ""
 echo "✓ Release ${VERSION} completata:"
-echo "  ZIP:      docs/in3pida-faq-${VERSION}.zip"
+echo "  ZIP:      docs/eletta-${VERSION}.zip"
 echo "  Supabase: is_current = true"
 echo "  GitHub:   pushed"
 echo "  → Aggiorna i siti manualmente dalla dashboard"
