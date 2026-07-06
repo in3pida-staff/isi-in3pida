@@ -525,14 +525,13 @@ async function init() {
     _isAdmin = isAdmin;
     if (isAdmin && !paramSiteId) { window.location.href = 'index.html'; return; }
 
-    // Modalità admin: mostra freccia "← Hotels" nel brand sidebar
+    // Modalità admin: la E in alto a sinistra riporta al riepilogo con tutti gli account
     if (isAdmin && paramSiteId) {
         const brand = document.getElementById('sidebar-brand');
         if (brand) {
-            brand.innerHTML = `<a href="index.html" title="← Hotels" style="display:flex;flex-direction:column;align-items:center;gap:3px;color:rgba(255,255,255,0.6);text-decoration:none;font-size:9px;font-family:'Sarabun',sans-serif;font-weight:600">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M5 12l7-7M5 12l7 7"/></svg>
-                Hotels
-            </a>`;
+            brand.style.cursor = 'pointer';
+            brand.title = 'Torna a tutti gli account';
+            brand.addEventListener('click', () => { window.location.href = 'index.html'; });
         }
     }
 
