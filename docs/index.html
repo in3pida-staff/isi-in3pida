@@ -580,6 +580,8 @@
     <script>
     const SUPABASE_URL = 'https://yyauvoqjdzrbmebeafit.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5YXV2b3FqZHpyYm1lYmVhZml0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3OTM2MDAsImV4cCI6MjA5NTM2OTYwMH0.M6kD56PEO_UcJ68Vjquo03vuORjv62MflIzGLzYKN9w';
+    // Client ID OAuth Google Search Console — fisso e valido per TUTTI gli hotel (non va richiesto a ogni installazione)
+    const ISI_GSC_CLIENT_ID_DEFAULT = '235185392962-n813ppgd5rsn81gfk6lcft7qg74nn2qb.apps.googleusercontent.com';
     const _SB  = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     const _SBq = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
 
@@ -5365,7 +5367,7 @@ ${rows}
     // Google restituisce un nuovo token se la sessione browser è ancora attiva.
     // Restituisce il nuovo access_token o lancia un errore se la sessione è scaduta.
     async function _refreshGscTokenSilently(siteId, siteObj) {
-        const clientId = localStorage.getItem('isi_gsc_client_id');
+        const clientId = (localStorage.getItem('isi_gsc_client_id') || ISI_GSC_CLIENT_ID_DEFAULT);
         if (!clientId) throw new Error('client_id_mancante');
         await _loadGisScript();
         return new Promise((resolve, reject) => {
@@ -5564,7 +5566,7 @@ ${rows}
                 btnConnectGsc.textContent = '⏳ Connessione...';
                 try {
                     // Get client ID from localStorage (public, non-secret identifier)
-                    let clientId = localStorage.getItem('isi_gsc_client_id') || '';
+                    let clientId = (localStorage.getItem('isi_gsc_client_id') || ISI_GSC_CLIENT_ID_DEFAULT) || '';
                     if (!clientId) {
                         clientId = await new Promise((res2, rej2) => {
                             const ov = document.createElement('div');
@@ -5826,7 +5828,7 @@ ${rows}
             }
 
             function _silentRefresh() {
-                const clientId = localStorage.getItem('isi_gsc_client_id');
+                const clientId = (localStorage.getItem('isi_gsc_client_id') || ISI_GSC_CLIENT_ID_DEFAULT);
                 if (!clientId || !window.google?.accounts?.oauth2) return Promise.reject(new Error('no_gis'));
                 return new Promise((resolve, reject) => {
                     const t = setTimeout(() => reject(new Error('timeout')), 6000);
@@ -5845,7 +5847,7 @@ ${rows}
             }
 
             function _autoReconnect() {
-                const clientId = localStorage.getItem('isi_gsc_client_id');
+                const clientId = (localStorage.getItem('isi_gsc_client_id') || ISI_GSC_CLIENT_ID_DEFAULT);
                 if (!clientId || !window.google?.accounts?.oauth2) return Promise.reject(new Error('no_gis'));
                 return new Promise((resolve, reject) => {
                     const t = setTimeout(() => reject(new Error('timeout')), 20000);
@@ -5865,7 +5867,7 @@ ${rows}
 
             function _showReconnectBtn() {
                 if (!datiGscCont) return;
-                const clientId = localStorage.getItem('isi_gsc_client_id');
+                const clientId = (localStorage.getItem('isi_gsc_client_id') || ISI_GSC_CLIENT_ID_DEFAULT);
                 datiGscCont.innerHTML =
                     '<div style="display:flex;align-items:center;gap:12px;padding:16px 20px">' +
                     '<span style="font-size:13px;color:#666b84">Aggiorna la sessione Google per vedere i dati.</span>' +
