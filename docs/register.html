@@ -60,9 +60,10 @@
         const fullName = document.getElementById('name').value.trim();
 
         // Crea utente pre-confermato via edge function (nessuna email di conferma)
+        const _ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5YXV2b3FqZHpyYm1lYmVhZml0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3OTM2MDAsImV4cCI6MjA5NTM2OTYwMH0.M6kD56PEO_UcJ68Vjquo03vuORjv62MflIzGLzYKN9w';
         const res = await fetch('https://yyauvoqjdzrbmebeafit.supabase.co/functions/v1/isi-admin-users', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'apikey': _ANON, 'Authorization': 'Bearer ' + _ANON },
             body: JSON.stringify({ email, password, full_name: fullName }),
         });
         const result = await res.json();
