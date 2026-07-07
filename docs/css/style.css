@@ -324,12 +324,12 @@ textarea.profile-input { resize: vertical; }
 /* ─── TABLE ──────────────────────────────────────────────────────────────── */
 table.sites-table { width: 100%; border-collapse: collapse; overflow: visible; }
 table.sites-table th {
-    text-align: left; padding: 12px 14px;
+    text-align: left; padding: 12px 9px;
     font-size: 13px; font-weight: 700; color: #999;
     background: #fafafa; border-bottom: 1px solid var(--border);
     white-space: nowrap; position: relative; overflow: visible;
 }
-table.sites-table td { padding: 13px 14px; font-size: 14px; border-bottom: 1px solid #f4f4f8; }
+table.sites-table td { padding: 13px 9px; font-size: 14px; border-bottom: 1px solid #f4f4f8; }
 table.sites-table tr:last-child td { border-bottom: none; }
 table.sites-table tbody tr { transition: background .12s; }
 table.sites-table tbody tr:hover td { background: #e8ecf7; }
@@ -484,7 +484,7 @@ table.sites-table tbody tr:hover td { background: #e8ecf7; }
     .hero-title { font-size: 26px; }
     .navbar { padding: 0 16px; height: 64px; }
     .sw-stats { grid-template-columns: 1fr 1fr; }
-    table.sites-table th, table.sites-table td { padding: 11px 14px; }
+    table.sites-table th, table.sites-table td { padding: 11px 8px; }
 }
 
 /* ─── COLOR INPUT ─────────────────────────────────────────────────────────── */
