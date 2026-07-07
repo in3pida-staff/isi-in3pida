@@ -3688,9 +3688,8 @@ async function createAlbAccount() {
         const feats = {}; ['panoramica','faq','schema_org','mappa_query','coerenza','ai_layer','config','statistiche'].forEach(k => feats[k] = true);
         const pr = await fetch(SUPABASE_URL + '/functions/v1/isi-admin-users', { method: 'PATCH', headers: { 'Authorization': 'Bearer ' + session.access_token, 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id: cd.user_id, full_name: name, role: 'albergatore', site_id: _site.site_id, plugin_features: feats, menu_visibility: feats, app_features: feats }) });
         if (!pr.ok) throw new Error('Account creato ma errore nel collegamento al sito');
-        show('✓ Account creato e collegato a questo hotel.', '#0D5F75');
+        show('✓ Creato! Email: ' + email + '  ·  Password: ' + pass + '  —  annota queste credenziali: la password non sarà più visibile.', '#0D5F75');
         btn.textContent = 'Fatto';
-        setTimeout(() => { ov.style.display = 'none'; }, 2500);
     } catch (e) { show(e.message); btn.disabled = false; btn.textContent = 'Crea account'; }
 }
 async function initHotelConfig(site) {
