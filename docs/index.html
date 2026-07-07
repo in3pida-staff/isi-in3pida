@@ -185,7 +185,7 @@
     <div id="edit-user-overlay" class="info-overlay" style="display:none">
         <div class="info-card" style="max-width:560px;width:100%;max-height:90vh;overflow-y:auto">
             <div class="info-card-header">
-                <span>Modifica utente</span>
+                <span id="edit-user-header-title">Modifica utente</span>
                 <button class="info-close" id="edit-user-close">✕</button>
             </div>
             <div class="info-card-body">
@@ -206,6 +206,16 @@
                 <div class="profile-field">
                     <label class="profile-label">Nome completo</label>
                     <input type="text" id="edit-user-name" class="profile-input" placeholder="Nome completo">
+                </div>
+                <div id="edit-user-credentials-wrap" style="display:none">
+                    <div class="profile-field">
+                        <label class="profile-label">Email di accesso</label>
+                        <input type="email" id="edit-user-email" class="profile-input" placeholder="email@hotel.it" autocomplete="off">
+                    </div>
+                    <div class="profile-field">
+                        <label class="profile-label">Password</label>
+                        <input type="text" id="edit-user-password" class="profile-input" placeholder="Password (min 6 caratteri)" autocomplete="new-password">
+                    </div>
                 </div>
                 <div class="profile-field">
                     <label class="profile-label">Ruolo</label>
@@ -602,6 +612,8 @@
         const user = session.user;
         if (user.user_metadata?.role === 'albergatore') { window.location.href = 'hotel.html'; return; }
         _currentUserRole = user.user_metadata?.role || 'admin';
+        // Solo l'admin vede il pulsante "Crea account albergatore" in Configurazione
+        if (_currentUserRole === 'admin') { const _cb = document.getElementById('config-create-user-box'); if (_cb) _cb.style.display = ''; }
         const name = user.user_metadata?.full_name || user.email?.split('@')[0] || 'Utente';
         const ini  = name.charAt(0).toUpperCase();
         document.getElementById('nav-name').textContent   = name;
@@ -1586,6 +1598,9 @@
 
             <!-- ═══ PANE: CONFIGURAZIONE ═══ -->
             <div id="scontent-config" style="display:none">
+            <div id="config-create-user-box" style="display:none;margin-bottom:16px">
+                <button class="btn-update" onclick="openCreateUser()">+ Crea account albergatore</button>
+            </div>
             <div id="config-content"><div class="loading" style="padding:20px"><div class="spinner"></div></div></div>
             </div><!-- /scontent-config -->
 
@@ -6045,6 +6060,8 @@ ${rows}
     }
 
     function openEditUser(u) {
+        document.getElementById('edit-user-header-title').textContent = 'Modifica utente';
+        document.getElementById('edit-user-credentials-wrap').style.display = 'none';
         const name  = u.user_metadata?.full_name || u.email?.split('@')[0] || '';
         const role  = u.user_metadata?.role || 'utente';
         const photo = u.user_metadata?.avatar_url || '';
@@ -6070,6 +6087,27 @@ ${rows}
         document.getElementById('edit-user-error').style.display = 'none';
         document.getElementById('edit-user-overlay').style.display = 'flex';
     }
+    window.openCreateUser = function() {
+        document.getElementById('edit-user-header-title').textContent = 'Crea account albergatore';
+        document.getElementById('edit-user-id').value = '';
+        document.getElementById('edit-user-name').value = '';
+        document.getElementById('edit-user-email').value = '';
+        document.getElementById('edit-user-password').value = '';
+        document.getElementById('edit-user-photo').value = '';
+        document.getElementById('edit-user-siteid').value = '';
+        document.getElementById('edit-user-photo-msg').style.display = 'none';
+        document.getElementById('edit-user-photo-input').value = '';
+        updateEditPhotoPreview('');
+        document.getElementById('edit-user-role').value = 'albergatore';
+        document.getElementById('edit-user-credentials-wrap').style.display = '';
+        document.getElementById('edit-user-siteid-wrap').style.display   = '';
+        document.getElementById('edit-user-features-wrap').style.display = '';
+        document.getElementById('edit-user-features-grid').innerHTML = buildFeatureToggles('ef', {});
+        document.getElementById('edit-user-menu-grid').innerHTML     = buildFeatureToggles('em', {});
+        document.getElementById('edit-user-app-grid').innerHTML      = buildFeatureToggles('ea', {});
+        document.getElementById('edit-user-error').style.display = 'none';
+        document.getElementById('edit-user-overlay').style.display = 'flex';
+    };
     document.getElementById('edit-user-role').addEventListener('change', function() {
         const isAlb = this.value === 'albergatore';
         document.getElementById('edit-user-siteid-wrap').style.display   = isAlb ? '' : 'none';
@@ -6096,7 +6134,23 @@ ${rows}
         const photo   = document.getElementById('edit-user-photo').value.trim();
         const site_id = role === 'albergatore' ? document.getElementById('edit-user-siteid').value.trim() : null;
         if (!name) { document.getElementById('edit-user-error').textContent='Inserisci il nome'; document.getElementById('edit-user-error').style.display='block'; return; }
-        const body = { user_id:id, full_name:name, role };
+        let userId = id;
+        // Creazione nuovo account: prima crea il login (email+password), poi imposta ruolo/sito/permessi
+        if (!userId) {
+            const email = document.getElementById('edit-user-email').value.trim();
+            const pwd   = document.getElementById('edit-user-password').value;
+            const errEl = document.getElementById('edit-user-error');
+            if (!email || !pwd) { errEl.textContent='Inserisci email e password'; errEl.style.display='block'; return; }
+            if (pwd.length < 6) { errEl.textContent='La password deve avere almeno 6 caratteri'; errEl.style.display='block'; return; }
+            try {
+                const { data:{ session } } = await _SB.auth.getSession();
+                const cr = await fetch(`${SUPABASE_URL}/functions/v1/isi-admin-users`, { method:'POST', headers:{'Authorization':'Bearer '+session.access_token,'Content-Type':'application/json'}, body: JSON.stringify({ email, password: pwd, full_name: name }) });
+                const cd = await cr.json().catch(()=>({}));
+                if (!cr.ok || !cd.user_id) throw new Error(cd.error || 'Errore creazione account');
+                userId = cd.user_id;
+            } catch(e) { errEl.textContent = e.message; errEl.style.display='block'; return; }
+        }
+        const body = { user_id:userId, full_name:name, role };
         if (site_id !== null) body.site_id = site_id;
         if (photo) body.avatar_url = photo;
         if (role === 'albergatore') {
