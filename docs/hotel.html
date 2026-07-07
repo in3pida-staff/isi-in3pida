@@ -3637,6 +3637,62 @@ async function initHotelCoerenza(site) {
 }
 
 // ─── CONFIGURAZIONE ───────────────────────────────────────────────────────────
+function openCreateAlb() {
+    if (!_isAdmin || !_site) return;
+    let ov = document.getElementById('create-alb-overlay');
+    if (!ov) {
+        const inp = 'width:100%;box-sizing:border-box;padding:9px 12px;border:1px solid #e4e4ec;border-radius:8px;margin-bottom:10px;font-size:13px;color:#0D5F75;font-family:\'Source Code Pro\',monospace';
+        const btn = 'border:none;border-radius:24px;padding:8px 20px;font-size:13px;font-weight:600;cursor:pointer;font-family:\'Source Code Pro\',monospace';
+        ov = document.createElement('div');
+        ov.id = 'create-alb-overlay';
+        ov.style.cssText = 'position:fixed;inset:0;background:rgba(23,27,51,.45);z-index:99999;display:none;align-items:center;justify-content:center';
+        ov.innerHTML = '<div style="background:#fff;border-radius:12px;padding:26px 28px;max-width:440px;width:90%;box-shadow:0 8px 32px rgba(23,27,51,.2)">'
+            + '<div style="font-size:16px;font-weight:600;color:#0D5F75;margin-bottom:4px;font-family:\'Source Code Pro\',monospace">Crea account albergatore</div>'
+            + '<div id="ca-sub" style="font-size:12px;color:rgba(13,95,117,0.6);margin-bottom:16px;font-family:\'Source Code Pro\',monospace"></div>'
+            + '<input id="ca-name" placeholder="Nome completo" style="'+inp+'">'
+            + '<input id="ca-email" type="email" placeholder="Email di accesso" autocomplete="off" style="'+inp+'">'
+            + '<input id="ca-pass" type="text" placeholder="Password (min 6 caratteri)" autocomplete="new-password" style="'+inp+'">'
+            + '<div id="ca-msg" style="font-size:12px;min-height:16px;margin-bottom:12px;display:none"></div>'
+            + '<div style="display:flex;gap:8px;justify-content:flex-end">'
+            + '<button id="ca-cancel" style="'+btn+';background:#f0f0f4;color:#0D5F75">Annulla</button>'
+            + '<button id="ca-save" style="'+btn+';background:#0D5F75;color:#fff">Crea account</button>'
+            + '</div></div>';
+        document.body.appendChild(ov);
+        ov.addEventListener('click', e => { if (e.target === ov) ov.style.display = 'none'; });
+        ov.querySelector('#ca-cancel').addEventListener('click', () => { ov.style.display = 'none'; });
+        ov.querySelector('#ca-save').addEventListener('click', createAlbAccount);
+    }
+    ov.querySelector('#ca-sub').textContent = 'Per: ' + (_site.site_name || _site.site_url || '');
+    ov.querySelector('#ca-name').value = '';
+    ov.querySelector('#ca-email').value = '';
+    ov.querySelector('#ca-pass').value = '';
+    const m = ov.querySelector('#ca-msg'); m.textContent = ''; m.style.display = 'none';
+    const sv = ov.querySelector('#ca-save'); sv.disabled = false; sv.textContent = 'Crea account';
+    ov.style.display = 'flex';
+}
+async function createAlbAccount() {
+    const ov = document.getElementById('create-alb-overlay');
+    const name = ov.querySelector('#ca-name').value.trim();
+    const email = ov.querySelector('#ca-email').value.trim();
+    const pass = ov.querySelector('#ca-pass').value;
+    const msg = ov.querySelector('#ca-msg');
+    const show = (t, c) => { msg.textContent = t; msg.style.color = c || '#d82d6b'; msg.style.display = 'block'; };
+    if (!name || !email || !pass) { show('Compila nome, email e password'); return; }
+    if (pass.length < 6) { show('La password deve avere almeno 6 caratteri'); return; }
+    const btn = ov.querySelector('#ca-save'); btn.disabled = true; btn.textContent = 'Creazione...';
+    try {
+        const { data: { session } } = await _SB.auth.getSession();
+        const cr = await fetch(SUPABASE_URL + '/functions/v1/isi-admin-users', { method: 'POST', headers: { 'Authorization': 'Bearer ' + session.access_token, 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password: pass, full_name: name }) });
+        const cd = await cr.json().catch(() => ({}));
+        if (!cr.ok || !cd.user_id) throw new Error(cd.error || 'Errore nella creazione');
+        const feats = {}; ['panoramica','faq','schema_org','mappa_query','coerenza','ai_layer','config','statistiche'].forEach(k => feats[k] = true);
+        const pr = await fetch(SUPABASE_URL + '/functions/v1/isi-admin-users', { method: 'PATCH', headers: { 'Authorization': 'Bearer ' + session.access_token, 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id: cd.user_id, full_name: name, role: 'albergatore', site_id: _site.site_id, plugin_features: feats, menu_visibility: feats, app_features: feats }) });
+        if (!pr.ok) throw new Error('Account creato ma errore nel collegamento al sito');
+        show('✓ Account creato e collegato a questo hotel.', '#0D5F75');
+        btn.textContent = 'Fatto';
+        setTimeout(() => { ov.style.display = 'none'; }, 2500);
+    } catch (e) { show(e.message); btn.disabled = false; btn.textContent = 'Crea account'; }
+}
 async function initHotelConfig(site) {
     if (_configInited) return; _configInited = true;
     const cont = document.getElementById('hconfig-content'); if (!cont) return;
@@ -3698,6 +3754,7 @@ async function initHotelConfig(site) {
     })();
 
     cont.innerHTML =
+        (_isAdmin ? (cardH + chH('#0D5F75','Admin') + '<div style="padding:14px 20px"><button onclick="openCreateAlb()" class="btn-update" style="margin-left:0;border-radius:24px;padding:8px 22px;font-family:\'Source Code Pro\',monospace;font-size:13px;letter-spacing:.04em">+ Crea account albergatore</button></div></div>') : '') +
         connSection +
         (!isScriptMode ? (
         cardH + chH('#0D5F75','Abilitazioni Plugin') +
