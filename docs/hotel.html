@@ -521,7 +521,7 @@ async function init() {
     // Supporto ?site_id=xxx per admin (preview specifico hotel)
     const urlParams = new URLSearchParams(location.search);
     const paramSiteId = urlParams.get('site_id');
-    const isAdmin = user.user_metadata?.role === 'admin';
+    const isAdmin = (user.user_metadata?.role || 'admin') === 'admin'; // allineato a index.html: role vuoto = admin
     _isAdmin = isAdmin;
     if (isAdmin && !paramSiteId) { window.location.href = 'index.html'; return; }
 
