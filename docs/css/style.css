@@ -333,6 +333,7 @@ table.sites-table td { padding: 13px 14px; font-size: 14px; border-bottom: 1px s
 table.sites-table tr:last-child td { border-bottom: none; }
 table.sites-table tbody tr { transition: background .12s; }
 table.sites-table tbody tr:hover td { background: #e8ecf7; }
+#siti-panoramica-container, #siti-container { overflow-x: auto; }
 .site-name-cell { font-weight: 600; font-size: 15px; }
 .th-center { text-align: center !important; }
 .td-center { text-align: center; }
