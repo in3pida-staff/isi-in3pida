@@ -148,7 +148,7 @@
             font-weight: 300;
         }
         .login-msg-success { background: #e8ecf7; color: #0D5F75; }
-        .login-msg-error   { background: #fdecea; color: #c62828; }
+        .login-msg-error   { background: #fbf4f7; color: #d82d6b; }
 
         /* Form */
         .form-group { margin-bottom: 20px; }
@@ -445,7 +445,13 @@
             redirectTo: 'https://app.eletta-ai.it/index.html',
         });
         btn.disabled = false;
-        if (error) showMsg('error', error.message);
+        if (error) {
+            const m = (error.message || '').toLowerCase();
+            const testo = m.includes('rate limit')
+                ? 'Hai richiesto troppe email di reset. Attendi qualche minuto e riprova.'
+                : 'Non è stato possibile inviare l\'email. Controlla l\'indirizzo e riprova.';
+            showMsg('error', testo);
+        }
         else showMsg('success', 'Email inviata! Controlla la casella di posta e clicca il link per reimpostare la password.');
     });
 
