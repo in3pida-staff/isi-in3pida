@@ -1,6 +1,6 @@
 /**
- * eletta.js — Script embeddabile in3pida
- * Uso: <script src="https://in3pida-staff.github.io/isi-in3pida/eletta.js?id=SITE_ID" async></script>
+ * eletta.js — Script embeddabile Eletta
+ * Uso: <script src="https://app.eletta-ai.it/eletta.js?id=SITE_ID" async></script>
  */
 (function () {
   'use strict';

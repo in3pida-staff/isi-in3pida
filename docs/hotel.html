@@ -3653,7 +3653,7 @@ async function initHotelConfig(site) {
     const isScriptMode = (site.plugin_version||'').startsWith('js-') || hp.site_mode === 'script';
     const connDot = hbHrs < 25 ? '#0D5F75' : '#aaa';
     const connLabel = hbHrs < 25 ? (hbHrs<1?'Connesso · meno di 1h fa':'Connesso · '+Math.round(hbHrs)+'h fa') : (hbHrs<9999?'Offline da '+Math.round(hbHrs)+'h':'Nessun segnale');
-    const scriptSrc = 'https://in3pida-staff.github.io/isi-in3pida/eletta.js?id=' + site.site_id;
+    const scriptSrc = 'https://app.eletta-ai.it/eletta.js?id=' + site.site_id;
     const scriptTag = '<script src="' + scriptSrc + '" async><\/script>';
     const neverConnected = hbHrs >= 9999;
     const installBanner = neverConnected
