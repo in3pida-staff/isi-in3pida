@@ -3683,11 +3683,11 @@ async function createAlbAccount() {
     try {
         const { data: { session } } = await _SB.auth.getSession();
         if (!session) throw new Error('Sessione scaduta — ricarica la pagina e rientra');
-        const cr = await fetch(SUPABASE_URL + '/functions/v1/isi-admin-users', { method: 'POST', headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + session.access_token, 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password: pass, full_name: name }), signal: AbortSignal.timeout(20000) });
+        const cr = await fetch(SUPABASE_URL + '/functions/v1/isi-admin-users', { method: 'POST', headers: { 'Authorization': 'Bearer ' + session.access_token, 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password: pass, full_name: name }), signal: AbortSignal.timeout(20000) });
         const cd = await cr.json().catch(() => ({}));
         if (!cr.ok || !cd.user_id) throw new Error(cd.error || 'Errore nella creazione');
         const feats = {}; ['panoramica','faq','schema_org','mappa_query','coerenza','ai_layer','config','statistiche'].forEach(k => feats[k] = true);
-        const pr = await fetch(SUPABASE_URL + '/functions/v1/isi-admin-users', { method: 'PATCH', headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + session.access_token, 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id: cd.user_id, full_name: name, role: 'albergatore', site_id: _site.site_id, plugin_features: feats, menu_visibility: feats, app_features: feats }), signal: AbortSignal.timeout(20000) });
+        const pr = await fetch(SUPABASE_URL + '/functions/v1/isi-admin-users', { method: 'PATCH', headers: { 'Authorization': 'Bearer ' + session.access_token, 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id: cd.user_id, full_name: name, role: 'albergatore', site_id: _site.site_id, plugin_features: feats, menu_visibility: feats, app_features: feats }), signal: AbortSignal.timeout(20000) });
         if (!pr.ok) throw new Error('Account creato ma errore nel collegamento al sito');
         show('✓ Creato! Email: ' + email + '  ·  Password: ' + pass + '  —  annota queste credenziali: la password non sarà più visibile.', '#0D5F75');
         btn.textContent = 'Fatto';
