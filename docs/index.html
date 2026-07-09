@@ -6579,7 +6579,10 @@ ${rows}
             btn.style.borderColor = newActive ? '' : '#e4e4ec';
             showToast(`Sito ${newActive ? 'attivato' : 'disattivato'} con successo`);
         } catch(e) {
-            showToast('Errore: ' + e.message);
+            const unreachable = /HTTP 40|Failed to fetch|NetworkError|aborted|Load failed|timeout/i.test(e.message || '');
+            showToast(unreachable
+                ? 'Sito non raggiungibile: plugin non installato o URL del sito errato'
+                : 'Errore: ' + e.message);
             btn.textContent = 'Disattiva';
             btn.style.background = '';
             btn.style.color = '';
