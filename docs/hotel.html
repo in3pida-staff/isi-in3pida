@@ -506,7 +506,10 @@ async function _loadFaqPageStatus() {
 async function _syncFaqToSupabase() {
     if (!_site?.site_id) return;
     const items = _faqItems.map(f => ({ id: f.id, question: f.question, answer: f.answer, solo_ai: !!f.solo_ai, status: f.status || 'publish', order: f.menu_order ?? f.order ?? 0, date: f.date || null }));
-    const newFaqData = { items, total: items.length, _synced_at: new Date().toISOString(), _source: 'isi' };
+    // Preserva score_history / query_map e gli altri campi scritti dall'heartbeat: non azzerare faq_data
+    const { data: _fresh } = await _SBq.from('isi_sites').select('faq_data').eq('site_id', _site.site_id).single();
+    const _base = _fresh?.faq_data || _site?.faq_data || {};
+    const newFaqData = { ..._base, items, total: items.length, _synced_at: new Date().toISOString(), _source: 'isi' };
     await _SBq.from('isi_sites').update({ faq_data: newFaqData }).eq('site_id', _site.site_id);
     if (_site) _site.faq_data = newFaqData;
 }
