@@ -948,7 +948,7 @@
                 <td class="td-center">${geoHtml}</td>
                 <td class="td-center">${covHtml}</td>
                 <td class="td-center">${csHtml}</td>
-                <td style="white-space:nowrap"><div style="display:inline-flex;gap:5px;align-items:center">${aggiornaBtnHtml}<button class="btn-ping" style="font-size:13px;padding:4px 10px" onclick="event.stopPropagation();toggleSitoAttivo('${escHtml(site.site_id)}','${escHtml(site.site_url||'')}',this)">Disattiva</button><button class="btn-ping" style="font-size:13px;padding:4px 10px;background:#e8ecf7;color:#0D5F75" onclick="event.stopPropagation();openSitePerms('${escHtml(site.site_id)}','${escHtml(site.site_name||'')}')">Permessi</button></div></td>
+                <td style="white-space:nowrap"><div style="display:inline-flex;gap:5px;align-items:center">${aggiornaBtnHtml}<button class="btn-ping" style="font-size:13px;padding:4px 10px" onclick="event.stopPropagation();toggleSitoAttivo('${escHtml(site.site_id)}','${escHtml(site.site_url||'')}',this)">Disattiva</button><button class="btn-ping" style="font-size:13px;padding:4px 10px;background:#e8ecf7;color:#0D5F75" onclick="event.stopPropagation();openSitePerms('${escHtml(site.site_id)}','${escHtml(site.site_name||'')}')">Permessi</button><button style="background:none;border:none;color:var(--red-text);font-size:15px;font-weight:700;cursor:pointer;padding:4px 6px" title="Elimina installazione" onclick="event.stopPropagation();eliminaSito('${escHtml(site.site_id)}','${escHtml(site.site_name||site.site_url||'')}',this)">🗑️</button></div></td>
             </tr>`;
             window._sitePermsData = window._sitePermsData || {};
             window._sitePermsData[site.site_id] = site.features_override || {};
@@ -6218,6 +6218,21 @@ ${rows}
             setTimeout(() => { document.getElementById('perm-site-overlay').style.display = 'none'; }, 1200);
         } catch(e) { msgEl.textContent = 'Errore: '+e.message; msgEl.style.color = '#b00020'; msgEl.style.display = 'block'; }
     });
+
+    window.eliminaSito = async function(siteId, siteName, btn) {
+        if (!await isiConfirm(`Eliminare l'installazione "${siteName || siteId}"? L'operazione è definitiva e rimuove il sito dalla piattaforma.`, 'Elimina')) return;
+        if (btn) { btn.disabled = true; btn.textContent = '…'; }
+        try {
+            await _SBq.from('isi_pse_queries').delete().eq('site_id', siteId);
+            const { error } = await _SBq.from('isi_sites').delete().eq('site_id', siteId);
+            if (error) throw new Error(error.message);
+            showToast('Installazione eliminata');
+            loadSitiTab();
+        } catch(e) {
+            showToast('Errore eliminazione: ' + e.message);
+            if (btn) { btn.disabled = false; btn.textContent = '🗑️'; }
+        }
+    };
 
     async function eliminaUtente(userId, nome) {
         if (!await isiConfirm(`Eliminare l'utente "${nome}"? Questa azione non può essere annullata.`)) return;
