@@ -2102,7 +2102,7 @@ function buildHotelSchemaForm(s) {
     _knowsaboutCustomTmp = _kaArr.filter(x=>!_knowsaboutPreset.map(y=>y.toLowerCase()).includes(x.toLowerCase()));
 
     const _lbl=t=>'<div style="font-size:12px;color:#0D5F75;font-weight:400;font-family:\'Source Code Pro\',monospace;margin-bottom:5px">'+t+'</div>';
-    const _inputStyle='color:#0D5F75;font-family:\'Source Code Pro\',monospace;font-size:13px';
+    const _inputStyle='width:100%;box-sizing:border-box;color:#0D5F75;font-family:\'Source Code Pro\',monospace;font-size:13px';
     const inp=(id,lbl,val,ph,type)=>'<div>'+_lbl(lbl)+'<input type="'+(type||'text')+'" id="hsf-'+id+'" class="profile-input" value="'+esc(val||'')+'" placeholder="'+esc(ph||'')+'" style="'+_inputStyle+'"></div>';
     const ta=(id,lbl,val,ph,rows)=>'<div>'+_lbl(lbl)+'<textarea id="hsf-'+id+'" class="profile-input" rows="'+(rows||3)+'" style="resize:vertical;'+_inputStyle+'" placeholder="'+esc(ph||'')+'">'+esc(val||'')+'</textarea></div>';
     const selF=(id,lbl,val,opts)=>'<div>'+_lbl(lbl)+'<select id="hsf-'+id+'" class="profile-input" style="'+_inputStyle+'">'+opts.map(o=>'<option value="'+esc(o)+'"'+(val===o?' selected':'')+'>'+esc(o)+'</option>').join('')+'</select></div>';
