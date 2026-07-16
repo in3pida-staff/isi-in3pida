@@ -710,6 +710,29 @@ function applyAppFeatures(userF, siteF) {
     });
 }
 
+// Copertura Mappa Query calcolata live dai dati del sito, ESCLUDENDO le query marcate "non rilevante".
+// Stessa logica della vista Mappa Query, così la card resta coerente e si aggiorna con le esclusioni.
+function computeQueryCoveragePct(site) {
+    try {
+        const faqData = site.faq_data || {};
+        const qmap = faqData.query_map || faqData.mappa_query || {};
+        const faqQuestions = new Set((faqData.items || []).map(f => (f.question || '').toLowerCase().trim()));
+        const hotelQueries = generateQueriesForHotel(site) || {};
+        let totalQ = 0, coveredQ = 0;
+        Object.keys(hotelQueries).forEach(cat => {
+            const qs = hotelQueries[cat] || [];
+            const entry = qmap[cat] || {};
+            const dismissed = Array.isArray(entry.dismissed_queries) ? entry.dismissed_queries : [];
+            const activeQs = qs.filter(q => !dismissed.includes(q));
+            const storedCov = Array.isArray(entry.covered_queries) ? entry.covered_queries.filter(q => q.trim().endsWith('?')) : (entry.covered ? qs : []);
+            const coveredSet = new Set([...storedCov, ...qs.filter(q => faqQuestions.has(q.toLowerCase().trim()))]);
+            totalQ += activeQs.length;
+            coveredQ += activeQs.filter(q => coveredSet.has(q) || coveredSet.has(q.toLowerCase())).length;
+        });
+        return totalQ > 0 ? Math.round(coveredQ / totalQ * 100) : null;
+    } catch (_) { return null; }
+}
+
 // ─── RENDER MAIN CONTENT ───────────────────────────────────────────────────────
 function renderContent(site, pseData, now) {
     const geo = site.geo_scores || {};
@@ -724,7 +747,7 @@ function renderContent(site, pseData, now) {
     const missingAnswers = geo.missing_answers ?? null;
     const missingQueries = geo.missing_queries || [];
     const freshAlerts = geo.freshness_alerts || [];
-    const qMapPct = geo.query_map_pct ?? null;
+    const qMapPct = computeQueryCoveragePct(site) ?? geo.query_map_pct ?? null; // calcolo live: rispetta le query "non rilevanti"
     const qUncovered = geo.query_uncovered ?? null;
     const qTotal = geo.query_total ?? null;
     const daysFaq = geo.days_since_faq ?? null;
@@ -801,7 +824,7 @@ function renderContent(site, pseData, now) {
               </div>
               <div class="h-kpi">
                   <div class="h-kpi-ttl">Mappa di Ricerca <span class='tip-q' data-tip='Percentuale di query conversazionali coperte. ≥70% buona copertura.'>?</span></div>
-                  <div class="h-kpi-val" style="color:${qMapPct!==null?'#0D5F75':'rgba(193,203,232,0.5)'}">${qMapPct!==null?qMapPct+'%':'—'}</div>
+                  <div class="h-kpi-val" id="hkpi-qmap-val" style="color:${qMapPct!==null?'#0D5F75':'rgba(193,203,232,0.5)'}">${qMapPct!==null?qMapPct+'%':'—'}</div>
                   <div class="h-kpi-sub ${qMapPct===null?'h-kpi-sub-nd':''}">${qMapPct!==null?'coperto':'nessun dato'}</div>
                   <div class="h-kpi-deco"><svg width="39" height="39" viewBox="0 0 24 24" fill="#0D5F75" stroke="none"><rect x="1" y="13" width="6" height="8" rx="1"/><rect x="9" y="5" width="6" height="16" rx="1"/><rect x="17" y="9" width="6" height="12" rx="1"/></svg></div>
               </div>
@@ -3240,6 +3263,9 @@ window.dismissHotelQuery = async function(btn, cat, query, siteId) {
         const newFaq = { ...faq, query_map: { ...qm, [cat]: { ...entry, dismissed_queries: dismissed } } };
         await _SBq.from('isi_sites').update({ faq_data: newFaq }).eq('site_id', siteId);
         if (_mappaCurrentSite) _mappaCurrentSite.faq_data = newFaq;
+        if (_site) _site.faq_data = newFaq;
+        const _qv = document.getElementById('hkpi-qmap-val');
+        if (_qv && _site) { const _p = computeQueryCoveragePct(_site); if (_p !== null) { _qv.textContent = _p + '%'; _qv.style.color = '#0D5F75'; } }
         _mappaInited = false;
         if (_mappaCurrentSite) await initHotelMappa(_mappaCurrentSite);
     } catch(e) { btn.textContent = '✕'; btn.disabled = false; }
@@ -3256,6 +3282,9 @@ window.restoreHotelQuery = async function(btn, cat, query, siteId) {
         const newFaq = { ...faq, query_map: { ...qm, [cat]: { ...entry, dismissed_queries: dismissed } } };
         await _SBq.from('isi_sites').update({ faq_data: newFaq }).eq('site_id', siteId);
         if (_mappaCurrentSite) _mappaCurrentSite.faq_data = newFaq;
+        if (_site) _site.faq_data = newFaq;
+        const _qv = document.getElementById('hkpi-qmap-val');
+        if (_qv && _site) { const _p = computeQueryCoveragePct(_site); if (_p !== null) { _qv.textContent = _p + '%'; _qv.style.color = '#0D5F75'; } }
         _mappaInited = false;
         if (_mappaCurrentSite) await initHotelMappa(_mappaCurrentSite);
     } catch(e) { btn.textContent = '↩ Ripristina'; btn.disabled = false; }
