@@ -3808,6 +3808,7 @@ async function initHotelConfig(site) {
         toggl('citation_engine','Citation Engine', cfg.citation_engine!==false) +
         toggl('entity_graph','Entity Graph', cfg.entity_graph!==false) +
         toggl('faq_enabled','FAQ Pubbliche', cfg.faq_enabled!==false) +
+        toggl('schema_enabled','Schema.org — dati strutturati (Google + AI)', cfg.schema_enabled!==false) +
         '</div><div style="padding:14px 20px;display:flex;align-items:center;gap:10px"><button id="hbtn-save-toggles" class="btn-update" style="margin-left:0;border-radius:24px;padding:8px 22px;font-family:\'Source Code Pro\',monospace;font-size:13px;letter-spacing:.04em">Salva abilitazioni</button><span id="hcfg-toggle-msg" style="font-size:13px;color:#0D5F75;font-family:\'Source Code Pro\',monospace"></span></div></div>'
         ) : '') +
         cardH + chH('#0D5F75','Sync ISI — Visibilità AI') +
@@ -3859,11 +3860,18 @@ async function initHotelConfig(site) {
             citation_engine:document.getElementById('hcfg-citation_engine')?.checked,
             entity_graph:   document.getElementById('hcfg-entity_graph')?.checked,
             faq_enabled:    document.getElementById('hcfg-faq_enabled')?.checked,
+            schema_enabled: document.getElementById('hcfg-schema_enabled')?.checked,
         };
         const { data: fresh } = await _SBq.from('isi_sites').select('hotel_profile').eq('site_id', site.site_id).single();
         const hp2 = fresh?.hotel_profile || hp;
         const { error } = await _SBq.from('isi_sites').update({ hotel_profile: { ...hp2, isi_config: newCfg } }).eq('site_id', site.site_id);
         site.hotel_profile = { ...hp2, isi_config: newCfg };
+        // Schema.org: accende/spegne subito sul plugin (non bloccante)
+        const _pb = (site?.site_url || '').replace(/\/$/, '');
+        if (_pb) {
+            fetch(_pb + '/wp-json/in3pida/v1/schema', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ secret: site.site_id, schema: { enabled: newCfg.schema_enabled ? 1 : 0 } }) }).catch(()=>{});
+            fetch(_pb + '/wp-json/in3pida/v1/force-heartbeat', { method:'POST', headers:{'Content-Type':'application/json'} }).catch(()=>{});
+        }
         if (btn) { btn.textContent = error ? '✗ Errore' : '✓ Salvato'; setTimeout(() => { btn.textContent = 'Salva abilitazioni'; }, 3000); }
     });
 
