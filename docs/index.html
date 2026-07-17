@@ -2686,7 +2686,7 @@
             id_pagine_selezionate: g('id_pagine_selezionate'),
             _updated_at: new Date().toISOString(), _source: 'admin',
         };
-        const { data: freshSite } = await _SBq.from('isi_sites').select('hotel_profile').eq('site_id', siteId).single();
+        const { data: freshSite } = await _SBq.from('isi_sites').select('hotel_profile,site_url').eq('site_id', siteId).single();
         const freshHp = freshSite?.hotel_profile || _currentHotelProfile;
         const { error } = await _SBq.from('isi_sites').update({ hotel_profile: { ...freshHp, ...profile } }).eq('site_id', siteId);
         btn.disabled = false; btn.textContent = 'Salva profilo';
@@ -2696,6 +2696,32 @@
         } else {
             _schemaProfile = profile;
             _currentHotelProfile = { ..._currentHotelProfile, ...profile };
+            // Eletta comanda il plugin: spinge social (sameAs) + impostazioni output nello Schema del sito (non bloccante)
+            const _pbase = (freshSite?.site_url || '').replace(/\/$/, '');
+            if (_pbase) {
+                const _scopeMap = { homepage:'home', tutto:'all', pagine:'pages' };
+                const _guided = {};
+                if (profile.facebook_url)        _guided.facebook        = profile.facebook_url;
+                if (profile.instagram_url)       _guided.instagram       = profile.instagram_url;
+                if (profile.google_business_url) _guided.google_business = profile.google_business_url;
+                if (profile.tripadvisor_url)     _guided.tripadvisor     = profile.tripadvisor_url;
+                fetch(_pbase + '/wp-json/in3pida/v1/schema', {
+                    method:'POST', headers:{'Content-Type':'application/json'},
+                    body: JSON.stringify({ secret: siteId, schema: {
+                        enabled: 1,
+                        output_scope: _scopeMap[profile.dove_mostrarlo] || 'home',
+                        only_if_required: profile.show_only_if_complete ? 1 : 0,
+                        include_website: profile.genera_website ? 1 : 0,
+                        include_faq: profile.genera_faqpage ? 1 : 0,
+                        include_breadcrumb: profile.genera_breadcrumb ? 1 : 0,
+                        disable_external_schema: profile.avoid_seo_conflicts ? 1 : 0,
+                        selected_pages: profile.id_pagine_selezionate || '',
+                        sameas_guided: _guided,
+                        sameas: (profile.social_custom||[]).map(s=>s.url).filter(Boolean),
+                    } })
+                }).catch(()=>{});
+                fetch(_pbase + '/wp-json/in3pida/v1/force-heartbeat', { method:'POST', headers:{'Content-Type':'application/json'} }).catch(()=>{});
+            }
             msg.style.display = 'block'; msg.style.color = '#0D5F75';
             msg.textContent = '✓ Profilo salvato.';
             renderHotelProfileView(profile);
