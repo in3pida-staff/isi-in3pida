@@ -1280,7 +1280,7 @@ function renderContent(site, pseData, now) {
             <div class="h-sec-sub">Profilo strutturato hotel</div>
           </div>
         </div>
-        <div class="h-card" style="margin-bottom:20px">
+        <div class="h-card" style="max-width:92%;margin-bottom:20px">
             <div class="h-card-hdr">
                 <div style="display:flex;align-items:center;gap:12px">
                     <div style="width:34px;height:34px;border-radius:50%;background:white;border:1.5px solid #0D5F75;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>
@@ -2124,8 +2124,8 @@ function buildHotelSchemaForm(s) {
         '<div style="width:34px;height:34px;border-radius:50%;background:white;border:1.5px solid #0D5F75;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+
         '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">'+(_svgIcons[t]||'<circle cx="12" cy="12" r="8"/>')+'</svg></div>'+
         '<span style="font-size:18px;font-weight:500;color:#0D5F75;font-family:Commissioner,sans-serif">'+t+'</span></div>';
-    const sec=t=>'</div></div><div class="h-card" style="margin-bottom:12px">'+_secHdr(t)+'<div class="h-card-body" style="padding:20px">';
-    const secFirst=t=>'<div class="h-card" style="margin-bottom:12px">'+_secHdr(t)+'<div class="h-card-body" style="padding:20px">';
+    const sec=t=>'</div></div><div class="h-card" style="max-width:92%;margin-bottom:12px">'+_secHdr(t)+'<div class="h-card-body" style="padding:20px">';
+    const secFirst=t=>'<div class="h-card" style="max-width:92%;margin-bottom:12px">'+_secHdr(t)+'<div class="h-card-body" style="padding:20px">';
     const _subHdr=t=>'<div style="font-size:11px;font-weight:600;color:rgba(13,95,117,0.5);font-family:\'Source Code Pro\',monospace;text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px">'+t+'</div>';
     const _btnFior='background:#C1CBE8;color:#fff;border:none;border-radius:24px;padding:7px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:\'Source Code Pro\',monospace;white-space:nowrap';
     const _btnLight='background:white;color:#0D5F75;border:1px solid #e4e4ec;border-radius:24px;padding:7px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:\'Source Code Pro\',monospace;white-space:nowrap';
@@ -2134,9 +2134,9 @@ function buildHotelSchemaForm(s) {
     // ── Separator grid helpers ────────────────────────────────────────────────
     const _vs='<div style="background:#e4e4ec;margin:8px 0"></div>';
     const _hs='<div style="height:1px;background:#e4e4ec;margin:0 16px"></div>';
-    const _p1=c=>'<div style="padding:12px 10px 12px 0">'+c+'</div>';
-    const _pm=c=>'<div style="padding:12px 10px">'+c+'</div>';
-    const _pn=c=>'<div style="padding:12px 0 12px 10px">'+c+'</div>';
+    const _p1=c=>'<div style="min-width:0;padding:12px 10px 12px 0">'+c+'</div>';
+    const _pm=c=>'<div style="min-width:0;padding:12px 10px">'+c+'</div>';
+    const _pn=c=>'<div style="min-width:0;padding:12px 0 12px 10px">'+c+'</div>';
     const _g2=c=>'<div style="padding:0 16px"><div style="display:grid;grid-template-columns:1fr 1px 1fr">'+c+'</div></div>';
     const _g3=c=>'<div style="padding:0 16px"><div style="display:grid;grid-template-columns:1fr 1px 1fr 1px 1fr">'+c+'</div></div>';
     const _gx=(cols,c)=>'<div style="padding:0 16px"><div style="display:grid;grid-template-columns:'+cols+'">'+c+'</div></div>';
