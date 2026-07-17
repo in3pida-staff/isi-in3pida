@@ -2259,6 +2259,7 @@
                 </div>
                 <div style="display:none;padding:14px 20px">` +
             '<div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">' +
+            `<label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px;font-weight:700;color:#0D5F75;font-family:var(--font)"><input type="checkbox" id="pf-schema_enabled" ${p.schema_enabled!==false?'checked':''} style="width:18px;height:18px;accent-color:#0D5F75;cursor:pointer;flex-shrink:0">Pubblica Schema.org sul sito (accende i dati strutturati per Google e AI)</label>` +
             `<label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px;color:#4b4d68;font-family:var(--font)"><input type="checkbox" id="pf-show_only_if_complete" ${p.show_only_if_complete!==false?'checked':''} style="width:16px;height:16px;accent-color:#0D5F75;cursor:pointer;flex-shrink:0">Mostra JSON-LD solo se i campi obbligatori sono compilati</label>` +
             `<label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px;color:#4b4d68;font-family:var(--font)"><input type="checkbox" id="pf-avoid_seo_conflicts" ${p.avoid_seo_conflicts?'checked':''} style="width:16px;height:16px;accent-color:#0D5F75;cursor:pointer;flex-shrink:0">Evita conflitti Schema con plugin SEO compatibili (Yoast, RankMath, AIOSEO)</label>` +
             '</div>' +
@@ -2677,6 +2678,7 @@
             social_custom: _socialCustomTmp.filter(s=>s.url),
             google_maps_url: g('google_maps_url'), destinazione: g('destinazione'),
             structured_data_note: g('structured_data_note'),
+            schema_enabled: document.getElementById('pf-schema_enabled')?.checked !== false,
             show_only_if_complete: document.getElementById('pf-show_only_if_complete')?.checked||false,
             avoid_seo_conflicts: document.getElementById('pf-avoid_seo_conflicts')?.checked||false,
             genera_website: document.getElementById('pf-genera_website')?.checked!==false,
@@ -2708,7 +2710,7 @@
                 fetch(_pbase + '/wp-json/in3pida/v1/schema', {
                     method:'POST', headers:{'Content-Type':'application/json'},
                     body: JSON.stringify({ secret: siteId, schema: {
-                        enabled: 1,
+                        enabled: profile.schema_enabled ? 1 : 0,
                         output_scope: _scopeMap[profile.dove_mostrarlo] || 'home',
                         only_if_required: profile.show_only_if_complete ? 1 : 0,
                         include_website: profile.genera_website ? 1 : 0,
