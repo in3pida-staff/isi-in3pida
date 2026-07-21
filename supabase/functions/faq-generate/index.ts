@@ -1,6 +1,9 @@
+import { reportAiStatus } from '../_shared/alerts.ts';
+
 const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY') ?? '';
 const SUPABASE_URL      = Deno.env.get('SUPABASE_URL') ?? '';
 const SERVICE_KEY       = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
+const FAQ_ALERT = (ok: boolean) => reportAiStatus(SUPABASE_URL, SERVICE_KEY, 'faq:generate', ok, 'Generazione risposte FAQ', { source: 'faq-generate', model: 'claude-haiku-4-5' });
 
 const cors = {
   'Access-Control-Allow-Origin': '*',
@@ -55,10 +58,12 @@ Deno.serve(async (req) => {
 
     const data = await res.json();
     const answer = data.content?.[0]?.text?.trim() ?? '';
-    if (!answer) return new Response(JSON.stringify({ error: 'empty_response' }), { status: 500, headers: cors });
+    if (!answer) { await FAQ_ALERT(false); return new Response(JSON.stringify({ error: 'empty_response' }), { status: 500, headers: cors }); }
 
+    await FAQ_ALERT(true);
     return new Response(JSON.stringify({ answer }), { headers: { ...cors, 'Content-Type': 'application/json' } });
   } catch (e) {
+    await FAQ_ALERT(false);
     return new Response(JSON.stringify({ error: String(e) }), { status: 500, headers: cors });
   }
 });

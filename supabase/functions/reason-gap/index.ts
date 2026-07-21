@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { reportAiStatus } from '../_shared/alerts.ts'
 
 const SUPABASE_URL     = Deno.env.get('SUPABASE_URL') ?? ''
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
@@ -92,6 +93,7 @@ Per ciascuna ricerca, indica in modo semplice (max 2 righe) cosa manca nel profi
       })
     })
 
+    await reportAiStatus(SUPABASE_URL, SUPABASE_SERVICE_KEY, 'reason:gap', groqRes.ok, 'Analisi Query Mancanti (Reason Gap)', { source: 'reason-gap', model: 'llama-3.1-8b-instant' })
     const groqData = await groqRes.json()
     const rawText = groqData.choices?.[0]?.message?.content?.trim() ?? '[]'
 
@@ -123,6 +125,7 @@ Per ciascuna ricerca, indica in modo semplice (max 2 righe) cosa manca nel profi
       headers: { ...cors, 'Content-Type': 'application/json' }
     })
   } catch (e) {
+    try { await reportAiStatus(SUPABASE_URL, SUPABASE_SERVICE_KEY, 'reason:gap', false, 'Analisi Query Mancanti (Reason Gap)', { source: 'reason-gap', model: 'llama-3.1-8b-instant' }) } catch (_) {}
     return new Response(JSON.stringify({ error: String(e) }), { status: 500, headers: cors })
   }
 })

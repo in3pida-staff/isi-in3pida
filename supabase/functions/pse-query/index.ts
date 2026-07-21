@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { reportAiStatus } from '../_shared/alerts.ts'
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? ''
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
@@ -250,18 +251,10 @@ Rispondi SOLO con JSON valido, nessun testo fuori:
     const geminiAltResult  = parseJson(rawGeminiAlt)
     const perplexityResult = parseJson(rawPerplexity)
 
-    // Motori che non rispondono (errore o risposta vuota) → avviso SOLO admin (tabella isi_admin_alerts)
-    if (rawChatgpt === '')    _engineErrors.push({ engine:'chatgpt',    model:'llama-3.1-8b-instant',    error:'risposta vuota' })
-    if (rawGeminiAlt === '')  _engineErrors.push({ engine:'gemini',     model:'llama-3.3-70b-versatile', error:'risposta vuota' })
-    if (rawPerplexity === '') _engineErrors.push({ engine:'perplexity', model:'openai/gpt-oss-20b',       error:'risposta vuota' })
-    for (const er of _engineErrors) {
-      await supabase.from('isi_admin_alerts').upsert({
-        key: 'llm_engine_down:' + er.engine,
-        type: 'llm_engine_down', engine: er.engine, model: er.model,
-        message: `Motore "${er.engine}" (modello ${er.model}) non risponde: ${er.error}`,
-        last_seen: new Date().toISOString(), resolved: false
-      }, { onConflict: 'key' }).then(() => {}, () => {})
-    }
+    // Motori AI: avviso SOLO admin quando non rispondono, e "tornato disponibile" quando riprendono
+    await reportAiStatus(SUPABASE_URL, SUPABASE_SERVICE_KEY, 'llm:chatgpt',    rawChatgpt    !== '', 'Simulatore — motore ChatGPT',    { source:'pse', engine:'chatgpt',    model:'llama-3.1-8b-instant' })
+    await reportAiStatus(SUPABASE_URL, SUPABASE_SERVICE_KEY, 'llm:gemini',     rawGeminiAlt  !== '', 'Simulatore — motore Gemini',     { source:'pse', engine:'gemini',     model:'llama-3.3-70b-versatile' })
+    await reportAiStatus(SUPABASE_URL, SUPABASE_SERVICE_KEY, 'llm:perplexity', rawPerplexity !== '', 'Simulatore — motore Perplexity', { source:'pse', engine:'perplexity', model:'openai/gpt-oss-20b' })
 
     const chatgptCited    = (chatgptResult.probability    ?? 0) >= 50
     const geminiAltCited  = (geminiAltResult.probability  ?? 0) >= 50
