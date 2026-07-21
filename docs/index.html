@@ -2061,12 +2061,13 @@
         _socialCustomTmp= JSON.parse(JSON.stringify(p.social_custom||[]));
         _galleryTmp     = (p.gallery_urls||'').split('\n').map(u=>u.trim()).filter(Boolean);
         const _serviziPreset = ['Wi-Fi gratuito','Colazione','Aria condizionata','Parcheggio','Ristorante','Camere familiari','Ascensore','Self check-in','Piscina','Bar','Camere non fumatori','Reception','Reception 24 ore','Late check-in','Accessibilità per ospiti con disabilità','Ricarica auto elettriche'];
-        _serviziCustomTmp   = (p.servizi||'').split(',').map(s=>s.trim()).filter(s=>s&&!_serviziPreset.map(x=>x.toLowerCase()).includes(s.toLowerCase()));
+        const _dedupCustom = (str, preset) => { const pl=preset.map(x=>x.toLowerCase()); const seen=new Set(); return (str||'').split(',').map(s=>s.trim()).filter(s=>{ const k=s.toLowerCase(); if(!s || pl.includes(k) || seen.has(k)) return false; seen.add(k); return true; }); };
+        _serviziCustomTmp   = _dedupCustom(p.servizi, _serviziPreset);
         const _targetPreset = ['Famiglie','Coppie','Business traveler','Turisti internazionali','Gruppi','Cicloturisti','Digital nomad'];
-        _targetCustomTmp    = (p.target_clientela||'').split(',').map(s=>s.trim()).filter(s=>s&&!_targetPreset.map(x=>x.toLowerCase()).includes(s.toLowerCase()));
+        _targetCustomTmp    = _dedupCustom(p.target_clientela, _targetPreset);
         const _knowsaboutPreset = ['Vacanze in famiglia','Weekend romantici','Viaggi business','Turismo locale','Soggiorni con parcheggio','Hotel con colazione','Soggiorni vicino ad attrazioni'];
         const _kaArr = Array.isArray(p.knowsabout)?p.knowsabout:(p.knowsabout||'').split(',').map(s=>s.trim()).filter(Boolean);
-        _knowsaboutCustomTmp = _kaArr.filter(s=>!_knowsaboutPreset.map(x=>x.toLowerCase()).includes(s.toLowerCase()));
+        _knowsaboutCustomTmp = (()=>{ const pl=_knowsaboutPreset.map(x=>x.toLowerCase()); const seen=new Set(); return _kaArr.map(s=>(s||'').trim()).filter(s=>{ const k=s.toLowerCase(); if(!s || pl.includes(k) || seen.has(k)) return false; seen.add(k); return true; }); })();
         const inp = (id, label, val, ph, type) =>
             `<div><label class="profile-label">${label}</label><input type="${type||'text'}" id="pf-${id}" class="profile-input" value="${escHtml(val||'')}" placeholder="${escHtml(ph||'')}"></div>`;
         const selF = (id, label, val, opts) =>
@@ -2642,12 +2643,14 @@
         btn.disabled = true; btn.textContent = 'Salvataggio...';
         const g = id => (document.getElementById('pf-' + id)?.value || '').trim();
         const checkedVals = cls => [...document.querySelectorAll(`.${cls}:checked`)].map(el=>el.value);
+        // dedup case-insensitive, mantiene la prima occorrenza (i custom sono già tra i checked → niente doppioni)
+        const _dedup = arr => { const seen=new Set(), out=[]; (arr||[]).forEach(x=>{ const t=(x||'').trim(); const k=t.toLowerCase(); if(t && !seen.has(k)){ seen.add(k); out.push(t); } }); return out; };
         const serviziChecked = checkedVals('pf-servizi-chk');
-        const serviziAll = [...serviziChecked, ..._serviziCustomTmp.filter(Boolean)].join(', ');
+        const serviziAll = _dedup([...serviziChecked, ..._serviziCustomTmp.filter(Boolean)]).join(', ');
         const targetChecked = checkedVals('pf-target-chk');
-        const targetAll = [...targetChecked, ..._targetCustomTmp.filter(Boolean)].join(', ');
+        const targetAll = _dedup([...targetChecked, ..._targetCustomTmp.filter(Boolean)]).join(', ');
         const knowsaboutChecked = checkedVals('pf-knowsabout-chk');
-        const knowsaboutAll = [...knowsaboutChecked, ..._knowsaboutCustomTmp.filter(Boolean)];
+        const knowsaboutAll = _dedup([...knowsaboutChecked, ..._knowsaboutCustomTmp.filter(Boolean)]);
         const profile = {
             nome_hotel: g('nome_hotel'), tipo_struttura: g('tipo_struttura'), stelle: g('stelle'),
             descrizione: g('descrizione'), prezzo_medio: g('prezzo_medio'), orario_reception: g('orario_reception'),
