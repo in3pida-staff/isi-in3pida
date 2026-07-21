@@ -235,16 +235,33 @@ Rispondi SOLO con JSON valido, nessun testo fuori:
 
     const userPrompt = `Profilo hotel:\n${JSON.stringify(body.hotel_context, null, 2)}\n\nQuery utente: "${query}"`
 
-    // Esegui ChatGPT (Llama 8B) + Gemini (Llama 70B) + Perplexity (Gemma2 9B) in parallelo — stesso GROQ_API_KEY, zero costi aggiuntivi
+    // Esegui ChatGPT (Llama 8B) + Gemini (Llama 70B) + Perplexity (GPT-OSS 20B) in parallelo — stesso GROQ_API_KEY, zero costi aggiuntivi
+    // Nota: gemma2-9b-it è stato dismesso da Groq → sostituito con openai/gpt-oss-20b. Gli errori per modello vengono tracciati come avvisi admin.
+    const _engineErrors: Array<{engine:string, model:string, error:string}> = []
+    const _run = (engine:string, model:string) =>
+      groqModel(model, systemPrompt, userPrompt, 800).catch((e) => { _engineErrors.push({ engine, model, error: String(e).slice(0,300) }); return '' })
     const [rawChatgpt, rawGeminiAlt, rawPerplexity] = await Promise.all([
-      groqModel('llama-3.1-8b-instant',     systemPrompt, userPrompt, 800).catch(() => ''),
-      groqModel('llama-3.3-70b-versatile',  systemPrompt, userPrompt, 800).catch(() => ''),
-      groqModel('gemma2-9b-it',             systemPrompt, userPrompt, 800).catch(() => '')
+      _run('chatgpt',    'llama-3.1-8b-instant'),
+      _run('gemini',     'llama-3.3-70b-versatile'),
+      _run('perplexity', 'openai/gpt-oss-20b')
     ])
 
     const chatgptResult    = parseJson(rawChatgpt)
     const geminiAltResult  = parseJson(rawGeminiAlt)
     const perplexityResult = parseJson(rawPerplexity)
+
+    // Motori che non rispondono (errore o risposta vuota) → avviso SOLO admin (tabella isi_admin_alerts)
+    if (rawChatgpt === '')    _engineErrors.push({ engine:'chatgpt',    model:'llama-3.1-8b-instant',    error:'risposta vuota' })
+    if (rawGeminiAlt === '')  _engineErrors.push({ engine:'gemini',     model:'llama-3.3-70b-versatile', error:'risposta vuota' })
+    if (rawPerplexity === '') _engineErrors.push({ engine:'perplexity', model:'openai/gpt-oss-20b',       error:'risposta vuota' })
+    for (const er of _engineErrors) {
+      await supabase.from('isi_admin_alerts').upsert({
+        key: 'llm_engine_down:' + er.engine,
+        type: 'llm_engine_down', engine: er.engine, model: er.model,
+        message: `Motore "${er.engine}" (modello ${er.model}) non risponde: ${er.error}`,
+        last_seen: new Date().toISOString(), resolved: false
+      }, { onConflict: 'key' }).then(() => {}, () => {})
+    }
 
     const chatgptCited    = (chatgptResult.probability    ?? 0) >= 50
     const geminiAltCited  = (geminiAltResult.probability  ?? 0) >= 50

@@ -604,6 +604,22 @@
     let _sidebarClickHandler = null;
 
     // ─── AUTH ────────────────────────────────────────────────────────────────────
+    // Avvisi di sistema — SOLO admin (index.html è già riservato all'admin; gli albergatori usano hotel.html)
+    async function loadAdminAlerts() {
+        try {
+            const { data } = await _SBq.from('isi_admin_alerts').select('*').eq('resolved', false).order('last_seen', { ascending: false });
+            let el = document.getElementById('admin-alerts-bar');
+            if (!el) { el = document.createElement('div'); el.id = 'admin-alerts-bar'; el.style.cssText = 'position:sticky;top:0;z-index:600'; document.body.insertBefore(el, document.body.firstChild); }
+            if (!data || !data.length) { el.innerHTML = ''; return; }
+            el.innerHTML = data.map(a => `<div style="display:flex;align-items:center;gap:12px;background:#fbf4f7;border-bottom:1px solid #ead0dc;padding:10px 20px;font-size:13px;color:#d82d6b;font-family:var(--font)"><span style="font-size:16px">⚠️</span><span style="flex:1"><strong>Avviso sistema:</strong> ${escHtml(a.message||'')} <span style="color:#9ca3af">${a.last_seen?('· '+new Date(a.last_seen).toLocaleString('it-IT')):''}</span></span><button onclick="resolveAdminAlert('${a.id}')" style="background:white;border:1px solid #d82d6b;color:#d82d6b;border-radius:20px;padding:4px 14px;font-size:12px;cursor:pointer;font-family:var(--font);white-space:nowrap">Segna risolto</button></div>`).join('');
+        } catch(e) {}
+    }
+    async function resolveAdminAlert(id) {
+        try { await _SBq.from('isi_admin_alerts').update({ resolved: true }).eq('id', id); } catch(e) {}
+        loadAdminAlerts();
+    }
+    window.resolveAdminAlert = resolveAdminAlert;
+
     async function init() {
         const { data: { session } } = await _SB.auth.getSession();
         if (!session) { window.location.href = 'login.html'; return; }
@@ -630,6 +646,8 @@
         const { data: vd } = await _SBq.from('isi_plugin_versions').select('version,download_url').order('released_at',{ascending:false}).limit(1).single();
         if (vd) latestVersion = vd;
         loadTab('panoramica');
+        loadAdminAlerts();
+        setInterval(loadAdminAlerts, 120000);
     }
 
     function setAvatar(url) {
