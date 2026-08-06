@@ -327,21 +327,20 @@ table.sites-table th {
     text-align: left; padding: 12px 6px;
     font-size: 12px; font-weight: 700; color: #999;
     background: #fafafa; border-bottom: 1px solid var(--border);
-    white-space: nowrap; position: relative; overflow: hidden;
+    white-space: nowrap; position: relative;
 }
-table.sites-table td { padding: 11px 6px; font-size: 13px; border-bottom: 1px solid #f4f4f8; overflow: hidden; }
+table.sites-table td { padding: 11px 6px; font-size: 13px; border-bottom: 1px solid #f4f4f8; }
 table.sites-table tr:last-child td { border-bottom: none; }
 table.sites-table tbody tr { transition: background .12s; }
 table.sites-table tbody tr:hover td { background: #e8ecf7; }
-#siti-panoramica-container, #siti-container { overflow: hidden; }
 table.sites-table col.col-stato    { width: 36px; }
 table.sites-table col.col-sito     { width: auto; }
-table.sites-table col.col-segnale  { width: 90px; }
-table.sites-table col.col-versione { width: 80px; }
-table.sites-table col.col-geo      { width: 82px; }
-table.sites-table col.col-missing  { width: 82px; }
-table.sites-table col.col-comp     { width: 82px; }
-table.sites-table col.col-azioni   { width: 220px; }
+table.sites-table col.col-segnale  { width: 84px; }
+table.sites-table col.col-versione { width: 76px; }
+table.sites-table col.col-geo      { width: 72px; }
+table.sites-table col.col-missing  { width: 72px; }
+table.sites-table col.col-comp     { width: 72px; }
+table.sites-table col.col-azioni   { width: 280px; }
 .site-name-cell { font-weight: 600; font-size: 15px; }
 .th-center { text-align: center !important; }
 .td-center { text-align: center; }
