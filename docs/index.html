@@ -916,7 +916,7 @@
         }
         const now = new Date();
         const totalCost = Object.values(costsMap||{}).reduce((a,b)=>a+(b||0),0);
-        let html = `<table class="sites-table"><thead><tr>
+        let html = `<table class="sites-table"><colgroup><col class="col-stato"><col class="col-sito"><col class="col-segnale"><col class="col-versione"><col class="col-geo"><col class="col-missing"><col class="col-comp"><col class="col-azioni"></colgroup><thead><tr>
             <th>Stato <span class="tip-q" data-tip="Pallino colorato = plugin connesso (segnale ricevuto nelle ultime 25 ore). Pallino grigio = plugin non risponde.">?</span></th><th>Sito</th><th>Ultimo segnale <span class="tip-q" data-tip="Quando il plugin ha inviato l'ultimo aggiornamento all'app ISI.">?</span></th>
             <th>Versione <span class="tip-q" data-tip="Versione del plugin in3pida FAQ installata su questo sito.">?</span></th>
             <th class="th-center">GEO Score <span class="tip-q" data-tip="Quanto il sito è ottimizzato per essere citato dai motori AI come ChatGPT e Google.">?</span></th>
@@ -952,12 +952,12 @@
             const siteCost = costsMap?.[site.site_id] || 0;
             const neverConnected = !site.plugin_version && !site.last_heartbeat;
             const aggiornaBtnHtml = isScriptJs
-                ? `<button class="btn-ping" style="font-size:13px;padding:4px 10px;cursor:default;min-width:78px;text-align:center" disabled onclick="event.stopPropagation()">Auto</button>`
+                ? `<button class="btn-ping" style="font-size:12px;padding:3px 8px;cursor:default;min-width:66px;text-align:center" disabled onclick="event.stopPropagation()">Auto</button>`
                 : neverConnected
-                    ? `<button class="btn-update" style="font-size:13px;padding:4px 10px;min-width:78px;text-align:center" onclick="event.stopPropagation();installaManuale()">Installa</button>`
+                    ? `<button class="btn-update" style="font-size:12px;padding:3px 8px;min-width:66px;text-align:center" onclick="event.stopPropagation();installaManuale()">Installa</button>`
                     : isOld
-                        ? `<button class="btn-update" style="font-size:13px;padding:4px 10px;margin-left:0;border:1.5px solid transparent;min-width:78px;text-align:center" onclick="event.stopPropagation();aggiornaSito('${escHtml(site.site_id)}')">Aggiorna</button>`
-                        : `<button class="btn-ping" style="font-size:13px;padding:4px 10px;cursor:default;min-width:78px;text-align:center" disabled onclick="event.stopPropagation()">Aggiornato</button>`;
+                        ? `<button class="btn-update" style="font-size:12px;padding:3px 8px;margin-left:0;border:1.5px solid transparent;min-width:66px;text-align:center" onclick="event.stopPropagation();aggiornaSito('${escHtml(site.site_id)}')">Aggiorna</button>`
+                        : `<button class="btn-ping" style="font-size:12px;padding:3px 8px;cursor:default;min-width:66px;text-align:center" disabled onclick="event.stopPropagation()">Aggiornato</button>`;
             html += `<tr data-site-id="${escHtml(site.site_id)}" style="cursor:pointer">
                 <td><span class="dot" style="background:${dotColor};box-shadow:0 0 0 4px ${dotColor}26;cursor:help" title="${escHtml(dotTitle)}"></span></td>
                 <td><div class="site-name-cell">${escHtml(site.site_name||'—')}</div><div style="font-size:13px;color:var(--grey);margin-top:2px">${escHtml(site.site_url||'')}</div></td>
@@ -966,7 +966,7 @@
                 <td class="td-center">${geoHtml}</td>
                 <td class="td-center">${covHtml}</td>
                 <td class="td-center">${csHtml}</td>
-                <td style="white-space:nowrap"><div style="display:inline-flex;gap:5px;align-items:center">${aggiornaBtnHtml}<button class="btn-ping" style="font-size:13px;padding:4px 10px" onclick="event.stopPropagation();toggleSitoAttivo('${escHtml(site.site_id)}','${escHtml(site.site_url||'')}',this)">Disattiva</button><button class="btn-ping" style="font-size:13px;padding:4px 10px;background:#e8ecf7;color:#0D5F75" onclick="event.stopPropagation();openSitePerms('${escHtml(site.site_id)}','${escHtml(site.site_name||'')}')">Permessi</button><button style="background:none;border:none;color:var(--red-text);font-size:15px;font-weight:700;cursor:pointer;padding:4px 6px" title="Elimina installazione" onclick="event.stopPropagation();eliminaSito('${escHtml(site.site_id)}','${escHtml(site.site_name||site.site_url||'')}',this)">🗑️</button></div></td>
+                <td style="white-space:nowrap"><div style="display:inline-flex;gap:4px;align-items:center">${aggiornaBtnHtml}<button class="btn-ping" style="font-size:12px;padding:3px 8px" onclick="event.stopPropagation();toggleSitoAttivo('${escHtml(site.site_id)}','${escHtml(site.site_url||'')}',this)">Disattiva</button><button class="btn-ping" style="font-size:12px;padding:3px 8px;background:#e8ecf7;color:#0D5F75" onclick="event.stopPropagation();openSitePerms('${escHtml(site.site_id)}','${escHtml(site.site_name||'')}')">Permessi</button><button style="background:none;border:none;color:var(--red-text);font-size:14px;font-weight:700;cursor:pointer;padding:3px 4px" title="Elimina installazione" onclick="event.stopPropagation();eliminaSito('${escHtml(site.site_id)}','${escHtml(site.site_name||site.site_url||'')}',this)">🗑️</button></div></td>
             </tr>`;
             window._sitePermsData = window._sitePermsData || {};
             window._sitePermsData[site.site_id] = site.features_override || {};

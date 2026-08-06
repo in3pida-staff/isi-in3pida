@@ -322,18 +322,26 @@ textarea.profile-input { resize: vertical; }
 .card-title { font-size: 15px; font-weight: 600; }
 
 /* ─── TABLE ──────────────────────────────────────────────────────────────── */
-table.sites-table { width: 100%; border-collapse: collapse; overflow: visible; }
+table.sites-table { width: 100%; border-collapse: collapse; overflow: visible; table-layout: fixed; }
 table.sites-table th {
-    text-align: left; padding: 12px 9px;
-    font-size: 13px; font-weight: 700; color: #999;
+    text-align: left; padding: 12px 6px;
+    font-size: 12px; font-weight: 700; color: #999;
     background: #fafafa; border-bottom: 1px solid var(--border);
-    white-space: nowrap; position: relative; overflow: visible;
+    white-space: nowrap; position: relative; overflow: hidden;
 }
-table.sites-table td { padding: 13px 9px; font-size: 14px; border-bottom: 1px solid #f4f4f8; }
+table.sites-table td { padding: 11px 6px; font-size: 13px; border-bottom: 1px solid #f4f4f8; overflow: hidden; }
 table.sites-table tr:last-child td { border-bottom: none; }
 table.sites-table tbody tr { transition: background .12s; }
 table.sites-table tbody tr:hover td { background: #e8ecf7; }
-#siti-panoramica-container, #siti-container { overflow-x: auto; }
+#siti-panoramica-container, #siti-container { overflow: hidden; }
+table.sites-table col.col-stato    { width: 38px; }
+table.sites-table col.col-sito     { width: auto; }
+table.sites-table col.col-segnale  { width: 100px; }
+table.sites-table col.col-versione { width: 90px; }
+table.sites-table col.col-geo      { width: 90px; }
+table.sites-table col.col-missing  { width: 90px; }
+table.sites-table col.col-comp     { width: 90px; }
+table.sites-table col.col-azioni   { width: 240px; }
 .site-name-cell { font-weight: 600; font-size: 15px; }
 .th-center { text-align: center !important; }
 .td-center { text-align: center; }
