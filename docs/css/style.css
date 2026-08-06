@@ -344,7 +344,7 @@ table.sites-table col.col-azioni   { width: 280px; }
 table.sites-table th:first-child,
 table.sites-table td:first-child { padding-left: 20px; }
 table.sites-table th:last-child,
-table.sites-table td:last-child { padding-right: 20px; }
+table.sites-table td:last-child { padding-left: 16px; padding-right: 20px; }
 .site-name-cell { font-weight: 600; font-size: 15px; }
 .th-center { text-align: center !important; }
 .td-center { text-align: center; }
