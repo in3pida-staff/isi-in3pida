@@ -334,14 +334,14 @@ table.sites-table tr:last-child td { border-bottom: none; }
 table.sites-table tbody tr { transition: background .12s; }
 table.sites-table tbody tr:hover td { background: #e8ecf7; }
 #siti-panoramica-container, #siti-container { overflow: hidden; }
-table.sites-table col.col-stato    { width: 38px; }
+table.sites-table col.col-stato    { width: 36px; }
 table.sites-table col.col-sito     { width: auto; }
-table.sites-table col.col-segnale  { width: 100px; }
-table.sites-table col.col-versione { width: 90px; }
-table.sites-table col.col-geo      { width: 90px; }
-table.sites-table col.col-missing  { width: 90px; }
-table.sites-table col.col-comp     { width: 90px; }
-table.sites-table col.col-azioni   { width: 240px; }
+table.sites-table col.col-segnale  { width: 90px; }
+table.sites-table col.col-versione { width: 80px; }
+table.sites-table col.col-geo      { width: 82px; }
+table.sites-table col.col-missing  { width: 82px; }
+table.sites-table col.col-comp     { width: 82px; }
+table.sites-table col.col-azioni   { width: 220px; }
 .site-name-cell { font-weight: 600; font-size: 15px; }
 .th-center { text-align: center !important; }
 .td-center { text-align: center; }
