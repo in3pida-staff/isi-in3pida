@@ -8,8 +8,8 @@
     <meta http-equiv="Expires" content="0">
     <title>Eletta — Posiziona il tuo sito nelle ricerche AI</title>
     <link rel="icon" type="image/png" href="images/favicon.png?v=2">
-    <link rel="stylesheet" href="css/style.css?v=20260806g">
-    <script>if(!sessionStorage.getItem('isi_idx_v5')){sessionStorage.setItem('isi_idx_v5','1');location.reload(true);}</script>
+    <link rel="stylesheet" href="css/style.css?v=20260806h">
+    <script>if(!sessionStorage.getItem('isi_idx_v6')){sessionStorage.setItem('isi_idx_v6','1');location.reload(true);}</script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <style>
         /* ─── HOTEL DETAIL: card moderne ─── */
@@ -952,12 +952,12 @@
             const siteCost = costsMap?.[site.site_id] || 0;
             const neverConnected = !site.plugin_version && !site.last_heartbeat;
             const aggiornaBtnHtml = isScriptJs
-                ? `<button class="btn-ping" style="font-size:12px;padding:3px 8px;cursor:default;min-width:66px;text-align:center" disabled onclick="event.stopPropagation()">Auto</button>`
+                ? `<button class="btn-ping" style="font-size:12px;padding:3px 8px;cursor:default;min-width:66px;text-align:center;line-height:1.4" disabled onclick="event.stopPropagation()">Auto</button>`
                 : neverConnected
-                    ? `<button class="btn-update" style="font-size:12px;padding:3px 8px;min-width:66px;text-align:center" onclick="event.stopPropagation();installaManuale()">Installa</button>`
+                    ? `<button class="btn-update" style="font-size:12px;padding:3px 8px;min-width:66px;text-align:center;line-height:1.4" onclick="event.stopPropagation();installaManuale()">Installa</button>`
                     : isOld
-                        ? `<button class="btn-update" style="font-size:12px;padding:3px 8px;margin-left:0;border:1.5px solid transparent;min-width:66px;text-align:center" onclick="event.stopPropagation();aggiornaSito('${escHtml(site.site_id)}')">Aggiorna</button>`
-                        : `<button class="btn-ping" style="font-size:12px;padding:3px 8px;cursor:default;min-width:66px;text-align:center" disabled onclick="event.stopPropagation()">Aggiornato</button>`;
+                        ? `<button class="btn-update" style="font-size:12px;padding:3px 8px;margin-left:0;border:1.5px solid transparent;min-width:66px;text-align:center;line-height:1.4" onclick="event.stopPropagation();aggiornaSito('${escHtml(site.site_id)}')">Aggiorna</button>`
+                        : `<button class="btn-ping" style="font-size:12px;padding:3px 8px;cursor:default;min-width:66px;text-align:center;line-height:1.4" disabled onclick="event.stopPropagation()">Aggiornato</button>`;
             html += `<tr data-site-id="${escHtml(site.site_id)}" style="cursor:pointer">
                 <td><span class="dot" style="background:${dotColor};box-shadow:0 0 0 4px ${dotColor}26;cursor:help" title="${escHtml(dotTitle)}"></span></td>
                 <td><div class="site-name-cell">${escHtml(site.site_name||'—')}</div><div style="font-size:13px;color:var(--grey);margin-top:2px">${escHtml(site.site_url||'')}</div></td>
@@ -966,7 +966,7 @@
                 <td class="td-center">${geoHtml}</td>
                 <td class="td-center">${covHtml}</td>
                 <td class="td-center">${csHtml}</td>
-                <td style="white-space:nowrap;padding-left:18px"><div style="display:inline-flex;gap:4px;align-items:center">${aggiornaBtnHtml}<button class="btn-ping" style="font-size:12px;padding:3px 8px" onclick="event.stopPropagation();toggleSitoAttivo('${escHtml(site.site_id)}','${escHtml(site.site_url||'')}',this)">Disattiva</button><button class="btn-ping" style="font-size:12px;padding:3px 8px;background:#e8ecf7;color:#0D5F75" onclick="event.stopPropagation();openSitePerms('${escHtml(site.site_id)}','${escHtml(site.site_name||'')}')">Permessi</button><button style="background:none;border:none;color:var(--red-text);font-size:14px;font-weight:700;cursor:pointer;padding:3px 4px" title="Elimina installazione" onclick="event.stopPropagation();eliminaSito('${escHtml(site.site_id)}','${escHtml(site.site_name||site.site_url||'')}',this)">🗑️</button></div></td>
+                <td style="white-space:nowrap;padding-left:28px;vertical-align:middle"><div style="display:flex;gap:6px;align-items:center">${aggiornaBtnHtml}<button class="btn-ping" style="font-size:12px;padding:3px 8px;line-height:1.4" onclick="event.stopPropagation();toggleSitoAttivo('${escHtml(site.site_id)}','${escHtml(site.site_url||'')}',this)">Disattiva</button><button class="btn-ping" style="font-size:12px;padding:3px 8px;background:#e8ecf7;color:#0D5F75;line-height:1.4" onclick="event.stopPropagation();openSitePerms('${escHtml(site.site_id)}','${escHtml(site.site_name||'')}')">Permessi</button><button style="background:none;border:none;color:var(--red-text);font-size:14px;cursor:pointer;padding:0 2px;line-height:1;display:flex;align-items:center" title="Elimina installazione" onclick="event.stopPropagation();eliminaSito('${escHtml(site.site_id)}','${escHtml(site.site_name||site.site_url||'')}',this)">🗑️</button></div></td>
             </tr>`;
             window._sitePermsData = window._sitePermsData || {};
             window._sitePermsData[site.site_id] = site.features_override || {};
