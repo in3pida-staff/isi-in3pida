@@ -8,7 +8,7 @@
     <meta http-equiv="Expires" content="0">
     <title>Eletta — Posiziona il tuo sito nelle ricerche AI</title>
     <link rel="icon" type="image/png" href="images/favicon.png?v=2">
-    <link rel="stylesheet" href="css/style.css?v=20260806i">
+    <link rel="stylesheet" href="css/style.css?v=20260813a">
     <script>if(!sessionStorage.getItem('isi_idx_v6')){sessionStorage.setItem('isi_idx_v6','1');location.reload(true);}</script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <style>
@@ -424,35 +424,28 @@
         <div id="view-panoramica">
             <div class="sw-stats" id="kpi-grid">
                 <div class="sw-stat-card">
-                    <div class="sw-stat-icon" style="background:var(--magenta)">
-                        <svg width="24" height="24" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 21V9"/></svg>
-                    </div>
-                    <div class="sw-stat-text"><div class="sw-stat-num" id="kpi-siti">—</div><div class="sw-stat-label">Siti registrati</div></div>
+                    <div class="sw-stat-label">Siti registrati</div>
+                    <div class="sw-stat-num" id="kpi-siti">—</div>
+                    <div class="sw-stat-sub">installazioni totali</div>
+                    <div class="sw-stat-deco"><svg width="72" height="72" fill="none" stroke="#0D5F75" stroke-width="1.2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 21V9"/></svg></div>
                 </div>
                 <div class="sw-stat-card">
-                    <div class="sw-stat-icon" style="background:var(--magenta)">
-                        <svg width="24" height="24" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
-                    </div>
-                    <div class="sw-stat-text">
-                        <div class="sw-stat-num" id="kpi-latest-version" style="font-size:52px">—</div>
-                        <div style="font-size:13px;color:var(--grey);font-weight:500;margin-top:4px" id="kpi-latest-date"></div>
-                        <div class="sw-stat-label" style="margin-top:2px">Ultima versione<span id="kpi-latest-download" style="display:none"> · <a id="kpi-latest-download-link" href="#" download style="color:var(--magenta);font-weight:600;text-decoration:none">↓ Scarica zip</a></span></div>
-                    </div>
+                    <div class="sw-stat-label">Ultima versione<span id="kpi-latest-download" style="display:none"> · <a id="kpi-latest-download-link" href="#" download style="color:#0D5F75;font-weight:600;text-decoration:none;font-size:11px;font-family:'Source Code Pro',monospace">↓ Scarica zip</a></span></div>
+                    <div class="sw-stat-num" id="kpi-latest-version" style="font-size:26px;letter-spacing:.03em">—</div>
+                    <div class="sw-stat-sub" id="kpi-latest-date"></div>
+                    <div class="sw-stat-deco"><svg width="72" height="72" fill="none" stroke="#0D5F75" stroke-width="1.2" viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg></div>
                 </div>
                 <div class="sw-stat-card" style="cursor:pointer" onclick="window.location.href='costs.html'">
-                    <div class="sw-stat-icon" style="background:var(--magenta)">
-                        <svg width="24" height="24" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>
-                    </div>
-                    <div class="sw-stat-text">
-                        <div class="sw-stat-num" id="kpi-total-cost" style="font-size:36px">—</div>
-                        <div class="sw-stat-label">Costi AI totali</div>
-                    </div>
+                    <div class="sw-stat-label">Costi AI totali</div>
+                    <div class="sw-stat-num" id="kpi-total-cost" style="font-size:28px">—</div>
+                    <div class="sw-stat-sub">questo mese</div>
+                    <div class="sw-stat-deco"><svg width="72" height="72" fill="none" stroke="#0D5F75" stroke-width="1.2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg></div>
                 </div>
                 <div class="sw-stat-card" style="cursor:pointer" onclick="loadTab('benchmark')">
-                    <div class="sw-stat-icon" style="background:#0D5F75">
-                        <svg width="24" height="24" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-                    </div>
-                    <div class="sw-stat-text"><div class="sw-stat-num" id="kpi-benchmark">—</div><div class="sw-stat-label">Benchmark eseguiti</div></div>
+                    <div class="sw-stat-label">Benchmark eseguiti</div>
+                    <div class="sw-stat-num" id="kpi-benchmark">—</div>
+                    <div class="sw-stat-sub">completati</div>
+                    <div class="sw-stat-deco"><svg width="72" height="72" fill="none" stroke="#0D5F75" stroke-width="1.2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
                 </div>
             </div>
             <div class="card">
