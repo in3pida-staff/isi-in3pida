@@ -66,6 +66,7 @@
 
         /* Header */
         .eletta-header { background:transparent; height:52px; display:flex; align-items:center; padding:0 20px 0 5%; position:sticky; top:0; z-index:100; gap:14px; }
+        .eletta-header-logo { display:flex; align-items:center; margin-top:15px; }
         .eletta-header-logo img { height:24px; width:auto; }
         .eletta-header-right { display:flex; align-items:center; gap:10px; margin-left:auto; }
 
@@ -77,6 +78,8 @@
         .eletta-right .main .card-header { border-radius:16px 16px 0 0 !important; background:white !important; border-bottom:1px solid #f0f0f6 !important; }
         .eletta-right .main table.sites-table th { background:white !important; color:#0D5F75 !important; border-bottom:2px solid #EDEEF5 !important; }
         .eletta-right .main table.sites-table tbody tr:hover td { background:#f0f4f8 !important; }
+        .eletta-right .main table.sites-table td { vertical-align:middle !important; }
+        .eletta-right .main table.sites-table tbody tr { border-bottom:1px solid #f0f0f6; }
         .eletta-right { background:#EDEEF5; }
         .tip-q { background:#C1CBE8 !important; color:#0D5F75 !important; border:2px solid #C1CBE8 !important; box-shadow:none !important; }
         :root { --red:#d82d6b; --red-text:#d82d6b; --red-bg:#fbf4f7; --green-text:#0D5F75; --green-bg:#e8f2f5; }
@@ -92,6 +95,7 @@
     <div class="eletta-sidebar-brand">
       <svg width="28" height="34" viewBox="0 0 614.94 825.79" fill="none" style="width:30px;height:auto"><rect fill="#C1CBE8" width="614.94" height="130.54"/><path fill="#C1CBE8" d="M614.94,422.92v-126.92h-215.69C178.75,296,0,474.75,0,695.25H0v130.54h614.94v-130.54H128.49v-272.33h486.44Z"/></svg>
     </div>
+    <div class="eletta-sidebar-sep"></div>
     <nav class="eletta-sidebar-nav">
       <button class="eletta-nav-item active" id="nav-panoramica">
         <span class="eletta-nav-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 74.8 74.26" width="46" height="46"><circle fill="#c1cae7" cx="37.4" cy="37.67" r="32.81"/><rect fill="none" stroke="#fff" stroke-miterlimit="10" stroke-width="1.5" x="21.9" y="21.4" width="13.12" height="13.12"/><rect fill="none" stroke="#fff" stroke-miterlimit="10" stroke-width="1.5" x="39.78" y="21.4" width="13.12" height="13.12"/><rect fill="none" stroke="#fff" stroke-miterlimit="10" stroke-width="1.5" x="21.9" y="39.13" width="13.12" height="13.12"/><rect fill="none" stroke="#fff" stroke-miterlimit="10" stroke-width="1.5" x="39.78" y="39.13" width="13.12" height="13.12"/></svg></span>
@@ -6117,9 +6121,11 @@ ${rows}
                 <td>${hotelHtml}</td>
                 <td>${featHtml}</td>
                 <td style="color:var(--grey);font-size:13px">${regIl}</td>
-                <td style="display:flex;gap:8px;align-items:center">
+                <td style="vertical-align:middle">
+                    <div style="display:flex;gap:8px;align-items:center">
                     <button class="btn-ping" onclick='openEditUser(${JSON.stringify(u)})'><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="margin-right:4px;vertical-align:middle"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Modifica</button>
                     <button style="background:none;border:none;color:#d82d6b;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);display:flex;align-items:center;gap:4px" onclick="eliminaUtente('${escHtml(u.id)}','${escHtml(name)}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#d82d6b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg> Elimina</button>
+                    </div>
                 </td>
             </tr>`;
         });
