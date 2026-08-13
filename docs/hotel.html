@@ -705,59 +705,126 @@ function _calcAiMetrics(site) {
     const sc  = site.schema_data  || {};
     const hp  = site.hotel_profile|| {};
     const fd  = site.faq_data     || {};
+
+    // AI READINESS
     const hasAiProfile = geo.has_ai_profile === true ? 35 : 0;
     const schemaPts = [sc.name?7:0,(sc.street||sc.city)?7:0,sc.telephone?7:0,sc.url?7:0,sc.description?7:0].reduce((a,b)=>a+b,0);
     const hpKeys = ['nome_hotel','nome','descrizione','telefono','servizi','camere'];
     const hpFilled = hpKeys.filter(k=>{const v=hp[k];if(!v)return false;if(Array.isArray(v))return v.length>0;return String(v).trim().length>0;}).length;
     const hpPts = Math.round(hpFilled/hpKeys.length*30);
     const aiReadiness = Math.min(100, hasAiProfile+schemaPts+hpPts);
+
+    // ANSWER EXTRACTION
     const covPct = geo.coverage_pct??null;
     const qMapPct = computeQueryCoveragePct(site)??geo.query_map_pct??null;
     let answerExtraction = null;
     if (covPct!==null||qMapPct!==null) answerExtraction=Math.round((covPct??qMapPct)*0.5+(qMapPct??covPct)*0.5);
+
+    // QUALITY & SAFETY
     let qualSafety=100;
     ['name','telephone','street','description'].forEach(f=>{if(!sc[f])qualSafety-=10;});
     (geo.freshness_alerts||[]).forEach(()=>{qualSafety-=15;});
     (fd.items||[]).forEach(faq=>{if(!faq.answer||String(faq.answer).trim().length<20)qualSafety-=5;});
     (geo.checklist||[]).forEach(()=>{qualSafety-=8;});
     qualSafety=Math.max(0,qualSafety);
-    return {aiReadiness, answerExtraction, qualSafety};
+
+    // ENTITY AUTHORITY: profili ufficiali collegati
+    const sameasList=[...(sc.sameas||[]),...(sc.sameas_guided||[])].filter(Boolean);
+    let entityAuthority=0;
+    if(hp.google_business_url) entityAuthority+=25;
+    if(hp.tripadvisor_url)     entityAuthority+=25;
+    if(hp.booking_rating)      entityAuthority+=20;
+    entityAuthority+=Math.min(15,sameasList.length*5);
+    entityAuthority+=Math.min(15,(hp.social_custom||[]).length*5);
+    entityAuthority=Math.min(100,entityAuthority);
+
+    // CHUNK CITATION: qualità media blocchi FAQ (lunghezza ottimale per citabilità)
+    const items = fd.items||[];
+    let chunkAvg = 0;
+    if(items.length>0){
+        const scores=items.map(faq=>{const ans=String(faq.answer||'').trim();if(!ans)return 0;const l=ans.length;return l<50?20:l<=300?100:l<=600?80:50;});
+        chunkAvg=Math.round(scores.reduce((a,b)=>a+b,0)/scores.length);
+    }
+
+    // CITATION ENGINE: probabilità di essere citato dall'AI
+    const daysFaq=geo.days_since_faq??null;
+    let citationAvg=0;
+    citationAvg+=Math.min(30,items.length*4);
+    citationAvg+=Math.round(schemaPts/35*25);
+    if(hp.google_business_url) citationAvg+=10;
+    if(hp.tripadvisor_url)     citationAvg+=10;
+    if(daysFaq!==null&&daysFaq<60) citationAvg+=10;
+    if(daysFaq!==null&&daysFaq<30) citationAvg+=5;
+    if(sc.description) citationAvg+=10;
+    citationAvg=Math.min(100,citationAvg);
+
+    return {aiReadiness, answerExtraction, qualSafety, entityAuthority, chunkAvg, citationAvg};
 }
 
 // Inietta i valori calcolati in site.geo_scores (solo se null) prima del render
 function _injectAiMetrics(site) {
     const geo = site.geo_scores || {};
-    if (geo.ai_readiness!=null && geo.answer_extraction!=null && geo.quality_safety!=null) return;
-    const {aiReadiness, answerExtraction, qualSafety} = _calcAiMetrics(site);
-    if (geo.ai_readiness==null)      geo.ai_readiness=aiReadiness;
-    if (geo.answer_extraction==null) geo.answer_extraction=answerExtraction;
-    if (geo.quality_safety==null)    geo.quality_safety=qualSafety;
+    const {aiReadiness,answerExtraction,qualSafety,entityAuthority,chunkAvg,citationAvg} = _calcAiMetrics(site);
+    if(geo.ai_readiness==null)      geo.ai_readiness=aiReadiness;
+    if(geo.answer_extraction==null) geo.answer_extraction=answerExtraction;
+    if(geo.quality_safety==null)    geo.quality_safety=qualSafety;
+    if(geo.entity_authority==null)  geo.entity_authority=entityAuthority;
+    if(geo.chunk_avg==null)         geo.chunk_avg=chunkAvg;
+    if(geo.citation_avg==null)      geo.citation_avg=citationAvg;
     site.geo_scores = geo;
 }
 
-// Salva in score_history e geo_scores su Supabase (async, fire-and-forget)
+// Salva metriche in score_history + chiama edge function per AI Visibility (async, fire-and-forget)
 async function _saveAiMetrics(site) {
     try {
         const geo = site.geo_scores || {};
         const fd  = site.faq_data  || {};
-        const {aiReadiness, answerExtraction, qualSafety} = _calcAiMetrics(site);
+        const {aiReadiness,answerExtraction,qualSafety,entityAuthority,chunkAvg,citationAvg} = _calcAiMetrics(site);
         const today = new Date().toISOString().slice(0,10);
         const { data: fresh } = await _SBq.from('isi_sites').select('faq_data').eq('site_id', site.site_id).single();
         const faqData = fresh?.faq_data || fd;
         const history = Array.isArray(faqData.score_history) ? [...faqData.score_history] : [];
         const todayIdx = history.findIndex(h=>h.date===today);
         const existing = todayIdx>=0 ? history[todayIdx] : null;
-        if (existing && existing.ai_readiness!=null && existing.answer_extraction!=null && existing.quality_safety!=null) return;
-        const entry = {
-            ...(existing||{}), date:today,
-            geo:          existing?.geo          ?? geo.ai_readiness ?? geo.completeness_score ?? null,
-            coverage:     existing?.coverage     ?? geo.coverage_pct ?? null,
-            completeness: existing?.completeness ?? geo.completeness_score ?? null,
-            ai_readiness: aiReadiness, answer_extraction: answerExtraction, quality_safety: qualSafety,
-        };
-        if (todayIdx>=0) history[todayIdx]=entry; else history.push(entry);
-        await _SBq.from('isi_sites').update({ faq_data:{...faqData, score_history:history} }).eq('site_id', site.site_id);
-        if (_site) _site.faq_data = {...(_site.faq_data||{}), score_history:history};
+        const needsSave = !existing || existing.ai_readiness==null || existing.entity_authority==null;
+        if(needsSave) {
+            const entry = {
+                ...(existing||{}), date:today,
+                geo:          existing?.geo          ?? geo.ai_readiness ?? geo.completeness_score ?? null,
+                coverage:     existing?.coverage     ?? geo.coverage_pct ?? null,
+                completeness: existing?.completeness ?? geo.completeness_score ?? null,
+                ai_readiness:aiReadiness, answer_extraction:answerExtraction, quality_safety:qualSafety,
+                entity_authority:entityAuthority, chunk_avg:chunkAvg, citation_avg:citationAvg,
+            };
+            if(todayIdx>=0) history[todayIdx]=entry; else history.push(entry);
+            await _SBq.from('isi_sites').update({faq_data:{...faqData,score_history:history}}).eq('site_id',site.site_id);
+            if(_site) _site.faq_data={...(_site.faq_data||{}),score_history:history};
+        }
+        // AI Visibility: chiama edge function se non già calcolato oggi
+        if(!existing?.ai_visibility) {
+            try {
+                const r = await fetch('https://yyauvoqjdzrbmebeafit.supabase.co/functions/v1/ai-visibility-check', {
+                    method:'POST',
+                    headers:{'Content-Type':'application/json','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5YXV2b3FqZHpyYm1lYmVhZml0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3OTM2MDAsImV4cCI6MjA5NTM2OTYwMH0.M6kD56PEO_UcJ68Vjquo03vuORjv62MflIzGLzYKN9w'},
+                    body:JSON.stringify({site_id:site.site_id}),
+                    signal:AbortSignal.timeout(30000)
+                });
+                if(r.ok){
+                    const d=await r.json();
+                    if(d.score!=null){
+                        // Aggiorna score_history con ai_visibility
+                        const {data:f2}=await _SBq.from('isi_sites').select('faq_data').eq('site_id',site.site_id).single();
+                        const fd2=f2?.faq_data||{};
+                        const h2=Array.isArray(fd2.score_history)?[...fd2.score_history]:[];
+                        const idx2=h2.findIndex(h=>h.date===today);
+                        if(idx2>=0) h2[idx2]={...h2[idx2],ai_visibility:d.score};
+                        else h2.push({date:today,ai_visibility:d.score});
+                        await _SBq.from('isi_sites').update({faq_data:{...fd2,score_history:h2}}).eq('site_id',site.site_id);
+                        if(_site) _site.faq_data={...(_site.faq_data||{}),score_history:h2};
+                    }
+                }
+            } catch(_) {}
+        }
     } catch(_) {}
 }
 
