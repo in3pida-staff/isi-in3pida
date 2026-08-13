@@ -6115,12 +6115,12 @@ ${rows}
                 : uSiteId ? `<span style="color:#0D5F75;font-size:12px" title="${escHtml(uSiteId)}">${escHtml(uSiteId.slice(0,8))}…</span>`
                 : '<span style="color:#d82d6b;font-size:12px">non collegato</span>';
             html += `<tr>
-                <td><div style="display:flex;align-items:center;gap:12px">${avEl}<span style="font-weight:700">${escHtml(name)}</span></div></td>
-                <td style="color:var(--grey)">${escHtml(u.email||'—')}</td>
-                <td>${ruoloBadge}</td>
-                <td>${hotelHtml}</td>
-                <td>${featHtml}</td>
-                <td style="color:var(--grey);font-size:13px">${regIl}</td>
+                <td style="vertical-align:middle"><div style="display:flex;align-items:center;gap:12px">${avEl}<span style="font-weight:700">${escHtml(name)}</span></div></td>
+                <td style="vertical-align:middle;color:var(--grey)">${escHtml(u.email||'—')}</td>
+                <td style="vertical-align:middle">${ruoloBadge}</td>
+                <td style="vertical-align:middle">${hotelHtml}</td>
+                <td style="vertical-align:middle">${featHtml}</td>
+                <td style="vertical-align:middle;color:var(--grey);font-size:13px">${regIl}</td>
                 <td style="vertical-align:middle">
                     <div style="display:flex;gap:8px;align-items:center">
                     <button class="btn-ping" onclick='openEditUser(${JSON.stringify(u)})'><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="margin-right:4px;vertical-align:middle"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Modifica</button>
