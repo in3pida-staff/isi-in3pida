@@ -48,7 +48,7 @@
 
         /* Sidebar — stile hotel.html */
         .eletta-sidebar { width:75px; min-height:100vh; background:#EDEEF5; display:flex; flex-direction:column; align-items:center; position:fixed; left:0; top:0; z-index:500; padding:10px 0; }
-        .eletta-sidebar-brand { margin-bottom:14px; display:flex; align-items:center; justify-content:center; width:100%; }
+        .eletta-sidebar-brand { margin-bottom:40px; display:flex; align-items:center; justify-content:center; width:100%; }
         .eletta-sidebar-nav { display:flex; flex-direction:column; align-items:center; gap:10px; flex:1; width:100%; padding:10px 6px 90px; }
         .eletta-nav-item { display:flex; flex-direction:column; align-items:center; gap:4px; width:100%; padding:8px 4px; background:none; border:none; cursor:pointer; color:#0D5F75; font-family:'Source Code Pro',monospace; font-size:9px; font-weight:700; letter-spacing:.01em; transition:all .15s; text-align:center; line-height:1.1; border-radius:10px; outline:none; }
         .eletta-nav-item:hover { color:#0D5F75; background:rgba(13,95,117,0.08); }
@@ -6108,7 +6108,7 @@ ${rows}
                 ? '<span style="color:#aaa;font-size:13px">—</span>'
                 : uSite ? `<span style="font-weight:600;color:#0D5F75">${escHtml(uSite.site_name || uSite.site_url || '')}</span>`
                 : uSiteId ? `<span style="color:#0D5F75;font-size:12px" title="${escHtml(uSiteId)}">${escHtml(uSiteId.slice(0,8))}…</span>`
-                : '<span style="color:#FF8500;font-size:12px">non collegato</span>';
+                : '<span style="color:#d82d6b;font-size:12px">non collegato</span>';
             html += `<tr>
                 <td><div style="display:flex;align-items:center;gap:12px">${avEl}<span style="font-weight:700">${escHtml(name)}</span></div></td>
                 <td style="color:var(--grey)">${escHtml(u.email||'—')}</td>
@@ -6118,7 +6118,7 @@ ${rows}
                 <td style="color:var(--grey);font-size:13px">${regIl}</td>
                 <td style="display:flex;gap:8px;align-items:center">
                     <button class="btn-ping" onclick='openEditUser(${JSON.stringify(u)})'>✏️ Modifica</button>
-                    <button style="background:none;border:none;color:var(--red-text);font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font)" onclick="eliminaUtente('${escHtml(u.id)}','${escHtml(name)}')">🗑️ Elimina</button>
+                    <button style="background:none;border:none;color:#d82d6b;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);display:flex;align-items:center;gap:4px" onclick="eliminaUtente('${escHtml(u.id)}','${escHtml(name)}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#d82d6b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg> Elimina</button>
                 </td>
             </tr>`;
         });
