@@ -532,20 +532,20 @@
                     <div class="card-header"><div class="card-title">Risultati ultima esecuzione</div><div id="bm-run-meta" style="font-size:13px;color:var(--grey)"></div></div>
                     <div style="padding:20px 26px">
                         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px">
-                            <div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:18px;text-align:center">
-                                <div id="bm-p1" style="font-size:36px;font-weight:800;color:var(--magenta)">—</div>
-                                <div style="font-size:13px;font-weight:600;color:var(--grey);margin-top:4px">Precision@1</div>
-                                <div style="font-size:12px;color:var(--grey);margin-top:2px">chunk corretto al 1° posto</div>
+                            <div class="sw-stat-card">
+                                <div class="sw-stat-label">Precision@1</div>
+                                <div id="bm-p1" class="sw-stat-num">—</div>
+                                <div class="sw-stat-sub">chunk corretto al 1° posto</div>
                             </div>
-                            <div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:18px;text-align:center">
-                                <div id="bm-p3" style="font-size:36px;font-weight:800;color:var(--magenta)">—</div>
-                                <div style="font-size:13px;font-weight:600;color:var(--grey);margin-top:4px">Precision@3</div>
-                                <div style="font-size:12px;color:var(--grey);margin-top:2px">chunk corretto nei top 3</div>
+                            <div class="sw-stat-card">
+                                <div class="sw-stat-label">Precision@3</div>
+                                <div id="bm-p3" class="sw-stat-num">—</div>
+                                <div class="sw-stat-sub">chunk corretto nei top 3</div>
                             </div>
-                            <div style="background:white;border:1px solid #e4e4ec;border-radius:4px;padding:18px;text-align:center">
-                                <div id="bm-mrr" style="font-size:36px;font-weight:800;color:#7c3aed">—</div>
-                                <div style="font-size:13px;font-weight:600;color:var(--grey);margin-top:4px">MRR</div>
-                                <div style="font-size:12px;color:var(--grey);margin-top:2px">Mean Reciprocal Rank</div>
+                            <div class="sw-stat-card">
+                                <div class="sw-stat-label">MRR</div>
+                                <div id="bm-mrr" class="sw-stat-num">—</div>
+                                <div class="sw-stat-sub">Mean Reciprocal Rank</div>
                             </div>
                         </div>
                         <div id="bm-queries-container"></div>

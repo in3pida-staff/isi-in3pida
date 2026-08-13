@@ -695,6 +695,69 @@ async function init() {
 
     renderContent(site, pseData || [], now);
     applyAppFeatures(_appFeatures, _siteAppPerms);
+    computeAndSaveAiMetrics(site).catch(()=>{});
+}
+
+// ─── CALCOLO METRICHE AI (frontend) ───────────────────────────────────────────
+async function computeAndSaveAiMetrics(site) {
+    try {
+        const geo = site.geo_scores   || {};
+        const sc  = site.schema_data  || {};
+        const hp  = site.hotel_profile|| {};
+        const fd  = site.faq_data     || {};
+
+        // AI READINESS (0-100): profilo AI + completezza schema.org + completezza hotel_profile
+        const hasAiProfile = geo.has_ai_profile === true ? 35 : 0;
+        const schemaPts = [
+            sc.name        ? 7 : 0,
+            (sc.street || sc.city) ? 7 : 0,
+            sc.telephone   ? 7 : 0,
+            sc.url         ? 7 : 0,
+            sc.description ? 7 : 0,
+        ].reduce((a,b)=>a+b,0); // max 35
+        const hpKeys = ['nome_hotel','nome','descrizione','telefono','servizi','camere'];
+        const hpFilled = hpKeys.filter(k=>{const v=hp[k];if(!v)return false;if(Array.isArray(v))return v.length>0;return String(v).trim().length>0;}).length;
+        const hpPts = Math.round(hpFilled / hpKeys.length * 30); // max 30
+        const aiReadiness = Math.min(100, hasAiProfile + schemaPts + hpPts);
+
+        // ANSWER EXTRACTION (0-100): media coverage_pct e query_map_pct
+        const covPct = geo.coverage_pct ?? null;
+        const qMapPct = computeQueryCoveragePct(site) ?? geo.query_map_pct ?? null;
+        let answerExtraction = null;
+        if (covPct !== null || qMapPct !== null) {
+            answerExtraction = Math.round((covPct ?? qMapPct) * 0.5 + (qMapPct ?? covPct) * 0.5);
+        }
+
+        // QUALITY & SAFETY (0-100): parte da 100, penalità per problemi rilevati
+        let qualSafety = 100;
+        ['name','telephone','street','description'].forEach(f=>{ if(!sc[f]) qualSafety-=10; });
+        (geo.freshness_alerts||[]).forEach(()=>{ qualSafety-=15; });
+        (fd.items||[]).forEach(faq=>{ if(!faq.answer||String(faq.answer).trim().length<20) qualSafety-=5; });
+        (geo.checklist||[]).forEach(()=>{ qualSafety-=8; });
+        qualSafety = Math.max(0, qualSafety);
+
+        // Salva in score_history solo se l'entry di oggi non ha già i valori AI
+        const today = new Date().toISOString().slice(0,10);
+        const { data: fresh } = await _SBq.from('isi_sites').select('faq_data').eq('site_id', site.site_id).single();
+        const faqData = fresh?.faq_data || fd;
+        const history = Array.isArray(faqData.score_history) ? [...faqData.score_history] : [];
+        const todayIdx = history.findIndex(h=>h.date===today);
+        const existing = todayIdx>=0 ? history[todayIdx] : null;
+        if (existing && existing.ai_readiness!=null && existing.answer_extraction!=null && existing.quality_safety!=null) return;
+        const entry = {
+            ...(existing||{}),
+            date: today,
+            geo:          existing?.geo          ?? geo.ai_readiness ?? geo.completeness_score ?? null,
+            coverage:     existing?.coverage     ?? geo.coverage_pct ?? null,
+            completeness: existing?.completeness ?? geo.completeness_score ?? null,
+            ai_readiness:      aiReadiness,
+            answer_extraction: answerExtraction,
+            quality_safety:    qualSafety,
+        };
+        if (todayIdx>=0) history[todayIdx]=entry; else history.push(entry);
+        await _SBq.from('isi_sites').update({ faq_data: {...faqData, score_history:history} }).eq('site_id', site.site_id);
+        if (_site) _site.faq_data = {...(_site.faq_data||{}), score_history:history};
+    } catch(_) {}
 }
 
 // ─── PERMESSI APP ──────────────────────────────────────────────────────────────
