@@ -47,32 +47,32 @@
         .eletta-layout { display:flex; min-height:100vh; }
 
         /* Sidebar — stile hotel.html */
-        .eletta-sidebar { width:75px; min-height:100vh; background:#EDEEF5; display:flex; flex-direction:column; align-items:center; position:fixed; left:0; top:0; z-index:500; padding:10px 0; }
-        .eletta-sidebar-brand { margin-bottom:40px; display:flex; align-items:center; justify-content:center; width:100%; }
+        .eletta-sidebar { width:75px; min-height:100vh; background:#EDEEF5; display:flex; flex-direction:column; align-items:center; position:fixed; left:0; top:0; z-index:500; padding:10px 0 10px 25px; }
+        .eletta-sidebar-brand { margin-bottom:14px; display:flex; align-items:center; justify-content:center; width:100%; }
         .eletta-sidebar-nav { display:flex; flex-direction:column; align-items:center; gap:4px; flex:1; width:100%; padding:10px 6px 90px; }
         .eletta-nav-item { display:flex; flex-direction:column; align-items:center; gap:4px; width:100%; padding:8px 4px; background:none; border:none; cursor:pointer; color:#0D5F75; font-family:'Source Code Pro',monospace; font-size:11px; font-weight:700; letter-spacing:.01em; transition:all .15s; text-align:center; line-height:1.1; border-radius:10px; outline:none; }
-        .eletta-nav-item:hover { color:#0D5F75; background:rgba(13,95,117,0.08); }
-        .eletta-nav-item.active { color:#0D5F75; background:rgba(13,95,117,0.1); }
-        .eletta-nav-icon { width:46px; height:46px; display:flex; align-items:center; justify-content:center; border-radius:50%; flex-shrink:0; background:#c1cae7; opacity:0.65; transition:opacity .15s; overflow:hidden; }
-        .eletta-nav-icon svg { width:22px; height:22px; stroke:#0D5F75; }
+        .eletta-nav-item:hover { color:#0D5F75; }
+        .eletta-nav-item.active { color:#0D5F75; }
+        .eletta-nav-icon { width:46px; height:46px; display:flex; align-items:center; justify-content:center; border-radius:50%; flex-shrink:0; opacity:0.65; transition:opacity .15s; overflow:hidden; }
+        .eletta-nav-icon svg { width:100%; height:100%; }
         .eletta-nav-item:hover .eletta-nav-icon { opacity:0.85; }
-        .eletta-nav-item.active .eletta-nav-icon { opacity:1; background:#0D5F75; }
-        .eletta-nav-item.active .eletta-nav-icon svg { stroke:white; }
+        .eletta-nav-item.active .eletta-nav-icon { opacity:1; }
+        .eletta-nav-item.active .eletta-nav-icon svg circle { fill:#0D5F75 !important; }
         .eletta-sidebar-sep { width:40px; height:1px; background:rgba(255,255,255,0.5); margin:8px 0; }
-        .eletta-sidebar-bottom { width:75px; display:flex; flex-direction:column; align-items:center; padding:0 0 10px; position:fixed; bottom:0; left:0; background:#EDEEF5; }
+        .eletta-sidebar-bottom { width:75px; display:flex; flex-direction:column; align-items:center; padding:0 0 10px 25px; position:fixed; bottom:0; left:0; background:#EDEEF5; }
 
         /* Right area */
-        .eletta-right { margin-left:75px; flex:1; display:flex; flex-direction:column; min-height:100vh; }
+        .eletta-right { margin-left:70px; flex:1; display:flex; flex-direction:column; min-height:100vh; }
 
         /* Header */
-        .eletta-header { background:#EDEEF5; height:52px; display:flex; align-items:center; padding:0 20px; position:sticky; top:0; z-index:100; border-bottom:1px solid rgba(13,95,117,0.12); gap:14px; }
-        .eletta-header-logo img { height:20px; width:auto; }
+        .eletta-header { background:transparent; height:52px; display:flex; align-items:center; padding:0 20px 0 5%; position:sticky; top:0; z-index:100; gap:14px; }
+        .eletta-header-logo img { height:24px; width:auto; }
         .eletta-header-right { display:flex; align-items:center; gap:10px; margin-left:auto; }
 
         /* Override main per nuovo layout */
         .eletta-right .main { padding-top:16px; }
         .eletta-right .navbar { display:none !important; }
-        .eletta-right .hero { background:#C1CBE8 !important; border-radius:16px; margin:25px 5% 30px 5%; }
+        .eletta-right .hero { background:#C1CBE8 !important; border-radius:16px; margin:25px 5% 30px 5%; box-shadow:0 0 0 3px #C1CBE8; }
         .eletta-right .main .card { border-radius:16px !important; overflow:hidden !important; box-shadow:0 2px 14px rgba(0,0,0,.07) !important; }
         .eletta-right .main .card-header { border-radius:16px 16px 0 0 !important; background:white !important; border-bottom:1px solid #f0f0f6 !important; }
         .eletta-right .main table.sites-table th { background:white !important; color:#0D5F75 !important; border-bottom:2px solid #EDEEF5 !important; }
@@ -90,34 +90,34 @@
   <!-- ═══ SIDEBAR ═══ -->
   <aside class="eletta-sidebar">
     <div class="eletta-sidebar-brand">
-      <svg width="30" height="30" viewBox="0 0 30 30" fill="none"><rect width="30" height="30" rx="6" fill="rgba(13,95,117,0.12)"/><text x="15" y="21" text-anchor="middle" font-family="Commissioner,sans-serif" font-size="15" font-weight="700" fill="#0D5F75">E</text></svg>
+      <svg width="28" height="34" viewBox="0 0 614.94 825.79" fill="none" style="width:30px;height:auto"><rect fill="#C1CBE8" width="614.94" height="130.54"/><path fill="#C1CBE8" d="M614.94,422.92v-126.92h-215.69C178.75,296,0,474.75,0,695.25H0v130.54h614.94v-130.54H128.49v-272.33h486.44Z"/></svg>
     </div>
     <nav class="eletta-sidebar-nav">
       <button class="eletta-nav-item active" id="nav-panoramica">
-        <span class="eletta-nav-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span>
+        <span class="eletta-nav-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 74.8 74.26" width="46" height="46"><circle fill="#c1cae7" cx="37.4" cy="37.67" r="32.81"/><rect fill="none" stroke="#fff" stroke-miterlimit="10" stroke-width="1.5" x="21.9" y="21.4" width="13.12" height="13.12"/><rect fill="none" stroke="#fff" stroke-miterlimit="10" stroke-width="1.5" x="39.78" y="21.4" width="13.12" height="13.12"/><rect fill="none" stroke="#fff" stroke-miterlimit="10" stroke-width="1.5" x="21.9" y="39.13" width="13.12" height="13.12"/><rect fill="none" stroke="#fff" stroke-miterlimit="10" stroke-width="1.5" x="39.78" y="39.13" width="13.12" height="13.12"/></svg></span>
         Hotels
       </button>
       <button class="eletta-nav-item" id="nav-aggiornamenti">
-        <span class="eletta-nav-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg></span>
+        <span class="eletta-nav-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 74.8 74.26" width="46" height="46"><circle fill="#c1cae7" cx="37.4" cy="37.67" r="32.81"/><g transform="translate(22.4,22.67) scale(1.25)" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></g></svg></span>
         Update
       </button>
       <button class="eletta-nav-item" id="nav-benchmark">
-        <span class="eletta-nav-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
+        <span class="eletta-nav-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 74.8 74.26" width="46" height="46"><circle fill="#c1cae7" cx="37.4" cy="37.67" r="32.81"/><g transform="translate(22.4,22.67) scale(1.25)" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></g></svg></span>
         Benchmark
       </button>
       <button class="eletta-nav-item" id="nav-utenti">
-        <span class="eletta-nav-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></span>
+        <span class="eletta-nav-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 74.8 74.26" width="46" height="46"><circle fill="#c1cae7" cx="37.4" cy="37.67" r="32.81"/><g transform="translate(22.4,22.67) scale(1.25)" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></g></svg></span>
         Utenti
       </button>
       <button class="eletta-nav-item" id="nav-legenda">
-        <span class="eletta-nav-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span>
+        <span class="eletta-nav-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 74.8 74.26" width="46" height="46"><circle fill="#c1cae7" cx="37.4" cy="37.67" r="32.81"/><g transform="translate(22.4,22.67) scale(1.25)" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></g></svg></span>
         Legenda
       </button>
     </nav>
     <div class="eletta-sidebar-bottom">
       <div class="eletta-sidebar-sep"></div>
       <button class="eletta-nav-item" id="dd-logout">
-        <span class="eletta-nav-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg></span>
+        <span class="eletta-nav-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 74.8 74.26" width="36" height="36"><path fill="#0e6075" stroke="#0e6075" stroke-miterlimit="10" d="M58.32,56.74h-29.21c-.29,0-.53-.24-.53-.53v-14.05c0-.29.24-.53.53-.53s.53.24.53.53v13.52h28.15V18.58h-28.15v14.31c0,.29-.24.53-.53.53s-.53-.24-.53-.53v-14.84c0-.29.24-.53.53-.53h29.21c.29,0,.53.24.53.53v38.16c0,.29-.24.53-.53.53Z"/><path fill="#0e6075" stroke="#0e6075" stroke-miterlimit="10" d="M39.87,38.05h-22.71c-.29,0-.53-.24-.53-.53s.24-.53.53-.53h22.71c.29,0,.53.24.53.53s-.24.53-.53.53Z"/><path fill="#0e6075" stroke="#0e6075" stroke-miterlimit="10" d="M22,41.98c-.11,0-.21-.03-.31-.1l-5.51-3.93c-.14-.1-.22-.26-.22-.43s.08-.33.22-.43l5.51-3.93c.24-.17.57-.11.74.12.17.24.11.57-.12.74l-4.91,3.5,4.91,3.5c.24.17.29.5.12.74-.1.14-.27.22-.43.22Z"/></svg></span>
         Esci
       </button>
     </div>
