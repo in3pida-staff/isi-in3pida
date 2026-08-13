@@ -966,14 +966,14 @@
                         ? `<button class="btn-update" style="font-size:12px;padding:3px 8px;margin-left:0;border:1.5px solid transparent;min-width:66px;text-align:center;line-height:1.4" onclick="event.stopPropagation();aggiornaSito('${escHtml(site.site_id)}')">Aggiorna</button>`
                         : `<button class="btn-ping" style="font-size:12px;padding:3px 8px;cursor:default;min-width:66px;text-align:center;line-height:1.4" disabled onclick="event.stopPropagation()">Aggiornato</button>`;
             html += `<tr data-site-id="${escHtml(site.site_id)}" style="cursor:pointer">
-                <td><span class="dot" style="background:${dotColor};box-shadow:0 0 0 4px ${dotColor}26;cursor:help" title="${escHtml(dotTitle)}"></span></td>
-                <td><div class="site-name-cell">${escHtml(site.site_name||'—')}</div><div style="font-size:13px;color:var(--grey);margin-top:2px">${escHtml(site.site_url||'')}</div></td>
-                <td style="font-size:14px;color:${hbColor};font-weight:600">${hbTesto}</td>
-                <td>${verHtml}</td>
-                <td class="td-center">${geoHtml}</td>
-                <td class="td-center">${covHtml}</td>
-                <td class="td-center">${csHtml}</td>
-                <td style="white-space:nowrap;vertical-align:middle"><div style="display:flex;gap:6px;align-items:center">${aggiornaBtnHtml}<button class="btn-ping" style="font-size:12px;padding:3px 8px;line-height:1.4" onclick="event.stopPropagation();toggleSitoAttivo('${escHtml(site.site_id)}','${escHtml(site.site_url||'')}',this)">Disattiva</button><button class="btn-ping" style="font-size:12px;padding:3px 8px;background:#e8ecf7;color:#0D5F75;line-height:1.4" onclick="event.stopPropagation();openSitePerms('${escHtml(site.site_id)}','${escHtml(site.site_name||'')}')">Permessi</button><button style="background:none;border:none;cursor:pointer;padding:0 4px;line-height:1;display:flex;align-items:center" title="Elimina installazione" onclick="event.stopPropagation();eliminaSito('${escHtml(site.site_id)}','${escHtml(site.site_name||site.site_url||'')}',this)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#d82d6b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg></button></div></td>
+                <td style="vertical-align:middle"><span class="dot" style="background:${dotColor};box-shadow:0 0 0 4px ${dotColor}26;cursor:help" title="${escHtml(dotTitle)}"></span></td>
+                <td style="vertical-align:middle"><div class="site-name-cell">${escHtml(site.site_name||'—')}</div><div style="font-size:13px;color:var(--grey);margin-top:2px">${escHtml(site.site_url||'')}</div></td>
+                <td style="vertical-align:middle;font-size:14px;color:${hbColor};font-weight:600">${hbTesto}</td>
+                <td style="vertical-align:middle">${verHtml}</td>
+                <td class="td-center" style="vertical-align:middle">${geoHtml}</td>
+                <td class="td-center" style="vertical-align:middle">${covHtml}</td>
+                <td class="td-center" style="vertical-align:middle">${csHtml}</td>
+                <td style="vertical-align:middle;white-space:nowrap"><div style="display:flex;gap:6px;align-items:center">${aggiornaBtnHtml}<button class="btn-ping" style="font-size:12px;padding:3px 8px;line-height:1.4" onclick="event.stopPropagation();toggleSitoAttivo('${escHtml(site.site_id)}','${escHtml(site.site_url||'')}',this)">Disattiva</button><button class="btn-ping" style="font-size:12px;padding:3px 8px;background:#e8ecf7;color:#0D5F75;line-height:1.4" onclick="event.stopPropagation();openSitePerms('${escHtml(site.site_id)}','${escHtml(site.site_name||'')}')">Permessi</button><button style="background:none;border:none;cursor:pointer;padding:0 4px;line-height:1;display:flex;align-items:center" title="Elimina installazione" onclick="event.stopPropagation();eliminaSito('${escHtml(site.site_id)}','${escHtml(site.site_name||site.site_url||'')}',this)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#d82d6b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg></button></div></td>
             </tr>`;
             window._sitePermsData = window._sitePermsData || {};
             window._sitePermsData[site.site_id] = site.features_override || {};
