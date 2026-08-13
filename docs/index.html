@@ -78,6 +78,7 @@
         .eletta-right .main table.sites-table th { background:white !important; color:#0D5F75 !important; font-family:'Source Code Pro',monospace; font-size:10px; letter-spacing:.05em; border-bottom:2px solid #EDEEF5 !important; }
         .eletta-right .main table.sites-table tbody tr:hover td { background:#f0f4f8 !important; }
         .eletta-right { background:#F4F5FA; }
+        .tip-q { background:#C1CBE8 !important; color:#0D5F75 !important; border:2px solid #C1CBE8 !important; box-shadow:none !important; }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
@@ -934,7 +935,7 @@
             const rawFallback = [geo.chunk_avg, geo.citation_avg].filter(s=>s!=null && s>0);
             const geoAvg = geo.ai_readiness != null ? geo.ai_readiness : (geo.completeness_score != null ? geo.completeness_score : (rawFallback.length ? Math.round(rawFallback.reduce((a,b)=>a+b,0)/rawFallback.length) : null));
             const geoAvgBg = geoAvg===null?'#e8ecf7':geoAvg>=70?'#e8ecf7':geoAvg>=40?'#e8ecf7':'#e8ecf7';
-            const geoAvgTc = geoAvg===null?'#666b84':geoAvg>=70?'#0D5F75':geoAvg>=40?'#0D5F75':'#b00020';
+            const geoAvgTc = geoAvg===null?'#666b84':geoAvg>=70?'#0D5F75':geoAvg>=40?'#d82d6b':'#d82d6b';
             const geoHtml = geoAvg!==null ? `<span style="background:${geoAvgBg};color:${geoAvgTc};font-size:14px;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap">${geoAvg}/100</span>` : `<span style="color:#666b84;font-size:14px">—</span>`;
             const covPct = geo.coverage_pct ?? null;
             const covHtml = covPct !== null
