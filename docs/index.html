@@ -49,12 +49,12 @@
         /* Sidebar — stile hotel.html */
         .eletta-sidebar { width:75px; min-height:100vh; background:#EDEEF5; display:flex; flex-direction:column; align-items:center; position:fixed; left:0; top:0; z-index:500; padding:10px 0; }
         .eletta-sidebar-brand { margin-bottom:14px; display:flex; align-items:center; justify-content:center; width:100%; }
-        .eletta-sidebar-nav { display:flex; flex-direction:column; align-items:center; gap:4px; flex:1; width:100%; padding:10px 6px 90px; }
-        .eletta-nav-item { display:flex; flex-direction:column; align-items:center; gap:4px; width:100%; padding:8px 4px; background:none; border:none; cursor:pointer; color:#0D5F75; font-family:'Source Code Pro',monospace; font-size:11px; font-weight:700; letter-spacing:.01em; transition:all .15s; text-align:center; line-height:1.1; border-radius:10px; outline:none; }
+        .eletta-sidebar-nav { display:flex; flex-direction:column; align-items:center; gap:2px; flex:1; width:100%; padding:6px 6px 80px; }
+        .eletta-nav-item { display:flex; flex-direction:column; align-items:center; gap:3px; width:100%; padding:6px 4px; background:none; border:none; cursor:pointer; color:#0D5F75; font-family:'Source Code Pro',monospace; font-size:9px; font-weight:700; letter-spacing:.01em; transition:all .15s; text-align:center; line-height:1.1; border-radius:10px; outline:none; }
         .eletta-nav-item:hover { color:#0D5F75; background:rgba(13,95,117,0.08); }
         .eletta-nav-item.active { color:#0D5F75; background:rgba(13,95,117,0.1); }
-        .eletta-nav-icon { width:46px; height:46px; display:flex; align-items:center; justify-content:center; border-radius:50%; flex-shrink:0; background:#c1cae7; opacity:0.65; transition:opacity .15s; overflow:hidden; }
-        .eletta-nav-icon svg { width:22px; height:22px; stroke:#0D5F75; }
+        .eletta-nav-icon { width:36px; height:36px; display:flex; align-items:center; justify-content:center; border-radius:50%; flex-shrink:0; background:#c1cae7; opacity:0.65; transition:opacity .15s; overflow:hidden; }
+        .eletta-nav-icon svg { width:17px; height:17px; stroke:#0D5F75; }
         .eletta-nav-item:hover .eletta-nav-icon { opacity:0.85; }
         .eletta-nav-item.active .eletta-nav-icon { opacity:1; background:#0D5F75; }
         .eletta-nav-item.active .eletta-nav-icon svg { stroke:white; }
@@ -72,7 +72,9 @@
         /* Override main per nuovo layout */
         .eletta-right .main { padding-top:16px; }
         .eletta-right .navbar { display:none !important; }
-        .eletta-right .hero { background:#C1CBE8 !important; border-radius:16px; margin:25px 5% 30px 5%; }
+        .eletta-right .hero { background:#C1CBE8 !important; border-radius:16px; margin-bottom:24px; }
+        .eletta-right .main .card { border-radius:16px !important; overflow:hidden !important; box-shadow:0 2px 14px rgba(0,0,0,.07) !important; }
+        .eletta-right .main .card-header { border-radius:16px 16px 0 0 !important; background:white !important; border-bottom:1px solid #f0f0f6 !important; }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
