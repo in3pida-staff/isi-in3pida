@@ -46,20 +46,23 @@
         html, body { overflow-x: hidden; max-width: 100vw; }
         .eletta-layout { display:flex; min-height:100vh; }
 
-        /* Sidebar */
-        .eletta-sidebar { width:52px; min-height:100vh; background:#1a1e3a; display:flex; flex-direction:column; align-items:center; position:fixed; left:0; top:0; z-index:500; padding:10px 0; }
-        .eletta-sidebar-brand { margin-bottom:16px; display:flex; align-items:center; justify-content:center; }
-        .eletta-sidebar-nav { display:flex; flex-direction:column; align-items:center; gap:0; flex:1; width:100%; }
-        .eletta-nav-item { display:flex; flex-direction:column; align-items:center; gap:2px; width:100%; padding:8px 2px; background:none; border:none; cursor:pointer; color:rgba(255,255,255,0.4); font-family:'Sarabun',sans-serif; font-size:8px; font-weight:600; letter-spacing:.01em; transition:all .15s; text-align:center; line-height:1.1; }
-        .eletta-nav-item:hover { color:rgba(255,255,255,0.75); background:rgba(255,255,255,0.05); }
-        .eletta-nav-item.active { color:white; background:rgba(255,255,255,0.08); }
-        .eletta-nav-icon { width:28px; height:28px; display:flex; align-items:center; justify-content:center; border-radius:50%; flex-shrink:0; }
-        .eletta-nav-item.active .eletta-nav-icon { background:rgba(13,95,117,0.4); }
-        .eletta-sidebar-sep { width:34px; height:1px; background:rgba(255,255,255,0.08); margin:5px 0; }
-        .eletta-sidebar-bottom { width:100%; display:flex; flex-direction:column; align-items:center; }
+        /* Sidebar — stile hotel.html */
+        .eletta-sidebar { width:75px; min-height:100vh; background:#EDEEF5; display:flex; flex-direction:column; align-items:center; position:fixed; left:0; top:0; z-index:500; padding:10px 0; }
+        .eletta-sidebar-brand { margin-bottom:14px; display:flex; align-items:center; justify-content:center; width:100%; }
+        .eletta-sidebar-nav { display:flex; flex-direction:column; align-items:center; gap:4px; flex:1; width:100%; padding:10px 6px 90px; }
+        .eletta-nav-item { display:flex; flex-direction:column; align-items:center; gap:4px; width:100%; padding:8px 4px; background:none; border:none; cursor:pointer; color:#0D5F75; font-family:'Source Code Pro',monospace; font-size:11px; font-weight:700; letter-spacing:.01em; transition:all .15s; text-align:center; line-height:1.1; border-radius:10px; outline:none; }
+        .eletta-nav-item:hover { color:#0D5F75; background:rgba(13,95,117,0.08); }
+        .eletta-nav-item.active { color:#0D5F75; background:rgba(13,95,117,0.1); }
+        .eletta-nav-icon { width:46px; height:46px; display:flex; align-items:center; justify-content:center; border-radius:50%; flex-shrink:0; background:#c1cae7; opacity:0.65; transition:opacity .15s; overflow:hidden; }
+        .eletta-nav-icon svg { width:22px; height:22px; stroke:#0D5F75; }
+        .eletta-nav-item:hover .eletta-nav-icon { opacity:0.85; }
+        .eletta-nav-item.active .eletta-nav-icon { opacity:1; background:#0D5F75; }
+        .eletta-nav-item.active .eletta-nav-icon svg { stroke:white; }
+        .eletta-sidebar-sep { width:40px; height:1px; background:rgba(13,95,117,0.15); margin:8px 0; }
+        .eletta-sidebar-bottom { width:75px; display:flex; flex-direction:column; align-items:center; padding:0 0 10px; position:fixed; bottom:0; left:0; background:#EDEEF5; }
 
         /* Right area */
-        .eletta-right { margin-left:52px; flex:1; display:flex; flex-direction:column; min-height:100vh; }
+        .eletta-right { margin-left:75px; flex:1; display:flex; flex-direction:column; min-height:100vh; }
 
         /* Header */
         .eletta-header { background:white; height:52px; display:flex; align-items:center; padding:0 20px; position:sticky; top:0; z-index:100; box-shadow:0 1px 0 #e8e8f0; gap:14px; }
@@ -69,7 +72,7 @@
         /* Override main per nuovo layout */
         .eletta-right .main { padding-top:16px; }
         .eletta-right .navbar { display:none !important; }
-        .eletta-right .hero { border-radius:0; }
+        .eletta-right .hero { background:#C1CBE8 !important; border-radius:16px; margin:25px 5% 30px 5%; }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
@@ -80,7 +83,7 @@
   <!-- ═══ SIDEBAR ═══ -->
   <aside class="eletta-sidebar">
     <div class="eletta-sidebar-brand">
-      <svg width="30" height="30" viewBox="0 0 30 30" fill="none"><rect width="30" height="30" rx="6" fill="rgba(255,255,255,0.08)"/><text x="15" y="21" text-anchor="middle" font-family="Commissioner,sans-serif" font-size="15" font-weight="700" fill="rgba(255,255,255,0.7)">E</text></svg>
+      <svg width="30" height="30" viewBox="0 0 30 30" fill="none"><rect width="30" height="30" rx="6" fill="rgba(13,95,117,0.12)"/><text x="15" y="21" text-anchor="middle" font-family="Commissioner,sans-serif" font-size="15" font-weight="700" fill="#0D5F75">E</text></svg>
     </div>
     <nav class="eletta-sidebar-nav">
       <button class="eletta-nav-item active" id="nav-panoramica">
@@ -415,7 +418,7 @@
     <!-- CONTENT -->
     <div class="main">
         <div class="hero">
-            <img src="images/logo-eletta-white.png" alt="Eletta" style="height:26px;width:auto;display:block;margin-bottom:4px">
+            <img src="images/logo-eletta.png" alt="Eletta" style="height:26px;width:auto;display:block;margin-bottom:4px">
             <div class="hero-sublabel">Posiziona il tuo sito nelle ricerche AI</div>
             <div class="hero-title" id="hero-title">Panoramica</div>
         </div>
