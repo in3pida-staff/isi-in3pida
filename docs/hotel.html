@@ -1494,8 +1494,17 @@ function renderContent(site, pseData, now) {
                     <input type="text" id="hpse-query-input" placeholder="Es: hotel con piscina a Rimini per famiglie..." style="flex:1;border:1px solid #e4e4ec;border-radius:24px;padding:9px 16px;font-size:13px;color:#0D5F75;outline:none;font-family:'Source Code Pro',monospace" onkeydown="if(event.key==='Enter')runHotelPseQuery()">
                     <button id="hpse-run-btn" style="background:#C1CBE8;color:#fff;border:none;border-radius:24px;padding:9px 20px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Source Code Pro',monospace;white-space:nowrap" onclick="runHotelPseQuery()">Analizza</button>
                 </div>
+                <input type="text" id="hpse-competitors-input" placeholder="Concorrenti da confrontare — max 3, separati da virgola (opzionale)" style="width:100%;box-sizing:border-box;margin-top:8px;border:1px solid #e4e4ec;border-radius:24px;padding:9px 16px;font-size:13px;color:#0D5F75;outline:none;font-family:'Source Code Pro',monospace" onkeydown="if(event.key==='Enter')runHotelPseQuery()">
                 <div id="hpse-run-result" style="margin-top:14px;display:none"></div>
             </div>
+        </div>
+        <div class="h-card" id="hpse-sov-card" style="margin-bottom:20px;display:none">
+            <div class="h-card-hdr" style="justify-content:flex-start;gap:12px"><div style="width:34px;height:34px;border-radius:50%;background:white;border:1.5px solid #0D5F75;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div><span class="h-card-hdr-t" style="font-size:18px;font-weight:500">Tu vs Concorrenti</span><span class='tip-q' data-tip='Quanto l&apos;AI nomina il tuo hotel rispetto ai concorrenti indicati, nella stessa risposta reale.'>?</span></div>
+            <div class="h-card-body" style="padding:16px 20px"><div id="hpse-sov-body"></div></div>
+        </div>
+        <div class="h-card" id="hpse-sources-card" style="margin-bottom:20px;display:none">
+            <div class="h-card-hdr" style="justify-content:flex-start;gap:12px"><div style="width:34px;height:34px;border-radius:50%;background:white;border:1.5px solid #0D5F75;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div><span class="h-card-hdr-t" style="font-size:18px;font-weight:500">Fonti usate dall'AI</span><span class='tip-q' data-tip='I siti e le pagine da cui l&apos;AI ha preso le informazioni per rispondere. Presidiare queste fonti aiuta a farsi citare.'>?</span></div>
+            <div class="h-card-body" style="padding:16px 20px"><div id="hpse-sources-body"></div></div>
         </div>
         <div style="display:flex;flex-wrap:nowrap;gap:20px;margin-bottom:20px;align-items:stretch">
         <div class="h-card" style="flex:0 0 calc(35% - 10px);min-width:0;margin-bottom:0">
@@ -1741,10 +1750,9 @@ function renderContent(site, pseData, now) {
         };
         var mkL = function(n,g) { var mo=['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'],now=new Date(); if(g==='week') return Array.from({length:n},function(_,i){var d=new Date(now);d.setDate(d.getDate()-(n-1-i)*7);return d.getDate()+' '+mo[d.getMonth()];}); return Array.from({length:n},function(_,i){var d=new Date(now);d.setMonth(d.getMonth()-(n-1-i));return mo[d.getMonth()];}); };
         var buildDs = function(n) { return [
-            { label:'Completezza AI',     data:weeklyAvgLine('ai_readiness', n, curG),     borderColor:'#0D5F75', backgroundColor:'transparent', tension:0.4, fill:false, pointRadius:3, borderWidth:2, pointBackgroundColor:'#0D5F75', pointBorderColor:'#0D5F75', spanGaps:false },
-            { label:'Reazioni risposte',  data:weeklyAvgLine('answer_extraction', n, curG), borderColor:'#C1CBE8', backgroundColor:'transparent', tension:0.4, fill:false, pointRadius:3, borderWidth:2, pointBackgroundColor:'#C1CBE8', pointBorderColor:'#C1CBE8', spanGaps:false },
-            { label:'Qualità & sicurezza',data:weeklyAvgLine('quality_safety', n, curG),    borderColor:'#7a8fa0', backgroundColor:'transparent', tension:0.4, fill:false, pointRadius:3, borderWidth:2, pointBackgroundColor:'#7a8fa0', pointBorderColor:'#7a8fa0', spanGaps:false },
-            { label:'Visibilità AI',      data:weeklyAvgLine('ai_visibility', n, curG),     borderColor:'#bdc8d4', backgroundColor:'transparent', tension:0.4, fill:false, pointRadius:3, borderWidth:2, pointBackgroundColor:'#bdc8d4', pointBorderColor:'#bdc8d4', spanGaps:false }
+            { label:'GEO Score',           data:weeklyAvgLine('geo', n, curG),          borderColor:'#0D5F75', backgroundColor:'transparent', tension:0.4, fill:false, pointRadius:3, borderWidth:2, pointBackgroundColor:'#0D5F75', pointBorderColor:'#0D5F75', spanGaps:true },
+            { label:'Copertura FAQ',       data:weeklyAvgLine('coverage', n, curG),     borderColor:'#C1CBE8', backgroundColor:'transparent', tension:0.4, fill:false, pointRadius:3, borderWidth:2, pointBackgroundColor:'#C1CBE8', pointBorderColor:'#C1CBE8', spanGaps:true },
+            { label:'Completezza profilo', data:weeklyAvgLine('completeness', n, curG), borderColor:'#7a8fa0', backgroundColor:'transparent', tension:0.4, fill:false, pointRadius:3, borderWidth:2, pointBackgroundColor:'#7a8fa0', pointBorderColor:'#7a8fa0', spanGaps:true }
         ]; };
         var curN=4, curG='week';
         var plugin={id:'dashedA',beforeDraw:function(chart){var ctx=chart.ctx,y=chart.scales.y,ca=chart.chartArea;if(!y||!ca)return;ctx.save();y.ticks.forEach(function(_,i){var yp=y.getPixelForTick(i);var isBase=Math.abs(yp-ca.bottom)<2;ctx.setLineDash(isBase?[]:[10,5]);ctx.strokeStyle='#0D5F75';ctx.lineWidth=0.5;ctx.beginPath();ctx.moveTo(ca.left,yp);ctx.lineTo(ca.right,yp);ctx.stroke();});ctx.restore();}};
@@ -4161,6 +4169,12 @@ function _renderLlmBars(items, elId) {
 
 function initHotelPseCharts(pseData) {
     if (_pseChartsInited) return; _pseChartsInited = true;
+    // Precompila i concorrenti salvati in precedenza
+    try {
+        const _hp = _site?.hotel_profile || {};
+        const _ci = document.getElementById('hpse-competitors-input');
+        if (_ci && Array.isArray(_hp.pse_competitors) && _hp.pse_competitors.length) _ci.value = _hp.pse_competitors.join(', ');
+    } catch(_) {}
     const items=pseData||[], cited=items.filter(r=>r.result?.cited||r.result?.found||r.result?.match_found).length;
     const pct = items.length > 0 ? Math.round(cited / items.length * 100) : null;
     // Gauge Presenza AI (stile identico a Copertura FAQ in panoramica)
@@ -4843,11 +4857,73 @@ window.runHotelPseQuery = async function() {
         if (d.suggestions?.length) html += `<div style="font-size:12px;color:#0D5F75;font-weight:600;margin-bottom:4px">Suggerimenti:</div><ul style="margin:0;padding-left:18px;font-size:13px;color:rgba(13,95,117,0.6);line-height:1.7">${d.suggestions.map(s=>`<li>${esc(s)}</li>`).join('')}</ul>`;
         html += '</div>';
         if(res){ res.innerHTML = html; res.style.display = 'block'; }
+        // Visibilità AI reale (Gemini grounded): Share of Voice vs concorrenti + fonti
+        try { runHotelAiVisibility(query); } catch(_) {}
         setTimeout(() => { _pseChartsInited = false; }, 1200);
     } catch(e) {
         if(res){ res.innerHTML = `<div style="color:#d82d6b;font-size:13px">${esc(e.message)}</div>`; res.style.display = 'block'; }
     } finally {
         btn.disabled = false; btn.textContent = 'Analizza';
+    }
+};
+
+// Analisi visibilità AI REALE (grounded) — popola le card "Tu vs Concorrenti" e "Fonti usate dall'AI"
+window.runHotelAiVisibility = async function(query) {
+    if (!_site || !query) return;
+    const compInput = document.getElementById('hpse-competitors-input');
+    const competitors = (compInput?.value || '').split(',').map(s => s.trim()).filter(Boolean).slice(0, 3);
+    const sovCard = document.getElementById('hpse-sov-card');
+    const sovBody = document.getElementById('hpse-sov-body');
+    const srcCard = document.getElementById('hpse-sources-card');
+    const srcBody = document.getElementById('hpse-sources-body');
+    const hp = _site.hotel_profile || {};
+    const sc = _site.schema_data || {};
+    const hotelCtx = { nome: sc.name || hp.nome_hotel || hp.nome || _site.site_name || '', citta: sc.city || hp.citta || '' };
+    if (sovCard && sovBody) { sovCard.style.display = 'block'; sovBody.innerHTML = '<div style="font-size:13px;color:rgba(13,95,117,0.5);font-family:\'Source Code Pro\',monospace">Interrogo l\'AI reale (Gemini)…</div>'; }
+    if (srcCard) srcCard.style.display = 'none';
+    try {
+        const { data: { session: sess } } = await _SB.auth.getSession();
+        if (!sess) throw new Error('Sessione scaduta');
+        const r = await fetch(`${SUPABASE_URL}/functions/v1/pse-query`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + sess.access_token },
+            body: JSON.stringify({ action: 'ai_visibility', site_id: _site.site_id, query, competitors, hotel_context: hotelCtx })
+        });
+        const json = await r.json();
+        if (!r.ok) throw new Error(json.message || json.error || 'Errore analisi visibilità');
+        const d = json.result || {};
+        _site.hotel_profile = { ..._site.hotel_profile, pse_competitors: competitors, last_ai_visibility: d };
+
+        // ── Tu vs Concorrenti (Share of Voice)
+        const mine = d.my_mentions || 0;
+        const comps = d.competitors || [];
+        const rows = [{ name: hotelCtx.nome || 'Il tuo hotel', mentions: mine, me: true }, ...comps.map(c => ({ name: c.name, mentions: c.mentions, me: false }))];
+        const maxM = Math.max(1, ...rows.map(r => r.mentions));
+        const citedBadge = d.cited ? '<span style="color:#0D5F75">✓ Citato dall\'AI</span>' : '<span style="color:#d82d6b">Non citato in questa risposta</span>';
+        let sovHtml = `<div style="display:flex;align-items:baseline;gap:12px;margin-bottom:14px"><div style="font-size:34px;font-weight:500;line-height:1;color:#0D5F75;font-family:Commissioner,sans-serif">${d.sov ?? 0}%</div><div style="font-size:13px;font-family:'Source Code Pro',monospace;color:#0D5F75">Share of Voice &nbsp;·&nbsp; ${citedBadge}</div></div>`;
+        sovHtml += rows.map(r => {
+            const w = Math.round(r.mentions / maxM * 100);
+            const col = r.me ? '#0D5F75' : '#C1CBE8';
+            return `<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:13px;color:#0D5F75;font-family:'Source Code Pro',monospace;margin-bottom:4px"><span style="font-weight:${r.me ? 600 : 400}">${esc(r.name)}</span><span>${r.mentions} menzion${r.mentions === 1 ? 'e' : 'i'}</span></div><div style="height:10px;background:#f0f2f8;border-radius:6px;overflow:hidden"><div style="height:100%;width:${w}%;background:${col};border-radius:6px"></div></div></div>`;
+        }).join('');
+        if (!comps.length) sovHtml += `<div style="font-size:12px;color:rgba(13,95,117,0.5);margin-top:8px;font-family:'Source Code Pro',monospace">Aggiungi i concorrenti nel campo sopra per il confronto diretto.</div>`;
+        if (sovBody) sovBody.innerHTML = sovHtml;
+
+        // ── Fonti usate dall'AI
+        const sources = d.sources || [];
+        if (srcCard && srcBody) {
+            if (sources.length) {
+                srcCard.style.display = 'block';
+                srcBody.innerHTML = sources.map(s => {
+                    const label = s.title || s.url || '';
+                    return `<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #f4f4f8"><span style="width:7px;height:7px;border-radius:50%;background:#0D5F75;flex-shrink:0;display:inline-block"></span><span style="font-size:13px;color:#0D5F75;font-family:'Source Code Pro',monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(label)}</span></div>`;
+                }).join('');
+            } else {
+                srcCard.style.display = 'none';
+            }
+        }
+    } catch(e) {
+        if (sovBody) sovBody.innerHTML = `<div style="color:#d82d6b;font-size:13px;font-family:'Source Code Pro',monospace">${esc(e.message)}</div>`;
     }
 };
 
