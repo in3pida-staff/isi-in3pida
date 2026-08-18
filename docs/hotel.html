@@ -2122,7 +2122,8 @@ document.getElementById('fhm-save').addEventListener('click', async () => {
     try {
         const action=id?'update':'add', faq={question:q,answer:a,solo_ai:sa,order:0};
         if(id) faq.id=parseInt(id);
-        if (_isScriptSite()) {
+        const _noPlugin = !_site?.plugin_version || (_site?.plugin_version||'').startsWith('js-');
+        if (_isScriptSite() || _noPlugin) {
             await _scriptSaveFaq(action, faq);
             document.getElementById('faq-hotel-modal').style.display='none';
             renderHotelFaqList(document.getElementById('faq-hotel-list'));
@@ -2167,7 +2168,7 @@ window.deleteHotelFaq = async function(id) {
     const f=_faqItems.find(x=>x.id===id);
     if(!f||!await isiConfirm('Eliminare la FAQ "'+((f.question||'').substring(0,60))+'"?','Elimina')) return;
     try {
-        if (_isScriptSite()) {
+        if (_isScriptSite() || !_site?.plugin_version || (_site?.plugin_version||'').startsWith('js-')) {
             await _scriptSaveFaq('delete', {id});
             renderHotelFaqList(document.getElementById('faq-hotel-list'));
         } else {
