@@ -83,7 +83,7 @@ Per ciascuna ricerca, indica in modo semplice (max 2 righe) cosa manca nel profi
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${GROQ_API_KEY}` },
       body: JSON.stringify({
-        model: 'llama-3.1-8b-instant',
+        model: 'openai/gpt-oss-20b',
         max_tokens: 4000,
         temperature: 0.2,
         messages: [
@@ -93,7 +93,7 @@ Per ciascuna ricerca, indica in modo semplice (max 2 righe) cosa manca nel profi
       })
     })
 
-    await reportAiStatus(SUPABASE_URL, SUPABASE_SERVICE_KEY, 'reason:gap', groqRes.ok, 'Analisi Query Mancanti (Reason Gap)', { source: 'reason-gap', model: 'llama-3.1-8b-instant' })
+    await reportAiStatus(SUPABASE_URL, SUPABASE_SERVICE_KEY, 'reason:gap', groqRes.ok, 'Analisi Query Mancanti (Reason Gap)', { source: 'reason-gap', model: 'openai/gpt-oss-20b' })
     const groqData = await groqRes.json()
     const rawText = groqData.choices?.[0]?.message?.content?.trim() ?? '[]'
 
@@ -111,7 +111,7 @@ Per ciascuna ricerca, indica in modo semplice (max 2 righe) cosa manca nel profi
           query: r.query,
           cat: r.cat,
           gaps: r.gaps,
-          model: 'llama-3.1-8b-instant',
+          model: 'openai/gpt-oss-20b',
           cost_usd: costUsd / results.length,
           created_at: now.toISOString()
         }))
@@ -125,7 +125,7 @@ Per ciascuna ricerca, indica in modo semplice (max 2 righe) cosa manca nel profi
       headers: { ...cors, 'Content-Type': 'application/json' }
     })
   } catch (e) {
-    try { await reportAiStatus(SUPABASE_URL, SUPABASE_SERVICE_KEY, 'reason:gap', false, 'Analisi Query Mancanti (Reason Gap)', { source: 'reason-gap', model: 'llama-3.1-8b-instant' }) } catch (_) {}
+    try { await reportAiStatus(SUPABASE_URL, SUPABASE_SERVICE_KEY, 'reason:gap', false, 'Analisi Query Mancanti (Reason Gap)', { source: 'reason-gap', model: 'openai/gpt-oss-20b' }) } catch (_) {}
     return new Response(JSON.stringify({ error: String(e) }), { status: 500, headers: cors })
   }
 })

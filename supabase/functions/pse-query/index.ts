@@ -8,25 +8,34 @@ const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY') ?? Deno.env.get('GEMINI_KE
 
 const cors = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'authorization, content-type' }
 
-async function groqModel(model: string, systemPrompt: string, userPrompt: string, maxTokens = 400, temperature = 0.7): Promise<string> {
+// Modelli Groq sicuri per il ripiego automatico (in ordine): se uno viene dismesso, prova il successivo
+const GROQ_FALLBACKS = ['openai/gpt-oss-20b', 'openai/gpt-oss-120b']
+async function groqCall(model: string, systemPrompt: string, userPrompt: string, maxTokens: number, temperature: number): Promise<any> {
   const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${GROQ_API_KEY}` },
-    body: JSON.stringify({
-      model,
-      max_tokens: maxTokens,
-      temperature,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt }
-      ]
-    })
+    body: JSON.stringify({ model, max_tokens: maxTokens, temperature, messages: [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: userPrompt }
+    ] })
   })
-  const d = await res.json()
+  return await res.json()
+}
+async function groqModel(model: string, systemPrompt: string, userPrompt: string, maxTokens = 400, temperature = 0.7): Promise<string> {
+  let d = await groqCall(model, systemPrompt, userPrompt, maxTokens, temperature)
+  // Ripiego automatico: se il modello è stato dismesso/non esiste, riprova con uno sicuro → così il servizio NON si rompe
+  const bad = ['model_not_found', 'model_decommissioned']
+  if (bad.includes(d?.error?.code)) {
+    for (const fb of GROQ_FALLBACKS) {
+      if (fb === model) continue
+      d = await groqCall(fb, systemPrompt, userPrompt, maxTokens, temperature)
+      if (!bad.includes(d?.error?.code)) break
+    }
+  }
   return d.choices?.[0]?.message?.content?.trim() ?? ''
 }
 
-const groq = (s: string, u: string, t = 400, temp = 0.7) => groqModel('llama-3.1-8b-instant', s, u, t, temp)
+const groq = (s: string, u: string, t = 400, temp = 0.7) => groqModel('openai/gpt-oss-20b', s, u, t, temp)
 
 async function gemini(systemPrompt: string, userPrompt: string, maxTokens = 800): Promise<string> {
   if (!GEMINI_API_KEY) return ''
@@ -56,12 +65,78 @@ function parseJson(raw: string): any {
   try { const m = raw.match(/\{[\s\S]*\}/); return m ? JSON.parse(m[0]) : {} } catch { return {} }
 }
 
+// Gemini con grounding Google Search (tier gratuito) — ritorna risposta reale + fonti citate
+async function geminiGrounded(prompt: string, maxTokens = 800): Promise<{ text: string, sources: { url: string, title: string }[], error?: string }> {
+  if (!GEMINI_API_KEY) return { text: '', sources: [], error: 'no_key' }
+  try {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ role: 'user', parts: [{ text: prompt }] }],
+          tools: [{ google_search: {} }],
+          generationConfig: { temperature: 0.3, maxOutputTokens: maxTokens }
+        })
+      }
+    )
+    const d = await res.json()
+    if (d.error) return { text: '', sources: [], error: d.error.code === 429 ? 'quota_exceeded' : (d.error.message || 'gemini_error') }
+    const cand = d.candidates?.[0]
+    const text = (cand?.content?.parts || []).map((p: any) => p.text).filter(Boolean).join(' ').trim()
+    const chunks = cand?.groundingMetadata?.groundingChunks || []
+    const seen = new Set<string>()
+    const sources: { url: string, title: string }[] = []
+    for (const c of chunks) {
+      const title = c.web?.title || ''
+      const url = c.web?.uri || ''
+      const key = title || url
+      if (!key || seen.has(key)) continue
+      seen.add(key)
+      sources.push({ url, title })
+    }
+    return { text, sources }
+  } catch (e) {
+    return { text: '', sources: [], error: String(e).slice(0, 200) }
+  }
+}
+
+function countMentions(text: string, term: string): number {
+  if (!term) return 0
+  const esc = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  return (text.match(new RegExp(esc, 'gi')) || []).length
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
 
   try {
     const body = await req.json()
     const { site_id, query, action } = body
+
+    // ─── DEBUG GROQ COMPOUND (ispezione struttura fonti) ──────────────────────
+    if (action === 'debug_groq') {
+      const model = body.model || 'groq/compound'
+      let out: any = {}
+      try {
+        const r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${GROQ_API_KEY}` },
+          body: JSON.stringify({ model, messages: [{ role: 'user', content: 'Elenca i migliori hotel 3 stelle fronte mare a Riccione per famiglie, con i nomi. Rispondi in italiano.' }], temperature: 0.3 })
+        })
+        out = await r.json()
+      } catch (e) { out = { fetchError: String(e) } }
+      const msg = out.choices?.[0]?.message || {}
+      return new Response(JSON.stringify({
+        model,
+        error: out.error || null,
+        content_head: (msg.content || '').slice(0, 200),
+        message_keys: Object.keys(msg),
+        executed_tools: msg.executed_tools ?? null,
+        reasoning_head: (msg.reasoning || '').slice(0, 200),
+      }, null, 2), { headers: { ...cors, 'Content-Type': 'application/json' } })
+    }
 
     // ─── DEBUG ───────────────────────────────────────────────────────────────
     if (action === 'debug') {
@@ -206,6 +281,66 @@ Formato risposta (JSON puro, nessun testo fuori):
       )
     }
 
+    // ─── AI VISIBILITY (reale, grounded) ──────────────────────────────────────
+    // Interroga davvero Gemini con Google Search grounding: dice se l'hotel è citato,
+    // come sta vs i competitor (Share of Voice) e da quali fonti l'AI prende le info.
+    if (action === 'ai_visibility') {
+      if (!site_id || !query) return new Response(JSON.stringify({ error: 'Missing params' }), { status: 400, headers: cors })
+      if (!GEMINI_API_KEY) return new Response(JSON.stringify({ error: 'GEMINI_API_KEY non configurata' }), { status: 422, headers: cors })
+
+      const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY)
+      const { data: site } = await supabase.from('isi_sites').select('site_name, hotel_profile, schema_data').eq('site_id', site_id).single()
+      if (!site) return new Response(JSON.stringify({ error: 'Site not found' }), { status: 404, headers: cors })
+
+      const hp = site.hotel_profile || {}
+      const sc = site.schema_data || {}
+      const hotelName = (body.hotel_context?.nome || sc.name || hp.nome_hotel || hp.nome || site.site_name || '').trim()
+      const aliases = [hotelName, ...(Array.isArray(body.aliases) ? body.aliases : [])].map((a: string) => (a || '').trim()).filter(Boolean)
+      const competitors = (Array.isArray(body.competitors) ? body.competitors : [])
+        .map((c: string) => (c || '').trim()).filter(Boolean).slice(0, 3)
+
+      // Query reale con grounding
+      const gr = await geminiGrounded(query)
+      if (gr.error === 'quota_exceeded')
+        return new Response(JSON.stringify({ error: 'quota_exceeded', message: 'Limite giornaliero gratuito Gemini raggiunto, riprova domani.' }), { status: 429, headers: cors })
+      if (!gr.text)
+        return new Response(JSON.stringify({ error: 'no_answer', message: gr.error || 'Nessuna risposta dal motore AI' }), { status: 502, headers: cors })
+
+      const answer = gr.text
+      const answerLc = answer.toLowerCase()
+
+      // Citazione hotel + posizione
+      const hitAlias = aliases.find((a: string) => answerLc.includes(a.toLowerCase()))
+      const cited = !!hitAlias
+      const position = cited ? answerLc.indexOf((hitAlias as string).toLowerCase()) : -1
+      const myMentions = aliases.reduce((n: number, a: string) => n + countMentions(answer, a), 0)
+
+      // Share of Voice vs competitor
+      const compCounts = competitors.map((name: string) => ({ name, mentions: countMentions(answer, name) }))
+      const totalMentions = myMentions + compCounts.reduce((s: number, c: any) => s + c.mentions, 0)
+      const sov = totalMentions > 0 ? Math.round((myMentions / totalMentions) * 100) : (cited ? 100 : 0)
+
+      const result = {
+        query,
+        cited,
+        position,
+        my_mentions: myMentions,
+        sov,
+        competitors: compCounts,
+        sources: gr.sources.slice(0, 8),
+        answer_excerpt: answer.slice(0, 600),
+        checked_at: new Date().toISOString(),
+        model: 'gemini-2.0-flash (grounded)'
+      }
+
+      // Salva competitor scelti + ultimo run nel profilo (storico leggero, zero costi)
+      await supabase.from('isi_sites')
+        .update({ hotel_profile: { ...hp, pse_competitors: competitors, last_ai_visibility: result } })
+        .eq('site_id', site_id)
+
+      return new Response(JSON.stringify({ ok: true, result }), { headers: { ...cors, 'Content-Type': 'application/json' } })
+    }
+
     // ─── PSE QUERY ────────────────────────────────────────────────────────────
     if (!site_id || !query) return new Response(JSON.stringify({ error: 'Missing params' }), { status: 400, headers: cors })
 
@@ -242,8 +377,8 @@ Rispondi SOLO con JSON valido, nessun testo fuori:
     const _run = (engine:string, model:string) =>
       groqModel(model, systemPrompt, userPrompt, 800).catch((e) => { _engineErrors.push({ engine, model, error: String(e).slice(0,300) }); return '' })
     const [rawChatgpt, rawGeminiAlt, rawPerplexity] = await Promise.all([
-      _run('chatgpt',    'llama-3.1-8b-instant'),
-      _run('gemini',     'llama-3.3-70b-versatile'),
+      _run('chatgpt',    'openai/gpt-oss-20b'),
+      _run('gemini',     'openai/gpt-oss-120b'),
       _run('perplexity', 'openai/gpt-oss-20b')
     ])
 
@@ -252,8 +387,8 @@ Rispondi SOLO con JSON valido, nessun testo fuori:
     const perplexityResult = parseJson(rawPerplexity)
 
     // Motori AI: avviso SOLO admin quando non rispondono, e "tornato disponibile" quando riprendono
-    await reportAiStatus(SUPABASE_URL, SUPABASE_SERVICE_KEY, 'llm:chatgpt',    rawChatgpt    !== '', 'Simulatore — motore ChatGPT',    { source:'pse', engine:'chatgpt',    model:'llama-3.1-8b-instant' })
-    await reportAiStatus(SUPABASE_URL, SUPABASE_SERVICE_KEY, 'llm:gemini',     rawGeminiAlt  !== '', 'Simulatore — motore Gemini',     { source:'pse', engine:'gemini',     model:'llama-3.3-70b-versatile' })
+    await reportAiStatus(SUPABASE_URL, SUPABASE_SERVICE_KEY, 'llm:chatgpt',    rawChatgpt    !== '', 'Simulatore — motore ChatGPT',    { source:'pse', engine:'chatgpt',    model:'openai/gpt-oss-20b' })
+    await reportAiStatus(SUPABASE_URL, SUPABASE_SERVICE_KEY, 'llm:gemini',     rawGeminiAlt  !== '', 'Simulatore — motore Gemini',     { source:'pse', engine:'gemini',     model:'openai/gpt-oss-120b' })
     await reportAiStatus(SUPABASE_URL, SUPABASE_SERVICE_KEY, 'llm:perplexity', rawPerplexity !== '', 'Simulatore — motore Perplexity', { source:'pse', engine:'perplexity', model:'openai/gpt-oss-20b' })
 
     const chatgptCited    = (chatgptResult.probability    ?? 0) >= 50
@@ -273,19 +408,19 @@ Rispondi SOLO con JSON valido, nessun testo fuori:
           probability: chatgptResult.probability ?? null,
           verdict: chatgptResult.verdict ?? null,
           cited: chatgptCited,
-          model: 'llama-3.1-8b-instant'
+          model: 'openai/gpt-oss-20b'
         },
         gemini: {
           probability: geminiAltResult.probability ?? null,
           verdict: geminiAltResult.verdict ?? null,
           cited: geminiAltCited,
-          model: 'llama-3.3-70b-versatile'
+          model: 'openai/gpt-oss-120b'
         },
         perplexity: {
           probability: perplexityResult.probability ?? null,
           verdict: perplexityResult.verdict ?? null,
           cited: perplexityCited,
-          model: 'gemma2-9b-it'
+          model: 'openai/gpt-oss-20b'
         }
       }
     }
