@@ -73,13 +73,15 @@
         /* Override main per nuovo layout */
         .eletta-right .main { padding-top:16px; }
         .eletta-right .navbar { display:none !important; }
-        .eletta-right .hero { background:#C1CBE8 !important; border-radius:16px; margin:25px 5% 30px 5%; box-shadow:0 0 0 3px #C1CBE8; }
+        .eletta-right .hero { background:#C1CBE8 !important; border-radius:16px; margin:25px 0 30px 0; box-shadow:0 0 0 3px #C1CBE8; }
         .eletta-right .main .card { border-radius:16px !important; overflow:hidden !important; box-shadow:0 2px 14px rgba(0,0,0,.07) !important; }
         .eletta-right .main .card-header { border-radius:16px 16px 0 0 !important; background:white !important; border-bottom:1px solid #f0f0f6 !important; }
         .eletta-right .main table.sites-table th { background:white !important; color:#0D5F75 !important; border-bottom:2px solid #EDEEF5 !important; }
         .eletta-right .main table.sites-table tbody tr:hover td { background:#f0f4f8 !important; }
         .eletta-right .main table.sites-table td { vertical-align:middle !important; }
         .eletta-right .main table.sites-table tbody tr { border-bottom:1px solid #f0f0f6; }
+        table.sites-table.st-pad td:first-child, table.sites-table.st-pad th:first-child { padding-left:22px !important; }
+        table.sites-table.st-pad td:last-child,  table.sites-table.st-pad th:last-child  { padding-right:22px !important; }
         .eletta-right { background:#EDEEF5; }
         .tip-q { background:#C1CBE8 !important; color:#0D5F75 !important; border:2px solid #C1CBE8 !important; box-shadow:none !important; }
         :root { --red:#d82d6b; --red-text:#d82d6b; --red-bg:#fbf4f7; --green-text:#0D5F75; --green-bg:#e8f2f5; }
@@ -959,12 +961,12 @@
             const siteCost = costsMap?.[site.site_id] || 0;
             const neverConnected = !site.plugin_version && !site.last_heartbeat;
             const aggiornaBtnHtml = isScriptJs
-                ? `<button class="btn-ping" style="font-size:12px;padding:3px 8px;cursor:default;min-width:66px;text-align:center;line-height:1.4" disabled onclick="event.stopPropagation()">Auto</button>`
+                ? `<button class="btn-ping" style="font-size:12px;padding:3px 8px;cursor:default;width:84px;text-align:center;line-height:1.4" disabled onclick="event.stopPropagation()">Auto</button>`
                 : neverConnected
-                    ? `<button class="btn-update" style="font-size:12px;padding:3px 8px;min-width:66px;text-align:center;line-height:1.4" onclick="event.stopPropagation();installaManuale()">Installa</button>`
+                    ? `<button class="btn-update" style="font-size:12px;padding:3px 8px;width:84px;text-align:center;line-height:1.4" onclick="event.stopPropagation();installaManuale()">Installa</button>`
                     : isOld
-                        ? `<button class="btn-update" style="font-size:12px;padding:3px 8px;margin-left:0;border:1.5px solid transparent;min-width:66px;text-align:center;line-height:1.4" onclick="event.stopPropagation();aggiornaSito('${escHtml(site.site_id)}')">Aggiorna</button>`
-                        : `<button class="btn-ping" style="font-size:12px;padding:3px 8px;cursor:default;min-width:66px;text-align:center;line-height:1.4" disabled onclick="event.stopPropagation()">Aggiornato</button>`;
+                        ? `<button class="btn-update" style="font-size:12px;padding:3px 8px;margin-left:0;border:1.5px solid transparent;width:84px;text-align:center;line-height:1.4" onclick="event.stopPropagation();aggiornaSito('${escHtml(site.site_id)}')">Aggiorna</button>`
+                        : `<button class="btn-ping" style="font-size:12px;padding:3px 8px;cursor:default;width:84px;text-align:center;line-height:1.4" disabled onclick="event.stopPropagation()">Aggiornato</button>`;
             html += `<tr data-site-id="${escHtml(site.site_id)}" style="cursor:pointer">
                 <td style="vertical-align:middle"><span class="dot" style="background:${dotColor};box-shadow:0 0 0 4px ${dotColor}26;cursor:help" title="${escHtml(dotTitle)}"></span></td>
                 <td style="vertical-align:middle"><div class="site-name-cell">${escHtml(site.site_name||'—')}</div><div style="font-size:13px;color:var(--grey);margin-top:2px">${escHtml(site.site_url||'')}</div></td>
@@ -2835,7 +2837,7 @@
         const { data, error } = await _SBq.from('isi_plugin_versions').select('*').order('released_at',{ascending:false});
         if (error||!data) { document.getElementById('versions-container').innerHTML = '<div class="empty-state"><div class="empty-title">Errore caricamento versioni</div></div>'; return; }
         if (!data.length) { document.getElementById('versions-container').innerHTML = '<div class="empty-state"><div class="empty-icon">📦</div><div class="empty-title">Nessuna versione pubblicata</div></div>'; return; }
-        let html = '<table class="sites-table"><thead><tr><th>Versione</th><th>Note di aggiornamento</th><th>Download</th><th>Stato</th><th>Data rilascio</th><th></th></tr></thead><tbody>';
+        let html = '<table class="sites-table st-pad"><thead><tr><th>Versione</th><th>Note di aggiornamento</th><th>Download</th><th>Stato</th><th>Data rilascio</th><th></th></tr></thead><tbody>';
         data.forEach(v => {
             const d = v.released_at ? new Date(v.released_at).toLocaleDateString('it-IT') : '—';
             const badge = v.is_current
@@ -6082,7 +6084,7 @@ ${rows}
         const el = document.getElementById('utenti-container');
         document.getElementById('utenti-count').textContent = users.length+' account registrat'+(users.length===1?'o':'i');
         if (!users.length) { el.innerHTML='<div class="empty-state"><div class="empty-title">Nessun utente registrato</div></div>'; return; }
-        let html = `<table class="sites-table"><thead><tr>
+        let html = `<table class="sites-table st-pad"><thead><tr>
             <th>Nome</th><th>Email</th><th>Ruolo</th><th>Hotel</th><th>Funzioni attive</th><th>Registrato il</th><th>Azioni</th>
         </tr></thead><tbody>`;
         users.forEach(u => {
@@ -6773,7 +6775,7 @@ ${rows}
         document.getElementById('bm-mrr').style.color = colorP(summary.mrr * 100);
         document.getElementById('bm-run-meta').textContent = `${summary.passed_1}/${summary.total_queries} al 1° posto · ${summary.passed_3}/${summary.total_queries} nei top 3`;
 
-        let html = `<table class="sites-table" style="font-size:13px"><thead><tr>
+        let html = `<table class="sites-table st-pad" style="font-size:13px"><thead><tr>
             <th>Query di test</th><th>Chunk atteso</th><th>Rank</th><th>Similarity</th><th>Top chunk trovato</th><th>Esito</th>
         </tr></thead><tbody>`;
         results.forEach(r => {
@@ -6821,7 +6823,7 @@ ${rows}
             return;
         }
         const colorP = v => v >= 80 ? 'var(--green-text)' : v >= 50 ? 'var(--magenta)' : 'var(--magenta)';
-        let html = `<table class="sites-table"><thead><tr>
+        let html = `<table class="sites-table st-pad"><thead><tr>
             <th>Data</th><th>Precision@1</th><th>Precision@3</th><th>MRR</th><th>Query</th>
         </tr></thead><tbody>`;
         data.forEach(r => {
