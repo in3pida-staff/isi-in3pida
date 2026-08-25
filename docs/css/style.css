@@ -336,7 +336,7 @@ table.sites-table col.col-versione { width: 76px; }
 table.sites-table col.col-geo      { width: 72px; }
 table.sites-table col.col-missing  { width: 72px; }
 table.sites-table col.col-comp     { width: 72px; }
-table.sites-table col.col-azioni   { width: 280px; }
+table.sites-table col.col-azioni   { width: 300px; }
 .site-name-cell { font-weight: 600; font-size: 15px; }
 .th-center { text-align: center !important; }
 .td-center { text-align: center; }

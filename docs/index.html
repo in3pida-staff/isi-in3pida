@@ -80,8 +80,9 @@
         .eletta-right .main table.sites-table tbody tr:hover td { background:#f0f4f8 !important; }
         .eletta-right .main table.sites-table td { vertical-align:middle !important; }
         .eletta-right .main table.sites-table tbody tr { border-bottom:1px solid #f0f0f6; }
+        table.sites-table.st-pad { table-layout: auto !important; }
         table.sites-table.st-pad td:first-child, table.sites-table.st-pad th:first-child { padding-left:22px !important; }
-        table.sites-table.st-pad td:last-child,  table.sites-table.st-pad th:last-child  { padding-right:22px !important; }
+        table.sites-table.st-pad td:last-child,  table.sites-table.st-pad th:last-child  { padding-right:22px !important; white-space:nowrap; }
         .eletta-right { background:#EDEEF5; }
         .tip-q { background:#C1CBE8 !important; color:#0D5F75 !important; border:2px solid #C1CBE8 !important; box-shadow:none !important; }
         :root { --red:#d82d6b; --red-text:#d82d6b; --red-bg:#fbf4f7; --green-text:#0D5F75; --green-bg:#e8f2f5; }
@@ -975,7 +976,7 @@
                 <td class="td-center" style="vertical-align:middle">${geoHtml}</td>
                 <td class="td-center" style="vertical-align:middle">${covHtml}</td>
                 <td class="td-center" style="vertical-align:middle">${csHtml}</td>
-                <td style="vertical-align:middle;white-space:nowrap"><div style="display:flex;gap:6px;align-items:center">${aggiornaBtnHtml}<button class="btn-ping" style="font-size:12px;padding:3px 8px;line-height:1.4" onclick="event.stopPropagation();toggleSitoAttivo('${escHtml(site.site_id)}','${escHtml(site.site_url||'')}',this)">Disattiva</button><button class="btn-ping" style="font-size:12px;padding:3px 8px;background:#e8ecf7;color:#0D5F75;line-height:1.4" onclick="event.stopPropagation();openSitePerms('${escHtml(site.site_id)}','${escHtml(site.site_name||'')}')">Permessi</button><button style="background:none;border:none;cursor:pointer;padding:0 4px;line-height:1;display:flex;align-items:center" title="Elimina installazione" onclick="event.stopPropagation();eliminaSito('${escHtml(site.site_id)}','${escHtml(site.site_name||site.site_url||'')}',this)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#d82d6b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg></button></div></td>
+                <td style="vertical-align:middle;white-space:nowrap;padding-left:20px"><div style="display:flex;gap:6px;align-items:center;justify-content:flex-end">${aggiornaBtnHtml}<button class="btn-ping" style="font-size:12px;padding:3px 8px;line-height:1.4" onclick="event.stopPropagation();toggleSitoAttivo('${escHtml(site.site_id)}','${escHtml(site.site_url||'')}',this)">Disattiva</button><button class="btn-ping" style="font-size:12px;padding:3px 8px;background:#e8ecf7;color:#0D5F75;line-height:1.4" onclick="event.stopPropagation();openSitePerms('${escHtml(site.site_id)}','${escHtml(site.site_name||'')}')">Permessi</button><button style="background:none;border:none;cursor:pointer;padding:0 4px;line-height:1;display:flex;align-items:center" title="Elimina installazione" onclick="event.stopPropagation();eliminaSito('${escHtml(site.site_id)}','${escHtml(site.site_name||site.site_url||'')}',this)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#d82d6b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg></button></div></td>
             </tr>`;
             window._sitePermsData = window._sitePermsData || {};
             window._sitePermsData[site.site_id] = site.features_override || {};
