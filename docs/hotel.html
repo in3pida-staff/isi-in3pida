@@ -693,9 +693,14 @@ async function init() {
         e.target.value = '';
     });
 
-    _injectAiMetrics(site); // inietta i valori calcolati in geo_scores prima del render
-    renderContent(site, pseData || [], now);
-    applyAppFeatures(_appFeatures, _siteAppPerms);
+    try {
+        _injectAiMetrics(site);
+        renderContent(site, pseData || [], now);
+        applyAppFeatures(_appFeatures, _siteAppPerms);
+    } catch(e) {
+        const _el = document.getElementById('hotel-content');
+        if (_el) _el.innerHTML = '<div style="padding:24px;color:#d82d6b;font-size:13px">Errore di caricamento. Ricarica la pagina.</div>';
+    }
     _saveAiMetrics(site).catch(()=>{});
 }
 
@@ -729,13 +734,13 @@ function _calcAiMetrics(site) {
     qualSafety=Math.max(0,qualSafety);
 
     // ENTITY AUTHORITY: profili ufficiali collegati
-    const sameasList=[...(sc.sameas||[]),...(sc.sameas_guided||[])].filter(Boolean);
+    const sameasList=[...(Array.isArray(sc.sameas)?sc.sameas:[]),...(Array.isArray(sc.sameas_guided)?sc.sameas_guided:[])].filter(Boolean);
     let entityAuthority=0;
     if(hp.google_business_url) entityAuthority+=25;
     if(hp.tripadvisor_url)     entityAuthority+=25;
     if(hp.booking_rating)      entityAuthority+=20;
     entityAuthority+=Math.min(15,sameasList.length*5);
-    entityAuthority+=Math.min(15,(hp.social_custom||[]).length*5);
+    entityAuthority+=Math.min(15,(Array.isArray(hp.social_custom)?hp.social_custom:[]).length*5);
     entityAuthority=Math.min(100,entityAuthority);
 
     // CHUNK CITATION: qualità media blocchi FAQ (lunghezza ottimale per citabilità)
@@ -5288,7 +5293,10 @@ function isiConfirm(msg, confirmLabel) {
     });
 })();
 
-init();
+init().catch(e => {
+    const _el = document.getElementById('hotel-content');
+    if (_el) _el.innerHTML = '<div style="padding:24px;color:#d82d6b;font-size:13px">Errore di avvio. Ricarica la pagina.</div>';
+});
 
 // ─── MODALI COERENZA ───────────────────────────────────────────────────────────
 (function() {
