@@ -3165,6 +3165,12 @@
         }
 
         history.sort((a, b) => a.date.localeCompare(b.date));
+        // Riempimento robusto per-parametro: se un punteggio manca in una misura tiene l'ultimo valido → niente crolli/buchi nel grafico
+        ['ai_readiness','answer_extraction','quality_safety','ai_visibility'].forEach(k => {
+            const firstVal = (history.find(h => h[k] != null) || {})[k];
+            let lastVal = (firstVal != null ? firstVal : null);
+            history.forEach(h => { if (h[k] == null) { if (lastVal != null) h[k] = lastVal; } else lastVal = h[k]; });
+        });
         faqData.score_history = history;
 
         const COLORS  = ['#0D5F75', '#2a8a9e', '#8aa8bc', '#666b84'];

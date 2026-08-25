@@ -116,10 +116,19 @@ Rispondi SOLO con questo JSON valido, nessun testo aggiuntivo:
     }
     score = Math.min(100, score)
 
-    // Salva ai_visibility in geo_scores
-    await supabase.from('isi_sites').update({ geo_scores: { ...geo, ai_visibility: score } }).eq('site_id', site_id)
+    // PROTEZIONE anti-crollo: il punteggio può scendere solo di poco per volta (max -5 a misura).
+    // Così se una misura sballa (es. AI che non "vede" l'hotel per un glitch/quota), il grafico
+    // fa un dip minimo invece di crollare da 75 a 5 e spaventare l'albergatore.
+    const MAX_DROP = 5
+    const prev = typeof geo.ai_visibility === 'number' ? geo.ai_visibility : null
+    let finalScore = score
+    if (prev !== null && score < prev - MAX_DROP) finalScore = prev - MAX_DROP
+    finalScore = Math.max(0, Math.min(100, finalScore))
 
-    return new Response(JSON.stringify({ ok: true, score, details: parsed }), { headers: cors })
+    // Salva ai_visibility (protetto) in geo_scores
+    await supabase.from('isi_sites').update({ geo_scores: { ...geo, ai_visibility: finalScore } }).eq('site_id', site_id)
+
+    return new Response(JSON.stringify({ ok: true, score: finalScore, raw_score: score, details: parsed }), { headers: cors })
   } catch (e) {
     return new Response(JSON.stringify({ error: String(e) }), { status: 500, headers: cors })
   }

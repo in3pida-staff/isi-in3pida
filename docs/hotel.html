@@ -4450,18 +4450,17 @@ async function initScoreHistoryChart(site, geoAvg, cs, covPct) {
     }
 
     history.sort((a, b) => a.date.localeCompare(b.date));
-    // Backfill voci storiche senza sub-score: usa i valori più vecchi disponibili
-    const firstWithScores = history.find(h => h.ai_readiness != null);
-    if (firstWithScores) {
+    // Riempimento robusto PER-PARAMETRO: se un singolo punteggio manca in una misura,
+    // tiene l'ultimo valore valido (o il primo disponibile all'inizio). Evita crolli/buchi
+    // nel grafico quando una misura non è disponibile (es. AI Visibility non misurata).
+    ['ai_readiness','answer_extraction','quality_safety','ai_visibility'].forEach(k => {
+        const firstVal = (history.find(h => h[k] != null) || {})[k];
+        let lastVal = (firstVal != null ? firstVal : null);
         history.forEach(h => {
-            if (h.ai_readiness == null) {
-                h.ai_readiness = firstWithScores.ai_readiness;
-                h.answer_extraction = firstWithScores.answer_extraction;
-                h.quality_safety = firstWithScores.quality_safety;
-                h.ai_visibility = firstWithScores.ai_visibility;
-            }
+            if (h[k] == null) { if (lastVal != null) h[k] = lastVal; }
+            else lastVal = h[k];
         });
-    }
+    });
     faqData.score_history = history;
 
     const COLORS  = ['#0D5F75', '#C1CBE8', '#7a8fa0', '#bdc8d4'];
