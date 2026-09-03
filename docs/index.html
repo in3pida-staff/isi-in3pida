@@ -2719,9 +2719,14 @@
             id_pagine_selezionate: g('id_pagine_selezionate'),
             _updated_at: new Date().toISOString(), _source: 'admin',
         };
-        const { data: freshSite } = await _SBq.from('isi_sites').select('hotel_profile,site_url').eq('site_id', siteId).single();
+        const { data: freshSite } = await _SBq.from('isi_sites').select('hotel_profile,schema_data,site_url').eq('site_id', siteId).single();
         const freshHp = freshSite?.hotel_profile || _currentHotelProfile;
-        const { error } = await _SBq.from('isi_sites').update({ hotel_profile: { ...freshHp, ...profile } }).eq('site_id', siteId);
+        // Sync automatico profilo → schema_data (il "cassetto" che legge lo script eletta.js).
+        // Solo campi non vuoti; i valori già presenti restano → non cancella né rompe nulla.
+        const _sdMap = { name: profile.nome_hotel, type: profile.tipo_struttura, description: profile.descrizione, telephone: profile.telefono, email: profile.email, street: profile.via, city: profile.citta, region: profile.regione, postal_code: profile.cap, country: profile.paese, official_rating: profile.stelle, latitude: profile.latitudine, longitude: profile.longitudine, checkin_time: profile.checkin_dalle, checkout_time: profile.checkout_dalle, url: profile.sito_web };
+        const _sdFilled = {}; Object.keys(_sdMap).forEach(k => { const v = _sdMap[k]; if (v !== undefined && v !== null && String(v).trim() !== '') _sdFilled[k] = v; });
+        const _newSchema = { ...(freshSite?.schema_data || {}), ..._sdFilled };
+        const { error } = await _SBq.from('isi_sites').update({ hotel_profile: { ...freshHp, ...profile }, schema_data: _newSchema }).eq('site_id', siteId);
         btn.disabled = false; btn.textContent = 'Salva profilo';
         if (error) {
             msg.style.display = 'block'; msg.style.color = '#b00020';
