@@ -584,7 +584,10 @@
                         <div class="card-title">Utenti registrati</div>
                         <div id="utenti-count" style="font-size:13px;color:var(--grey);margin-top:2px"></div>
                     </div>
-                    <button class="btn-ping" id="btn-refresh-utenti">Aggiorna</button>
+                    <div style="display:flex;align-items:center;gap:10px">
+                        <button class="btn-update" onclick="openCreateUser()" style="margin-left:0">+ Crea account</button>
+                        <button class="btn-ping" id="btn-refresh-utenti">Aggiorna</button>
+                    </div>
                 </div>
                 <div id="utenti-container"><div class="loading"><div class="spinner"></div> Caricamento...</div></div>
             </div>
