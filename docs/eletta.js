@@ -119,6 +119,10 @@
 
   function injectSchema(site) {
     const sd = site.schema_data || {};
+    // Inietta lo Schema.org SOLO se la configurazione è completa (nome + descrizione + indirizzo + città + telefono).
+    // Evita snippet incompleti che generano avvisi in Google Search Console / lamentele delle agenzie SEO.
+    var schemaComplete = !!(sd.name && sd.description && sd.street && sd.city && sd.telephone);
+    if (!schemaComplete) return;
     const name = sd.name || site.site_name || document.title;
     const url = sd.url || site.site_url || location.origin;
     const schema = {
