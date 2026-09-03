@@ -925,7 +925,7 @@ function renderContent(site, pseData, now) {
         const p=[]; if(!geo.has_ai_profile) p.push('abilita il profilo AI in Configurazione'); if(_missingSchema.length) p.push('completa Schema.org (manca: '+_missingSchema.join(', ')+')'); if(_faqCount<5) p.push('aggiungi almeno '+(5-_faqCount)+' FAQ'); return p.length?p.join('; '):'continua ad arricchire FAQ e Schema.org per mantenere il punteggio alto';
       })()},
       {k:'answer_extraction',l:'Answer Extraction',a:(()=>{
-        const short=(_fd.items||[]).filter(f=>String(f.answer||'').trim().length<80).length; if(_faqCount===0) return 'aggiungi FAQ con risposte chiare e dirette'; if(short>0) return short+' risposta/e troppo breve — scrivi almeno 2-3 frasi per ogni risposta'; return 'scrivi risposte più dirette: la prima frase deve già rispondere alla domanda';
+        if(_faqCount===0) return 'aggiungi FAQ tramite Eletta per aumentare la copertura delle domande'; if(_faqCount<10) return 'aggiungi altre FAQ con Eletta (ne hai '+_faqCount+', punta ad almeno 10 per una buona copertura)'; return 'aggiungi altre FAQ con Eletta per coprire più domande degli ospiti';
       })()},
       {k:'quality_safety',l:'Quality Safety',a:(()=>{
         const p=[]; if(freshAlerts.length) p.push('aggiorna i contenuti segnalati come datati'); if(_missingSchema.length) p.push('completa Schema.org (manca: '+_missingSchema.join(', ')+')'); return p.length?p.join('; '):'usa testi chiari e non ambigui, evita frasi promozionali vaghe';
