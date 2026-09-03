@@ -903,15 +903,43 @@ function renderContent(site, pseData, now) {
     const dtabInact = 'padding:10px 20px;border:none;background:none;font-size:12px;font-weight:700;letter-spacing:.05em;cursor:pointer;white-space:nowrap;color:#666b84;border-bottom:2px solid transparent;margin-bottom:-2px';
     const dtabAct   = 'padding:10px 20px;border:none;background:none;font-size:12px;font-weight:700;letter-spacing:.05em;cursor:pointer;white-space:nowrap;color:#0D5F75;border-bottom:2px solid #0D5F75;margin-bottom:-2px';
 
-    // ── Consigli per ogni punteggio AI sotto soglia (cosa fare per alzarlo)
+    // ── Consigli dinamici basati sui dati reali dell'hotel
+    const _hp = site.hotel_profile || {};
+    const _sc = site.schema_data   || {};
+    const _fd = site.faq_data      || {};
+    const _faqCount = (_fd.items || []).length;
+    const _missingProfiles = [
+      !_hp.google_business_url && 'Google Business',
+      !_hp.tripadvisor_url     && 'TripAdvisor',
+      !_hp.booking_rating      && 'Booking.com',
+    ].filter(Boolean);
+    const _missingSchema = [
+      !_sc.name        && 'nome',
+      !_sc.description && 'descrizione',
+      !_sc.telephone   && 'telefono',
+      !(_sc.street||_sc.city) && 'indirizzo',
+    ].filter(Boolean);
+
     const scoreAdvice = [
-      {k:'ai_readiness',     l:'AI Readiness',     a:'completa il profilo hotel in Schema.org e pubblica più FAQ chiare e dirette'},
-      {k:'answer_extraction',l:'Answer Extraction',a:'scrivi FAQ con risposte brevi e dirette: la prima frase deve già rispondere alla domanda'},
-      {k:'quality_safety',   l:'Quality Safety',   a:'usa testi chiari e non ambigui, evita frasi promozionali vaghe'},
-      {k:'ai_visibility',    l:'AI Visibility',    a:'aumenta le FAQ e collega i profili ufficiali (Google Business, TripAdvisor) per farti citare dagli assistenti AI'},
-      {k:'entity_authority', l:'Entity Authority', a:'nella sezione Social dello Schema.org collega più profili ufficiali (Google Business, TripAdvisor, Booking, YouTube oltre a Facebook e Instagram): più profili colleghi, più sale il punteggio'},
-      {k:'chunk_avg',        l:'Chunk Citation',   a:'struttura i contenuti in blocchi brevi e autonomi: ogni FAQ un solo concetto'},
-      {k:'citation_avg',     l:'Citation Engine',  a:'arricchisci FAQ e dati struttura per aumentare la probabilità di essere citato come fonte'},
+      {k:'ai_readiness', l:'AI Readiness', a:(()=>{
+        const p=[]; if(!geo.has_ai_profile) p.push('abilita il profilo AI in Configurazione'); if(_missingSchema.length) p.push('completa Schema.org (manca: '+_missingSchema.join(', ')+')'); if(_faqCount<5) p.push('aggiungi almeno '+(5-_faqCount)+' FAQ'); return p.length?p.join('; '):'continua ad arricchire FAQ e Schema.org per mantenere il punteggio alto';
+      })()},
+      {k:'answer_extraction',l:'Answer Extraction',a:(()=>{
+        const short=(_fd.items||[]).filter(f=>String(f.answer||'').trim().length<80).length; if(_faqCount===0) return 'aggiungi FAQ con risposte chiare e dirette'; if(short>0) return short+' risposta/e troppo breve — scrivi almeno 2-3 frasi per ogni risposta'; return 'scrivi risposte più dirette: la prima frase deve già rispondere alla domanda';
+      })()},
+      {k:'quality_safety',l:'Quality Safety',a:(()=>{
+        const p=[]; if(freshAlerts.length) p.push('aggiorna i contenuti segnalati come datati'); if(_missingSchema.length) p.push('completa Schema.org (manca: '+_missingSchema.join(', ')+')'); return p.length?p.join('; '):'usa testi chiari e non ambigui, evita frasi promozionali vaghe';
+      })()},
+      {k:'ai_visibility',l:'AI Visibility',a:(()=>{
+        const p=[]; if(_faqCount<10) p.push('aggiungi più FAQ (ne hai '+_faqCount+', punta ad almeno 10)'); if(_missingProfiles.length) p.push('collega i profili mancanti: '+_missingProfiles.join(', ')); return p.length?p.join('; '):'continua ad aggiungere FAQ — la visibilità AI cresce con il tempo e i contenuti';
+      })()},
+      {k:'entity_authority',l:'Entity Authority',a:(()=>{
+        if(_missingProfiles.length) return 'collega i profili ancora mancanti nella sezione Recensioni: '+_missingProfiles.join(', '); return 'tutti i profili principali sono già collegati — il punteggio riflette i profili disponibili per questo hotel';
+      })()},
+      {k:'chunk_avg',l:'Chunk Citation',a:'struttura i contenuti in blocchi brevi e autonomi: ogni FAQ un solo concetto'},
+      {k:'citation_avg',l:'Citation Engine',a:(()=>{
+        const p=[]; if(_faqCount<8) p.push('aggiungi più FAQ (ne hai '+_faqCount+')'); if(_missingSchema.length) p.push('completa Schema.org (manca: '+_missingSchema.join(', ')+')'); return p.length?p.join('; '):'arricchisci FAQ e dati struttura per aumentare la probabilità di essere citato come fonte';
+      })()},
     ];
     const scoreNotifList = scoreAdvice.filter(d => geo[d.k] != null && geo[d.k] < 70).map(d => ({...d, v: geo[d.k]}));
     const aiScoreNotifsHtml = scoreNotifList.map(d => `<div style="display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid #f4f4f8"><span style="width:8px;height:8px;border-radius:50%;background:${d.v<40?'#d82d6b':'#0D5F75'};flex-shrink:0;margin-top:3px;display:inline-block"></span><span style="font-size:12px;color:#4b4d68"><strong style="font-weight:600">${d.l} ${d.v<40?'critico':'basso'} (${d.v}/100)</strong> — ${d.a}</span></div>`).join('');
