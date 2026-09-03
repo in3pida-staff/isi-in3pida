@@ -444,6 +444,16 @@ function _markFaqPageCreated(btn, url) {
     btn.onclick = null;
     const draftBtn = document.getElementById('btn-faq-page-draft');
     if (draftBtn) { draftBtn.style.display = ''; draftBtn.textContent = 'Metti in bozze'; draftBtn.dataset.currentStatus = 'publish'; }
+    // Bottone Ricrea: permette di rigenerare la pagina WP se il contenuto è mancante
+    let reBtn = document.getElementById('btn-faq-page-recreate');
+    if (!reBtn) {
+        reBtn = document.createElement('button');
+        reBtn.id = 'btn-faq-page-recreate';
+        reBtn.style.cssText = 'background:none;color:rgba(13,95,117,0.5);border:none;font-family:\'Source Code Pro\',monospace;font-size:11px;cursor:pointer;padding:6px 8px;white-space:nowrap;flex-shrink:0';
+        reBtn.textContent = 'Ricrea';
+        btn.parentNode.insertBefore(reBtn, btn.nextSibling);
+    }
+    reBtn.onclick = function() { btn.style.background=''; btn.style.color=''; btn.style.cursor=''; btn.textContent='Crea pagina automaticamente'; btn.onclick=function(){_publishFaqPage(btn);}; reBtn.remove(); };
 }
 
 async function _toggleFaqPageStatus(btn) {
