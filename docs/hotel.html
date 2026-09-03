@@ -329,7 +329,7 @@ let _schemaProfile = {}, _currentHotelProfile = {};
 const _camServPreset = ['Bagno privato','Aria condizionata','Wi-Fi','TV','Minibar','Balcone','Cucina','Frigorifero','Accessibile'];
 
 function _getFaqFullUrl() {
-    const isScript = _isScriptSite() || (_site?.plugin_version||'').startsWith('js-') || !_pluginBase;
+    const isScript = _isScriptSite() || (_site?.plugin_version||'').startsWith('js-') || !_pluginBase || !_site?.plugin_version;
     if (isScript) return 'https://app.eletta-ai.it/faq.html?id=' + encodeURIComponent(_site?.site_id||'');
     const slug = (document.getElementById('faq-setting-page-url')?.value?.trim() || 'faq').replace(/^\//,'');
     return (_pluginBase || '').replace(/\/$/, '') + '/' + slug;
@@ -354,7 +354,7 @@ function _initFaqPageUrl() {
     const input = document.getElementById('faq-setting-page-url');
     const prefix = document.getElementById('faq-url-prefix');
     if (!input) return;
-    const isScript = _isScriptSite() || (_site?.plugin_version||'').startsWith('js-') || !_pluginBase;
+    const isScript = _isScriptSite() || (_site?.plugin_version||'').startsWith('js-') || !_pluginBase || !_site?.plugin_version;
     if (isScript) {
         if (prefix) prefix.textContent = 'app.eletta-ai.it';
         input.value = 'faq.html?id=' + encodeURIComponent(_site?.site_id||'');
@@ -400,7 +400,7 @@ function _initFaqPageUrl() {
 }
 
 async function _publishFaqPage(btn) {
-    const _isScript = _isScriptSite() || (_site?.plugin_version||'').startsWith('js-') || !_pluginBase;
+    const _isScript = _isScriptSite() || (_site?.plugin_version||'').startsWith('js-') || !_pluginBase || !_site?.plugin_version;
     if (_isScript) {
         const url = 'https://app.eletta-ai.it/faq.html?id=' + encodeURIComponent(_site?.site_id || '');
         document.getElementById('faq-setting-page-url').value = url;
