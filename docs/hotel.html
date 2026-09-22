@@ -1748,7 +1748,8 @@ function renderContent(site, pseData, now) {
     (function() {
         const canvas = document.getElementById('hchart-stats');
         if (!canvas || !window.Chart) return;
-        const scoreHistory = Array.isArray(site.faq_data?.score_history) ? site.faq_data.score_history : [];
+        const scoreHistory = (Array.isArray(site.faq_data?.score_history) ? [...site.faq_data.score_history] : [])
+            .sort((a,b) => String(a.date||'').localeCompare(String(b.date||'')));
         const weeklyAvg = (field, n, gran) => Array.from({length:n}, (_, i) => {
             const now = new Date();
             const end = new Date(now);
@@ -1761,7 +1762,11 @@ function renderContent(site, pseData, now) {
             const startStr = start.toISOString().slice(0,10);
             const entries = scoreHistory.filter(h => h.date > startStr && h.date <= endStr);
             const vals = entries.map(h => h[field]).filter(v => v != null);
-            return vals.length ? Math.round(vals.reduce((a,b)=>a+b,0)/vals.length) : null;
+            if (vals.length) return Math.round(vals.reduce((a,b)=>a+b,0)/vals.length);
+            // Nessuna misura in questa settimana: riporta l'ultimo valore noto PRIMA della fine finestra
+            // (i punteggi sono stati che persistono, non eventi → niente colonne vuote fra due misure).
+            const prior = scoreHistory.filter(h => h.date <= endStr).map(h => h[field]).filter(v => v != null);
+            return prior.length ? prior[prior.length-1] : null;
         });
         const buildDatasets = (n) => [
             { label:'GEO SCORE',          data:weeklyAvg('geo', n, curGran),          backgroundColor:'#0D5F75', borderRadius:8, borderSkipped:'start', barThickness:26 },
