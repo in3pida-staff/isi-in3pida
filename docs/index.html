@@ -1711,7 +1711,17 @@
                     Object.entries(newGeo).forEach(([k, v]) => { if (v !== null && v !== undefined) mergedGeo[k] = v; });
                     const patch = { geo_scores: mergedGeo, last_heartbeat: now };
                     if (data.plugin_version) patch.plugin_version = data.plugin_version;
-                    if (data.faq_data)       patch.faq_data       = { ...(site?.faq_data || {}), ...data.faq_data, score_history: site?.faq_data?.score_history || [] };
+                    if (data.faq_data) {
+                        // PROTEZIONE dati: non sovrascrivere MAI storico o FAQ con valori vuoti
+                        // (bug che a ogni "Sincronizza" azzerava score_history e items nel DB).
+                        // Rileggo sempre i dati reali dal DB e li preservo se il plugin/memoria mandano vuoto.
+                        let _dbFaq = {};
+                        try { const { data: _fr } = await _SBq.from('isi_sites').select('faq_data').eq('site_id', siteId).single(); _dbFaq = _fr?.faq_data || {}; } catch(_) {}
+                        const _pickArr = (...cands) => { for (const c of cands) if (Array.isArray(c) && c.length) return c; return []; };
+                        const _keepSh    = _pickArr(_dbFaq.score_history, site?.faq_data?.score_history, data.faq_data.score_history);
+                        const _keepItems = _pickArr(data.faq_data.items, _dbFaq.items, site?.faq_data?.items);
+                        patch.faq_data = { ...(site?.faq_data || {}), ..._dbFaq, ...data.faq_data, score_history: _keepSh, items: _keepItems };
+                    }
                     if (data.schema_data) {
                         // ISI comanda: i dati ISI non vengono mai sovrascritti da valori vuoti del plugin
                         const existingSd = site?.schema_data || {};
