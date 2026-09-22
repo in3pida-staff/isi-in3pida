@@ -1913,7 +1913,8 @@ function renderContent(site, pseData, now) {
     (function() {
         var canvas = document.getElementById('hchart-andamento');
         if (!canvas || !window.Chart) return;
-        var scoreHistory = Array.isArray(site.faq_data && site.faq_data.score_history) ? site.faq_data.score_history : [];
+        var scoreHistory = (Array.isArray(site.faq_data && site.faq_data.score_history) ? site.faq_data.score_history.slice() : [])
+            .sort(function(a,b){return String(a.date||'').localeCompare(String(b.date||''));});
         var weeklyAvgLine = function(field, n, g) {
             var now = new Date();
             return Array.from({length:n}, function(_, i) {
@@ -1924,7 +1925,10 @@ function renderContent(site, pseData, now) {
                 var endStr = end.toISOString().slice(0,10), startStr = start.toISOString().slice(0,10);
                 var entries = scoreHistory.filter(function(h){return h.date>startStr&&h.date<=endStr;});
                 var vals = entries.map(function(h){return h[field];}).filter(function(v){return v!=null;});
-                return vals.length ? Math.round(vals.reduce(function(a,b){return a+b;},0)/vals.length) : null;
+                if (vals.length) return Math.round(vals.reduce(function(a,b){return a+b;},0)/vals.length);
+                // settimana senza misura: usa l'ultimo valore noto (punteggi = stati che persistono)
+                var prior = scoreHistory.filter(function(h){return h.date<=endStr;}).map(function(h){return h[field];}).filter(function(v){return v!=null;});
+                return prior.length ? prior[prior.length-1] : null;
             });
         };
         var mkL = function(n,g) { var mo=['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'],now=new Date(); if(g==='week') return Array.from({length:n},function(_,i){var d=new Date(now);d.setDate(d.getDate()-(n-1-i)*7);return d.getDate()+' '+mo[d.getMonth()];}); return Array.from({length:n},function(_,i){var d=new Date(now);d.setMonth(d.getMonth()-(n-1-i));return mo[d.getMonth()];}); };
