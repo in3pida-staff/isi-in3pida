@@ -3193,7 +3193,8 @@ function generateQueriesForHotel(site) {
     return result;
 }
 
-function getPriorityForCategory(category, features, hotelQueries) {
+function getPriorityForCategory(category, features, hotelQueries, qmap) {
+    if ((qmap||{})[category]?.force_relevant) return 'media';
     const alwaysMedia = ['prenotazione_prezzi', 'check_in_out', 'trasporti_arrivo'];
     const score = INTENT_LIBRARY
         .filter(i => i.category === category && i.appliesWhen(features))
@@ -3347,7 +3348,7 @@ async function _initHotelMappaInner(site, cont, contQuery) {
 
     const renderCat = cat => {
         const label = cat.replace(/_/g,' ').replace(/\b\w/g, c => c.toUpperCase());
-        const prio  = getPriorityForCategory(cat, hotelFeatures, hotelQueries);
+        const prio  = getPriorityForCategory(cat, hotelFeatures, hotelQueries, qmap);
         const qs    = hotelQueries[cat] || INTENT_LIBRARY.filter(i => i.category === cat).flatMap(i => i.templates(hotelFeatures.city || 'Italia'));
         const entry = qmap[cat] || {};
         const dismissedArr = Array.isArray(entry.dismissed_queries) ? entry.dismissed_queries : [];
@@ -3376,22 +3377,24 @@ async function _initHotelMappaInner(site, cont, contQuery) {
         let dismissedHtml = '';
         if (dismissedArr.length > 0) {
             const dId = 'hdism-' + cat.replace(/[^a-z0-9]/gi,'_');
+            const autoShow = prio === 'non_rilevante';
+            const rowsHtml = dismissedArr.map(q=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 20px;border-top:1px solid #f4f4f8"><span style="font-size:12px;color:#9ca3af;text-decoration:line-through">${esc(q)}</span><button style="padding:4px 8px;font-size:11px;background:white;border:1px solid #e4e4ec;border-radius:6px;cursor:pointer;color:#0D5F75;font-family:'Source Code Pro',monospace" onclick="restoreHotelQuery(this,'${esc(cat)}','${esc(q).replace(/'/g,"\\'")}','${esc(site.site_id)}')">↩ Ripristina</button></div>`).join('');
             dismissedHtml = `<div style="border-top:1px solid #ececf2">
-                <button onclick="var c=document.getElementById('${dId}');var o=c.style.display!=='none';c.style.display=o?'none':'block';this.textContent=o?'▸ Mostra ${dismissedArr.length} non rilevanti':'▴ Nascondi non rilevanti';" style="background:white;color:rgba(13,95,117,0.5);border:1px solid #e4e4ec;border-radius:24px;padding:5px 14px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Source Code Pro',monospace;margin:8px 20px;display:inline-block">▸ Mostra ${dismissedArr.length} non rilevanti</button>
-                <div id="${dId}" style="display:none">${dismissedArr.map(q=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 20px;border-top:1px solid #f4f4f8"><span style="font-size:12px;color:#9ca3af;text-decoration:line-through">${esc(q)}</span><button style="padding:4px 8px;font-size:11px;background:white;border:1px solid #e4e4ec;border-radius:6px;cursor:pointer;color:#0D5F75;font-family:'Source Code Pro',monospace" onclick="restoreHotelQuery(this,'${esc(cat)}','${esc(q).replace(/'/g,"\\'")}','${esc(site.site_id)}')">↩ Ripristina</button></div>`).join('')}</div>
+                ${autoShow ? '' : `<button onclick="var c=document.getElementById('${dId}');var o=c.style.display!=='none';c.style.display=o?'none':'block';this.textContent=o?'▸ Mostra ${dismissedArr.length} non rilevanti':'▴ Nascondi non rilevanti';" style="background:white;color:rgba(13,95,117,0.5);border:1px solid #e4e4ec;border-radius:24px;padding:5px 14px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Source Code Pro',monospace;margin:8px 20px;display:inline-block">▸ Mostra ${dismissedArr.length} non rilevanti</button>`}
+                <div id="${dId}" style="${autoShow ? '' : 'display:none'}">${rowsHtml}</div>
             </div>`;
         }
         return `<div class="h-card" style="margin-bottom:12px${prio==='non_rilevante'?';background:#f7f7fa':''}">
             <div class="h-card-hdr">
-                <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:${dotColor};display:inline-block;flex-shrink:0"></span><span class="h-card-hdr-t" style="font-size:15px;font-weight:600">${esc(label)}</span>${PRIORITY_BADGE[prio]}</div>
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="width:8px;height:8px;border-radius:50%;background:${dotColor};display:inline-block;flex-shrink:0"></span><span class="h-card-hdr-t" style="font-size:15px;font-weight:600">${esc(label)}</span>${PRIORITY_BADGE[prio]}${prio==='non_rilevante'?`<button onclick="forceRelevantCategory(this,'${esc(cat).replace(/'/g,"\\'")}','${esc(site.site_id)}')" style="padding:4px 12px;font-size:11px;font-weight:700;background:white;color:#0D5F75;border:1px solid #0D5F75;border-radius:24px;cursor:pointer;white-space:nowrap;font-family:'Source Code Pro',monospace">↩ Rendi rilevante</button>`:''}${entry.force_relevant?`<button onclick="removeRelevantOverride(this,'${esc(cat).replace(/'/g,"\\'")}','${esc(site.site_id)}')" style="padding:4px 10px;font-size:11px;font-weight:600;background:white;color:#9ca3af;border:1px solid #e4e4ec;border-radius:24px;cursor:pointer;white-space:nowrap;font-family:'Source Code Pro',monospace">× Annulla</button>`:''}</div>
                 <span style="background:white;border:1px solid #e4e4ec;border-radius:20px;font-size:10px;font-weight:700;color:rgba(13,95,117,0.5);padding:3px 10px;white-space:nowrap;font-family:'Source Code Pro',monospace">${covQ}/${activeQs.length} COPERTE</span>
             </div>
             ${bodyHtml}${dismissedHtml}
         </div>`;
     };
 
-    const relevantCats   = cats.filter(c => getPriorityForCategory(c, hotelFeatures, hotelQueries) !== 'non_rilevante');
-    const irrelevantCats = cats.filter(c => getPriorityForCategory(c, hotelFeatures, hotelQueries) === 'non_rilevante');
+    const relevantCats   = cats.filter(c => getPriorityForCategory(c, hotelFeatures, hotelQueries, qmap) !== 'non_rilevante');
+    const irrelevantCats = cats.filter(c => getPriorityForCategory(c, hotelFeatures, hotelQueries, qmap) === 'non_rilevante');
 
     // Banner aggiornamento automatico
     const _bDays=['domenica','lunedì','martedì','mercoledì','giovedì','venerdì','sabato'];
@@ -3492,6 +3495,39 @@ window.restoreHotelQuery = async function(btn, cat, query, siteId) {
         _mappaInited = false;
         if (_mappaCurrentSite) await initHotelMappa(_mappaCurrentSite);
     } catch(e) { btn.textContent = '↩ Ripristina'; btn.disabled = false; }
+};
+
+window.forceRelevantCategory = async function(btn, cat, siteId) {
+    btn.disabled = true; btn.textContent = '...';
+    try {
+        const { data: fresh } = await _SBq.from('isi_sites').select('faq_data').eq('site_id', siteId).single();
+        const faq = fresh?.faq_data || _mappaCurrentSite?.faq_data || {};
+        const qm = faq.query_map || {};
+        const entry = qm[cat] || {};
+        const newFaq = { ...faq, query_map: { ...qm, [cat]: { ...entry, force_relevant: true } } };
+        await _SBq.from('isi_sites').update({ faq_data: newFaq }).eq('site_id', siteId);
+        if (_mappaCurrentSite) _mappaCurrentSite.faq_data = newFaq;
+        if (_site) _site.faq_data = newFaq;
+        _mappaInited = false;
+        if (_mappaCurrentSite) await initHotelMappa(_mappaCurrentSite);
+    } catch(e) { btn.textContent = '↩ Rendi rilevante'; btn.disabled = false; }
+};
+
+window.removeRelevantOverride = async function(btn, cat, siteId) {
+    btn.disabled = true; btn.textContent = '...';
+    try {
+        const { data: fresh } = await _SBq.from('isi_sites').select('faq_data').eq('site_id', siteId).single();
+        const faq = fresh?.faq_data || _mappaCurrentSite?.faq_data || {};
+        const qm = faq.query_map || {};
+        const entry = { ...qm[cat] || {} };
+        delete entry.force_relevant;
+        const newFaq = { ...faq, query_map: { ...qm, [cat]: entry } };
+        await _SBq.from('isi_sites').update({ faq_data: newFaq }).eq('site_id', siteId);
+        if (_mappaCurrentSite) _mappaCurrentSite.faq_data = newFaq;
+        if (_site) _site.faq_data = newFaq;
+        _mappaInited = false;
+        if (_mappaCurrentSite) await initHotelMappa(_mappaCurrentSite);
+    } catch(e) { btn.textContent = '× Annulla'; btn.disabled = false; }
 };
 
 window.apriModaleFaqHotel = function(query, prefillAnswer, errorMsg) {
