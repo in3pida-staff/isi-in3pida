@@ -731,7 +731,7 @@ function _calcAiMetrics(site) {
 
     // ANSWER EXTRACTION
     const covPct = geo.coverage_pct??null;
-    const qMapPct = computeQueryCoveragePct(site)??geo.query_map_pct??null;
+    const qMapPct = geo.query_map_pct??computeQueryCoveragePct(site)??null;
     let answerExtraction = null;
     if (covPct!==null||qMapPct!==null) answerExtraction=Math.round((covPct??qMapPct)*0.5+(qMapPct??covPct)*0.5);
 
@@ -893,7 +893,7 @@ function renderContent(site, pseData, now) {
     const missingAnswers = geo.missing_answers ?? null;
     const missingQueries = geo.missing_queries || [];
     const freshAlerts = geo.freshness_alerts || [];
-    const qMapPct = computeQueryCoveragePct(site) ?? geo.query_map_pct ?? null; // calcolo live: rispetta le query "non rilevanti"
+    const qMapPct = geo.query_map_pct ?? computeQueryCoveragePct(site) ?? null;
     const qUncovered = geo.query_uncovered ?? null;
     const qTotal = geo.query_total ?? null;
     const daysFaq = geo.days_since_faq ?? null;
