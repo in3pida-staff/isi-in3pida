@@ -3328,10 +3328,13 @@ async function _initHotelMappaInner(site, cont, contQuery) {
         intentQueriesMap[intent.category].push({ intent, queries });
     });
 
-    const renderQueryRow = (q, cat, isCov, sid) => {
+    const renderQueryRow = (q, cat, isCov, sid, isNonRel) => {
         const qE = esc(q).replace(/'/g,"\\'");
         const cE = esc(cat);
         const sE = esc(sid);
+        const actionBtn = isNonRel
+            ? `<button style="padding:4px 12px;font-size:11px;font-weight:700;background:white;color:#0D5F75;border:1px solid #0D5F75;border-radius:24px;cursor:pointer;white-space:nowrap;font-family:'Source Code Pro',monospace" onclick="forceSingleQuery(this,'${cE}','${qE}','${sE}')">↩ Rendi rilevante</button>`
+            : `<button style="padding:4px 8px;font-size:11px;font-weight:600;background:white;border:1px solid #e4e4ec;border-radius:8px;cursor:pointer;color:#9ca3af;white-space:nowrap" onclick="dismissHotelQuery(this,'${cE}','${qE}','${sE}')">✕</button>`;
         return `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 20px;border-top:1px solid #f4f4f8">
             <div style="display:flex;align-items:center;gap:10px;min-width:0">
                 <span style="font-size:15px;color:${isCov?'#0D5F75':'#C1CBE8'};font-weight:800;flex-shrink:0">${isCov?'✓':'✗'}</span>
@@ -3341,7 +3344,7 @@ async function _initHotelMappaInner(site, cont, contQuery) {
                 ${isCov ? '<span style="font-size:11px;color:#0D5F75;font-weight:700;white-space:nowrap">Coperta ✓</span>' : ''}
                 <button style="padding:4px 10px;font-size:11px;font-weight:700;background:#C1CBE8;color:#fff;border:none;border-radius:24px;cursor:pointer;white-space:nowrap;font-family:'Source Code Pro',monospace" onclick="generaRispostaQuery(this,'${cE}','${qE}','${sE}')">Genera</button>
                 <button style="background:white;color:#0D5F75;border:1px solid #e4e4ec;border-radius:24px;padding:4px 10px;font-family:'Source Code Pro',monospace;font-size:11px;font-weight:600;cursor:pointer" onclick="apriModaleFaqHotel('${qE}')">Scrivi</button>
-                <button style="padding:4px 8px;font-size:11px;font-weight:600;background:white;border:1px solid #e4e4ec;border-radius:8px;cursor:pointer;color:#9ca3af;white-space:nowrap" onclick="dismissHotelQuery(this,'${cE}','${qE}','${sE}')">✕</button>
+                ${actionBtn}
             </div>
         </div>`;
     };
@@ -3365,14 +3368,14 @@ async function _initHotelMappaInner(site, cont, contQuery) {
                 const activeIntentQs = item.queries.filter(q => !dismissedSet.has(q));
                 if (!activeIntentQs.length) return;
                 bodyHtml += `<div style="font-size:10px;font-weight:700;color:rgba(13,95,117,0.5);text-transform:uppercase;padding:8px 20px 4px${idx>0?';border-top:1px solid #ececf2':''}">${esc(item.intent.label)}</div>`;
-                bodyHtml += activeIntentQs.map(q => renderQueryRow(q, cat, coveredSet.has(q)||coveredSet.has(q.toLowerCase()), site.site_id)).join('');
+                bodyHtml += activeIntentQs.map(q => renderQueryRow(q, cat, coveredSet.has(q)||coveredSet.has(q.toLowerCase()), site.site_id, prio==='non_rilevante')).join('');
             });
             const intentQs = new Set(catIntents.flatMap(i => i.queries));
             activeQs.filter(q => !intentQs.has(q)).forEach(q => {
-                bodyHtml += renderQueryRow(q, cat, coveredSet.has(q)||coveredSet.has(q.toLowerCase()), site.site_id);
+                bodyHtml += renderQueryRow(q, cat, coveredSet.has(q)||coveredSet.has(q.toLowerCase()), site.site_id, prio==='non_rilevante');
             });
         } else {
-            bodyHtml = activeQs.map(q => renderQueryRow(q, cat, coveredSet.has(q)||coveredSet.has(q.toLowerCase()), site.site_id)).join('');
+            bodyHtml = activeQs.map(q => renderQueryRow(q, cat, coveredSet.has(q)||coveredSet.has(q.toLowerCase()), site.site_id, prio==='non_rilevante')).join('');
         }
         let dismissedHtml = '';
         if (dismissedArr.length > 0) {
@@ -3495,6 +3498,26 @@ window.restoreHotelQuery = async function(btn, cat, query, siteId) {
         _mappaInited = false;
         if (_mappaCurrentSite) await initHotelMappa(_mappaCurrentSite);
     } catch(e) { btn.textContent = '↩ Ripristina'; btn.disabled = false; }
+};
+
+window.forceSingleQuery = async function(btn, cat, query, siteId) {
+    btn.disabled = true; btn.textContent = '...';
+    try {
+        const { data: fresh } = await _SBq.from('isi_sites').select('faq_data').eq('site_id', siteId).single();
+        const faq = fresh?.faq_data || _mappaCurrentSite?.faq_data || {};
+        const qm = faq.query_map || {};
+        const entry = qm[cat] || {};
+        const city = _mappaCurrentSite?.schema_data?.city || _mappaCurrentSite?.hotel_profile?.citta || 'Italia';
+        const allCatQs = INTENT_LIBRARY.filter(i => i.category === cat).flatMap(i => i.templates(city));
+        const existingDismissed = Array.isArray(entry.dismissed_queries) ? entry.dismissed_queries : [];
+        const newDismissed = [...new Set([...existingDismissed, ...allCatQs.filter(q => q !== query)])];
+        const newFaq = { ...faq, query_map: { ...qm, [cat]: { ...entry, force_relevant: true, dismissed_queries: newDismissed } } };
+        await _SBq.from('isi_sites').update({ faq_data: newFaq }).eq('site_id', siteId);
+        if (_mappaCurrentSite) _mappaCurrentSite.faq_data = newFaq;
+        if (_site) _site.faq_data = newFaq;
+        _mappaInited = false;
+        if (_mappaCurrentSite) await initHotelMappa(_mappaCurrentSite);
+    } catch(e) { btn.textContent = '↩ Rendi rilevante'; btn.disabled = false; }
 };
 
 window.forceRelevantCategory = async function(btn, cat, siteId) {
