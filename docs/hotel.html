@@ -2526,6 +2526,12 @@ function buildHotelSchemaForm(s) {
         _pm(_f('booking_rating','Rating Booking',hp.booking_rating,''))+
         _pn(_f('booking_n_recensioni','N° recensioni Booking',hp.booking_n_recensioni,''))+
         '</div>'+
+        '<div style="padding:14px 0 6px">'+_subHdr('HolidayCheck')+'</div>'+
+        '<div style="display:grid;grid-template-columns:3fr 1fr 1fr">'+
+        _p1(_f('holidaycheck_url','URL HolidayCheck',hp.holidaycheck_url,'https://www.holidaycheck.it/hi/...','url'))+
+        _pm(_f('holidaycheck_rating','Rating HolidayCheck',hp.holidaycheck_rating,''))+
+        _pn(_f('holidaycheck_n_recensioni','N° recensioni HolidayCheck',hp.holidaycheck_n_recensioni,''))+
+        '</div>'+
         '<div style="padding:12px 0;display:flex;align-items:center;gap:12px">'+
         '<button type="button" id="btn-detect-ratings" onclick="_detectRatings()" style="'+_btnFior+'">Rileva automaticamente</button>'+
         '<span id="detect-ratings-status" style="font-size:12px;color:rgba(13,95,117,0.5);font-family:\'Source Code Pro\',monospace"></span>'+
@@ -2902,6 +2908,8 @@ async function saveHotelProfile(siteId) {
         tripadvisor_rating: g('tripadvisor_rating'), tripadvisor_n_recensioni: g('tripadvisor_n_recensioni'),
         booking_rating: g('booking_rating'), booking_n_recensioni: g('booking_n_recensioni'),
         url_recensioni: g('url_recensioni'),
+        holidaycheck_rating: g('holidaycheck_rating'), holidaycheck_n_recensioni: g('holidaycheck_n_recensioni'),
+        holidaycheck_url: g('holidaycheck_url'),
         facebook_url: g('facebook_url'), instagram_url: g('instagram_url'),
         tripadvisor_url: g('tripadvisor_url'), google_business_url: g('google_business_url'),
         social_custom: _socialCustomTmp.filter(x=>x.url),
