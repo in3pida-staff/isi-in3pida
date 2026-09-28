@@ -378,11 +378,11 @@
                     <label for="fm-ai-admin" style="font-size:14px;font-weight:600;cursor:pointer;color:#171b33">Solo AI <span style="color:var(--grey);font-weight:400">— visibile solo al layer LLM</span></label>
                 </div>
                 <div style="margin-top:14px">
-                    <div onclick="var b=document.getElementById('fma-trad-body');b.style.display=b.style.display==='none'?'block':'none'" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:8px 0;border-top:1px solid #e4e4ec">
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-top:1px solid #e4e4ec">
                         <span style="font-size:12px;font-weight:700;color:#0D5F75;text-transform:uppercase;letter-spacing:0.06em">Traduzioni</span>
-                        <span style="font-size:11px;color:rgba(13,95,117,0.5)">EN · FR · DE</span>
+                        <button type="button" id="fma-btn-traduci-tutto" onclick="fmaTraduciTutto()" style="background:#C1CBE8;color:#fff;border:none;border-radius:24px;padding:4px 14px;font-size:11px;font-weight:700;cursor:pointer">Traduci EN · FR · DE</button>
                     </div>
-                    <div id="fma-trad-body" style="display:none;padding-top:10px">
+                    <div id="fma-trad-body" style="display:block;padding-top:4px">
                         <div style="display:flex;gap:6px;margin-bottom:12px">
                             <button type="button" class="fma-lang-btn" data-lang="en" onclick="fmaSelectLang('en')" style="padding:4px 12px;border-radius:20px;border:1px solid #e4e4ec;background:white;color:rgba(13,95,117,0.6);font-size:11px;font-weight:700;cursor:pointer">EN</button>
                             <button type="button" class="fma-lang-btn" data-lang="fr" onclick="fmaSelectLang('fr')" style="padding:4px 12px;border-radius:20px;border:1px solid #e4e4ec;background:white;color:rgba(13,95,117,0.6);font-size:11px;font-weight:700;cursor:pointer">FR</button>
@@ -391,17 +391,14 @@
                         <div id="fma-lang-panel-en" class="fma-lang-panel" style="display:none">
                             <div style="margin-bottom:8px"><label style="font-size:11px;font-weight:600;color:#0D5F75;display:block;margin-bottom:4px">Domanda (EN)</label><input type="text" id="fma-q-en" class="profile-input" placeholder="Question in English"></div>
                             <div style="margin-bottom:8px"><label style="font-size:11px;font-weight:600;color:#0D5F75;display:block;margin-bottom:4px">Risposta (EN)</label><textarea id="fma-a-en" class="profile-input" rows="3" style="resize:vertical" placeholder="Answer in English"></textarea></div>
-                            <button type="button" id="fma-gen-en" onclick="fmaTranslate('en')" style="background:#C1CBE8;color:#fff;border:none;border-radius:24px;padding:5px 14px;font-size:11px;font-weight:600;cursor:pointer">Genera con AI</button>
                         </div>
                         <div id="fma-lang-panel-fr" class="fma-lang-panel" style="display:none">
                             <div style="margin-bottom:8px"><label style="font-size:11px;font-weight:600;color:#0D5F75;display:block;margin-bottom:4px">Domanda (FR)</label><input type="text" id="fma-q-fr" class="profile-input" placeholder="Question en français"></div>
                             <div style="margin-bottom:8px"><label style="font-size:11px;font-weight:600;color:#0D5F75;display:block;margin-bottom:4px">Risposta (FR)</label><textarea id="fma-a-fr" class="profile-input" rows="3" style="resize:vertical" placeholder="Réponse en français"></textarea></div>
-                            <button type="button" id="fma-gen-fr" onclick="fmaTranslate('fr')" style="background:#C1CBE8;color:#fff;border:none;border-radius:24px;padding:5px 14px;font-size:11px;font-weight:600;cursor:pointer">Genera con AI</button>
                         </div>
                         <div id="fma-lang-panel-de" class="fma-lang-panel" style="display:none">
                             <div style="margin-bottom:8px"><label style="font-size:11px;font-weight:600;color:#0D5F75;display:block;margin-bottom:4px">Domanda (DE)</label><input type="text" id="fma-q-de" class="profile-input" placeholder="Frage auf Deutsch"></div>
                             <div style="margin-bottom:8px"><label style="font-size:11px;font-weight:600;color:#0D5F75;display:block;margin-bottom:4px">Risposta (DE)</label><textarea id="fma-a-de" class="profile-input" rows="3" style="resize:vertical" placeholder="Antwort auf Deutsch"></textarea></div>
-                            <button type="button" id="fma-gen-de" onclick="fmaTranslate('de')" style="background:#C1CBE8;color:#fff;border:none;border-radius:24px;padding:5px 14px;font-size:11px;font-weight:600;cursor:pointer">Genera con AI</button>
                         </div>
                     </div>
                 </div>
@@ -3153,8 +3150,6 @@
         var q = document.getElementById('fm-q-admin').value.trim();
         var a = document.getElementById('fm-a-admin').value.trim();
         if (!q) return;
-        var btn = document.getElementById('fma-gen-' + lang);
-        if (btn) { btn.disabled = true; btn.textContent = 'Traduzione...'; }
         try {
             var r = await fetch(SUPABASE_URL + '/functions/v1/pse-query', {
                 method: 'POST',
@@ -3165,9 +3160,18 @@
             if (d.question) {
                 document.getElementById('fma-q-' + lang).value = d.question;
                 document.getElementById('fma-a-' + lang).value = d.answer || '';
+                fmaSelectLang(lang);
             }
         } catch(e) { /* silenzioso */ }
-        finally { if (btn) { btn.disabled = false; btn.textContent = 'Genera con AI'; } }
+    };
+    window.fmaTraduciTutto = async function() {
+        var q = document.getElementById('fm-q-admin').value.trim();
+        if (!q) return;
+        var btn = document.getElementById('fma-btn-traduci-tutto');
+        if (btn) { btn.disabled = true; btn.textContent = 'Traduzione in corso...'; }
+        await Promise.all(['en','fr','de'].map(lang => fmaTranslate(lang)));
+        fmaSelectLang('en');
+        if (btn) { btn.disabled = false; btn.textContent = 'Traduci EN · FR · DE'; }
     };
 
     document.getElementById('fm-save-admin').addEventListener('click', async () => {
