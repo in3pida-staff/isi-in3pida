@@ -244,8 +244,7 @@ Formato (JSON puro, nessun testo fuori dal JSON):
         ? `\nSTILE DI COMUNICAZIONE DELL'HOTEL:\n- Tono: ${ws.tono}${ws.persona ? ` — usa la forma "${ws.persona}"` : ''}\n- Personalità: ${ws.personalita || ''}\n${ws.esempio ? `- Esempio dal sito: "${ws.esempio}"\n` : ''}Adatta la risposta a questo stile specifico, mantenendo la stessa voce e personalità del sito dell'hotel.`
         : '\nTono: caldo, professionale, promozionale.'
 
-      const raw = await groq(
-        `Sei il responsabile marketing di un hotel italiano. Il tuo compito è scrivere risposte FAQ promozionali e convincenti.
+      const faqSystemPrompt = `Sei il responsabile marketing di un hotel italiano. Il tuo compito è scrivere risposte FAQ promozionali e convincenti.
 
 REGOLA ASSOLUTA: devi SEMPRE scrivere una risposta completa e positiva, qualunque sia la domanda. Non esistono eccezioni.
 
@@ -267,13 +266,19 @@ CAMPO "sufficient":
 - false = risposta plausibile ma non basata su dati specifici (l'utente potrà personalizzarla)
 
 Formato risposta (JSON puro, nessun testo fuori):
-{"answer":"<risposta promozionale in italiano>","sufficient":<true|false>}`,
-        `Dati hotel:\n${lines}\n\nDomanda FAQ: "${query}"\n\nRispondi con JSON:`,
-        500,
-        0.5
-      )
+{"answer":"<risposta promozionale in italiano>","sufficient":<true|false>}`
 
-      const parsed = parseJson(raw)
+      const faqUserPrompt = `Dati hotel:\n${lines}\n\nDomanda FAQ: "${query}"\n\nRispondi con JSON:`
+
+      let raw = await groq(faqSystemPrompt, faqUserPrompt, 500, 0.5)
+      let parsed = parseJson(raw)
+
+      // Fallback Gemini se GROQ fallisce o ritorna vuoto
+      if (!parsed.answer && GEMINI_API_KEY) {
+        const rawGemini = await gemini(faqSystemPrompt, faqUserPrompt, 500)
+        parsed = parseJson(rawGemini)
+      }
+
       if (!parsed.answer) return new Response(JSON.stringify({ error: 'empty_response' }), { status: 500, headers: cors })
       return new Response(
         JSON.stringify({ answer: parsed.answer, sufficient: parsed.sufficient !== false }),
