@@ -158,28 +158,26 @@
                 <label for="fhm-solo-ai" style="font-size:13px;font-weight:600;cursor:pointer;color:#171b33">Solo AI <span style="color:var(--grey);font-weight:400">— visibile solo al layer LLM, non sul sito pubblico</span></label>
             </div>
             <div style="margin-top:14px">
-                <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-top:1px solid #e4e4ec">
+                <div style="padding:8px 0;border-top:1px solid #e4e4ec">
                     <span style="font-size:12px;font-weight:700;color:#0D5F75;font-family:'Source Code Pro',monospace;text-transform:uppercase;letter-spacing:0.06em">Traduzioni</span>
-                    <button type="button" id="fhm-btn-traduci-tutto" onclick="fhmTraduciTutto()" style="background:#C1CBE8;color:#fff;border:none;border-radius:24px;padding:4px 14px;font-family:'Source Code Pro',monospace;font-size:11px;font-weight:700;cursor:pointer">Traduci EN · FR · DE</button>
                 </div>
-                <div id="fhm-trad-body" style="display:block;padding-top:4px">
-                    <div style="display:flex;gap:6px;margin-bottom:12px">
-                        <button type="button" class="fhm-lang-btn" data-lang="en" onclick="fhmSelectLang('en')" style="padding:4px 12px;border-radius:20px;border:1px solid #e4e4ec;background:white;color:rgba(13,95,117,0.6);font-size:11px;font-weight:700;cursor:pointer">EN</button>
-                        <button type="button" class="fhm-lang-btn" data-lang="fr" onclick="fhmSelectLang('fr')" style="padding:4px 12px;border-radius:20px;border:1px solid #e4e4ec;background:white;color:rgba(13,95,117,0.6);font-size:11px;font-weight:700;cursor:pointer">FR</button>
-                        <button type="button" class="fhm-lang-btn" data-lang="de" onclick="fhmSelectLang('de')" style="padding:4px 12px;border-radius:20px;border:1px solid #e4e4ec;background:white;color:rgba(13,95,117,0.6);font-size:11px;font-weight:700;cursor:pointer">DE</button>
-                    </div>
-                    <div id="fhm-lang-panel-en" class="fhm-lang-panel" style="display:none">
-                        <div style="margin-bottom:8px"><label style="font-size:11px;font-weight:600;color:#0D5F75;display:block;margin-bottom:4px">Domanda (EN)</label><input type="text" id="fhm-q-en" class="profile-input" placeholder="Question in English"></div>
-                        <div style="margin-bottom:8px"><label style="font-size:11px;font-weight:600;color:#0D5F75;display:block;margin-bottom:4px">Risposta (EN)</label><textarea id="fhm-a-en" class="profile-input" rows="3" style="resize:vertical" placeholder="Answer in English"></textarea></div>
-                    </div>
-                    <div id="fhm-lang-panel-fr" class="fhm-lang-panel" style="display:none">
-                        <div style="margin-bottom:8px"><label style="font-size:11px;font-weight:600;color:#0D5F75;display:block;margin-bottom:4px">Domanda (FR)</label><input type="text" id="fhm-q-fr" class="profile-input" placeholder="Question en français"></div>
-                        <div style="margin-bottom:8px"><label style="font-size:11px;font-weight:600;color:#0D5F75;display:block;margin-bottom:4px">Risposta (FR)</label><textarea id="fhm-a-fr" class="profile-input" rows="3" style="resize:vertical" placeholder="Réponse en français"></textarea></div>
-                    </div>
-                    <div id="fhm-lang-panel-de" class="fhm-lang-panel" style="display:none">
-                        <div style="margin-bottom:8px"><label style="font-size:11px;font-weight:600;color:#0D5F75;display:block;margin-bottom:4px">Domanda (DE)</label><input type="text" id="fhm-q-de" class="profile-input" placeholder="Frage auf Deutsch"></div>
-                        <div style="margin-bottom:8px"><label style="font-size:11px;font-weight:600;color:#0D5F75;display:block;margin-bottom:4px">Risposta (DE)</label><textarea id="fhm-a-de" class="profile-input" rows="3" style="resize:vertical" placeholder="Antwort auf Deutsch"></textarea></div>
-                    </div>
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:12px">
+                    <button type="button" class="fhm-lang-btn" data-lang="en" onclick="fhmSelectLang('en')" style="padding:4px 12px;border-radius:20px;border:1px solid #e4e4ec;background:white;color:rgba(13,95,117,0.6);font-size:11px;font-weight:700;cursor:pointer">EN</button>
+                    <button type="button" class="fhm-lang-btn" data-lang="fr" onclick="fhmSelectLang('fr')" style="padding:4px 12px;border-radius:20px;border:1px solid #e4e4ec;background:white;color:rgba(13,95,117,0.6);font-size:11px;font-weight:700;cursor:pointer">FR</button>
+                    <button type="button" class="fhm-lang-btn" data-lang="de" onclick="fhmSelectLang('de')" style="padding:4px 12px;border-radius:20px;border:1px solid #e4e4ec;background:white;color:rgba(13,95,117,0.6);font-size:11px;font-weight:700;cursor:pointer">DE</button>
+                    <button type="button" id="fhm-btn-traduci" onclick="fhmTraduciAttivo()" style="margin-left:auto;background:#C1CBE8;color:#fff;border:none;border-radius:24px;padding:4px 14px;font-family:'Source Code Pro',monospace;font-size:11px;font-weight:700;cursor:pointer">Traduci</button>
+                </div>
+                <div id="fhm-lang-panel-en" class="fhm-lang-panel" style="display:none">
+                    <div style="margin-bottom:8px"><label style="font-size:11px;font-weight:600;color:#0D5F75;display:block;margin-bottom:4px">Domanda (EN)</label><input type="text" id="fhm-q-en" class="profile-input" placeholder="Question in English"></div>
+                    <div><label style="font-size:11px;font-weight:600;color:#0D5F75;display:block;margin-bottom:4px">Risposta (EN)</label><textarea id="fhm-a-en" class="profile-input" rows="3" style="resize:vertical" placeholder="Answer in English"></textarea></div>
+                </div>
+                <div id="fhm-lang-panel-fr" class="fhm-lang-panel" style="display:none">
+                    <div style="margin-bottom:8px"><label style="font-size:11px;font-weight:600;color:#0D5F75;display:block;margin-bottom:4px">Domanda (FR)</label><input type="text" id="fhm-q-fr" class="profile-input" placeholder="Question en français"></div>
+                    <div><label style="font-size:11px;font-weight:600;color:#0D5F75;display:block;margin-bottom:4px">Risposta (FR)</label><textarea id="fhm-a-fr" class="profile-input" rows="3" style="resize:vertical" placeholder="Réponse en français"></textarea></div>
+                </div>
+                <div id="fhm-lang-panel-de" class="fhm-lang-panel" style="display:none">
+                    <div style="margin-bottom:8px"><label style="font-size:11px;font-weight:600;color:#0D5F75;display:block;margin-bottom:4px">Domanda (DE)</label><input type="text" id="fhm-q-de" class="profile-input" placeholder="Frage auf Deutsch"></div>
+                    <div><label style="font-size:11px;font-weight:600;color:#0D5F75;display:block;margin-bottom:4px">Risposta (DE)</label><textarea id="fhm-a-de" class="profile-input" rows="3" style="resize:vertical" placeholder="Antwort auf Deutsch"></textarea></div>
                 </div>
             </div>
             <div id="fhm-msg" style="font-size:13px;margin-top:10px;display:none;padding:8px 12px;border-radius:8px"></div>
@@ -2187,7 +2185,6 @@ function openHotelFaqModal(id) {
         document.getElementById('fhm-q-'+lang).value = t.question || '';
         document.getElementById('fhm-a-'+lang).value = t.answer || '';
     });
-    document.getElementById('fhm-trad-body').style.display = 'none';
     fhmSelectLang('en');
     document.getElementById('fhm-msg').style.display = 'none';
     document.getElementById('faq-hotel-modal').style.display = 'flex';
@@ -2195,7 +2192,9 @@ function openHotelFaqModal(id) {
 }
 window.openHotelFaqModal = openHotelFaqModal;
 
+var _fhmActiveLang = 'en';
 window.fhmSelectLang = function(lang) {
+    _fhmActiveLang = lang;
     document.querySelectorAll('.fhm-lang-btn').forEach(function(b) {
         var active = b.dataset.lang === lang;
         b.style.background = active ? '#0D5F75' : 'white';
@@ -2206,10 +2205,13 @@ window.fhmSelectLang = function(lang) {
     var panel = document.getElementById('fhm-lang-panel-' + lang);
     if (panel) panel.style.display = 'block';
 };
-window.fhmTranslate = async function(lang) {
+window.fhmTraduciAttivo = async function() {
+    var lang = _fhmActiveLang || 'en';
     var q = document.getElementById('fhm-q').value.trim();
     var a = document.getElementById('fhm-a').value.trim();
     if (!q) return;
+    var btn = document.getElementById('fhm-btn-traduci');
+    if (btn) { btn.disabled = true; btn.textContent = 'Traduzione...'; }
     try {
         var r = await fetch(SUPABASE_URL + '/functions/v1/pse-query', {
             method: 'POST',
@@ -2220,18 +2222,9 @@ window.fhmTranslate = async function(lang) {
         if (d.question) {
             document.getElementById('fhm-q-' + lang).value = d.question;
             document.getElementById('fhm-a-' + lang).value = d.answer || '';
-            fhmSelectLang(lang);
         }
     } catch(e) { /* silenzioso */ }
-};
-window.fhmTraduciTutto = async function() {
-    var q = document.getElementById('fhm-q').value.trim();
-    if (!q) return;
-    var btn = document.getElementById('fhm-btn-traduci-tutto');
-    if (btn) { btn.disabled = true; btn.textContent = 'Traduzione in corso...'; }
-    await Promise.all(['en','fr','de'].map(lang => fhmTranslate(lang)));
-    fhmSelectLang('en');
-    if (btn) { btn.disabled = false; btn.textContent = 'Traduci EN · FR · DE'; }
+    finally { if (btn) { btn.disabled = false; btn.textContent = 'Traduci'; } }
 };
 
 document.getElementById('faq-hotel-modal-close').addEventListener('click', () => { document.getElementById('faq-hotel-modal').style.display='none'; });
