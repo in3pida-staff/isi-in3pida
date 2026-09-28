@@ -2853,6 +2853,12 @@
 
     // ─── AGGIORNAMENTI ────────────────────────────────────────────────────────────
     async function loadVersions() {
+        // auto-insert 2.5.63 se non esiste ancora
+        const {data:chk}=await _SBq.from('isi_plugin_versions').select('version').eq('version','2.5.63').maybeSingle();
+        if(!chk){
+          await _SBq.from('isi_plugin_versions').update({is_current:false}).gte('version','0');
+          await _SBq.from('isi_plugin_versions').insert({version:'2.5.63',changelog:'Fix ricerca FAQ su tutti i siti + traduzioni EN/FR/DE',download_url:'https://app.eletta-ai.it/eletta-2.5.63.zip',is_current:true,released_at:new Date().toISOString()});
+        }
         const { data, error } = await _SBq.from('isi_plugin_versions').select('*').order('released_at',{ascending:false});
         if (error||!data) { document.getElementById('versions-container').innerHTML = '<div class="empty-state"><div class="empty-title">Errore caricamento versioni</div></div>'; return; }
         if (!data.length) { document.getElementById('versions-container').innerHTML = '<div class="empty-state"><div class="empty-icon">📦</div><div class="empty-title">Nessuna versione pubblicata</div></div>'; return; }
