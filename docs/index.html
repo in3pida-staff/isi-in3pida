@@ -679,11 +679,11 @@
         const avatarUrl = user.user_metadata?.avatar_url;
         if (avatarUrl) setAvatar(avatarUrl);
 
-        // auto-register 2.5.69 se non già presente
-        const {data:_chk269}=await _SBq.from('isi_plugin_versions').select('version').eq('version','2.5.69').maybeSingle();
-        if(!_chk269){
+        // auto-register 2.5.70 se non già presente
+        const {data:_chk270}=await _SBq.from('isi_plugin_versions').select('version').eq('version','2.5.70').maybeSingle();
+        if(!_chk270){
           await _SBq.from('isi_plugin_versions').update({is_current:false}).gte('version','0');
-          await _SBq.from('isi_plugin_versions').insert({version:'2.5.69',changelog:'Fix lingua FAQ: QUERY_STRING come sorgente primaria + debug lang detection',download_url:'https://app.eletta-ai.it/eletta-2.5.69.zip',is_current:true,released_at:new Date().toISOString()});
+          await _SBq.from('isi_plugin_versions').insert({version:'2.5.70',changelog:'Fix lingua FAQ: traduzione in faq_page_direct_render (funzione effettiva usata dal sito)',download_url:'https://app.eletta-ai.it/eletta-2.5.70.zip',is_current:true,released_at:new Date().toISOString()});
         }
         const { data: vd } = await _SBq.from('isi_plugin_versions').select('version,download_url').order('released_at',{ascending:false}).limit(1).single();
         if (vd) latestVersion = vd;
@@ -2888,11 +2888,11 @@
 
     // ─── AGGIORNAMENTI ────────────────────────────────────────────────────────────
     async function loadVersions() {
-        // auto-insert 2.5.69 se non esiste ancora
-        const {data:chk}=await _SBq.from('isi_plugin_versions').select('version').eq('version','2.5.69').maybeSingle();
+        // auto-insert 2.5.70 se non esiste ancora
+        const {data:chk}=await _SBq.from('isi_plugin_versions').select('version').eq('version','2.5.70').maybeSingle();
         if(!chk){
           await _SBq.from('isi_plugin_versions').update({is_current:false}).gte('version','0');
-          await _SBq.from('isi_plugin_versions').insert({version:'2.5.69',changelog:'Fix lingua FAQ: QUERY_STRING come sorgente primaria + debug lang detection',download_url:'https://app.eletta-ai.it/eletta-2.5.69.zip',is_current:true,released_at:new Date().toISOString()});
+          await _SBq.from('isi_plugin_versions').insert({version:'2.5.70',changelog:'Fix lingua FAQ: traduzione in faq_page_direct_render (funzione effettiva usata dal sito)',download_url:'https://app.eletta-ai.it/eletta-2.5.70.zip',is_current:true,released_at:new Date().toISOString()});
         }
         const { data, error } = await _SBq.from('isi_plugin_versions').select('*').order('released_at',{ascending:false});
         if (error||!data) { document.getElementById('versions-container').innerHTML = '<div class="empty-state"><div class="empty-title">Errore caricamento versioni</div></div>'; return; }
