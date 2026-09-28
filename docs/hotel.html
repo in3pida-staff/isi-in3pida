@@ -157,6 +157,34 @@
                 <input type="checkbox" id="fhm-solo-ai" style="width:16px;height:16px;cursor:pointer;accent-color:#0D5F75">
                 <label for="fhm-solo-ai" style="font-size:13px;font-weight:600;cursor:pointer;color:#171b33">Solo AI <span style="color:var(--grey);font-weight:400">— visibile solo al layer LLM, non sul sito pubblico</span></label>
             </div>
+            <div style="margin-top:14px">
+                <div onclick="var b=document.getElementById('fhm-trad-body');b.style.display=b.style.display==='none'?'block':'none'" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:8px 0;border-top:1px solid #e4e4ec">
+                    <span style="font-size:12px;font-weight:700;color:#0D5F75;font-family:'Source Code Pro',monospace;text-transform:uppercase;letter-spacing:0.06em">Traduzioni</span>
+                    <span style="font-size:11px;color:rgba(13,95,117,0.5)">EN · FR · DE</span>
+                </div>
+                <div id="fhm-trad-body" style="display:none;padding-top:10px">
+                    <div style="display:flex;gap:6px;margin-bottom:12px">
+                        <button type="button" class="fhm-lang-btn" data-lang="en" onclick="fhmSelectLang('en')" style="padding:4px 12px;border-radius:20px;border:1px solid #e4e4ec;background:white;color:rgba(13,95,117,0.6);font-size:11px;font-weight:700;cursor:pointer">EN</button>
+                        <button type="button" class="fhm-lang-btn" data-lang="fr" onclick="fhmSelectLang('fr')" style="padding:4px 12px;border-radius:20px;border:1px solid #e4e4ec;background:white;color:rgba(13,95,117,0.6);font-size:11px;font-weight:700;cursor:pointer">FR</button>
+                        <button type="button" class="fhm-lang-btn" data-lang="de" onclick="fhmSelectLang('de')" style="padding:4px 12px;border-radius:20px;border:1px solid #e4e4ec;background:white;color:rgba(13,95,117,0.6);font-size:11px;font-weight:700;cursor:pointer">DE</button>
+                    </div>
+                    <div id="fhm-lang-panel-en" class="fhm-lang-panel" style="display:none">
+                        <div style="margin-bottom:8px"><label style="font-size:11px;font-weight:600;color:#0D5F75;display:block;margin-bottom:4px">Domanda (EN)</label><input type="text" id="fhm-q-en" class="profile-input" placeholder="Question in English"></div>
+                        <div style="margin-bottom:8px"><label style="font-size:11px;font-weight:600;color:#0D5F75;display:block;margin-bottom:4px">Risposta (EN)</label><textarea id="fhm-a-en" class="profile-input" rows="3" style="resize:vertical" placeholder="Answer in English"></textarea></div>
+                        <button type="button" id="fhm-gen-en" onclick="fhmTranslate('en')" style="background:#C1CBE8;color:#fff;border:none;border-radius:24px;padding:5px 14px;font-family:'Source Code Pro',monospace;font-size:11px;font-weight:600;cursor:pointer">Genera con AI</button>
+                    </div>
+                    <div id="fhm-lang-panel-fr" class="fhm-lang-panel" style="display:none">
+                        <div style="margin-bottom:8px"><label style="font-size:11px;font-weight:600;color:#0D5F75;display:block;margin-bottom:4px">Domanda (FR)</label><input type="text" id="fhm-q-fr" class="profile-input" placeholder="Question en français"></div>
+                        <div style="margin-bottom:8px"><label style="font-size:11px;font-weight:600;color:#0D5F75;display:block;margin-bottom:4px">Risposta (FR)</label><textarea id="fhm-a-fr" class="profile-input" rows="3" style="resize:vertical" placeholder="Réponse en français"></textarea></div>
+                        <button type="button" id="fhm-gen-fr" onclick="fhmTranslate('fr')" style="background:#C1CBE8;color:#fff;border:none;border-radius:24px;padding:5px 14px;font-family:'Source Code Pro',monospace;font-size:11px;font-weight:600;cursor:pointer">Genera con AI</button>
+                    </div>
+                    <div id="fhm-lang-panel-de" class="fhm-lang-panel" style="display:none">
+                        <div style="margin-bottom:8px"><label style="font-size:11px;font-weight:600;color:#0D5F75;display:block;margin-bottom:4px">Domanda (DE)</label><input type="text" id="fhm-q-de" class="profile-input" placeholder="Frage auf Deutsch"></div>
+                        <div style="margin-bottom:8px"><label style="font-size:11px;font-weight:600;color:#0D5F75;display:block;margin-bottom:4px">Risposta (DE)</label><textarea id="fhm-a-de" class="profile-input" rows="3" style="resize:vertical" placeholder="Antwort auf Deutsch"></textarea></div>
+                        <button type="button" id="fhm-gen-de" onclick="fhmTranslate('de')" style="background:#C1CBE8;color:#fff;border:none;border-radius:24px;padding:5px 14px;font-family:'Source Code Pro',monospace;font-size:11px;font-weight:600;cursor:pointer">Genera con AI</button>
+                    </div>
+                </div>
+            </div>
             <div id="fhm-msg" style="font-size:13px;margin-top:10px;display:none;padding:8px 12px;border-radius:8px"></div>
             <div class="profile-actions" style="margin-top:16px;display:flex;justify-content:flex-end;gap:8px;align-items:center">
                 <button id="fhm-cancel" style="background:white;color:#0D5F75;border:1px solid #e4e4ec;border-radius:24px;padding:6px 16px;font-family:'Source Code Pro',monospace;font-size:12px;font-weight:600;cursor:pointer">Annulla</button>
@@ -2110,10 +2138,10 @@ async function _scriptSaveFaq(action, faq) {
         const idx = items.findIndex(x => x.id == faq.id);
         if (idx !== -1) items.splice(idx, 1);
     } else if (action === 'add') {
-        const now = new Date().toISOString(); items.push({ id: Date.now(), question: faq.question, answer: faq.answer, solo_ai: faq.solo_ai||false, status: 'publish', order: items.length, created_at: now });
+        const now = new Date().toISOString(); const newItem = { id: Date.now(), question: faq.question, answer: faq.answer, solo_ai: faq.solo_ai||false, status: 'publish', order: items.length, created_at: now }; if (faq.translations && Object.keys(faq.translations).length) newItem.translations = faq.translations; items.push(newItem);
     } else if (action === 'update') {
         const idx = items.findIndex(x => x.id == faq.id);
-        if (idx !== -1) items[idx] = { ...items[idx], question: faq.question, answer: faq.answer, solo_ai: faq.solo_ai||false };
+        if (idx !== -1) { const upd = { ...items[idx], question: faq.question, answer: faq.answer, solo_ai: faq.solo_ai||false }; if (faq.translations && Object.keys(faq.translations).length) upd.translations = faq.translations; items[idx] = upd; }
     }
     // Usa fresh faq_data come base per non sovrascrivere score_history aggiornata dal plugin
     const { data: _freshFaq } = await _SBq.from('isi_sites').select('faq_data').eq('site_id', _site.site_id).single();
@@ -2157,11 +2185,50 @@ function openHotelFaqModal(id) {
     document.getElementById('fhm-q').value     = f ? f.question : '';
     document.getElementById('fhm-a').value     = f ? f.answer : '';
     document.getElementById('fhm-solo-ai').checked = f ? !!f.solo_ai : false;
+    ['en','fr','de'].forEach(function(lang) {
+        var t = (f && f.translations && f.translations[lang]) || {};
+        document.getElementById('fhm-q-'+lang).value = t.question || '';
+        document.getElementById('fhm-a-'+lang).value = t.answer || '';
+    });
+    document.getElementById('fhm-trad-body').style.display = 'none';
+    fhmSelectLang('en');
     document.getElementById('fhm-msg').style.display = 'none';
     document.getElementById('faq-hotel-modal').style.display = 'flex';
     document.getElementById('fhm-q').focus();
 }
 window.openHotelFaqModal = openHotelFaqModal;
+
+window.fhmSelectLang = function(lang) {
+    document.querySelectorAll('.fhm-lang-btn').forEach(function(b) {
+        var active = b.dataset.lang === lang;
+        b.style.background = active ? '#0D5F75' : 'white';
+        b.style.color = active ? '#fff' : 'rgba(13,95,117,0.6)';
+        b.style.borderColor = active ? '#0D5F75' : '#e4e4ec';
+    });
+    document.querySelectorAll('.fhm-lang-panel').forEach(function(p) { p.style.display = 'none'; });
+    var panel = document.getElementById('fhm-lang-panel-' + lang);
+    if (panel) panel.style.display = 'block';
+};
+window.fhmTranslate = async function(lang) {
+    var q = document.getElementById('fhm-q').value.trim();
+    var a = document.getElementById('fhm-a').value.trim();
+    if (!q) return;
+    var btn = document.getElementById('fhm-gen-' + lang);
+    if (btn) { btn.disabled = true; btn.textContent = 'Traduzione...'; }
+    try {
+        var r = await fetch(SUPABASE_URL + '/functions/v1/pse-query', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'faq_translate', site_id: _site && _site.site_id, question: q, answer: a, target_lang: lang })
+        });
+        var d = await r.json();
+        if (d.question) {
+            document.getElementById('fhm-q-' + lang).value = d.question;
+            document.getElementById('fhm-a-' + lang).value = d.answer || '';
+        }
+    } catch(e) { /* silenzioso */ }
+    finally { if (btn) { btn.disabled = false; btn.textContent = 'Genera con AI'; } }
+};
 
 document.getElementById('faq-hotel-modal-close').addEventListener('click', () => { document.getElementById('faq-hotel-modal').style.display='none'; });
 document.getElementById('fhm-cancel').addEventListener('click', () => { document.getElementById('faq-hotel-modal').style.display='none'; });
@@ -2170,10 +2237,13 @@ document.getElementById('faq-hotel-modal').addEventListener('click', e => { if(e
 document.getElementById('fhm-save').addEventListener('click', async () => {
     const btn=document.getElementById('fhm-save'), msg=document.getElementById('fhm-msg');
     const id=document.getElementById('fhm-id').value, q=document.getElementById('fhm-q').value.trim(), a=document.getElementById('fhm-a').value.trim(), sa=document.getElementById('fhm-solo-ai').checked;
+    const translations={};
+    ['en','fr','de'].forEach(function(lang){const tq=(document.getElementById('fhm-q-'+lang)||{}).value||'',ta=(document.getElementById('fhm-a-'+lang)||{}).value||'';if(tq.trim()||ta.trim())translations[lang]={question:tq.trim(),answer:ta.trim()};});
     if (!q) { msg.style.display='block'; msg.style.background='rgba(13,95,117,0.08)'; msg.style.color='#FF8500'; msg.textContent='Inserisci la domanda.'; return; }
     btn.disabled=true; btn.textContent='Salvataggio...';
     try {
-        const action=id?'update':'add', faq={question:q,answer:a,solo_ai:sa,order:0};
+        const hasTranslations=Object.keys(translations).length>0;
+        const action=id?'update':'add', faq={question:q,answer:a,solo_ai:sa,order:0,...(hasTranslations?{translations}:{})};
         if(id) faq.id=parseInt(id);
         const _noPlugin = !_site?.plugin_version || (_site?.plugin_version||'').startsWith('js-');
         if (_isScriptSite() || _noPlugin) {
@@ -2188,10 +2258,10 @@ document.getElementById('fhm-save').addEventListener('click', async () => {
             if(r.ok&&d.ok){
                 document.getElementById('faq-hotel-modal').style.display='none';
                 if(action==='add'){
-                    _faqItems.push({id:d.id||Date.now(),question:q,answer:a,solo_ai:sa,status: sa ? 'solo_ai' : 'publish',order:_faqItems.length});
+                    _faqItems.push({id:d.id||Date.now(),question:q,answer:a,solo_ai:sa,status: sa ? 'solo_ai' : 'publish',order:_faqItems.length,...(hasTranslations?{translations}:{})});
                 } else if(action==='update'){
                     const idx=_faqItems.findIndex(x=>x.id==faq.id);
-                    if(idx!==-1) _faqItems[idx]={..._faqItems[idx],question:q,answer:a,solo_ai:sa,status: sa ? 'solo_ai' : 'publish'};
+                    if(idx!==-1) _faqItems[idx]={..._faqItems[idx],question:q,answer:a,solo_ai:sa,status: sa ? 'solo_ai' : 'publish',...(hasTranslations?{translations}:{})};
                 }
                 const badge=document.getElementById('faq-hotel-count');
                 if(badge) badge.textContent='('+_faqItems.length+')';
