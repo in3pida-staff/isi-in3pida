@@ -358,9 +358,11 @@ function _getFaqFullUrl() {
     return (_pluginBase || '').replace(/\/$/, '') + '/' + slug;
 }
 
-function _openFaqUrl() {
-    const url = _getFaqFullUrl();
-    if (url) window.open(url, '_blank');
+function _openFaqUrl(lang) {
+    var url = _getFaqFullUrl();
+    if (!url) return;
+    if (lang) url = url + (url.includes('?') ? '&' : '?') + 'lang=' + lang;
+    window.open(url, '_blank');
 }
 
 async function _saveFaqPageUrl(url) {
@@ -1407,6 +1409,9 @@ function renderContent(site, pseData, now) {
                                     <input id="faq-setting-page-url" type="text" placeholder="faq" style="flex:1;min-width:40px;border:none;outline:none;font-family:'Source Code Pro',monospace;font-size:12px;color:#0D5F75;padding:6px 14px 6px 2px;background:transparent">
                                 </div>
                                 <button id="btn-open-faq-url" onclick="_openFaqUrl()" style="background:#C1CBE8;color:#fff;border:none;border-radius:24px;padding:6px 16px;font-family:'Source Code Pro',monospace;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0">↗ Apri</button>
+                                <button onclick="_openFaqUrl('en')" style="background:white;color:#0D5F75;border:1px solid #e4e4ec;border-radius:24px;padding:6px 12px;font-family:'Source Code Pro',monospace;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0">EN</button>
+                                <button onclick="_openFaqUrl('fr')" style="background:white;color:#0D5F75;border:1px solid #e4e4ec;border-radius:24px;padding:6px 12px;font-family:'Source Code Pro',monospace;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0">FR</button>
+                                <button onclick="_openFaqUrl('de')" style="background:white;color:#0D5F75;border:1px solid #e4e4ec;border-radius:24px;padding:6px 12px;font-family:'Source Code Pro',monospace;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0">DE</button>
                                 <button id="btn-publish-faq-page" onclick="_publishFaqPage(this)" style="background:#EFF020;color:#0D5F75;border:none;border-radius:24px;padding:6px 16px;font-family:'Source Code Pro',monospace;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0">Crea pagina automaticamente</button>
                                 <button id="btn-faq-page-draft" onclick="_toggleFaqPageStatus(this)" style="display:none;background:white;color:#0D5F75;border:1px solid #e4e4ec;border-radius:24px;padding:6px 16px;font-family:'Source Code Pro',monospace;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0">Metti in bozze</button>
                             </div>
