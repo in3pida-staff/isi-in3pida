@@ -2829,7 +2829,8 @@ async function _detectRatings(silent = false) {
     const taUrl   = g('tripadvisor_url');
     const gUrl    = g('google_business_url');
     const bkUrl   = g('url_recensioni');
-    if (!taUrl && !gUrl && !bkUrl) { s('Nessun URL trovato — inserisci prima i link', '#FF8500'); return; }
+    const hcUrl   = g('holidaycheck_url');
+    if (!taUrl && !gUrl && !bkUrl && !hcUrl) { s('Nessun URL trovato — inserisci prima i link', '#FF8500'); return; }
     const { data: { session } } = await _SB.auth.getSession();
     if (!session) return;
     if (!silent) { btn.disabled = true; btn.textContent = 'Rilevamento...'; }
@@ -2848,7 +2849,7 @@ async function _detectRatings(silent = false) {
             return await r.json();
         } catch { return null; }
     };
-    const [ta, goog, bk] = await Promise.all([call(taUrl,'tripadvisor'),call(gUrl,'google'),call(bkUrl,'booking')]);
+    const [ta, goog, bk, hc] = await Promise.all([call(taUrl,'tripadvisor'),call(gUrl,'google'),call(bkUrl,'booking'),call(hcUrl,'holidaycheck')]);
     const fill = (id, val) => {
         const el = document.getElementById('hsf-' + id);
         if (el && val) { el.value = val; el.style.border = '2px solid #0D5F75'; el.style.background = '#eaf4f7'; setTimeout(() => { el.style.border = ''; el.style.background = ''; }, 4000); }
@@ -2859,11 +2860,12 @@ async function _detectRatings(silent = false) {
     if (ta?.rating || ta?.n_recensioni) { if (ta.rating) { fill('tripadvisor_rating', ta.rating); found++; } if (ta.n_recensioni) { fill('tripadvisor_n_recensioni', ta.n_recensioni); found++; } else if (!ta.blocked) clearNrec('tripadvisor_n_recensioni'); portaliAggiornati.push('TripAdvisor'); }
     if (goog?.rating || goog?.n_recensioni) { if (goog.rating) { fill('google_rating', goog.rating); found++; } if (goog.n_recensioni) { fill('google_n_recensioni', goog.n_recensioni); found++; } else if (!goog.blocked) clearNrec('google_n_recensioni'); portaliAggiornati.push('Google'); }
     if (bk?.rating || bk?.n_recensioni) { if (bk.rating) { fill('booking_rating', bk.rating); found++; } if (bk.n_recensioni) { fill('booking_n_recensioni', bk.n_recensioni); found++; } else if (!bk.blocked) clearNrec('booking_n_recensioni'); portaliAggiornati.push('Booking'); }
+    if (hc?.rating || hc?.n_recensioni) { if (hc.rating) { fill('holidaycheck_rating', hc.rating); found++; } if (hc.n_recensioni) { fill('holidaycheck_n_recensioni', hc.n_recensioni); found++; } else if (!hc.blocked) clearNrec('holidaycheck_n_recensioni'); portaliAggiornati.push('HolidayCheck'); }
     if (!silent) { btn.disabled = false; btn.textContent = 'Rileva automaticamente'; }
     if (found > 0) s('Aggiornati: ' + portaliAggiornati.join(', ') + ' — salva per confermare', '#0D5F75');
     else {
-        const allBlocked = [ta,goog,bk].filter(Boolean).every(r => r?.blocked === true);
-        if (allBlocked || [ta,goog,bk].every(r => !r))
+        const allBlocked = [ta,goog,bk,hc].filter(Boolean).every(r => r?.blocked === true);
+        if (allBlocked || [ta,goog,bk,hc].every(r => !r))
             s('Rilevamento non disponibile — inserisci i punteggi manualmente', '#666b84');
         else
             s('Punteggi non trovati nelle pagine — inserisci manualmente', '#666b84');

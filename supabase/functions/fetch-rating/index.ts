@@ -103,6 +103,20 @@ function extractRating(text: string, source: string): { rating: string | null; n
       const mn = text.match(/([\d.,]+)\s*(?:recensioni|reviews)/i)
       nRec = mn ? mn[1].replace(/\./g,'') : null
     }
+
+  } else if (source === 'holidaycheck') {
+    const patterns = [
+      /([1-5](?:[,.]\d)?|6(?:[,.]0)?)\s*(?:von|di|su|of|out\s+of)\s*6/i,
+      /([1-5](?:[,.]\d)?|6(?:[,.]0)?)\s*\/\s*6/i,
+      /(?:Sehr gut|Gut|Befriedigend|Ausreichend|Ottimo|Buono)[^\d]{0,10}([1-6](?:[,.]\d)?)/i,
+      /ratingValue[^\d"]{0,5}"?([1-6](?:[,.]\d)?)/i,
+    ]
+    for (const p of patterns) {
+      const m = text.match(p)
+      if (m?.[1]) { rating = cleanNum(m[1]); break }
+    }
+    const mn = text.match(/([\d.,]+)\s*(?:Bewertungen|Meinungen|Urlaube|recensioni|reviews)/i)
+    nRec = mn ? mn[1].replace(/\./g,'').replace(',','') : null
   }
 
   return { rating, n_recensioni: nRec }
@@ -273,6 +287,12 @@ Deno.serve(async (req) => {
         if (rSite?.rating) return ok(rSite)
       }
       return ok({ rating: r?.rating || null, n_recensioni: null, blocked: true })
+    }
+
+    if (source === 'holidaycheck') {
+      const r = await findRating(url, 'holidaycheck')
+      if (r) return ok(r)
+      return ok({ rating: null, n_recensioni: null, blocked: true })
     }
 
     return new Response(JSON.stringify({ error: 'unknown_source' }), { headers: cors })
