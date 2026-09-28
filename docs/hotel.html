@@ -3352,7 +3352,7 @@ async function _initHotelMappaInner(site, cont, contQuery) {
         return `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 20px;border-top:1px solid #f4f4f8">
             <div style="display:flex;align-items:center;gap:10px;min-width:0">
                 <span style="font-size:15px;color:${isCov?'#0D5F75':'#C1CBE8'};font-weight:800;flex-shrink:0">${isCov?'✓':'✗'}</span>
-                <span style="font-size:13px;color:#0D5F75;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:'Source Code Pro',monospace">${esc(q)}</span>
+                <span style="font-size:13px;color:#0D5F75;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:'Source Code Pro',monospace;cursor:pointer;text-decoration:underline dotted rgba(13,95,117,0.4)" onclick="mostraRispostaFaq('${qE}')">${esc(q)}</span>
             </div>
             <div style="display:flex;align-items:center;gap:6px;margin-left:12px;flex-shrink:0">
                 ${isCov ? '<span style="font-size:11px;color:#0D5F75;font-weight:700;white-space:nowrap">Coperta ✓</span>' : ''}
@@ -3565,6 +3565,15 @@ window.removeRelevantOverride = async function(btn, cat, siteId) {
         _mappaInited = false;
         if (_mappaCurrentSite) await initHotelMappa(_mappaCurrentSite);
     } catch(e) { btn.textContent = '× Annulla'; btn.disabled = false; }
+};
+
+window.mostraRispostaFaq = function(query) {
+    const match = _faqItems.find(f => (f.question||'').toLowerCase().trim() === (query||'').toLowerCase().trim());
+    if (match) {
+        openHotelFaqModal(match.id);
+    } else {
+        apriModaleFaqHotel(query);
+    }
 };
 
 window.apriModaleFaqHotel = function(query, prefillAnswer, errorMsg) {
