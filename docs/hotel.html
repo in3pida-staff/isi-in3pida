@@ -2217,7 +2217,8 @@ window.fhmTraduciAttivo = async function() {
     if (!q) return;
     var btn = document.getElementById('fhm-btn-traduci');
     if (btn) { btn.disabled = true; btn.textContent = 'Traduzione...'; }
-    try {
+    var _du = function(s){ return (s||'').replace(/\\u([0-9a-fA-F]{4})/g, function(_,h){ return String.fromCharCode(parseInt(h,16)); }); };
+    var _doFetch = async function() {
         var _sess = (await _SB.auth.getSession()).data.session;
         var _authHdr = _sess ? { 'Authorization': 'Bearer ' + _sess.access_token } : {};
         var r = await fetch(SUPABASE_URL + '/functions/v1/pse-query', {
@@ -2225,9 +2226,12 @@ window.fhmTraduciAttivo = async function() {
             headers: { 'Content-Type': 'application/json', ..._authHdr },
             body: JSON.stringify({ action: 'faq_translate', site_id: _site && _site.site_id, question: q, answer: a, target_lang: lang })
         });
-        var d = await r.json();
+        return await r.json();
+    };
+    try {
+        var d = await _doFetch();
+        if (!d.question) { await new Promise(function(res){setTimeout(res,1200);}); d = await _doFetch(); }
         if (d.question) {
-            var _du = function(s){ return (s||'').replace(/\\u([0-9a-fA-F]{4})/g, function(_,h){ return String.fromCharCode(parseInt(h,16)); }); };
             document.getElementById('fhm-q-' + lang).value = _du(d.question);
             document.getElementById('fhm-a-' + lang).value = _du(d.answer || '');
         }
