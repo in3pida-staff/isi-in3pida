@@ -9,7 +9,7 @@ const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY') ?? Deno.env.get('GEMINI_KE
 const cors = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'authorization, content-type' }
 
 // Modelli Groq sicuri per il ripiego automatico (in ordine): se uno viene dismesso, prova il successivo
-const GROQ_FALLBACKS = ['openai/gpt-oss-20b', 'openai/gpt-oss-120b']
+const GROQ_FALLBACKS = ['openai/gpt-oss-20b', 'openai/gpt-oss-120b', 'llama-3.3-70b-versatile']
 async function groqCall(model: string, systemPrompt: string, userPrompt: string, maxTokens: number, temperature: number): Promise<any> {
   const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
@@ -23,13 +23,13 @@ async function groqCall(model: string, systemPrompt: string, userPrompt: string,
 }
 async function groqModel(model: string, systemPrompt: string, userPrompt: string, maxTokens = 400, temperature = 0.7): Promise<string> {
   let d = await groqCall(model, systemPrompt, userPrompt, maxTokens, temperature)
-  // Ripiego automatico: se il modello è stato dismesso/non esiste, riprova con uno sicuro → così il servizio NON si rompe
-  const bad = ['model_not_found', 'model_decommissioned']
-  if (bad.includes(d?.error?.code)) {
+  const bad = ['model_not_found', 'model_decommissioned', 'rate_limit_exceeded', 'service_unavailable']
+  const hasContent = () => !!d.choices?.[0]?.message?.content?.trim()
+  if (bad.includes(d?.error?.code) || (!hasContent() && d?.error)) {
     for (const fb of GROQ_FALLBACKS) {
       if (fb === model) continue
       d = await groqCall(fb, systemPrompt, userPrompt, maxTokens, temperature)
-      if (!bad.includes(d?.error?.code)) break
+      if (!bad.includes(d?.error?.code) && hasContent()) break
     }
   }
   return d.choices?.[0]?.message?.content?.trim() ?? ''
@@ -64,6 +64,7 @@ function parseJson(raw: string): any {
   try { return JSON.parse(raw) } catch { /* empty */ }
   try { const m = raw.match(/\{[\s\S]*\}/); return m ? JSON.parse(m[0]) : {} } catch { return {} }
 }
+
 
 // Gemini con grounding Google Search (tier gratuito) — ritorna risposta reale + fonti citate
 async function geminiGrounded(prompt: string, maxTokens = 800): Promise<{ text: string, sources: { url: string, title: string }[], error?: string }> {
@@ -284,6 +285,28 @@ Formato risposta (JSON puro, nessun testo fuori):
         JSON.stringify({ answer: parsed.answer, sufficient: parsed.sufficient !== false }),
         { headers: { ...cors, 'Content-Type': 'application/json' } }
       )
+    }
+
+    // ─── FAQ TRANSLATION ──────────────────────────────────────────────────────
+    if (action === 'faq_translate') {
+      const { question, answer, target_lang } = body
+      if (!question || !target_lang) return new Response(JSON.stringify({ error: 'Missing params' }), { status: 400, headers: cors })
+
+      const langNames: Record<string, string> = { en: 'inglese', fr: 'francese', de: 'tedesco' }
+      const langName = langNames[target_lang] || target_lang
+
+      const sysPrompt = `Sei un traduttore professionista specializzato nel settore alberghiero. Traduci il testo in ${langName} mantenendo il tono promozionale e professionale. Rispondi solo con JSON valido.`
+      const userPrompt = `Traduci in ${langName}:\nDomanda: "${question}"\nRisposta: "${answer || ''}"\n\nFormato risposta (JSON puro, nessun testo fuori):\n{"question":"<traduzione domanda>","answer":"<traduzione risposta>"}`
+
+      const [rawGroq, rawGemini] = await Promise.all([
+        groq(sysPrompt, userPrompt, 400, 0.3),
+        GEMINI_API_KEY ? gemini(sysPrompt, userPrompt, 400) : Promise.resolve('')
+      ])
+      let parsed = parseJson(rawGroq)
+      if (!parsed.question) parsed = parseJson(rawGemini)
+
+      if (!parsed.question) return new Response(JSON.stringify({ error: 'translation_failed' }), { status: 500, headers: cors })
+      return new Response(JSON.stringify({ question: parsed.question, answer: parsed.answer || '' }), { headers: { ...cors, 'Content-Type': 'application/json' } })
     }
 
     // ─── AI VISIBILITY (reale, grounded) ──────────────────────────────────────

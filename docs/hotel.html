@@ -2280,7 +2280,8 @@ window.fhmTraduciAttivo = async function() {
     };
     try {
         var d = await _doFetch();
-        if (!d.question) { await new Promise(function(res){setTimeout(res,1200);}); d = await _doFetch(); }
+        if (!d.question) { await new Promise(function(res){setTimeout(res,1000);}); d = await _doFetch(); }
+        if (!d.question) { await new Promise(function(res){setTimeout(res,2000);}); d = await _doFetch(); }
         if (d.question) {
             document.getElementById('fhm-q-' + lang).value = _du(d.question);
             document.getElementById('fhm-a-' + lang).value = _du(d.answer || '');
