@@ -5,6 +5,30 @@ const SUPABASE_URL         = Deno.env.get('SUPABASE_URL') ?? ''
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 const FETCH_RATING_URL     = SUPABASE_URL + '/functions/v1/fetch-rating'
 
+async function sendHeartbeat(siteUrl: string): Promise<boolean> {
+  try {
+    const res = await fetch(`${siteUrl}/wp-json/in3pida/v1/force-heartbeat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      signal: AbortSignal.timeout(10000),
+    })
+    return res.ok
+  } catch { return false }
+}
+
+async function savePendingHeartbeat(siteId: string, siteUrl: string): Promise<void> {
+  await fetch(`${SUPABASE_URL}/rest/v1/isi_pending_heartbeats`, {
+    method: 'POST',
+    headers: {
+      apikey: SUPABASE_SERVICE_KEY,
+      Authorization: `Bearer ${SUPABASE_SERVICE_KEY}`,
+      'Content-Type': 'application/json',
+      Prefer: 'resolution=merge-duplicates',
+    },
+    body: JSON.stringify({ site_id: siteId, site_url: siteUrl, failed_at: new Date().toISOString(), attempts: 0 }),
+  })
+}
+
 const cors = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'authorization, content-type' }
 
 async function fetchRating(
@@ -27,7 +51,7 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
 
   try {
-    const sitesRes = await fetch(`${SUPABASE_URL}/rest/v1/isi_sites?select=site_id,hotel_profile,schema_data,site_name`, {
+    const sitesRes = await fetch(`${SUPABASE_URL}/rest/v1/isi_sites?select=site_id,site_url,hotel_profile,schema_data,site_name`, {
       headers: {
         apikey: SUPABASE_SERVICE_KEY,
         Authorization: `Bearer ${SUPABASE_SERVICE_KEY}`,
@@ -94,6 +118,12 @@ Deno.serve(async (req) => {
         body: JSON.stringify({ hotel_profile: newHp }),
       })
       updated++
+
+      if (changes.length > 0 && site.site_url) {
+        const siteUrl = (site.site_url as string).replace(/\/$/, '')
+        const ok = await sendHeartbeat(siteUrl)
+        if (!ok) await savePendingHeartbeat(site.site_id, siteUrl)
+      }
     }
 
     return new Response(JSON.stringify({ ok: true, updated, skipped, total: sites.length }), {
