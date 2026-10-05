@@ -42,8 +42,98 @@ function isNonEmpty(v: unknown): boolean {
   return true
 }
 
+// Merge array offerte: matching per url o nome; preserva campi Eletta-only; aggiunge voci WP nuove; mantiene voci Eletta non presenti in WP
+function mergeOfferte(
+  wpOffers: Array<Record<string, string>>,
+  elOfferte: Array<Record<string, unknown>>
+): Array<Record<string, unknown>> {
+  const wpUrls  = new Set(wpOffers.map(o => o.url).filter(Boolean))
+  const wpNames = new Set(wpOffers.map(o => o.name).filter(Boolean))
+
+  // Mappa le voci WP (con match se esiste già in Eletta)
+  const mapped = wpOffers.map(wpOffer => {
+    const existing = elOfferte.find(e =>
+      (wpOffer.url  && e.url   === wpOffer.url) ||
+      (wpOffer.name && e.nome  === wpOffer.name)
+    ) as Record<string, unknown> | undefined
+
+    return {
+      // Campi Eletta-only: preserva se già presenti, altrimenti default
+      tipo:        existing?.tipo        ?? 'Early Booking',
+      sconto:      existing?.sconto      ?? '',
+      data_inizio: existing?.data_inizio ?? '',
+      data_fine:   existing?.data_fine   ?? '',
+      condizioni:  existing?.condizioni  ?? '',
+      // Campi WP (WP vince se non vuoto, altrimenti tieni Eletta)
+      nome:     wpOffer.name        || (existing?.nome as string)       || '',
+      descrizione: wpOffer.description || (existing?.descrizione as string) || '',
+      prezzo_da:   wpOffer.price       || (existing?.prezzo_da as string)   || '',
+      url:         wpOffer.url         || (existing?.url as string)         || '',
+    }
+  })
+
+  // Mantieni voci Eletta non presenti in WP (non sovrascriverle)
+  const elOnly = elOfferte.filter(e =>
+    !(e.url  && wpUrls.has(e.url  as string)) &&
+    !(e.nome && wpNames.has(e.nome as string))
+  )
+
+  return [...mapped, ...elOnly]
+}
+
+// Merge array camere: matching per url o nome; preserva campi Eletta-only; aggiunge voci WP nuove; mantiene voci Eletta non presenti in WP
+function mergeCamere(
+  wpRooms: Array<Record<string, unknown>>,
+  elCamere: Array<Record<string, unknown>>
+): Array<Record<string, unknown>> {
+  const wpUrls  = new Set(wpRooms.map(r => r.url  as string).filter(Boolean))
+  const wpNames = new Set(wpRooms.map(r => r.name as string).filter(Boolean))
+
+  const mapped = wpRooms.map(wpRoom => {
+    const existing = elCamere.find(e =>
+      (wpRoom.url  && e.url   === wpRoom.url) ||
+      (wpRoom.name && e.nome  === wpRoom.name)
+    ) as Record<string, unknown> | undefined
+
+    // amenities (array) → servizi (comma-join)
+    const wpAmenities = wpRoom.amenities
+    const serviziWP = Array.isArray(wpAmenities) && wpAmenities.length > 0
+      ? (wpAmenities as string[]).join(', ')
+      : ''
+
+    return {
+      // Campi Eletta-only: preserva se già presenti, altrimenti default
+      n_camere: existing?.n_camere ?? '',
+      // Campi WP (WP vince se non vuoto, altrimenti tieni Eletta)
+      nome:         (wpRoom.name        as string) || (existing?.nome        as string) || '',
+      url:          (wpRoom.url         as string) || (existing?.url         as string) || '',
+      descrizione:  (wpRoom.description as string) || (existing?.descrizione as string) || '',
+      n_max:        wpRoom.max                      ?? existing?.n_max        ?? '',
+      tipo_letto:   (wpRoom.bed         as string) || (existing?.tipo_letto  as string) || '',
+      prezzo_da:    (wpRoom.price       as string) || (existing?.prezzo_da   as string) || '',
+      valuta:       (wpRoom.currency    as string) || (existing?.valuta      as string) || 'EUR',
+      disponibilita:(wpRoom.availability as string) || (existing?.disponibilita as string) || '',
+      vista:        (wpRoom.view        as string) || (existing?.vista       as string) || '',
+      servizi:      serviziWP                       || (existing?.servizi    as string) || '',
+    }
+  })
+
+  // Mantieni voci Eletta non presenti in WP
+  const elOnly = elCamere.filter(e =>
+    !(e.url  && wpUrls.has(e.url  as string)) &&
+    !(e.nome && wpNames.has(e.nome as string))
+  )
+
+  return [...mapped, ...elOnly]
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
+
+  // Solo chiamate con la chiave di servizio (cron/server). Blocca pubblico/anon.
+  const _p = ((req.headers.get('Authorization')||'').replace('Bearer ','').split('.')[1]||'').replace(/-/g,'+').replace(/_/g,'/')
+  let _role=''; try { _role = JSON.parse(atob(_p + '='.repeat((4-_p.length%4)%4))).role||'' } catch(_) {}
+  if (_role !== 'service_role') return new Response(JSON.stringify({ error: 'unauthorized' }), { status: 401, headers: cors })
 
   try {
     const body = await req.json()
@@ -97,6 +187,28 @@ Deno.serve(async (req) => {
     if (isNonEmpty(wpLang) && wpLang !== profile['lingue_parlate']) {
       changes.push({ field_eletta: 'lingue_parlate', old_value: profile['lingue_parlate'], new_value: wpLang })
       merged['lingue_parlate'] = wpLang as string
+    }
+
+    // Merge offerte (array)
+    const wpOffers = schema['offers'] as Array<Record<string, string>> | undefined
+    if (Array.isArray(wpOffers) && wpOffers.length > 0) {
+      const elOfferte = (profile['offerte'] as Array<Record<string, unknown>>) || []
+      const newOfferte = mergeOfferte(wpOffers, elOfferte)
+      if (JSON.stringify(newOfferte) !== JSON.stringify(elOfferte)) {
+        changes.push({ field_eletta: 'offerte', old_value: elOfferte, new_value: newOfferte })
+        merged['offerte'] = newOfferte
+      }
+    }
+
+    // Merge camere (array)
+    const wpRooms = schema['rooms'] as Array<Record<string, unknown>> | undefined
+    if (Array.isArray(wpRooms) && wpRooms.length > 0) {
+      const elCamere = (profile['camere'] as Array<Record<string, unknown>>) || []
+      const newCamere = mergeCamere(wpRooms, elCamere)
+      if (JSON.stringify(newCamere) !== JSON.stringify(elCamere)) {
+        changes.push({ field_eletta: 'camere', old_value: elCamere, new_value: newCamere })
+        merged['camere'] = newCamere
+      }
     }
 
     // Nessuna modifica necessaria
