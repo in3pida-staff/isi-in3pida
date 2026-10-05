@@ -75,6 +75,15 @@ Deno.serve(async (req) => {
   try {
     const { site_id } = await req.json();
     if (!site_id) return new Response(JSON.stringify({ error: 'site_id richiesto' }), { status: 400, headers: cors });
+    // Un albergatore può agire SOLO sul proprio hotel
+    {
+      const _b = (req.headers.get('Authorization')||'').replace('Bearer ','').trim();
+      if (_b !== SUPABASE_SERVICE_KEY) {
+        const { data: { user: _u } } = await createClient(SUPABASE_URL, ANON_KEY).auth.getUser(_b);
+        const _um = (_u?.user_metadata || {}) as Record<string, unknown>;
+        if (_um.role === 'albergatore' && _um.site_id !== site_id) return new Response(JSON.stringify({ error: 'forbidden_site' }), { status: 403, headers: cors });
+      }
+    }
 
     const [{ data: embeddings }, { data: tests }, { data: site }] = await Promise.all([
       admin.from('isi_chunk_embeddings').select('chunk_id,chunk_title,chunk_type,chunk_content,embedding').eq('site_id', site_id),
