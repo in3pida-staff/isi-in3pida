@@ -112,6 +112,18 @@ function countMentions(text: string, term: string): number {
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
 
+  // Limite anti-abuso per indirizzo IP: max 200 richieste/ora. Non tocca l'uso normale
+  // (plugin: 3 query per volta; dashboard: poche), ferma chi martella per bruciare il credito AI.
+  // Fail-open: se il controllo fallisce NON blocca il servizio.
+  try {
+    const _ip = (req.headers.get('x-forwarded-for') || '').split(',')[0].trim() || 'unknown'
+    const _rl = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY)
+    const _since = new Date(Date.now() - 3600000).toISOString()
+    const { count } = await _rl.from('pse_rate_log').select('*', { count: 'exact', head: true }).eq('ip', _ip).gte('created_at', _since)
+    if ((count || 0) >= 200) return new Response(JSON.stringify({ error: 'rate_limited' }), { status: 429, headers: cors })
+    await _rl.from('pse_rate_log').insert({ ip: _ip })
+  } catch (_) { /* fail-open */ }
+
   try {
     const body = await req.json()
     const { site_id, query, action } = body
