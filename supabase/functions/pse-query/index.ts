@@ -127,6 +127,12 @@ Deno.serve(async (req) => {
   try {
     const body = await req.json()
     const { site_id, query, action } = body
+    // Un albergatore loggato può interrogare SOLO il proprio hotel (il plugin usa anon e non è toccato)
+    try {
+      const _pp = ((req.headers.get('Authorization')||'').replace('Bearer ','').split('.')[1]||'').replace(/-/g,'+').replace(/_/g,'/')
+      const _um = (JSON.parse(atob(_pp + '='.repeat((4-_pp.length%4)%4))).user_metadata)||{}
+      if (_um.role === 'albergatore' && site_id && _um.site_id !== site_id) return new Response(JSON.stringify({ error: 'forbidden_site' }), { status: 403, headers: cors })
+    } catch(_) {}
 
     // ─── DEBUG GROQ COMPOUND (ispezione struttura fonti) ──────────────────────
     if (action === 'debug_groq') {
