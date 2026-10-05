@@ -843,9 +843,10 @@ async function _saveAiMetrics(site) {
         // AI Visibility: chiama edge function se non già calcolato oggi
         if(!existing?.ai_visibility) {
             try {
+                const { data: { session: _avSess } } = await _SBq.auth.getSession();
                 const r = await fetch('https://yyauvoqjdzrbmebeafit.supabase.co/functions/v1/ai-visibility-check', {
                     method:'POST',
-                    headers:{'Content-Type':'application/json','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5YXV2b3FqZHpyYm1lYmVhZml0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3OTM2MDAsImV4cCI6MjA5NTM2OTYwMH0.M6kD56PEO_UcJ68Vjquo03vuORjv62MflIzGLzYKN9w'},
+                    headers:{'Content-Type':'application/json','Authorization':'Bearer ' + (_avSess?.access_token || '')},
                     body:JSON.stringify({site_id:site.site_id}),
                     signal:AbortSignal.timeout(30000)
                 });

@@ -11,6 +11,11 @@ const cors = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
 
+  // Solo utenti loggati (o chiamate server). Blocca il pubblico/anon.
+  const _p = ((req.headers.get('Authorization')||'').replace('Bearer ','').split('.')[1]||'').replace(/-/g,'+').replace(/_/g,'/')
+  let _role=''; try { _role = JSON.parse(atob(_p + '='.repeat((4-_p.length%4)%4))).role||'' } catch(_) {}
+  if (_role !== 'authenticated' && _role !== 'service_role') return new Response(JSON.stringify({ error: 'unauthorized' }), { status: 401, headers: cors })
+
   try {
     const { site_id } = await req.json()
     if (!site_id) return new Response(JSON.stringify({ error: 'Missing site_id' }), { status: 400, headers: cors })
