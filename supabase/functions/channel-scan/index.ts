@@ -8,6 +8,30 @@ const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 
 const cors = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'authorization, content-type' }
 
+// Anti-SSRF: accetta solo URL pubblici http/https. Blocca localhost, IP privati,
+// link-local (169.254.x = metadati cloud), loopback, multicast e schemi non-web.
+function isPublicHttpUrl(raw: string): boolean {
+  let u: URL
+  try { u = new URL(raw) } catch { return false }
+  if (u.protocol !== 'http:' && u.protocol !== 'https:') return false
+  const h = u.hostname.toLowerCase().replace(/^\[|\]$/g, '')
+  if (!h) return false
+  if (h === 'localhost' || h.endsWith('.localhost') || h.endsWith('.local') ||
+      h.endsWith('.internal') || h === 'metadata.google.internal') return false
+  const m = h.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/)
+  if (m) {
+    const a = +m[1], b = +m[2]
+    if (a === 0 || a === 10 || a === 127 || a >= 224) return false          // this/privato/loopback/multicast+riservati
+    if (a === 169 && b === 254) return false                                 // link-local (metadati cloud)
+    if (a === 172 && b >= 16 && b <= 31) return false                        // privato
+    if (a === 192 && b === 168) return false                                 // privato
+    if (a === 100 && b >= 64 && b <= 127) return false                       // CGNAT
+  }
+  if (h === '::1' || h === '::' || h.startsWith('fe80:') ||
+      h.startsWith('fc') || h.startsWith('fd')) return false                 // IPv6 loopback/link-local/unique-local
+  return true
+}
+
 function stripHtml(html: string): string {
   let text = html
     .replace(/<script[\s\S]*?<\/script>/gi, '')
@@ -33,6 +57,9 @@ Deno.serve(async (req) => {
     if (_um.role === 'albergatore' && site_id && _um.site_id !== site_id) return new Response(JSON.stringify({ error: 'forbidden_site' }), { status: 403, headers: cors })
     if (!site_id || !channel || !url)
       return new Response(JSON.stringify({ error: 'Missing params' }), { status: 400, headers: cors })
+    // Anti-SSRF: l'URL da scansionare deve essere un indirizzo web pubblico
+    if (!isPublicHttpUrl(url))
+      return new Response(JSON.stringify({ error: 'bad_url', message: 'Inserisci un link web valido (http/https pubblico).' }), { status: 400, headers: cors })
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY)
 
