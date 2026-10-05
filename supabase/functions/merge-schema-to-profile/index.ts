@@ -129,11 +129,8 @@ function mergeCamere(
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
-
-  // Solo chiamate con la chiave di servizio (cron/server). Blocca pubblico/anon.
-  const _p = ((req.headers.get('Authorization')||'').replace('Bearer ','').split('.')[1]||'').replace(/-/g,'+').replace(/_/g,'/')
-  let _role=''; try { _role = JSON.parse(atob(_p + '='.repeat((4-_p.length%4)%4))).role||'' } catch(_) {}
-  if (_role !== 'service_role') return new Response(JSON.stringify({ error: 'unauthorized' }), { status: 401, headers: cors })
+  // NOTA: richiamata dal plugin WordPress con la chiave pubblica (anon) durante l'heartbeat
+  // per sincronizzare schema→profilo. NON mettere qui un guard "solo service_role": romperebbe il plugin.
 
   try {
     const body = await req.json()
