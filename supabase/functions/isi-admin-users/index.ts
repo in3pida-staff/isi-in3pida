@@ -17,7 +17,18 @@ Deno.serve(async (req) => {
     auth: { autoRefreshToken: false, persistSession: false }
   });
 
-  // POST /register — crea utente pre-confermato (nessuna email richiesta)
+  // ── AUTENTICAZIONE + RUOLO ADMIN (richiesti PRIMA di qualsiasi azione) ──────
+  const token = (req.headers.get('Authorization') || '').replace('Bearer ', '');
+  const anonClient = createClient(SUPABASE_URL, ANON_KEY);
+  const { data: { user }, error: authErr } = await anonClient.auth.getUser(token);
+  if (authErr || !user) return new Response(JSON.stringify({ error: 'Non autorizzato' }), { status: 401, headers: cors });
+  const role = (user.user_metadata as Record<string, unknown> | null)?.role as string | undefined;
+  // Admin = chiunque NON sia albergatore/utente (es. 'admin' o owner senza ruolo). Blocca gli albergatori.
+  if (role === 'albergatore' || role === 'utente') {
+    return new Response(JSON.stringify({ error: 'Permesso negato' }), { status: 403, headers: cors });
+  }
+
+  // POST — crea utente pre-confermato (solo admin)
   if (req.method === 'POST') {
     const { email, password, full_name } = await req.json().catch(() => ({}));
     if (!email || !password) return new Response(JSON.stringify({ error: 'email e password richiesti' }), { status: 400, headers: cors });
@@ -32,11 +43,6 @@ Deno.serve(async (req) => {
     }
     return new Response(JSON.stringify({ ok: true, user_id: data.user.id }), { headers: { ...cors, 'Content-Type': 'application/json' } });
   }
-
-  const token = (req.headers.get('Authorization') || '').replace('Bearer ', '');
-  const anonClient = createClient(SUPABASE_URL, ANON_KEY);
-  const { data: { user }, error: authErr } = await anonClient.auth.getUser(token);
-  if (authErr || !user) return new Response(JSON.stringify({ error: 'Non autorizzato' }), { status: 401, headers: cors });
 
   if (req.method === 'GET') {
     const { data: { users }, error } = await admin.auth.admin.listUsers({ perPage: 200 });
