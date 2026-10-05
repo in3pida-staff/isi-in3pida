@@ -23,13 +23,17 @@
   }
 
   async function fetchSite(siteId) {
-    const res = await fetch(
-      `${SUPABASE_URL}/rest/v1/isi_sites?site_id=eq.${encodeURIComponent(siteId)}&select=site_id,site_name,site_url,hotel_profile,schema_data,faq_data,plugin_version`,
-      { headers: { apikey: SUPABASE_ANON, Authorization: `Bearer ${SUPABASE_ANON}` } }
-    );
+    // La lettura passa da una funzione protetta (eletta_get_site): restituisce UN solo hotel
+    // (quello del suo id) con i soli campi che servono al widget. Niente più lettura in blocco
+    // della tabella dalla chiave pubblica.
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/eletta_get_site`, {
+      method: 'POST',
+      headers: { apikey: SUPABASE_ANON, Authorization: `Bearer ${SUPABASE_ANON}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ p_site_id: siteId }),
+    });
     if (!res.ok) return null;
-    const rows = await res.json();
-    return rows?.[0] || null;
+    const row = await res.json();
+    return row || null;
   }
 
   function computeGeoScores(site) {
