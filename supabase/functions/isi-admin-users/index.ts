@@ -22,7 +22,12 @@ Deno.serve(async (req) => {
   const anonClient = createClient(SUPABASE_URL, ANON_KEY);
   const { data: { user }, error: authErr } = await anonClient.auth.getUser(token);
   if (authErr || !user) return new Response(JSON.stringify({ error: 'Non autorizzato' }), { status: 401, headers: cors });
-  const role = (user.user_metadata as Record<string, unknown> | null)?.role as string | undefined;
+  // Il ruolo per decidere i permessi si legge dalla casella PROTETTA (app_metadata),
+  // non modificabile dall'utente. Fallback a user_metadata solo per token legacy.
+  const _md = (((user.app_metadata as Record<string, unknown> | null)?.role) != null)
+    ? (user.app_metadata as Record<string, unknown>)
+    : (user.user_metadata as Record<string, unknown> | null);
+  const role = _md?.role as string | undefined;
   // Admin = chiunque NON sia albergatore/utente (es. 'admin' o owner senza ruolo). Blocca gli albergatori.
   if (role === 'albergatore' || role === 'utente') {
     return new Response(JSON.stringify({ error: 'Permesso negato' }), { status: 403, headers: cors });
@@ -59,7 +64,14 @@ Deno.serve(async (req) => {
     if (plugin_features !== undefined) meta.plugin_features = plugin_features;
     if (menu_visibility !== undefined) meta.menu_visibility = menu_visibility;
     if (app_features !== undefined) meta.app_features = app_features;
-    const { error } = await admin.auth.admin.updateUserById(user_id, { user_metadata: meta });
+    // Il ruolo/site_id che decidono i permessi vanno ANCHE nella casella protetta (app_metadata),
+    // così l'utente non può falsificarli riscrivendo i propri user_metadata.
+    const appMeta: Record<string, unknown> = {};
+    if (role !== undefined) appMeta.role = role;
+    if (site_id !== undefined) appMeta.site_id = site_id;
+    const upd: Record<string, unknown> = { user_metadata: meta };
+    if (Object.keys(appMeta).length) upd.app_metadata = appMeta;
+    const { error } = await admin.auth.admin.updateUserById(user_id, upd);
     if (error) return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: cors });
     return new Response(JSON.stringify({ ok: true }), { headers: cors });
   }

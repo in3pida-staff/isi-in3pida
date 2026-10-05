@@ -11,16 +11,19 @@ const cors = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
 
-  // Solo utenti loggati (o chiamate server). Blocca il pubblico/anon.
-  const _p = ((req.headers.get('Authorization')||'').replace('Bearer ','').split('.')[1]||'').replace(/-/g,'+').replace(/_/g,'/')
-  let _claims:any={}; try { _claims = JSON.parse(atob(_p + '='.repeat((4-_p.length%4)%4))) } catch(_) {}
-  const _role = _claims.role||''
-  if (_role !== 'authenticated' && _role !== 'service_role') return new Response(JSON.stringify({ error: 'unauthorized' }), { status: 401, headers: cors })
+  // Verifica VERA del token (firma): non dipende dal gateway. Blocca pubblico/anon e token falsificati.
+  const _token = (req.headers.get('Authorization')||'').replace('Bearer ','')
+  const _svc = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY)
+  let _user:any = null
+  if (_token !== SUPABASE_SERVICE_KEY) {
+    const _r = await _svc.auth.getUser(_token); _user = _r.data.user
+    if (!_user) return new Response(JSON.stringify({ error: 'unauthorized' }), { status: 401, headers: cors })
+  }
 
   try {
     const { site_id } = await req.json()
-    // Un albergatore può agire SOLO sul proprio hotel
-    const _um = _claims.user_metadata || {}
+    // Un albergatore può agire SOLO sul proprio hotel (ruolo letto dalla casella protetta)
+    const _um = _user ? (((_user.app_metadata?.role) != null) ? _user.app_metadata : (_user.user_metadata || {})) : {}
     if (_um.role === 'albergatore' && site_id && _um.site_id !== site_id) return new Response(JSON.stringify({ error: 'forbidden_site' }), { status: 403, headers: cors })
     if (!site_id) return new Response(JSON.stringify({ error: 'Missing site_id' }), { status: 400, headers: cors })
 

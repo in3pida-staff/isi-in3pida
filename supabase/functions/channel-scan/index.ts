@@ -26,7 +26,7 @@ Deno.serve(async (req) => {
   const _token = (req.headers.get('Authorization')||'').replace('Bearer ','')
   const { data: { user: _user } } = await createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY).auth.getUser(_token)
   if (!_user) return new Response(JSON.stringify({ error: 'unauthorized' }), { status: 401, headers: cors })
-  const _um = (_user.user_metadata || {}) as Record<string, unknown>
+  const _um = (((_user.app_metadata as Record<string, unknown> | null)?.role != null) ? _user.app_metadata : (_user.user_metadata || {})) as Record<string, unknown>
 
   try {
     const { site_id, channel, url } = await req.json()

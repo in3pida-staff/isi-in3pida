@@ -131,7 +131,7 @@ Deno.serve(async (req) => {
     try {
       const _token = (req.headers.get('Authorization')||'').replace('Bearer ','')
       const { data: { user: _u } } = await createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY).auth.getUser(_token)
-      const _um = (_u?.user_metadata)||{}
+      const _um = ((_u?.app_metadata as Record<string, unknown> | null)?.role != null) ? _u.app_metadata : ((_u?.user_metadata)||{})
       if (_um.role === 'albergatore' && site_id && _um.site_id !== site_id) return new Response(JSON.stringify({ error: 'forbidden_site' }), { status: 403, headers: cors })
     } catch(_) {}
 
