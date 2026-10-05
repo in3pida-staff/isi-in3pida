@@ -5,9 +5,9 @@ import { Pool } from 'https://deno.land/x/postgres@v0.17.0/mod.ts'
 
 Deno.serve(async (req) => {
   // Solo chiamate con la chiave di servizio (server/admin). Blocca pubblico/anon.
-  const _p = ((req.headers.get('Authorization')||'').replace('Bearer ','').split('.')[1]||'').replace(/-/g,'+').replace(/_/g,'/')
-  let _role=''; try { _role = JSON.parse(atob(_p + '='.repeat((4-_p.length%4)%4))).role||'' } catch(_) {}
-  if (_role !== 'service_role') return new Response(JSON.stringify({ error: 'unauthorized' }), { status: 401 })
+  // Richiede la CHIAVE DI SERVIZIO reale (una firma falsa non basta).
+  if ((req.headers.get('Authorization')||'').replace('Bearer ','') !== (Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '___none___'))
+    return new Response(JSON.stringify({ error: 'unauthorized' }), { status: 401 })
 
   const dbUrl = Deno.env.get('SUPABASE_DB_URL')
   if (!dbUrl) return new Response(JSON.stringify({ error: 'SUPABASE_DB_URL non disponibile' }), { status: 500 })

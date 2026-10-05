@@ -22,15 +22,14 @@ function stripHtml(html: string): string {
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
 
-  // Solo utenti loggati (o chiamate server). Blocca il pubblico/anon.
-  const _p = ((req.headers.get('Authorization')||'').replace('Bearer ','').split('.')[1]||'').replace(/-/g,'+').replace(/_/g,'/')
-  let _claims:any={}; try { _claims = JSON.parse(atob(_p + '='.repeat((4-_p.length%4)%4))) } catch(_) {}
-  const _role = _claims.role||''
-  if (_role !== 'authenticated' && _role !== 'service_role') return new Response(JSON.stringify({ error: 'unauthorized' }), { status: 401, headers: cors })
+  // Verifica VERA del token (firma): un token falsificato viene rifiutato.
+  const _token = (req.headers.get('Authorization')||'').replace('Bearer ','')
+  const { data: { user: _user } } = await createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY).auth.getUser(_token)
+  if (!_user) return new Response(JSON.stringify({ error: 'unauthorized' }), { status: 401, headers: cors })
+  const _um = (_user.user_metadata || {}) as Record<string, unknown>
 
   try {
     const { site_id, channel, url } = await req.json()
-    const _um = _claims.user_metadata || {}
     if (_um.role === 'albergatore' && site_id && _um.site_id !== site_id) return new Response(JSON.stringify({ error: 'forbidden_site' }), { status: 403, headers: cors })
     if (!site_id || !channel || !url)
       return new Response(JSON.stringify({ error: 'Missing params' }), { status: 400, headers: cors })

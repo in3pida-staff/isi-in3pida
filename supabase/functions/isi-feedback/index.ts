@@ -14,10 +14,10 @@ const cors = {
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
 
-  // Solo utenti loggati (o chiamate server). Blocca il pubblico/anon (anti-spam).
-  const _p = ((req.headers.get('Authorization')||'').replace('Bearer ','').split('.')[1]||'').replace(/-/g,'+').replace(/_/g,'/');
-  let _role=''; try { _role = JSON.parse(atob(_p + '='.repeat((4-_p.length%4)%4))).role||'' } catch(_) {}
-  if (_role !== 'authenticated' && _role !== 'service_role') return new Response(JSON.stringify({ error: 'unauthorized' }), { status: 401, headers: cors });
+  // Verifica VERA del token (firma): un token falsificato viene rifiutato (anti-spam).
+  const _token = (req.headers.get('Authorization')||'').replace('Bearer ','');
+  const { data: { user: _user } } = await createClient(SB_URL, SB_KEY).auth.getUser(_token);
+  if (!_user) return new Response(JSON.stringify({ error: 'unauthorized' }), { status: 401, headers: cors });
 
   const { message, reply_to, site_name } = await req.json().catch(() => ({}));
   if (!message?.trim()) {

@@ -51,9 +51,9 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
 
   // Solo chiamate con la chiave di servizio (cron/server). Blocca pubblico/anon.
-  const _p = ((req.headers.get('Authorization')||'').replace('Bearer ','').split('.')[1]||'').replace(/-/g,'+').replace(/_/g,'/')
-  let _role=''; try { _role = JSON.parse(atob(_p + '='.repeat((4-_p.length%4)%4))).role||'' } catch(_) {}
-  if (_role !== 'service_role') return new Response(JSON.stringify({ error: 'unauthorized' }), { status: 401, headers: cors })
+  // Richiede la CHIAVE DI SERVIZIO reale (non un token decodificato: una firma falsa non basta).
+  if (!SUPABASE_SERVICE_KEY || (req.headers.get('Authorization')||'').replace('Bearer ','') !== SUPABASE_SERVICE_KEY)
+    return new Response(JSON.stringify({ error: 'unauthorized' }), { status: 401, headers: cors })
 
   try {
     const sitesRes = await fetch(`${SUPABASE_URL}/rest/v1/isi_sites?select=site_id,site_url,hotel_profile,schema_data,site_name`, {
