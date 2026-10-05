@@ -89,21 +89,22 @@
   }
 
   async function sendHeartbeat(siteId, siteName, site) {
-    var now = new Date().toISOString();
+    // Il battito passa da una funzione protetta (eletta_heartbeat): la chiave pubblica
+    // può aggiornare SOLO i 4 campi del battito e SOLO per il proprio hotel. Niente più
+    // scrittura diretta sulla tabella.
     var scores = site ? computeGeoScores(site) : null;
-    var patch = { last_heartbeat: now, site_url: location.origin };
-    if (scores) patch.geo_scores = scores;
+    var body = { p_site_id: siteId, p_site_url: location.origin };
+    if (scores) body.p_geo_scores = scores;
     var gscSignals = detectGscSignals();
-    if (gscSignals) patch.gsc_signals = gscSignals;
-    await fetch(`${SUPABASE_URL}/rest/v1/isi_sites?site_id=eq.${encodeURIComponent(siteId)}`, {
-      method: 'PATCH',
+    if (gscSignals) body.p_gsc_signals = gscSignals;
+    await fetch(`${SUPABASE_URL}/rest/v1/rpc/eletta_heartbeat`, {
+      method: 'POST',
       headers: {
         apikey: SUPABASE_ANON,
         Authorization: `Bearer ${SUPABASE_ANON}`,
         'Content-Type': 'application/json',
-        Prefer: 'return=minimal',
       },
-      body: JSON.stringify(patch),
+      body: JSON.stringify(body),
     }).catch(function() {});
   }
 
