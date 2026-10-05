@@ -22,6 +22,11 @@ function stripHtml(html: string): string {
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
 
+  // Solo utenti loggati (o chiamate server). Blocca il pubblico/anon.
+  const _p = ((req.headers.get('Authorization')||'').replace('Bearer ','').split('.')[1]||'').replace(/-/g,'+').replace(/_/g,'/')
+  let _role=''; try { _role = JSON.parse(atob(_p + '='.repeat((4-_p.length%4)%4))).role||'' } catch(_) {}
+  if (_role !== 'authenticated' && _role !== 'service_role') return new Response(JSON.stringify({ error: 'unauthorized' }), { status: 401, headers: cors })
+
   try {
     const { site_id, channel, url } = await req.json()
     if (!site_id || !channel || !url)
@@ -212,7 +217,7 @@ Regole di confronto:
 - Stelle: "4 stelle", "4★", "****", "Four Stars" sono equivalenti
 - Telefono: considera uguali numeri con/senza prefisso (+39), spazi o trattini
 - Indirizzo: confronto parziale tollerante (basta che via e città corrispondano)
-- Check-in/out: considera uguali "dalle 14:00", "14:00", "14h" ecc.
+- Check-in/out: converti sempre in formato 24h prima di confrontare. "2:00 PM" = "14:00", "10:00 AM" = "10:00", "From 2:00 PM" = "14:00", "Until 10:00 AM" = "10:00". Ignora prefissi tipo "dalle", "from", "until", "fino alle". Confronta solo l'ora numerica.
 - Se un campo non è presente nella pagina: found_value deve essere null
 
 Rispondi SOLO con JSON valido (array):
@@ -291,13 +296,38 @@ Rispondi SOLO con JSON valido (array):
       }), { headers: cors })
     }
 
+    // Normalizza orari in 24h (es. "From 2:00 PM" → "14:00") per confronto deterministico
+    function normalizeTime(s: string | null): string {
+      if (!s) return ''
+      const clean = s.replace(/^(from|until|dalle|fino alle|dalle ore|from\s)/i, '').trim()
+      const m12 = clean.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i)
+      if (m12) {
+        let h = parseInt(m12[1], 10)
+        const min = m12[2]
+        const period = m12[3].toUpperCase()
+        if (period === 'PM' && h !== 12) h += 12
+        if (period === 'AM' && h === 12) h = 0
+        return `${String(h).padStart(2, '0')}:${min}`
+      }
+      const m24 = clean.match(/^(\d{1,2}):(\d{2})$/)
+      if (m24) return `${String(parseInt(m24[1], 10)).padStart(2, '0')}:${m24[2]}`
+      return clean
+    }
+
     // Assicura che our_value sia sempre valorizzato
-    results = results.map((r: any) => ({
-      field:       r.field,
-      our_value:   r.our_value || refData[r.field] || '',
-      found_value: r.found_value ?? null,
-      match:       !!r.match,
-    }))
+    results = results.map((r: any) => {
+      const isTime = /check.in|check.out/i.test(r.field)
+      let match = !!r.match
+      if (isTime && !match && r.found_value) {
+        match = normalizeTime(r.our_value || refData[r.field] || '') === normalizeTime(r.found_value)
+      }
+      return {
+        field:       r.field,
+        our_value:   r.our_value || refData[r.field] || '',
+        found_value: r.found_value ?? null,
+        match,
+      }
+    })
 
     return new Response(JSON.stringify({ ok: true, results }), {
       headers: { ...cors, 'Content-Type': 'application/json' },
