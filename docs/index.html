@@ -6995,8 +6995,9 @@ ${rows}
         if (!msg) { resultEl.textContent = 'Scrivi un messaggio prima di inviare.'; resultEl.style.color = '#b00020'; resultEl.style.display = 'block'; return; }
         btn.disabled = true; btn.textContent = '...';
         try {
+            const { data: { session: _fbSess } } = await _SB.auth.getSession();
             const res = await fetch('https://yyauvoqjdzrbmebeafit.supabase.co/functions/v1/isi-feedback', {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (_fbSess?.access_token || '') },
                 body: JSON.stringify({ message: msg, reply_to: email || null, site_name: site?.site_name || '' }),
             });
             const d = await res.json();
