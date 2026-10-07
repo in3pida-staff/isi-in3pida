@@ -25,7 +25,9 @@ async function groqModel(model: string, systemPrompt: string, userPrompt: string
   let d = await groqCall(model, systemPrompt, userPrompt, maxTokens, temperature)
   const bad = ['model_not_found', 'model_decommissioned', 'rate_limit_exceeded', 'service_unavailable']
   const hasContent = () => !!d.choices?.[0]?.message?.content?.trim()
-  if (bad.includes(d?.error?.code) || (!hasContent() && d?.error)) {
+  // Fallback anche quando il contenuto è VUOTO (i modelli "reasoning" gpt-oss possono
+  // consumare tutti i token nel ragionamento e restituire content vuoto senza error code).
+  if (bad.includes(d?.error?.code) || !hasContent()) {
     for (const fb of GROQ_FALLBACKS) {
       if (fb === model) continue
       d = await groqCall(fb, systemPrompt, userPrompt, maxTokens, temperature)
@@ -222,7 +224,7 @@ Campi da restituire:
 Formato (JSON puro, nessun testo fuori dal JSON):
 {"tono":"...","persona":"...","personalita":"...","esempio":"..."}`,
         `Testo dal sito:\n${textSource}`,
-        250,
+        700,
         0.3
       )
       const parsed = parseJson(raw)
