@@ -631,6 +631,9 @@
     const _SB  = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     const _SBq = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
 
+    // Rimuove i doppioni da una lista (case-insensitive, trim) preservando l'ordine.
+    const _uniqList = a => { const s=new Set(), o=[]; (Array.isArray(a)?a:[]).forEach(x=>{ const t=String(x==null?'':x).trim(), k=t.toLowerCase(); if(t && !s.has(k)){ s.add(k); o.push(t); } }); return o; };
+
     const ALL_VIEWS = ['panoramica','siti','aggiornamenti','benchmark','utenti','sito-detail'];
     const NAV_TABS  = ['panoramica','aggiornamenti','benchmark','utenti'];
     let currentTab = 'panoramica';
@@ -1762,6 +1765,8 @@
                         const existingSd = site?.schema_data || {};
                         const mergedSd = { ...existingSd };
                         Object.entries(data.schema_data).forEach(([k, v]) => { if (v !== null && v !== undefined && v !== '') mergedSd[k] = v; });
+                        // Anti-duplicazione: le liste (amenities) non devono accumulare doppioni a ogni ciclo
+                        if (Array.isArray(mergedSd.amenities)) mergedSd.amenities = _uniqList(mergedSd.amenities);
                         patch.schema_data = mergedSd;
                     }
                     if (data.pse_signals && Array.isArray(data.pse_signals)) {
@@ -1956,7 +1961,7 @@
         const sec = t =>
             '<div style="font-size:12px;font-weight:700;color:var(--grey);letter-spacing:.06em;margin:20px 0 12px;padding-bottom:6px;border-bottom:2px solid #e8ecf7;text-transform:uppercase">' + t + '</div>';
         const tipi = ['Hotel','LodgingBusiness','BedAndBreakfast','Hostel','Motel','Resort','VacationRental'];
-        const amenitiesVal = Array.isArray(s.amenities) ? s.amenities.join(', ') : (s.amenities||'');
+        const amenitiesVal = Array.isArray(s.amenities) ? _uniqList(s.amenities).join(', ') : (s.amenities||'');
         const html =
             sec('IDENTITÀ') +
             '<div style="display:grid;grid-template-columns:2fr 1fr auto;gap:12px;margin-bottom:12px">' +
@@ -2774,6 +2779,7 @@
         const _sdMap = { name: profile.nome_hotel, type: profile.tipo_struttura, description: profile.descrizione, telephone: profile.telefono, email: profile.email, street: profile.via, city: profile.citta, region: profile.regione, postal_code: profile.cap, country: profile.paese, official_rating: profile.stelle, latitude: profile.latitudine, longitude: profile.longitudine, checkin_time: profile.checkin_dalle, checkout_time: profile.checkout_dalle, url: profile.sito_web };
         const _sdFilled = {}; Object.keys(_sdMap).forEach(k => { const v = _sdMap[k]; if (v !== undefined && v !== null && String(v).trim() !== '') _sdFilled[k] = v; });
         const _newSchema = { ...(freshSite?.schema_data || {}), ..._sdFilled };
+        if (Array.isArray(_newSchema.amenities)) _newSchema.amenities = _uniqList(_newSchema.amenities);
         const { error } = await _SBq.from('isi_sites').update({ hotel_profile: { ...freshHp, ...profile }, schema_data: _newSchema }).eq('site_id', siteId);
         btn.disabled = false; btn.textContent = 'Salva profilo';
         if (error) {
@@ -2860,7 +2866,7 @@
             checkin_time: g('checkin_time'), checkout_time: g('checkout_time'),
             pets_allowed: g('pets_allowed'), languages: g('languages'),
             keywords: g('keywords'), nearby_attractions: g('nearby_attractions'),
-            amenities: amenitiesText ? amenitiesText.split(',').map(s=>s.trim()).filter(Boolean) : [],
+            amenities: amenitiesText ? _uniqList(amenitiesText.split(',')) : [],
         };
         try {
             const ctrl = new AbortController(); setTimeout(() => ctrl.abort(), 15000);
