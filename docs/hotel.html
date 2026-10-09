@@ -7,12 +7,12 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Eletta — Posiziona il tuo sito nelle ricerche AI</title>
-    <script>var _V='v1782993800';if(localStorage.getItem('_hv')!==_V){localStorage.setItem('_hv',_V);location.reload(true);}</script>
+    <script>var _V='v1782993900';if(localStorage.getItem('_hv')!==_V){localStorage.setItem('_hv',_V);location.reload(true);}</script>
     <link rel="icon" type="image/png" href="images/favicon.png?v=2">
     <link rel="stylesheet" href="css/style.css?v=20260805w">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&family=Commissioner:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6','isi_hotel_v7','isi_hotel_v8','isi_hotel_v9','isi_hotel_v10','isi_hotel_v11','isi_hotel_v12','isi_hotel_v13','isi_hotel_v14'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v155')){sessionStorage.setItem('isi_hotel_v155','1');location.reload(true);}</script>
+    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6','isi_hotel_v7','isi_hotel_v8','isi_hotel_v9','isi_hotel_v10','isi_hotel_v11','isi_hotel_v12','isi_hotel_v13','isi_hotel_v14'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v156')){sessionStorage.setItem('isi_hotel_v156','1');location.reload(true);}</script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <style>
         .tip-q{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:#EFF020;color:#0D5F75;font-size:9px;font-weight:800;cursor:default;flex-shrink:0;user-select:none;vertical-align:middle}
@@ -1695,24 +1695,34 @@ function renderContent(site, pseData, now) {
           if(!R) return '';
           const e = s => String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
           const pct = R.visibilita_pct||0;
-          const pctColor = pct>=50 ? '#009bb9' : '#d82d6b';
-          const dom = (R.domande||[]).map(d=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f4f4f8;font-size:13px;font-family:'Source Code Pro',monospace"><span style="color:${d.citato?'#009bb9':'#ead0dc'};font-weight:700;flex-shrink:0">${d.citato?'✓':'✗'}</span><span style="color:#4b4d68">${e(d.q)}</span></div>`).join('');
-          const comp = (R.concorrenti||[]).map(c=>`<span style="display:inline-block;border:1px solid #ead0dc;color:#0D5F75;padding:5px 10px;border-radius:8px;font-size:12px;margin:3px;font-family:'Source Code Pro',monospace">${e(c.hotel)} (${c.volte})</span>`).join('');
-          const gaps = (R.dove_manchi||[]).map(g=>`<span style="display:inline-block;border:1px solid #e4e4ec;color:#0D5F75;padding:5px 10px;border-radius:8px;font-size:12px;margin:3px;font-family:'Source Code Pro',monospace">${e(g)}</span>`).join('');
           const pw = R.presenza_web||{};
           const dataAgg = R.updated_at ? String(R.updated_at).slice(0,10).split('-').reverse().join('/') : '';
+          const box = (label,val,sub) => `<div style="background:white;border:1px solid #e4e4ec;border-radius:16px;padding:16px 18px"><div style="font-size:11px;font-weight:400;letter-spacing:.06em;color:#0D5F75;text-transform:uppercase;margin-bottom:8px;font-family:'Source Code Pro',monospace">${label}</div><div style="font-size:32px;font-weight:500;line-height:1;color:#0D5F75;font-family:Commissioner,sans-serif">${val}</div><div style="font-size:12px;font-weight:400;color:#C1CBE8;margin-top:6px;font-family:'Source Code Pro',monospace">${sub}</div></div>`;
+          const items = [{n:'Hotel Hawaii',v:R.cita_su||0,you:true}].concat((R.concorrenti||[]).map(c=>({n:c.hotel,v:c.volte||0})));
+          const tot = items.reduce((a,x)=>a+x.v,0)||1;
+          const pal = ['#C1CBE8','#9aadd4','#ead0dc','#b0b7c2','#8aa0c0','#d7dcea'];
+          let acc=0; const stops=[];
+          items.forEach((x,i)=>{ const start=acc/tot*100; acc+=x.v; const end=acc/tot*100; x.col = x.you?'#0D5F75':pal[i%pal.length]; stops.push(x.col+' '+start.toFixed(1)+'% '+end.toFixed(1)+'%'); });
+          const donut = `<div style="width:132px;height:132px;border-radius:50%;background:conic-gradient(${stops.join(',')});flex-shrink:0;position:relative"><div style="position:absolute;top:30px;left:30px;right:30px;bottom:30px;background:#fff;border-radius:50%"></div></div>`;
+          const legend = items.map(x=>`<div style="display:flex;align-items:center;gap:8px;font-size:12px;font-family:'Source Code Pro',monospace;color:#4b4d68;padding:3px 0"><span style="width:10px;height:10px;border-radius:2px;background:${x.col};flex-shrink:0;display:inline-block"></span><span style="${x.you?'font-weight:700;color:#0D5F75':''}">${e(x.n)}${x.you?' (tu)':''}</span><span style="margin-left:auto;color:#b0b7c2">${Math.round(x.v/tot*100)}%</span></div>`).join('');
+          const dom = (R.domande||[]).map(d=>`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;font-size:13px;font-family:'Source Code Pro',monospace"><span style="color:${d.citato?'#0D5F75':'#C1CBE8'};font-weight:700;flex-shrink:0">${d.citato?'✓':'✗'}</span><span style="color:#4b4d68">${e(d.q)}</span></div>`).join('');
+          const lbl = s => `<div style="font-size:11px;font-weight:400;color:#0D5F75;letter-spacing:.06em;text-transform:uppercase;margin:20px 0 8px;font-family:'Source Code Pro',monospace">${s}</div>`;
+          const maxM = Math.max(pw.tu_nominato||0, pw.concorrente_nominato||0, 1);
+          const bar = (name,val,you) => `<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:12px;font-family:'Source Code Pro',monospace;color:${you?'#0D5F75':'#4b4d68'};margin-bottom:4px${you?';font-weight:700':''}"><span>${e(name)}${you?' (tu)':''}</span><span>${val} volte</span></div><div style="background:#eef1f8;border-radius:6px;height:12px;overflow:hidden"><div style="width:${Math.round(val/maxM*100)}%;height:12px;background:${you?'#0D5F75':'#C1CBE8'};border-radius:6px"></div></div></div>`;
+          const webBars = bar('Tu', pw.tu_nominato||0, true) + bar(pw.top_concorrente||'Concorrente', pw.concorrente_nominato||0, false);
           return `<div class="h-card" style="margin-bottom:20px">
-            <div class="h-card-hdr" style="justify-content:flex-start;gap:12px"><div style="width:34px;height:34px;border-radius:50%;background:white;border:1.5px solid #d82d6b;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d82d6b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg></div><span class="h-card-hdr-t" style="font-size:18px;font-weight:500">Report Visibilità AI</span>${dataAgg?`<span style="margin-left:auto;font-size:11px;color:#C1CBE8;font-family:'Source Code Pro',monospace">aggiornato ${dataAgg}</span>`:''}</div>
+            <div class="h-card-hdr" style="justify-content:flex-start;gap:12px"><div style="width:34px;height:34px;border-radius:50%;background:white;border:1.5px solid #0D5F75;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg></div><span class="h-card-hdr-t" style="font-size:18px;font-weight:500">Report Visibilità AI</span>${dataAgg?`<span style="margin-left:auto;font-size:11px;color:#C1CBE8;font-family:'Source Code Pro',monospace">aggiornato ${dataAgg}</span>`:''}</div>
             <div class="h-card-body" style="padding:16px 20px">
-              <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:center;margin-bottom:16px">
-                <div style="text-align:center;min-width:160px;background:#fbf4f7;border:1px solid #ead0dc;border-radius:16px;padding:18px 22px"><div style="font-size:48px;font-weight:500;line-height:1;color:${pctColor};font-family:Commissioner,sans-serif">${pct}%</div><div style="font-size:12px;color:#0D5F75;margin-top:6px;font-family:'Source Code Pro',monospace">l'AI ti cita in ${R.cita_su}/${R.totale} domande</div></div>
-                <div style="flex:1;min-width:220px"><div style="font-size:12px;color:#0D5F75;font-family:'Source Code Pro',monospace;margin-bottom:6px">Quanto ti nominano sul web</div><div style="font-size:13px;color:#4b4d68;font-family:'Source Code Pro',monospace">Tu: <b>${pw.tu_nominato||0}</b> volte · ${e(pw.top_concorrente||'')}: <b>${pw.concorrente_nominato||0}</b> volte</div></div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                ${box('Visibilità AI', pct+'%', "l'AI ti cita in "+(R.cita_su||0)+"/"+(R.totale||0)+" domande")}
+                ${box('Presenza sul web', (pw.tu_nominato||0), 'volte nominato')}
               </div>
-              <div style="font-size:12px;font-weight:700;color:#0D5F75;letter-spacing:.06em;text-transform:uppercase;margin:10px 0 6px;font-family:'Source Code Pro',monospace">Domande (dalle tue FAQ)</div>
-              ${dom}
-              <div style="font-size:12px;font-weight:700;color:#0D5F75;letter-spacing:.06em;text-transform:uppercase;margin:16px 0 6px;font-family:'Source Code Pro',monospace">Chi viene citato al posto tuo</div>
-              <div>${comp}</div>
-              ${gaps?`<div style="font-size:12px;font-weight:700;color:#0D5F75;letter-spacing:.06em;text-transform:uppercase;margin:16px 0 6px;font-family:'Source Code Pro',monospace">Dove i concorrenti ci sono e tu no</div><div>${gaps}</div>`:''}
+              ${lbl('Analisi competitor')}
+              <div style="display:flex;gap:28px;align-items:center;flex-wrap:wrap">${donut}<div style="flex:1;min-width:220px">${legend}</div></div>
+              ${lbl('Quanto ti nominano sul web')}
+              <div>${webBars}</div>
+              ${lbl('Domande (dalle tue FAQ)')}
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 28px">${dom}</div>
             </div>
           </div>`;
         })()}
