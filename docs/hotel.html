@@ -7,12 +7,12 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Eletta — Posiziona il tuo sito nelle ricerche AI</title>
-    <script>var _V='v1782994100';if(localStorage.getItem('_hv')!==_V){localStorage.setItem('_hv',_V);location.reload(true);}</script>
+    <script>var _V='v1782994200';if(localStorage.getItem('_hv')!==_V){localStorage.setItem('_hv',_V);location.reload(true);}</script>
     <link rel="icon" type="image/png" href="images/favicon.png?v=2">
     <link rel="stylesheet" href="css/style.css?v=20260805w">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&family=Commissioner:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6','isi_hotel_v7','isi_hotel_v8','isi_hotel_v9','isi_hotel_v10','isi_hotel_v11','isi_hotel_v12','isi_hotel_v13','isi_hotel_v14'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v158')){sessionStorage.setItem('isi_hotel_v158','1');location.reload(true);}</script>
+    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6','isi_hotel_v7','isi_hotel_v8','isi_hotel_v9','isi_hotel_v10','isi_hotel_v11','isi_hotel_v12','isi_hotel_v13','isi_hotel_v14'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v159')){sessionStorage.setItem('isi_hotel_v159','1');location.reload(true);}</script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <style>
         .tip-q{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:#EFF020;color:#0D5F75;font-size:9px;font-weight:800;cursor:default;flex-shrink:0;user-select:none;vertical-align:middle}
@@ -1714,18 +1714,25 @@ function renderContent(site, pseData, now) {
           const webBars = bar('Hotel Hawaii', pw.tu_nominato||0);
           const aiBd = R.ai_breakdown || {};
           const aiRows = Object.keys(aiBd).map(k=>`<span style="display:inline-block;border:1px solid #C1CBE8;color:#0D5F75;padding:6px 12px;border-radius:8px;font-size:12px;margin:3px 6px 3px 0;font-family:'Source Code Pro',monospace">${e(k)}: <b>${aiBd[k]}</b>/${R.totale}</span>`).join('');
+          const bots = (site && site.ai_bots) || {};
+          const _bk = Object.keys(bots).sort();
+          const botM = (bots[(R.updated_at?String(R.updated_at).slice(0,7):'')]) || (_bk.length?bots[_bk[_bk.length-1]]:{}) || {};
+          const botTot = (botM && botM._total) ? botM._total : 0;
+          const botChips = Object.keys(botM).filter(k=>k!=='_total').sort((a,b)=>botM[b]-botM[a]).map(k=>`<span style="display:inline-block;border:1px solid #C1CBE8;color:#0D5F75;padding:6px 12px;border-radius:8px;font-size:12px;margin:3px 6px 3px 0;font-family:'Source Code Pro',monospace">${e(k)}: <b>${botM[k]}</b></span>`).join('');
           return `<div class="h-card" style="margin-bottom:20px">
             <div class="h-card-hdr" style="justify-content:flex-start;gap:12px"><div style="width:34px;height:34px;border-radius:50%;background:white;border:1.5px solid #0D5F75;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D5F75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg></div><span class="h-card-hdr-t" style="font-size:18px;font-weight:500">Report mensile Eletta</span>${dataAgg?`<span style="margin-left:auto;font-size:11px;color:#C1CBE8;font-family:'Source Code Pro',monospace">aggiornato ${dataAgg}</span>`:''}</div>
             <div class="h-card-body" style="padding:16px 20px">
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">
                 ${box('Visibilità AI', pct+'%', "le AI ti citano in "+(R.cita_su||0)+"/"+(R.totale||0)+" domande")}
                 ${box('Presenza sul web', (pw.tu_nominato||0), 'volte nominato')}
+                ${box('Le AI leggono il sito', botTot, botTot>0?'volte (questo mese)':'in attesa dei primi passaggi')}
               </div>
               ${aiRows?lbl('AI interrogate')+'<div>'+aiRows+'</div>':''}
               ${lbl('Analisi competitor')}
               <div style="display:flex;gap:28px;align-items:center;flex-wrap:wrap">${pie}<div style="flex:1;min-width:220px">${legend}</div></div>
               ${lbl('Quanto ti nominano sul web')}
               <div>${webBars}</div>
+              ${botChips?lbl('Quali AI hanno letto il tuo sito')+'<div>'+botChips+'</div>':''}
               ${lbl('Domande (dalle tue FAQ)')}
               <div style="font-size:11px;color:#b0b7c2;font-family:'Source Code Pro',monospace;margin:-2px 0 8px"><span style="color:#0D5F75;font-weight:700">✓</span> l'AI ti nomina &nbsp;·&nbsp; <span style="color:#C1CBE8;font-weight:700">✗</span> l'AI risponde ma non ti nomina</div>
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 28px">${dom}</div>
