@@ -7,12 +7,12 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Eletta — Posiziona il tuo sito nelle ricerche AI</title>
-    <script>var _V='v1782994300';if(localStorage.getItem('_hv')!==_V){localStorage.setItem('_hv',_V);location.reload(true);}</script>
+    <script>var _V='v1782994400';if(localStorage.getItem('_hv')!==_V){localStorage.setItem('_hv',_V);location.reload(true);}</script>
     <link rel="icon" type="image/png" href="images/favicon.png?v=2">
     <link rel="stylesheet" href="css/style.css?v=20260805w">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&family=Commissioner:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6','isi_hotel_v7','isi_hotel_v8','isi_hotel_v9','isi_hotel_v10','isi_hotel_v11','isi_hotel_v12','isi_hotel_v13','isi_hotel_v14'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v160')){sessionStorage.setItem('isi_hotel_v160','1');location.reload(true);}</script>
+    <script>['isi_hotel_v1','isi_hotel_v2','isi_hotel_v3','isi_hotel_v4','isi_hotel_v5','isi_hotel_v6','isi_hotel_v7','isi_hotel_v8','isi_hotel_v9','isi_hotel_v10','isi_hotel_v11','isi_hotel_v12','isi_hotel_v13','isi_hotel_v14'].forEach(k=>sessionStorage.removeItem(k));if(!sessionStorage.getItem('isi_hotel_v161')){sessionStorage.setItem('isi_hotel_v161','1');location.reload(true);}</script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <style>
         .tip-q{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:#EFF020;color:#0D5F75;font-size:9px;font-weight:800;cursor:default;flex-shrink:0;user-select:none;vertical-align:middle}
@@ -1696,9 +1696,10 @@ function renderContent(site, pseData, now) {
           const e = s => String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
           const pct = R.visibilita_pct||0;
           const pw = R.presenza_web||{};
+          const myName = R.nome || (site && site.site_name) || 'Il tuo hotel';
           const dataAgg = R.updated_at ? String(R.updated_at).slice(0,10).split('-').reverse().join('/') : '';
           const box = (label,val,sub) => `<div style="background:white;border:1px solid #e4e4ec;border-radius:16px;padding:16px 18px"><div style="font-size:11px;font-weight:400;letter-spacing:.06em;color:#0D5F75;text-transform:uppercase;margin-bottom:8px;font-family:'Source Code Pro',monospace">${label}</div><div style="font-size:32px;font-weight:500;line-height:1;color:#0D5F75;font-family:Commissioner,sans-serif">${val}</div><div style="font-size:12px;font-weight:400;color:#C1CBE8;margin-top:6px;font-family:'Source Code Pro',monospace">${sub}</div></div>`;
-          const items = [{n:'Hotel Hawaii',v:R.cita_su||0}].concat((R.concorrenti||[]).map(c=>({n:c.hotel,v:c.volte||0})));
+          const items = [{n:myName,v:R.cita_su||0}].concat((R.concorrenti||[]).map(c=>({n:c.hotel,v:c.volte||0})));
           const tot = items.reduce((a,x)=>a+x.v,0)||1;
           const tealPal = ['#0D5F75','#2E7C8F','#4E98A8','#6FB4C1','#90CFD9','#B3E0E8','#CFE8ED'];
           const cx=100,cy=100,rr=96; let ang=-Math.PI/2; const paths=[],plabels=[];
@@ -1711,7 +1712,7 @@ function renderContent(site, pseData, now) {
           const dom = (R.domande||[]).map(d=>`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;font-size:13px;font-family:'Source Code Pro',monospace"><span style="color:${d.citato?'#0D5F75':'#C1CBE8'};font-weight:700;flex-shrink:0">${d.citato?'✓':'✗'}</span><span style="color:#4b4d68">${e(d.q)}</span></div>`).join('');
           const lbl = s => `<div style="font-size:11px;font-weight:400;color:#0D5F75;letter-spacing:.06em;text-transform:uppercase;margin:20px 0 8px;font-family:'Source Code Pro',monospace">${s}</div>`;
           const bar = (name,val) => `<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:12px;font-family:'Source Code Pro',monospace;color:#0D5F75;margin-bottom:4px;font-weight:700"><span>${e(name)}</span><span>${val} volte</span></div><div style="background:#eef1f8;border-radius:6px;height:12px;overflow:hidden"><div style="width:100%;height:12px;background:#0D5F75;border-radius:6px"></div></div></div>`;
-          const webBars = bar('Hotel Hawaii', pw.tu_nominato||0);
+          const webBars = bar(myName, pw.tu_nominato||0);
           const aiBd = R.ai_breakdown || {};
           const aiRows = Object.keys(aiBd).map(k=>`<span style="display:inline-block;border:1px solid #C1CBE8;color:#0D5F75;padding:6px 12px;border-radius:8px;font-size:12px;margin:3px 6px 3px 0;font-family:'Source Code Pro',monospace">${e(k)}: <b>${aiBd[k]}</b>/${R.totale}</span>`).join('');
           const bots = (site && site.ai_bots) || {};
