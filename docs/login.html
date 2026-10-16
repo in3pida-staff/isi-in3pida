@@ -395,6 +395,7 @@
     // Messaggi da URL params
     const params = new URLSearchParams(window.location.search);
     if (params.get('error') === 'unauthorized') showMsg('error', 'Il tuo account non ha accesso a questa area. Contatta Mario.');
+    if (params.get('reset') === 'ok') showMsg('success', 'Password aggiornata. Accedi con la nuova password.');
 
     // Mostra/nascondi password
     document.getElementById('btn-eye').addEventListener('click', () => {
@@ -442,7 +443,7 @@
         btn.disabled = true;
         clearMsg();
         const { error } = await _SB.auth.resetPasswordForEmail(email, {
-            redirectTo: 'https://app.eletta-ai.it/index.html',
+            redirectTo: 'https://app.eletta-ai.it/reset.html',
         });
         btn.disabled = false;
         if (error) {
