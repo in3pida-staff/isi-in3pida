@@ -165,9 +165,9 @@
 
     const hp = site.hotel_profile || {};
     const settings = hp.faq_settings || {};
-    const colorPrimary = settings.color_primary || '#d82d6b';
-    const colorText = settings.color_text || '#171b33';
-    const colorBg = settings.color_bg || '#ffffff';
+    const colorPrimary = safeColor(settings.color_primary, '#d82d6b');
+    const colorText = safeColor(settings.color_text, '#171b33');
+    const colorBg = safeColor(settings.color_bg, '#ffffff');
     const title = settings.page_title || 'Domande frequenti';
     const openFirst = settings.open_first !== false;
 
@@ -233,6 +233,16 @@
 
   function esc(str) {
     return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  // Accetta SOLO valori colore validi (hex, rgb/rgba, hsl/hsla, nome colore).
+  // Qualsiasi altra cosa viene scartata e si usa il default → nessuna evasione dall'attributo style.
+  function safeColor(val, fallback) {
+    var v = String(val == null ? '' : val).trim();
+    if (/^#[0-9a-fA-F]{3,8}$/.test(v)) return v;
+    if (/^(?:rgb|rgba|hsl|hsla)\([0-9.,%\s\/]+\)$/i.test(v)) return v;
+    if (/^[a-zA-Z]{1,20}$/.test(v)) return v;
+    return fallback;
   }
 
   async function init() {
