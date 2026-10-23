@@ -282,6 +282,14 @@
                         <div id="perm-site-app-grid" style="display:flex;flex-direction:column;gap:8px"></div>
                     </div>
                 </div>
+                <div id="perm-site-schema-box" style="margin-top:18px;padding-top:16px;border-top:1px solid #e8ecf7;display:none">
+                    <div style="font-size:12px;font-weight:700;color:var(--grey);letter-spacing:.06em;margin-bottom:10px;text-transform:uppercase">Schema.org — carta d'identità per Google e AI</div>
+                    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+                        <span id="perm-site-schema-state" style="font-size:13px;color:#35364f"></span>
+                        <button class="btn-update" id="btn-attiva-schema" style="margin-left:0;padding:7px 16px;font-size:13px">Attiva schema</button>
+                    </div>
+                    <div id="perm-site-schema-msg" style="font-size:12px;margin-top:8px;display:none"></div>
+                </div>
                 <div id="perm-site-msg" style="font-size:13px;margin-top:14px;display:none"></div>
                 <div class="profile-actions">
                     <button class="btn-save-profile" id="btn-save-site-perms">Salva permessi</button>
@@ -6383,8 +6391,53 @@ ${rows}
         pluginCol.style.display = isJs ? 'none' : '';
         document.getElementById('perm-site-overlay').querySelector('[style*="grid-template-columns"]').style.gridTemplateColumns = isJs ? '1fr' : '1fr 1fr';
         document.getElementById('perm-site-msg').style.display = 'none';
+        document.getElementById('perm-site-schema-msg').style.display = 'none';
+        renderSchemaState(site, isJs);
         document.getElementById('perm-site-overlay').style.display = 'flex';
     };
+
+    function renderSchemaState(site, isJs) {
+        const box = document.getElementById('perm-site-schema-box');
+        // Lo schema da pannello riguarda i siti col plugin (i siti script lo gestiscono via eletta.js, senza doppioni)
+        box.style.display = isJs ? 'none' : 'block';
+        if (isJs) return;
+        const on = !!(site.hotel_profile && site.hotel_profile.schema_enabled);
+        document.getElementById('perm-site-schema-state').textContent = on ? 'Stato: attivo sul sito' : 'Stato: non attivo';
+        const btn = document.getElementById('btn-attiva-schema');
+        btn.disabled = false;
+        btn.textContent = on ? 'Disattiva schema' : 'Attiva schema';
+        btn.dataset.enable = on ? '0' : '1';
+        btn.className = on ? 'btn-ping' : 'btn-update';
+        btn.style.cssText = 'margin-left:0;padding:7px 16px;font-size:13px';
+    }
+
+    document.getElementById('btn-attiva-schema').addEventListener('click', async () => {
+        const siteId = document.getElementById('perm-site-id').value;
+        const site = (allSiti || []).find(s => s.site_id === siteId) || {};
+        const enable = document.getElementById('btn-attiva-schema').dataset.enable === '1';
+        const msg = document.getElementById('perm-site-schema-msg');
+        const btn = document.getElementById('btn-attiva-schema');
+        btn.disabled = true; const old = btn.textContent; btn.textContent = '…';
+        try {
+            // 1) stato persistente nel profilo (merge sicuro lato server, solo admin)
+            const { error } = await _SBq.rpc('eletta_set_schema_enabled', { p_site_id: siteId, p_enable: enable });
+            if (error) throw new Error(error.message);
+            // 2) spinge SUBITO l'impostazione sul sito (effetto immediato)
+            const base = (site.site_url || '').replace(/\/$/, '');
+            if (base) {
+                fetch(base + '/wp-json/in3pida/v1/schema', { method:'POST', headers:{'Content-Type':'application/json'},
+                    body: JSON.stringify({ secret: siteId, schema: { enabled: enable ? 1 : 0, output_scope: 'all' } }) }).catch(()=>{});
+                fetch(base + '/wp-json/in3pida/v1/force-heartbeat', { method:'POST', headers:{'Content-Type':'application/json'} }).catch(()=>{});
+            }
+            if (site.hotel_profile) site.hotel_profile.schema_enabled = enable;
+            msg.textContent = enable ? '✓ Schema attivato sul sito.' : 'Schema disattivato.';
+            msg.style.color = '#0D5F75'; msg.style.display = 'block';
+            renderSchemaState(site, false);
+        } catch(e) {
+            btn.disabled = false; btn.textContent = old;
+            msg.textContent = 'Errore: ' + e.message; msg.style.color = '#b00020'; msg.style.display = 'block';
+        }
+    });
 
     document.getElementById('btn-save-site-perms').addEventListener('click', async () => {
         const siteId = document.getElementById('perm-site-id').value;
