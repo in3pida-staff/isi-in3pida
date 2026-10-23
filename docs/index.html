@@ -6671,11 +6671,7 @@ ${rows}
         const base = (site.site_url || '').replace(/\/$/, '');
         let updateOk = false, updateSkipped = false, updateMsg = '', resolvedVer = ver.version, siteOffline = false;
         try {
-            let secret = site.site_id;
-            try {
-                const idRes = await fetch(base + '/wp-json/in3pida/v1/site-id', { signal: AbortSignal.timeout(8000) });
-                if (idRes.ok) { const d = await idRes.json().catch(() => ({})); if (d.site_id) secret = d.site_id; }
-            } catch(_) {}
+            const secret = (await pluginAuth(site.site_id)) || site.site_id; // segreto vero (non più il site_id)
 
             const res = await fetch(base + '/wp-json/in3pida/v1/update', {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -6820,12 +6816,7 @@ ${rows}
         btn.disabled = true;
         btn.textContent = '...';
         try {
-            // Scopri site_id WordPress reale
-            let secret = siteId;
-            try {
-                const r = await fetch(base + '/wp-json/in3pida/v1/site-id', { signal: AbortSignal.timeout(8000) });
-                if (r.ok) { const d = await r.json().catch(()=>({})); if (d.site_id) secret = d.site_id; }
-            } catch(_) {}
+            const secret = (await pluginAuth(siteId)) || siteId; // segreto vero (non più il site_id)
 
             // Leggi stato attuale
             const stRes = await fetch(base + '/wp-json/in3pida/v1/status', { signal: AbortSignal.timeout(8000) });
