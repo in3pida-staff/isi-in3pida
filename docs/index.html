@@ -1746,7 +1746,7 @@
                     setTimeout(() => loadSiteDetail(siteId), 1500);
                     return;
                 }
-                const r = await fetch(base + '/wp-json/in3pida/v1/force-heartbeat', { method:'POST', headers:{'Content-Type':'application/json'}, signal:AbortSignal.timeout(20000) });
+                const r = await fetch(base + '/wp-json/in3pida/v1/force-heartbeat?auth=' + encodeURIComponent((await pluginAuth(siteId)) || siteId), { method:'POST', headers:{'Content-Type':'application/json'}, signal:AbortSignal.timeout(20000) });
                 if (r.ok) {
                     const data = await r.json().catch(() => ({}));
                     // Plugin can't write to Supabase (RLS blocks anon key) — dashboard saves via auth session
@@ -2820,7 +2820,7 @@
                         sameas: (profile.social_custom||[]).map(s=>s.url).filter(Boolean),
                     } })
                 }).catch(()=>{});
-                fetch(_pbase + '/wp-json/in3pida/v1/force-heartbeat', { method:'POST', headers:{'Content-Type':'application/json'} }).catch(()=>{});
+                fetch(_pbase + '/wp-json/in3pida/v1/force-heartbeat?auth=' + encodeURIComponent((await pluginAuth(siteId)) || siteId), { method:'POST', headers:{'Content-Type':'application/json'} }).catch(()=>{});
             }
             msg.style.display = 'block'; msg.style.color = '#0D5F75';
             msg.textContent = '✓ Profilo salvato.';
@@ -2889,7 +2889,7 @@
                 msg.style.display = 'block'; msg.style.color = '#0D5F75';
                 msg.textContent = '✓ Salvato sul plugin. Sync Supabase in corso...';
                 renderSchemaView(schema);
-                fetch(pluginBase + '/wp-json/in3pida/v1/force-heartbeat', { method:'POST', headers:{'Content-Type':'application/json'} }).catch(()=>{});
+                fetch(pluginBase + '/wp-json/in3pida/v1/force-heartbeat?auth=' + encodeURIComponent(pluginSecret), { method:'POST', headers:{'Content-Type':'application/json'} }).catch(()=>{});
                 setTimeout(() => { toggleHotelProfileEdit(false); msg.style.display = 'none'; }, 2000);
             } else { throw new Error(d.message || 'Risposta ' + r.status); }
         } catch(e) {
@@ -5714,7 +5714,7 @@ ${rows}
             const _pb = (site?.site_url || '').replace(/\/$/, '');
             if (_pb) {
                 fetch(_pb + '/wp-json/in3pida/v1/schema', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ secret: (await pluginAuth(site.site_id)) || site.site_id, schema: { enabled: newCfg.schema_enabled ? 1 : 0 } }) }).catch(()=>{});
-                fetch(_pb + '/wp-json/in3pida/v1/force-heartbeat', { method:'POST', headers:{'Content-Type':'application/json'} }).catch(()=>{});
+                fetch(_pb + '/wp-json/in3pida/v1/force-heartbeat?auth=' + encodeURIComponent((await pluginAuth(site.site_id)) || site.site_id), { method:'POST', headers:{'Content-Type':'application/json'} }).catch(()=>{});
             }
             const tmsg = document.getElementById('cfg-toggle-msg');
             if (btn) { btn.textContent = error ? '✗ Errore' : '✓ Salvato'; setTimeout(() => { btn.textContent = 'Salva abilitazioni'; if (tmsg) tmsg.textContent = ''; }, 3000); }
@@ -6436,7 +6436,7 @@ ${rows}
             if (base) {
                 fetch(base + '/wp-json/in3pida/v1/schema', { method:'POST', headers:{'Content-Type':'application/json'},
                     body: JSON.stringify({ secret: (await pluginAuth(siteId)) || siteId, schema: { enabled: enable ? 1 : 0, output_scope: 'all' } }) }).catch(()=>{});
-                fetch(base + '/wp-json/in3pida/v1/force-heartbeat', { method:'POST', headers:{'Content-Type':'application/json'} }).catch(()=>{});
+                fetch(base + '/wp-json/in3pida/v1/force-heartbeat?auth=' + encodeURIComponent((await pluginAuth(siteId)) || siteId), { method:'POST', headers:{'Content-Type':'application/json'} }).catch(()=>{});
             }
             if (site.hotel_profile) site.hotel_profile.schema_enabled = enable;
             msg.textContent = enable ? '✓ Schema attivato sul sito.' : 'Schema disattivato.';
@@ -6598,7 +6598,7 @@ ${rows}
             if (!r.ok) throw new Error(d.error || `Errore ${r.status}`);
 
             // 3. Trigger heartbeat per aggiornare Supabase con versione/stato
-            fetch(base + '/wp-json/in3pida/v1/force-heartbeat', {
+            fetch(base + '/wp-json/in3pida/v1/force-heartbeat?auth=' + encodeURIComponent((await pluginAuth(site.site_id)) || site.site_id), {
                 method: 'POST', headers: { 'Content-Type': 'application/json' }
             }).catch(() => {});
 
@@ -6695,7 +6695,7 @@ ${rows}
         // Heartbeat sempre (anche dopo update fallito) — sincronizza la versione reale su Supabase
         if (!siteOffline) {
             try {
-                await fetch(base + '/wp-json/in3pida/v1/force-heartbeat', {
+                await fetch(base + '/wp-json/in3pida/v1/force-heartbeat?auth=' + encodeURIComponent(secret), {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
                     signal: AbortSignal.timeout(15000),
                 });

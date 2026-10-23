@@ -2069,7 +2069,7 @@ function renderContent(site, pseData, now) {
         const headerBtn = document.getElementById('btn-sync-header');
         if (headerBtn) { headerBtn.textContent = 'Sincronizzazione...'; headerBtn.disabled = true; }
         try {
-            const r = await fetch(_pluginBase + '/wp-json/in3pida/v1/force-heartbeat', { method:'POST', headers:{'Content-Type':'application/json'}, signal:AbortSignal.timeout(20000) });
+            const r = await fetch(_pluginBase + '/wp-json/in3pida/v1/force-heartbeat?auth=' + encodeURIComponent(_pluginSecret), { method:'POST', headers:{'Content-Type':'application/json'}, signal:AbortSignal.timeout(20000) });
             if (r.ok) {
                 if(headerBtn) headerBtn.textContent='✓ Sincronizzato';
                 // Il plugin 2.5.6+ salva score_history autonomamente — nessun re-save necessario
@@ -3118,7 +3118,7 @@ async function saveHotelProfile(siteId) {
             const schema = {name:profile.nome_hotel,type:profile.tipo_struttura,official_rating:profile.stelle,description:profile.descrizione,price_range:profile.prezzo_medio,street:profile.via,postal_code:profile.cap,city:profile.citta,region:profile.regione,country:profile.paese,latitude:profile.latitudine,longitude:profile.longitudine,telephone:profile.telefono,email:profile.email,url:profile.sito_web,checkin_time:profile.checkin_dalle,checkout_time:profile.checkout_dalle,pets_allowed:g('pets_allowed')||''};
             renderHotelSchemaView(schema);
             // Push al plugin
-            fetch(_pluginBase+'/wp-json/in3pida/v1/force-heartbeat',{method:'POST',headers:{'Content-Type':'application/json'}}).catch(()=>{});
+            fetch(_pluginBase+'/wp-json/in3pida/v1/force-heartbeat?auth=' + encodeURIComponent(_pluginSecret),{method:'POST',headers:{'Content-Type':'application/json'}}).catch(()=>{});
             setTimeout(()=>{toggleHotelSchemaEdit(false);if(msg)msg.style.display='none';},2000);
         }
     } catch(e) {
@@ -3269,7 +3269,7 @@ async function forceSync(siteId, siteUrl, btn) {
         });
         const d = await r.json().catch(() => ({}));
         if (!r.ok) throw new Error(d.error || 'Errore '+r.status);
-        fetch(base + '/wp-json/in3pida/v1/force-heartbeat', { method:'POST', headers:{'Content-Type':'application/json'} }).catch(()=>{});
+        fetch(base + '/wp-json/in3pida/v1/force-heartbeat?auth=' + encodeURIComponent(_pluginSecret), { method:'POST', headers:{'Content-Type':'application/json'} }).catch(()=>{});
         btn.textContent = '✓ Sync OK';
         setTimeout(() => { btn.disabled = false; btn.textContent = orig; }, 2000);
     } catch(e) {
@@ -3300,7 +3300,7 @@ async function saveHotelSchema() {
             const ctrl=new AbortController(); setTimeout(()=>ctrl.abort(),15000);
             const r=await fetch(_pluginBase+'/wp-json/in3pida/v1/schema',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({secret:_pluginSecret,schema}),signal:ctrl.signal});
             const d=await r.json().catch(()=>({}));
-            if(r.ok&&d.ok){ msg.style.display='block'; msg.style.color='#0D5F75'; msg.textContent='✓ Salvato sul plugin. Sync in corso...'; renderHotelSchemaView(schema); fetch(_pluginBase+'/wp-json/in3pida/v1/force-heartbeat',{method:'POST',headers:{'Content-Type':'application/json'}}).catch(()=>{}); setTimeout(()=>{toggleHotelSchemaEdit(false);msg.style.display='none';},2000); }
+            if(r.ok&&d.ok){ msg.style.display='block'; msg.style.color='#0D5F75'; msg.textContent='✓ Salvato sul plugin. Sync in corso...'; renderHotelSchemaView(schema); fetch(_pluginBase+'/wp-json/in3pida/v1/force-heartbeat?auth=' + encodeURIComponent(_pluginSecret),{method:'POST',headers:{'Content-Type':'application/json'}}).catch(()=>{}); setTimeout(()=>{toggleHotelSchemaEdit(false);msg.style.display='none';},2000); }
             else throw new Error(d.message||'Risposta '+r.status);
         } catch(e){ msg.style.display='block'; msg.style.color='#FF8500'; msg.textContent='Errore: '+e.message; }
         finally { btn.disabled=false; btn.textContent='Salva e invia al plugin'; }
@@ -4330,7 +4330,7 @@ async function initHotelConfig(site) {
         const _pb = (site?.site_url || '').replace(/\/$/, '');
         if (_pb) {
             fetch(_pb + '/wp-json/in3pida/v1/schema', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ secret: (await pluginAuth(site.site_id)) || site.site_id, schema: { enabled: newCfg.schema_enabled ? 1 : 0 } }) }).catch(()=>{});
-            fetch(_pb + '/wp-json/in3pida/v1/force-heartbeat', { method:'POST', headers:{'Content-Type':'application/json'} }).catch(()=>{});
+            fetch(_pb + '/wp-json/in3pida/v1/force-heartbeat?auth=' + encodeURIComponent(_pluginSecret), { method:'POST', headers:{'Content-Type':'application/json'} }).catch(()=>{});
         }
         if (btn) { btn.textContent = error ? '✗ Errore' : '✓ Salvato'; setTimeout(() => { btn.textContent = 'Salva abilitazioni'; }, 3000); }
     });
