@@ -2807,7 +2807,7 @@
                 if (profile.tripadvisor_url)     _guided.tripadvisor     = profile.tripadvisor_url;
                 fetch(_pbase + '/wp-json/in3pida/v1/schema', {
                     method:'POST', headers:{'Content-Type':'application/json'},
-                    body: JSON.stringify({ secret: siteId, schema: {
+                    body: JSON.stringify({ secret: (await pluginAuth(siteId)) || siteId, schema: {
                         enabled: profile.schema_enabled ? 1 : 0,
                         output_scope: _scopeMap[profile.dove_mostrarlo] || 'home',
                         only_if_required: profile.show_only_if_complete ? 1 : 0,
@@ -2960,16 +2960,25 @@
     }
 
     // ─── FAQ ADMIN (site detail) ──────────────────────────────────────────────────
+    // Segreto VERO del sito (plugin_secret) via RPC admin-only: autentica le chiamate al plugin
+    // senza usare il site_id pubblico. Fallback al site_id solo se la RPC non risponde (plugin vecchi).
+    const _pluginAuthCache = {};
+    async function pluginAuth(siteId) {
+        if (!siteId) return '';
+        if (_pluginAuthCache[siteId] !== undefined) return _pluginAuthCache[siteId];
+        try {
+            const { data, error } = await _SBq.rpc('eletta_get_plugin_secret', { p_site_id: siteId });
+            _pluginAuthCache[siteId] = (error || !data) ? '' : String(data);
+        } catch (e) { _pluginAuthCache[siteId] = ''; }
+        return _pluginAuthCache[siteId];
+    }
+    window.pluginAuth = pluginAuth;
+
     let _aFaqItems = [], _aFaqBase = '', _aFaqSecret = '', _aFaqFilter = 'all', _aFaqSearch = '';
 
     async function initSiteFaq(site) {
         _aFaqBase   = (site.site_url || '').replace(/\/$/, '');
-        _aFaqSecret = site.site_id;
-        try {
-            const ctrl = new AbortController(); setTimeout(() => ctrl.abort(), 6000);
-            const r = await fetch(_aFaqBase + '/wp-json/in3pida/v1/site-id', { signal: ctrl.signal });
-            if (r.ok) { const d = await r.json().catch(() => ({})); if (d.site_id) _aFaqSecret = d.site_id; }
-        } catch (_) {}
+        _aFaqSecret = (await pluginAuth(site.site_id)) || site.site_id; // segreto vero, fallback site_id
         const addBtn = document.getElementById('btn-add-faq-admin');
         if (addBtn) addBtn.addEventListener('click', () => openAdminFaqModal(null));
         const toggleBtn = document.getElementById('btn-faq-settings-toggle');
@@ -5704,7 +5713,7 @@ ${rows}
             // Schema.org: accende/spegne subito sul plugin (non bloccante)
             const _pb = (site?.site_url || '').replace(/\/$/, '');
             if (_pb) {
-                fetch(_pb + '/wp-json/in3pida/v1/schema', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ secret: site.site_id, schema: { enabled: newCfg.schema_enabled ? 1 : 0 } }) }).catch(()=>{});
+                fetch(_pb + '/wp-json/in3pida/v1/schema', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ secret: (await pluginAuth(site.site_id)) || site.site_id, schema: { enabled: newCfg.schema_enabled ? 1 : 0 } }) }).catch(()=>{});
                 fetch(_pb + '/wp-json/in3pida/v1/force-heartbeat', { method:'POST', headers:{'Content-Type':'application/json'} }).catch(()=>{});
             }
             const tmsg = document.getElementById('cfg-toggle-msg');
@@ -6426,7 +6435,7 @@ ${rows}
             const base = (site.site_url || '').replace(/\/$/, '');
             if (base) {
                 fetch(base + '/wp-json/in3pida/v1/schema', { method:'POST', headers:{'Content-Type':'application/json'},
-                    body: JSON.stringify({ secret: siteId, schema: { enabled: enable ? 1 : 0, output_scope: 'all' } }) }).catch(()=>{});
+                    body: JSON.stringify({ secret: (await pluginAuth(siteId)) || siteId, schema: { enabled: enable ? 1 : 0, output_scope: 'all' } }) }).catch(()=>{});
                 fetch(base + '/wp-json/in3pida/v1/force-heartbeat', { method:'POST', headers:{'Content-Type':'application/json'} }).catch(()=>{});
             }
             if (site.hotel_profile) site.hotel_profile.schema_enabled = enable;

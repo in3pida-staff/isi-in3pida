@@ -342,6 +342,16 @@ const _SB  = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const _SBq = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth:{ persistSession:false, autoRefreshToken:false } });
 
 let _site = null, _pluginBase = '', _pluginSecret = '', _appFeatures = {}, _siteAppPerms = {};
+// Segreto VERO del sito (plugin_secret) via RPC admin-only: autentica le chiamate al plugin
+// senza usare il site_id pubblico. Fallback al site_id solo se la RPC non risponde.
+const _pluginAuthCache = {};
+async function pluginAuth(siteId) {
+    if (!siteId) return '';
+    if (_pluginAuthCache[siteId] !== undefined) return _pluginAuthCache[siteId];
+    try { const { data, error } = await _SBq.rpc('eletta_get_plugin_secret', { p_site_id: siteId }); _pluginAuthCache[siteId] = (error || !data) ? '' : String(data); }
+    catch (e) { _pluginAuthCache[siteId] = ''; }
+    return _pluginAuthCache[siteId];
+}
 let _faqItems = [], _faqFilter = 'all', _faqSearch = '';
 let _pseChartsInited = false, _mappaInited = false, _coerenzaInited = false, _configInited = false;
 let _aiLayerInited = false;
@@ -613,12 +623,7 @@ async function init() {
     _appFeatures = user.user_metadata?.app_features || {};
     _siteAppPerms = site.features_override?.app || {};
     _pluginBase   = (site.site_url || '').replace(/\/$/, '');
-    _pluginSecret = site.site_id;
-    try {
-        const ctrl = new AbortController(); setTimeout(() => ctrl.abort(), 6000);
-        const r = await fetch(_pluginBase + '/wp-json/in3pida/v1/site-id', { signal:ctrl.signal });
-        if (r.ok) { const d = await r.json().catch(()=>({})); if (d.site_id) _pluginSecret = d.site_id; }
-    } catch(_) {}
+    _pluginSecret = (await pluginAuth(site.site_id)) || site.site_id; // segreto vero (non più il site_id pubblico)
 
     const siteName = site.site_name || site.site_url || '—';
     document.getElementById('hero-hotel-name').textContent = siteName;
@@ -4324,7 +4329,7 @@ async function initHotelConfig(site) {
         // Schema.org: accende/spegne subito sul plugin (non bloccante)
         const _pb = (site?.site_url || '').replace(/\/$/, '');
         if (_pb) {
-            fetch(_pb + '/wp-json/in3pida/v1/schema', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ secret: site.site_id, schema: { enabled: newCfg.schema_enabled ? 1 : 0 } }) }).catch(()=>{});
+            fetch(_pb + '/wp-json/in3pida/v1/schema', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ secret: (await pluginAuth(site.site_id)) || site.site_id, schema: { enabled: newCfg.schema_enabled ? 1 : 0 } }) }).catch(()=>{});
             fetch(_pb + '/wp-json/in3pida/v1/force-heartbeat', { method:'POST', headers:{'Content-Type':'application/json'} }).catch(()=>{});
         }
         if (btn) { btn.textContent = error ? '✗ Errore' : '✓ Salvato'; setTimeout(() => { btn.textContent = 'Salva abilitazioni'; }, 3000); }
