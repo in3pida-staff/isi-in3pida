@@ -28,8 +28,11 @@ if [ ! -f "$SOURCE_ZIP" ]; then
   exit 1
 fi
 
-echo "→ [1/4] Copio ZIP in docs/"
+echo "→ [1/4] Copio ZIP in docs/ e firmo (ed25519)"
 cp "$SOURCE_ZIP" "$DOCS_ZIP"
+# FIRMA il pacchetto con la chiave privata nel portachiavi (eletta-update-signing). Mai nel repo.
+php -r '$sk=base64_decode(trim(shell_exec("security find-generic-password -a eletta -s eletta-update-signing -w 2>/dev/null")),true); if(strlen((string)$sk)!==SODIUM_CRYPTO_SIGN_SECRETKEYBYTES){fwrite(STDERR,"ERRORE: chiave privata di firma non trovata nel portachiavi\n");exit(1);} file_put_contents($argv[1].".sig", base64_encode(sodium_crypto_sign_detached(file_get_contents($argv[1]), $sk)));' "$DOCS_ZIP" || { echo "ERRORE: firma del pacchetto fallita"; exit 1; }
+echo "   firma creata: $(basename "$DOCS_ZIP").sig"
 
 echo "→ [2/4] Aggiorno Supabase"
 node -e "
@@ -58,7 +61,7 @@ const sb = createClient('${SUPABASE_URL}','${SERVICE_KEY}',{auth:{persistSession
 
 echo "→ [3/4] Git add, commit, push"
 cd "$SCRIPT_DIR"
-git add "docs/eletta-${VERSION}.zip"
+git add "docs/eletta-${VERSION}.zip" "docs/eletta-${VERSION}.zip.sig"
 git commit -m "Plugin v${VERSION}: ${CHANGELOG}"
 git push
 
