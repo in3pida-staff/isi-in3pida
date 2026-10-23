@@ -122,12 +122,50 @@
     document.head.appendChild(link);
   }
 
+  // Cerca, dentro un singolo nodo JSON-LD (anche annidato o in @graph), un @type tra quelli indicati.
+  function schemaTreeHasType(node, types) {
+    if (!node) return false;
+    if (Array.isArray(node)) {
+      for (var i = 0; i < node.length; i++) if (schemaTreeHasType(node[i], types)) return true;
+      return false;
+    }
+    if (typeof node === 'object') {
+      var t = node['@type'];
+      if (t) {
+        var arr = Array.isArray(t) ? t : [t];
+        for (var j = 0; j < arr.length; j++) if (types.indexOf(String(arr[j])) >= 0) return true;
+      }
+      for (var k in node) {
+        if (Object.prototype.hasOwnProperty.call(node, k) && schemaTreeHasType(node[k], types)) return true;
+      }
+    }
+    return false;
+  }
+
+  // true se la pagina ha GIÀ uno schema JSON-LD con uno dei @type indicati.
+  // Serve a non duplicare uno schema che il sito possiede già. Robusto: un blocco non valido viene ignorato.
+  function pageHasSchemaType(types) {
+    try {
+      var nodes = document.querySelectorAll('script[type="application/ld+json"]');
+      for (var i = 0; i < nodes.length; i++) {
+        var data;
+        try { data = JSON.parse(nodes[i].textContent); } catch (_) { continue; }
+        if (schemaTreeHasType(data, types)) return true;
+      }
+    } catch (_) {}
+    return false;
+  }
+
+  var HOTEL_SCHEMA_TYPES = ['Hotel', 'LodgingBusiness', 'Resort', 'BedAndBreakfast', 'Motel', 'Hostel'];
+
   function injectSchema(site) {
     const sd = site.schema_data || {};
     // Inietta lo Schema.org SOLO se la configurazione è completa (nome + descrizione + indirizzo + città + telefono).
     // Evita snippet incompleti che generano avvisi in Google Search Console / lamentele delle agenzie SEO.
     var schemaComplete = !!(sd.name && sd.description && sd.street && sd.city && sd.telephone);
     if (!schemaComplete) return;
+    // Se il sito ha GIÀ una carta d'identità Hotel, non ne aggiungiamo una seconda (niente doppioni).
+    if (pageHasSchemaType(HOTEL_SCHEMA_TYPES)) return;
     const name = sd.name || site.site_name || document.title;
     const url = sd.url || site.site_url || location.origin;
     const schema = {
@@ -180,19 +218,22 @@
     }
     if (!container) return;
 
-    const faqSchema = {
-      '@context': 'https://schema.org',
-      '@type': 'FAQPage',
-      mainEntity: items.map(i => ({
-        '@type': 'Question',
-        name: i.question,
-        acceptedAnswer: { '@type': 'Answer', text: i.answer },
-      })),
-    };
-    const schemaEl = document.createElement('script');
-    schemaEl.type = 'application/ld+json';
-    schemaEl.textContent = JSON.stringify(faqSchema);
-    document.head.appendChild(schemaEl);
+    // Lo schema FAQ si aggiunge solo se la pagina non ne ha già uno (niente doppioni). Il box FAQ visibile resta comunque.
+    if (!pageHasSchemaType(['FAQPage'])) {
+      const faqSchema = {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: items.map(i => ({
+          '@type': 'Question',
+          name: i.question,
+          acceptedAnswer: { '@type': 'Answer', text: i.answer },
+        })),
+      };
+      const schemaEl = document.createElement('script');
+      schemaEl.type = 'application/ld+json';
+      schemaEl.textContent = JSON.stringify(faqSchema);
+      document.head.appendChild(schemaEl);
+    }
 
     const sorted = [...items].sort((a, b) => (a.menu_order ?? a.order ?? 0) - (b.menu_order ?? b.order ?? 0));
 
