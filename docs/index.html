@@ -234,6 +234,10 @@
                         <input type="text" id="edit-user-password" class="profile-input" placeholder="Password (min 6 caratteri)" autocomplete="new-password">
                     </div>
                 </div>
+                <div class="profile-field" id="edit-user-pwd-wrap" style="display:none">
+                    <label class="profile-label">Nuova password</label>
+                    <input type="text" id="edit-user-newpassword" class="profile-input" placeholder="Lascia vuoto per non cambiarla (min 6 caratteri)" autocomplete="new-password">
+                </div>
                 <div class="profile-field">
                     <label class="profile-label">Ruolo</label>
                     <select id="edit-user-role" class="profile-input">
@@ -6271,6 +6275,8 @@ ${rows}
     function openEditUser(u) {
         document.getElementById('edit-user-header-title').textContent = 'Modifica utente';
         document.getElementById('edit-user-credentials-wrap').style.display = 'none';
+        document.getElementById('edit-user-pwd-wrap').style.display = '';
+        document.getElementById('edit-user-newpassword').value = '';
         const name  = u.user_metadata?.full_name || u.email?.split('@')[0] || '';
         const role  = u.user_metadata?.role || 'utente';
         const photo = u.user_metadata?.avatar_url || '';
@@ -6309,6 +6315,7 @@ ${rows}
         updateEditPhotoPreview('');
         document.getElementById('edit-user-role').value = 'albergatore';
         document.getElementById('edit-user-credentials-wrap').style.display = '';
+        document.getElementById('edit-user-pwd-wrap').style.display = 'none';
         document.getElementById('edit-user-siteid-wrap').style.display   = '';
         document.getElementById('edit-user-features-wrap').style.display = '';
         document.getElementById('edit-user-features-grid').innerHTML = buildFeatureToggles('ef', {});
@@ -6362,6 +6369,14 @@ ${rows}
         const body = { user_id:userId, full_name:name, role };
         if (site_id !== null) body.site_id = site_id;
         if (photo) body.avatar_url = photo;
+        // Cambio password opzionale su account esistente (solo admin). Vuoto = non la cambia.
+        if (id) {
+            const newPwd = document.getElementById('edit-user-newpassword').value;
+            if (newPwd) {
+                if (newPwd.length < 6) { document.getElementById('edit-user-error').textContent='La password deve avere almeno 6 caratteri'; document.getElementById('edit-user-error').style.display='block'; return; }
+                body.password = newPwd;
+            }
+        }
         if (role === 'albergatore') {
             const feats = {}, menu = {}, appF = {};
             PLUGIN_FEATURES.forEach(f => {

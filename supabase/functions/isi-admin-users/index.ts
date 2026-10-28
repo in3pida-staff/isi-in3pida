@@ -56,7 +56,7 @@ Deno.serve(async (req) => {
   }
 
   if (req.method === 'PATCH') {
-    const { user_id, full_name, role, site_id, avatar_url, plugin_features, menu_visibility, app_features } = await req.json();
+    const { user_id, full_name, role, site_id, avatar_url, plugin_features, menu_visibility, app_features, password } = await req.json();
     if (!user_id) return new Response(JSON.stringify({ error: 'user_id mancante' }), { status: 400, headers: cors });
     const meta: Record<string, unknown> = { full_name, role };
     if (site_id !== undefined) meta.site_id = site_id;
@@ -71,6 +71,13 @@ Deno.serve(async (req) => {
     if (site_id !== undefined) appMeta.site_id = site_id;
     const upd: Record<string, unknown> = { user_metadata: meta };
     if (Object.keys(appMeta).length) upd.app_metadata = appMeta;
+    // Cambio password opzionale (admin già verificato sopra): se presente, minimo 6 caratteri.
+    if (password !== undefined && password !== null && password !== '') {
+      if (typeof password !== 'string' || password.length < 6) {
+        return new Response(JSON.stringify({ error: 'La password deve avere almeno 6 caratteri' }), { status: 400, headers: cors });
+      }
+      upd.password = password;
+    }
     const { error } = await admin.auth.admin.updateUserById(user_id, upd);
     if (error) return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: cors });
     return new Response(JSON.stringify({ ok: true }), { headers: cors });
