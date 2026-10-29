@@ -236,7 +236,7 @@
                 </div>
                 <div class="profile-field" id="edit-user-pwd-wrap" style="display:none">
                     <label class="profile-label">Nuova password</label>
-                    <input type="text" id="edit-user-newpassword" class="profile-input" placeholder="Lascia vuoto per non cambiarla (min 6 caratteri)" autocomplete="new-password">
+                    <input type="text" id="edit-user-newpassword" class="profile-input" placeholder="Lascia vuoto per non cambiarla (min 6 caratteri)" autocomplete="off" readonly onfocus="this.removeAttribute('readonly')">
                 </div>
                 <div class="profile-field">
                     <label class="profile-label">Ruolo</label>
@@ -6370,11 +6370,16 @@ ${rows}
         if (site_id !== null) body.site_id = site_id;
         if (photo) body.avatar_url = photo;
         // Cambio password opzionale su account esistente (solo admin). Vuoto = non la cambia.
+        // Doppia protezione contro cambi accidentali (es. riempimento automatico del browser):
+        // conferma esplicita prima di inviare la password.
         if (id) {
             const newPwd = document.getElementById('edit-user-newpassword').value;
             if (newPwd) {
                 if (newPwd.length < 6) { document.getElementById('edit-user-error').textContent='La password deve avere almeno 6 caratteri'; document.getElementById('edit-user-error').style.display='block'; return; }
-                body.password = newPwd;
+                if (confirm('Cambiare la password di ' + name + '?\n\nLa password precedente smetterà di funzionare. Se non volevi cambiarla, annulla.')) {
+                    body.password = newPwd;
+                }
+                // Se annulli: la password NON viene toccata, le altre modifiche vengono comunque salvate.
             }
         }
         if (role === 'albergatore') {
